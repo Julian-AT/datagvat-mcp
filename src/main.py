@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Simple MCP Server for data.gv.at API
-Based on the OpenAPI schema from data.gv.at - now using FastMCP
+MCP Server for data.gv.at API
+Based on the OpenAPI schema from data.gv.at
 """
 
 import json
@@ -15,11 +15,9 @@ import httpx
 from mcp.server.fastmcp import Context, FastMCP
 from mcp.server.session import ServerSession
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# API Configuration
 API_BASE_URL = "https://www.data.gv.at/katalog/api/3"
 API_TIMEOUT = 30.0
 
@@ -33,7 +31,6 @@ class AppContext:
 @asynccontextmanager
 async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
     """Manage application lifecycle with HTTP client."""
-    # Initialize HTTP client on startup
     client = httpx.AsyncClient(
         base_url=API_BASE_URL,
         timeout=API_TIMEOUT,
@@ -48,12 +45,10 @@ async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
     try:
         yield AppContext(http_client=client)
     finally:
-        # Cleanup on shutdown
         await client.aclose()
         logger.info("HTTP client closed")
 
 
-# Create FastMCP server with lifespan
 mcp = FastMCP("datagvat-mcp", lifespan=app_lifespan)
 
 
@@ -78,7 +73,6 @@ def _format_response(data: Any, summary: str = "") -> str:
         return json.dumps(data, indent=2, ensure_ascii=False)
 
 
-# Dataset tools
 @mcp.tool()
 async def package_list(
     ctx: Context[ServerSession, AppContext],
