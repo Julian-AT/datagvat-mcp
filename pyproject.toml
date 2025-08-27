@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "datagvat-mcp"
 version = "1.0.0"
-description = "Simple MCP Server for data.gv.at - Austrian Open Data Platform"
+description = "MCP Server for data.gv.at hub-repo service API - DCAT-AP dataset management"
 authors = ["MCP Integration Team <contact@example.com>"]
 readme = "README.md"
 license = "MIT"
-keywords = ["mcp", "data.gv.at", "open-data", "austria", "api"]
+keywords = ["mcp", "data.gv.at", "dcat-ap", "rdf", "open-data", "hub-repo"]
 packages = [{include = "src"}]
 
 [tool.poetry.scripts]

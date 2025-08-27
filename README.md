@@ -1,62 +1,146 @@
-# data.gv.at MCP Server
+# Piveau Hub-Repo MCP Server
 
-A simple Model Context Protocol (MCP) server for integrating with data.gv.at, Austria's official open data platform. This server enables AI assistants to search, retrieve, and explore Austrian government datasets.
+A Model Context Protocol (MCP) server for the piveau hub-repo service API. This server provides tools to interact with DCAT-AP compliant dataset management systems used in European data portals.
 
 ## Features
 
-- Search and explore Austrian government datasets
-- Get detailed dataset information
-- Browse organizations and resources
-- Tag-based discovery
-- Simple, direct API integration
+- Manage catalogues, datasets, and distributions
+- DCAT-AP standard compliance
+- RDF data format support
+- Authentication support (API Key and Bearer token)
+- Vocabulary management
+- Draft dataset handling
+- Persistent identifier creation
+- Quality metrics tracking
 
 ## Installation
 
 ```bash
-pip install datagvat-mcp
+pip install piveau-hub-mcp
 ```
+
+## Configuration
+
+Set the piveau API base URL using environment variables:
+
+```bash
+export PIVEAU_API_BASE_URL="https://your-piveau-instance.com/api"
+```
+
+Default URL: `https://hub.example.com/api`
 
 ## Usage
 
 Start the MCP server:
 
 ```bash
-datagvat-mcp
+piveau-hub-mcp
 ```
 
 The server listens for MCP requests via stdio and can be used with any MCP-compatible AI assistant.
 
 ## Available Tools
 
-### Dataset Tools
-- `package_list` - List all datasets
-- `package_search` - Search datasets with queries and filters
-- `package_show` - Get detailed dataset information
-- `package_autocomplete` - Get dataset name suggestions
-- `current_package_list_with_resources` - Get recent datasets with resources
+**Note**: This client only implements publicly available endpoints. Many administrative and internal-use-only endpoints have been excluded.
 
-### Organization Tools
-- `organization_list` - List organizations/publishers
+### Catalogue Management (4 tools)
+- `list_catalogues` - List all catalogues
+- `get_catalogue` - Get catalogue details  
+- `list_catalogue_datasets` - List datasets in a catalogue
+- `get_catalogue_dataset_by_origin` - Get dataset by original ID
 
-### Resource Tools
-- `resource_show` - Get resource metadata
-- `resource_search` - Search for resources
-- `resource_view_show` - Get resource view details
-- `resource_view_list` - List resource views
+### Dataset Management (6 tools + 4 deprecated)
+**Public Tools:**
+- `list_datasets` - List all datasets
+- `get_dataset` - Get dataset details
+- `update_dataset` - Update a dataset (auth required)
+- `list_dataset_distributions` - List dataset distributions
+- `get_dataset_metrics` - Get dataset quality metrics
+- `get_dataset_catalogue_record` - Get catalogue record
 
-### Tag Tools
-- `tag_list` - List available tags
-- `tag_show` - Get tag details
-- `tag_search` - Search tags
+**Deprecated Legacy Tools:**
+- `add_dataset_legacy` - [DEPRECATED] Add dataset (legacy endpoint)
+- `create_or_update_dataset_legacy` - [DEPRECATED] Create/update dataset (legacy endpoint)
+- `delete_dataset_legacy` - [DEPRECATED] Delete dataset (legacy endpoint)
+- `get_catalogue_record_legacy` - [DEPRECATED] Get catalogue record (legacy endpoint)
 
-### Activity Tools
-- `package_activity_list` - Get dataset activity stream
-- `organization_activity_list` - Get organization activity
-- `recently_changed_packages_activity_list` - Get recent activity
-- `activity_show` - Get activity details
+### Distribution Management (1 tool)
+- `get_distribution` - Get distribution details
 
-### Utility Tools
-- `help_show` - Get API help for actions
+### Vocabulary Management (2 tools + 1 deprecated)
+**Public Tools:**
+- `list_vocabularies` - List controlled vocabularies
+- `get_vocabulary` - Get vocabulary details
+
+**Deprecated Legacy Tools:**
+- `create_or_update_vocabulary_legacy` - [DEPRECATED] Create/update vocabulary (legacy, internal-only)
+
+### Resource Management (3 tools)
+- `list_resource_types` - List resource types
+- `list_resources` - List resources of specific type
+- `get_resource` - Get resource details
+
+### Excluded Internal-Only Endpoints
+
+The following endpoint categories are reserved for internal use only and are **not** available in this public API client:
+
+**Catalogue Management (excluded):**
+- Create/update/delete catalogues
+- Add/update/delete datasets in catalogues
+
+**Dataset Management (excluded):** 
+- Delete datasets
+- Add distributions to datasets
+- Create/update/delete metrics
+- Index/reindex datasets
+
+**Distribution Management (excluded):**
+- Update/delete distributions
+
+**Vocabulary Management (excluded):**
+- Create/update/delete vocabularies
+
+**Draft Management (excluded):**
+- All draft operations (list, create, update, delete, publish, hide)
+
+**Identifier Management (excluded):**
+- Create identifiers
+- Check identifier eligibility
+
+**Resource Management (excluded):**
+- Create/update/delete resources
+
+**Actions and Translation (excluded):**
+- JSON-RPC actions
+- Translation management
+
+## Authentication
+
+Many endpoints require authentication. You can provide credentials in two ways:
+
+### API Key Authentication
+```json
+{
+  "tool": "create_or_update_catalogue",
+  "arguments": {
+    "catalogue_id": "my-catalogue",
+    "catalogue_data": {...},
+    "api_key": "your-api-key"
+  }
+}
+```
+
+### Bearer Token Authentication
+```json
+{
+  "tool": "create_or_update_catalogue",
+  "arguments": {
+    "catalogue_id": "my-catalogue", 
+    "catalogue_data": {...},
+    "bearer_token": "your-jwt-token"
+  }
+}
+```
 
 ## Integration
 
@@ -67,8 +151,11 @@ Add to Claude Desktop configuration:
 ```json
 {
   "mcpServers": {
-    "datagvat": {
-      "command": "datagvat-mcp"
+    "piveau-hub": {
+      "command": "piveau-hub-mcp",
+      "env": {
+        "PIVEAU_API_BASE_URL": "https://your-piveau-instance.com/api"
+      }
     }
   }
 }
@@ -76,23 +163,46 @@ Add to Claude Desktop configuration:
 
 ## Examples
 
-Search for environmental datasets:
+### List Catalogues
 ```json
 {
-  "tool": "package_search",
+  "tool": "list_catalogues",
   "arguments": {
-    "q": "umwelt OR environment",
-    "rows": 5
+    "value_type": "metadata",
+    "limit": 10
   }
 }
 ```
 
-Get dataset details:
+### Get Dataset Details
 ```json
 {
-  "tool": "package_show", 
+  "tool": "get_dataset",
   "arguments": {
-    "id": "statistik-austria-bevoelkerung"
+    "dataset_id": "my-dataset-id"
+  }
+}
+```
+
+### Create a Dataset Draft
+```json
+{
+  "tool": "create_dataset_draft",
+  "arguments": {
+    "catalogue": "my-catalogue-id",
+    "api_key": "your-api-key"
+  }
+}
+```
+
+### Search Vocabularies
+```json
+{
+  "tool": "list_vocabularies",
+  "arguments": {
+    "value_type": "metadata",
+    "offset": 0,
+    "limit": 50
   }
 }
 ```
@@ -102,17 +212,35 @@ Get dataset details:
 ### Setup
 ```bash
 git clone <repository-url>
-cd datagvat-mcp
+cd piveau-hub-mcp
 pip install -e .
 ```
 
 ### Project Structure
 ```
-src/datagvat_mcp/
-├── simple_server.py   # Main MCP server implementation
-├── server.py          # Entry point
-└── __init__.py        # Package exports
+src/
+├── main.py                 # Main entry point
+├── common.py              # Shared components and utilities  
+├── server.py              # Legacy server (unused)
+└── endpoints/             # API endpoint implementations
+    ├── __init__.py        # Package init
+    ├── catalogues.py      # Catalogue endpoints
+    ├── datasets.py        # Dataset endpoints
+    ├── distributions.py   # Distribution endpoints
+    ├── vocabularies.py    # Vocabulary endpoints
+    └── other.py          # Other endpoints (drafts, identifiers, etc.)
 ```
+
+## API Documentation
+
+This server implements the piveau hub-repo OpenAPI specification. The API supports various RDF formats:
+
+- `application/rdf+xml`
+- `application/ld+json` 
+- `text/turtle`
+- `text/n3`
+- `application/trig`
+- `application/n-triples`
 
 ## License
 
@@ -120,4 +248,4 @@ MIT License - see LICENSE file for details.
 
 ## Note
 
-This is an unofficial implementation and is not affiliated with the Austrian government or data.gv.at.
+This implementation is based on the piveau hub-repo OpenAPI specification and supports DCAT-AP compliant data portals.
