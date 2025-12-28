@@ -2,11 +2,17 @@
 
 import logging
 from contextlib import asynccontextmanager
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from fastmcp import FastMCP
 
 from app.client import PiveauClient
 from app.config import get_settings
+
+if TYPE_CHECKING:
+    from app.config import Settings
+
 from app.middleware import AuditMiddleware, AuthMiddleware
 from app.resources import register_resources
 from app.prompts import register_prompts
@@ -14,6 +20,13 @@ from app.tools.analysis import register_analysis_tools
 from app.tools.discovery import register_discovery_tools
 from app.tools.management import register_management_tools
 from app.tools.vocabularies import register_vocabulary_tools
+
+
+@dataclass
+class AppState:
+    """Application state available during lifespan."""
+    settings: "Settings"
+    piveau_client: PiveauClient
 
 
 @asynccontextmanager
@@ -33,11 +46,8 @@ async def lifespan(mcp: FastMCP):
         user_agent=settings.user_agent,
     )
 
-    mcp.state["settings"] = settings
-    mcp.state["piveau_client"] = client
-
     try:
-        yield
+        yield AppState(settings=settings, piveau_client=client)
     finally:
         await client.close()
         logger.info("Austria MCP Server stopped")
