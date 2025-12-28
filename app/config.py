@@ -14,7 +14,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    piveau_api_base: str = Field(default="https://data.gv.at/katalog/api/hub/repo")
+    piveau_api_base: str = Field(default="https://qs.data.gv.at/api/hub/repo")
     piveau_api_key: SecretStr | None = Field(default=None)
     request_timeout: int = Field(default=30, ge=5, le=300)
     user_agent: str = Field(default="Austria-MCP-Agent/1.0")
