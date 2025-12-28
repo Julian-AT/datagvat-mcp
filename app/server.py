@@ -1,0 +1,65 @@
+"""Austria Open Data MCP Server."""
+
+import logging
+from contextlib import asynccontextmanager
+
+from fastmcp import FastMCP
+
+from app.client import PiveauClient
+from app.config import get_settings
+from app.middleware import AuditMiddleware, AuthMiddleware
+from app.resources import register_resources
+from app.prompts import register_prompts
+from app.tools.analysis import register_analysis_tools
+from app.tools.discovery import register_discovery_tools
+from app.tools.management import register_management_tools
+from app.tools.vocabularies import register_vocabulary_tools
+
+
+@asynccontextmanager
+async def lifespan(mcp: FastMCP):
+    settings = get_settings()
+    logging.basicConfig(
+        level=getattr(logging, settings.log_level.upper(), logging.INFO),
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    )
+    logger = logging.getLogger(__name__)
+    logger.info("Starting Austria MCP Server")
+
+    client = PiveauClient(
+        base_url=settings.piveau_api_base,
+        api_key=settings.api_key_value,
+        timeout=settings.request_timeout,
+        user_agent=settings.user_agent,
+    )
+
+    mcp.state["settings"] = settings
+    mcp.state["piveau_client"] = client
+
+    try:
+        yield
+    finally:
+        await client.close()
+        logger.info("Austria MCP Server stopped")
+
+
+mcp = FastMCP(
+    name="austria-data",
+    instructions="Access Austrian Open Government Data from data.gv.at via the Piveau Hub API.",
+    lifespan=lifespan,
+    middleware=[
+        AuditMiddleware(),
+        AuthMiddleware(),
+    ],
+)
+
+register_discovery_tools(mcp)
+register_management_tools(mcp)
+register_analysis_tools(mcp)
+register_vocabulary_tools(mcp)
+register_resources(mcp)
+register_prompts(mcp)
+
+
+if __name__ == "__main__":
+    mcp.run()
