@@ -87,10 +87,10 @@ class AuthMiddleware(Middleware):
 
     def _has_api_key(self, context: MiddlewareContext) -> bool:
         try:
-            if context.fastmcp_context:
-                settings = context.fastmcp_context.fastmcp.state.get("settings")
-                if settings:
-                    return settings.api_key_value is not None
+            if context.fastmcp_context and context.fastmcp_context.request_context:
+                app_state = context.fastmcp_context.request_context.lifespan_context
+                if app_state and hasattr(app_state, "settings"):
+                    return app_state.settings.api_key_value is not None
         except Exception:
             pass
         return False

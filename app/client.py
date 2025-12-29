@@ -158,6 +158,7 @@ class PiveauClient:
     ) -> list[dict[str, Any]]:
         vt = value_type.value if isinstance(value_type, ValueType) else value_type
         result = await self._request("GET", "/catalogues", params={"limit": limit, "offset": offset, "valueType": vt})
+        logger.info(f"Catalogues: {result}")
         return self._extract_list(result)
 
     async def get_catalogue(self, catalogue_id: str) -> dict[str, Any]:

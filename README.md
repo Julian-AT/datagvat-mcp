@@ -74,6 +74,37 @@ piveau://vocabularies
 piveau://vocabularies/{id}
 ```
 
+## Testing
+
+Run the test suite with pytest:
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=app --cov-report=term-missing
+
+# Run specific test module
+pytest tests/test_client.py
+
+# Run with verbose output
+pytest -v
+```
+
+### Test Structure
+
+| Module              | Description                           |
+| ------------------- | ------------------------------------- |
+| `test_client.py`    | HTTP client and API operations        |
+| `test_config.py`    | Settings and environment variables    |
+| `test_dependencies.py` | Dependency injection helpers       |
+| `test_middleware.py` | Audit and auth middleware            |
+| `test_models.py`    | Pydantic models and validation        |
+| `test_prompts.py`   | MCP prompt templates                  |
+| `test_resources.py` | MCP resource endpoints                |
+| `test_tools.py`     | MCP tool implementations              |
+
 ## Docker
 
 ```bash
