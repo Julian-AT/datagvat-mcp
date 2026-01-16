@@ -24,10 +24,12 @@ def register_discovery_tools(mcp: FastMCP) -> None:
     ) -> list[dict[str, Any]]:
         client = get_piveau_client(ctx)
         try:
-            await ctx.report_progress(0, 1, "Fetching catalogues...")
+            if ctx:
+                await ctx.report_progress(0, 1, "Fetching catalogues...")
             vt = ValueType(value_type) if value_type in [e.value for e in ValueType] else ValueType.METADATA
             result = await client.list_catalogues(limit=limit, offset=offset, value_type=vt)
-            await ctx.report_progress(1, 1, f"Retrieved {len(result)} catalogues")
+            if ctx:
+                await ctx.report_progress(1, 1, f"Retrieved {len(result)} catalogues")
             return result
         except Exception as e:
             raise ToolError(f"Failed to list catalogues: {e}") from e
@@ -60,9 +62,18 @@ def register_discovery_tools(mcp: FastMCP) -> None:
     ) -> list[dict[str, Any]]:
         client = get_piveau_client(ctx)
         try:
+            scope = f" in catalogue '{catalogue_id}'" if catalogue_id else ""
+            if ctx:
+                await ctx.report_progress(0, 1, f"Searching datasets{scope}...")
+
             if catalogue_id:
-                return await client.list_catalogue_datasets(catalogue_id, limit, offset)
-            return await client.list_datasets(limit, offset)
+                result = await client.list_catalogue_datasets(catalogue_id, limit, offset)
+            else:
+                result = await client.list_datasets(limit, offset)
+
+            if ctx:
+                await ctx.report_progress(1, 1, f"Retrieved {len(result)} datasets")
+            return result
         except Exception as e:
             scope = f" in catalogue '{catalogue_id}'" if catalogue_id else ""
             raise ToolError(f"Failed to search datasets{scope}: {e}") from e

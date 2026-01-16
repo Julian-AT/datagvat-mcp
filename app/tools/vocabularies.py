@@ -22,7 +22,12 @@ def register_vocabulary_tools(mcp: FastMCP) -> None:
     ) -> list[dict[str, Any]]:
         client = get_piveau_client(ctx)
         try:
-            return await client.list_vocabularies(limit=limit, offset=offset)
+            if ctx:
+                await ctx.report_progress(0, 1, "Fetching vocabularies...")
+            result = await client.list_vocabularies(limit=limit, offset=offset)
+            if ctx:
+                await ctx.report_progress(1, 1, f"Retrieved {len(result)} vocabularies")
+            return result
         except Exception as e:
             raise ToolError(f"Failed to list vocabularies: {e}") from e
 

@@ -21,7 +21,12 @@ def register_management_tools(mcp: FastMCP) -> None:
     ) -> list[str]:
         client = get_piveau_client(ctx)
         try:
-            return await client.list_drafts(filter_by_provider=filter_by_provider)
+            if ctx:
+                await ctx.report_progress(0, 1, "Fetching dataset drafts...")
+            result = await client.list_drafts(filter_by_provider=filter_by_provider)
+            if ctx:
+                await ctx.report_progress(1, 1, f"Retrieved {len(result)} drafts")
+            return result
         except Exception as e:
             raise ToolError(f"Failed to list dataset drafts: {e}") from e
 
