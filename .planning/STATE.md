@@ -9,29 +9,30 @@ See: .planning/PROJECT.md (updated 2026-01-16)
 
 ## Current Position
 
-Phase: 1 of 6 (Enterprise Foundation)
-Plan: 3 of 3 (Validation & Degradation)
-Status: Phase complete
-Last activity: 2026-01-16 — Completed 01-03-PLAN.md
+Phase: 2 of 6 (Basic Search)
+Plan: 1 of 2 (Search Filtering)
+Status: In progress
+Last activity: 2026-01-16 — Completed 02-02-PLAN.md
 
-Progress: ███████████ 100%
+Progress: ████░░░░░░░ 40%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 9 min
-- Total execution time: 0.45 hours
+- Total plans completed: 4
+- Average duration: 8 min
+- Total execution time: 0.58 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-enterprise-foundation | 3 | 27 min | 9 min |
+| 02-basic-search | 1 | 6 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (5 min), 01-02 (9 min), 01-03 (13 min)
-- Trend: Increasing complexity (validation + error handling)
+- Last 5 plans: 01-01 (5 min), 01-02 (9 min), 01-03 (13 min), 02-02 (6 min)
+- Trend: Stable - Phase 2 execution faster due to leveraging Phase 1 foundation
 
 ## Accumulated Context
 
@@ -50,6 +51,10 @@ Recent decisions affecting current work:
 - Title/description validation: 500/5000 chars for draft operations (01-03, 2026-01-16)
 - Connection errors raise ToolError with actionable guidance (01-03, 2026-01-16)
 - Optional features degrade gracefully, core features fail fast (01-03, 2026-01-16)
+- Theme codes uppercase per EU DCAT-AP vocabulary (13 codes) (02-02, 2026-01-16)
+- Filter logic: OR within same facet, AND between different facets (02-02, 2026-01-16)
+- Date inputs normalized to ISO 8601 with timezone (02-02, 2026-01-16)
+- Page-based pagination for consistency with Piveau API (02-02, 2026-01-16)
 
 ### Pending Todos
 
@@ -62,6 +67,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-16
-Stopped at: Completed 01-03-PLAN.md (Validation & Degradation) - Phase 1 complete
+Stopped at: Completed 02-02-PLAN.md (Search Filtering) - Phase 2 in progress
 Resume file: None
-Next: Phase 2 - Dataset Discovery Enhancement
+Next: Continue Phase 2 - Basic Search (1 of 2 plans complete)
