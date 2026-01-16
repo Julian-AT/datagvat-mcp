@@ -9,8 +9,8 @@ Research confirms the Austria MCP server is well-positioned for enhancement. The
 
 **Key findings:**
 1. **Search is the critical gap** - Current implementation is pagination-only; users expect full-text search, faceted filtering, autocomplete, and quality-aware ranking
-2. **FastMCP sampling enables AI differentiation** - LLM-powered semantic search and recommendations are achievable but require careful user approval handling
-3. **Enterprise reliability requires specific patterns** - Exponential backoff, correlation IDs, two-tier error handling are well-documented best practices
+2. **FastMCP 2.14+ has built-in enterprise features** - RetryMiddleware, RateLimitingMiddleware, ResponseCachingMiddleware, StructuredLoggingMiddleware eliminate need for external libraries
+3. **FastMCP sampling enables AI differentiation** - LLM-powered semantic search and recommendations via `ctx.sample()` and `ctx.elicit()`
 4. **20 specific pitfalls identified** - Most critical: sampling misuse, `isError: true` handling, JSON-LD edge cases, multilingual field extraction
 
 ## Research Documents
@@ -20,8 +20,7 @@ Research confirms the Austria MCP server is well-positioned for enhancement. The
 | FEATURES.md | 358 | Table stakes, differentiators, anti-features | HIGH for table stakes, MEDIUM for MCP-specific |
 | ARCHITECTURE.md | 750 | Integration points, new components, build order | HIGH for existing code, MEDIUM for new patterns |
 | PITFALLS.md | 634 | 20 documented pitfalls with prevention strategies | HIGH for MCP protocol, MEDIUM for FastMCP-specific |
-
-**Note:** STACK.md research agent hit rate limits before completion. Stack recommendations are partially covered in ARCHITECTURE.md (tenacity for retry, middleware patterns).
+| STACK.md | 434 | FastMCP features, middleware, library recommendations | HIGH (verified from source) |
 
 ## Key Recommendations
 
@@ -53,34 +52,45 @@ Research confirms the Austria MCP server is well-positioned for enhancement. The
 
 ### Enterprise Reliability
 
-**Required Additions:**
-1. **Retry logic** - `tenacity` library with exponential backoff in PiveauClient
-2. **Rate limiting** - Token bucket middleware for request throttling
+**Critical Finding:** FastMCP 2.14+ includes built-in enterprise middleware. Upgrade from `>=2.3.0` to `>=2.14.0` to access:
+
+| Built-in Middleware | Purpose |
+|---------------------|---------|
+| `RetryMiddleware` | Exponential backoff with configurable exceptions |
+| `RateLimitingMiddleware` | Token bucket with per-client or global limiting |
+| `ResponseCachingMiddleware` | TTL-based caching with tool inclusion/exclusion |
+| `StructuredLoggingMiddleware` | JSON logging for observability |
+
+**Required Actions:**
+1. **Upgrade FastMCP** - Change `pyproject.toml` to `fastmcp>=2.14.0`
+2. **Add built-in middleware** - RetryMiddleware, RateLimitingMiddleware, StructuredLoggingMiddleware
 3. **Correlation IDs** - Propagate request_id to Piveau API calls
 4. **Two-tier error handling** - Consistent `isError: true` for tool failures
-5. **Structured logging** - Add request correlation, timing, outcome tracking
 
-**Configuration Extensions:**
-```python
-retry_max_attempts: int = 3
-retry_base_delay: float = 1.0
-retry_max_delay: float = 30.0
-rate_limit_rpm: int = 60
-rate_limit_burst: int = 10
-```
+**No external libraries needed** for retry, rate limiting, or structured logging.
 
 ### FastMCP Features
 
-**Sampling Integration:**
+**Sampling Integration (`ctx.sample()`):**
 - Check `ctx.client_capabilities.sampling` before use
 - Use `modelPreferences` with priority hints, not hardcoded models
 - Always handle rejection gracefully with fallback behavior
 - Limit sampling depth (no nested chains)
+- Use `ctx.sample_step()` for single LLM calls with fine-grained control
+
+**Elicitation (`ctx.elicit()`):**
+- Request structured user input during tool execution
+- Use for guided search workflows with filter refinement
+- Supports Pydantic models for response validation
 
 **Progress Reporting:**
 - Ensure completion on all code paths (try/finally pattern)
 - Report progress at meaningful checkpoints
 - Include descriptive messages
+
+**Rich Content Types:**
+- `Image`, `Audio`, `File` helpers for returning rich content
+- Use for data visualizations and downloadable previews
 
 **File Handling:**
 - Implement ContentService with size limits (10MB default)
@@ -112,9 +122,9 @@ rate_limit_burst: int = 10
 ### Recommended Phase Structure
 
 **Phase 1: Enterprise Foundation** (prerequisite for all)
-- Retry logic in PiveauClient
-- Rate limiting middleware
-- Error handling standardization
+- Upgrade FastMCP to >=2.14.0
+- Add built-in middleware (RetryMiddleware, RateLimitingMiddleware, StructuredLoggingMiddleware)
+- Error handling standardization (`isError: true`)
 - Correlation ID propagation
 
 **Phase 2: Search Enhancement**
