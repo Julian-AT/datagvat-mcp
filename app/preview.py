@@ -2,6 +2,7 @@
 
 import csv
 import io
+import json
 import logging
 import re
 from typing import Any
@@ -291,3 +292,283 @@ def parse_csv_rows(
     except Exception as e:
         logger.warning(f"CSV row parse failed: {e}")
         raise PreviewError(f"Failed to parse CSV rows: {e}", "parse_failed") from e
+
+
+# JSON parsing functions
+
+
+def infer_json_type(value: Any) -> str:
+    """Infer the JSON type of a value.
+
+    Args:
+        value: Any Python value from parsed JSON.
+
+    Returns:
+        Type string: "null", "boolean", "integer", "number", "string", "array", "object".
+    """
+    if value is None:
+        return "null"
+    if isinstance(value, bool):
+        return "boolean"
+    if isinstance(value, int):
+        return "integer"
+    if isinstance(value, float):
+        return "number"
+    if isinstance(value, str):
+        return "string"
+    if isinstance(value, list):
+        return "array"
+    if isinstance(value, dict):
+        return "object"
+    return "unknown"
+
+
+def _find_data_array(data: Any) -> tuple[list[dict[str, Any]], str]:
+    """Find the main data array in JSON content.
+
+    Args:
+        data: Parsed JSON data.
+
+    Returns:
+        Tuple of (array of objects, structure type).
+    """
+    # Direct array of objects
+    if isinstance(data, list):
+        if all(isinstance(item, dict) for item in data[:10]):
+            return data, "array_of_objects"
+        return [], "array_of_primitives"
+
+    # Nested data array in object
+    if isinstance(data, dict):
+        # Check common keys for data arrays
+        data_keys = ["data", "results", "items", "records", "rows", "entries", "values"]
+        for key in data_keys:
+            if key in data and isinstance(data[key], list):
+                arr = data[key]
+                if arr and all(isinstance(item, dict) for item in arr[:10]):
+                    return arr, "nested_data_array"
+
+        # Check any key that holds an array of objects
+        for key, val in data.items():
+            if isinstance(val, list) and val and all(isinstance(item, dict) for item in val[:10]):
+                return val, "nested_data_array"
+
+    return [], "single_object"
+
+
+def _try_recover_truncated_json(text: str) -> Any:
+    """Try to recover valid JSON from truncated content.
+
+    Args:
+        text: Potentially truncated JSON string.
+
+    Returns:
+        Parsed JSON or raises ValueError.
+    """
+    # First try parsing as-is
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+
+    # For arrays, try to find the last complete object
+    if text.strip().startswith("["):
+        # Find last complete object by looking for },
+        last_complete = text.rfind("},")
+        if last_complete > 0:
+            recovered = text[: last_complete + 1] + "]"
+            try:
+                return json.loads(recovered)
+            except json.JSONDecodeError:
+                pass
+
+        # Try finding last complete object ending with }
+        last_obj_end = text.rfind("}")
+        if last_obj_end > 0:
+            recovered = text[: last_obj_end + 1] + "]"
+            try:
+                return json.loads(recovered)
+            except json.JSONDecodeError:
+                pass
+
+    # For objects with nested arrays, try similar approach
+    if text.strip().startswith("{"):
+        # Try to close the JSON object
+        bracket_depth = 0
+        brace_depth = 0
+        last_valid = 0
+
+        for i, char in enumerate(text):
+            if char == "{":
+                brace_depth += 1
+            elif char == "}":
+                brace_depth -= 1
+                if brace_depth >= 0:
+                    last_valid = i
+            elif char == "[":
+                bracket_depth += 1
+            elif char == "]":
+                bracket_depth -= 1
+
+        if last_valid > 0:
+            recovered = text[: last_valid + 1]
+            try:
+                return json.loads(recovered)
+            except json.JSONDecodeError:
+                pass
+
+    raise ValueError("Could not recover valid JSON from truncated content")
+
+
+def parse_json_schema(content: bytes, encoding: str = "utf-8") -> dict[str, Any]:
+    """Extract schema from JSON content.
+
+    Handles:
+    - Array of objects: [{...}, {...}, ...]
+    - Object with nested data array: {"data": [{...}, ...], ...}
+
+    Args:
+        content: Raw bytes of JSON file (may be partial/truncated).
+        encoding: Character encoding (default UTF-8).
+
+    Returns:
+        Dict with:
+        - "columns": List of {"name": str, "type": str}
+        - "row_count_sampled": Number of objects used for inference
+        - "structure": "array_of_objects", "nested_data_array", "single_object", etc.
+        - "note": Optional message for non-tabular data
+
+    Raises:
+        PreviewError: If JSON parsing fails completely.
+    """
+    try:
+        text = content.decode(encoding, errors="replace")
+        text = _strip_bom(text)
+
+        # Try to parse JSON, recovering from truncation if needed
+        try:
+            data = _try_recover_truncated_json(text)
+        except ValueError as e:
+            raise PreviewError(f"Invalid JSON: {e}", "parse_failed")
+
+        # Find data array
+        data_array, structure = _find_data_array(data)
+
+        if not data_array:
+            # Non-tabular JSON
+            return {
+                "columns": [],
+                "row_count_sampled": 0,
+                "structure": structure,
+                "note": "JSON is not tabular (array of objects)",
+            }
+
+        # Sample up to 10 objects for schema inference
+        sample = data_array[:10]
+
+        # Collect all unique keys and their types
+        key_types: dict[str, set[str]] = {}
+        for obj in sample:
+            for key, value in obj.items():
+                if key not in key_types:
+                    key_types[key] = set()
+                key_types[key].add(infer_json_type(value))
+
+        # Build columns list
+        columns = []
+        for key in key_types:
+            types = key_types[key]
+            # Use most specific type, or "mixed" if multiple non-null types
+            types_without_null = types - {"null"}
+            if len(types_without_null) == 0:
+                col_type = "null"
+            elif len(types_without_null) == 1:
+                col_type = types_without_null.pop()
+            else:
+                col_type = "mixed"
+            columns.append({"name": key, "type": col_type})
+
+        return {
+            "columns": columns,
+            "row_count_sampled": len(sample),
+            "structure": structure,
+        }
+    except PreviewError:
+        raise
+    except Exception as e:
+        logger.warning(f"JSON parse failed: {e}")
+        raise PreviewError(f"Failed to parse JSON: {e}", "parse_failed") from e
+
+
+def parse_json_rows(
+    content: bytes,
+    max_rows: int = DEFAULT_PREVIEW_ROWS,
+    encoding: str = "utf-8",
+) -> dict[str, Any]:
+    """Extract preview rows from JSON content.
+
+    Args:
+        content: Raw bytes of JSON file (may be partial/truncated).
+        max_rows: Maximum number of rows to return.
+        encoding: Character encoding (default UTF-8).
+
+    Returns:
+        Dict with:
+        - "columns": List of all unique field names
+        - "rows": List of original objects (up to max_rows)
+        - "row_count": Actual rows returned
+        - "truncated": True if more rows available
+        - "note": Optional message for non-tabular data
+
+    Raises:
+        PreviewError: If JSON parsing fails completely.
+    """
+    try:
+        # Enforce max_rows limit
+        if max_rows > MAX_PREVIEW_ROWS:
+            max_rows = MAX_PREVIEW_ROWS
+
+        text = content.decode(encoding, errors="replace")
+        text = _strip_bom(text)
+
+        # Try to parse JSON, recovering from truncation if needed
+        try:
+            data = _try_recover_truncated_json(text)
+        except ValueError as e:
+            raise PreviewError(f"Invalid JSON: {e}", "parse_failed")
+
+        # Find data array
+        data_array, structure = _find_data_array(data)
+
+        if not data_array:
+            # Non-tabular JSON
+            return {
+                "columns": [],
+                "rows": [],
+                "row_count": 0,
+                "truncated": False,
+                "structure": structure,
+                "note": "JSON is not tabular (array of objects)",
+            }
+
+        # Extract rows
+        rows = data_array[:max_rows]
+        truncated = len(data_array) > max_rows
+
+        # Collect all unique keys for columns
+        all_keys: set[str] = set()
+        for obj in rows:
+            all_keys.update(obj.keys())
+
+        return {
+            "columns": sorted(all_keys),
+            "rows": rows,
+            "row_count": len(rows),
+            "truncated": truncated,
+            "structure": structure,
+        }
+    except PreviewError:
+        raise
+    except Exception as e:
+        logger.warning(f"JSON row parse failed: {e}")
+        raise PreviewError(f"Failed to parse JSON rows: {e}", "parse_failed") from e
