@@ -61,9 +61,12 @@ def register_analysis_tools(mcp: FastMCP) -> None:
         client = get_piveau_client(ctx)
         analysis: dict[str, Any] = {"dataset_id": dataset_id}
         degradation_reasons: list[str] = []
+        total_steps = 4
 
         # Try to get dataset metadata (critical - fail if this doesn't work)
         try:
+            if ctx:
+                await ctx.report_progress(1, total_steps, "Fetching dataset metadata...")
             dataset = await client.get_dataset(dataset_id)
             analysis["metadata"] = {
                 "has_title": bool(dataset.get("dct:title") or dataset.get("title")),
@@ -75,6 +78,8 @@ def register_analysis_tools(mcp: FastMCP) -> None:
 
         # Try to get distributions (optional - continue if this fails)
         try:
+            if ctx:
+                await ctx.report_progress(2, total_steps, "Fetching distributions...")
             distributions = await client.get_distributions(dataset_id)
             analysis["distributions"] = {
                 "count": len(distributions),
@@ -87,6 +92,8 @@ def register_analysis_tools(mcp: FastMCP) -> None:
 
         # Try to get metrics (optional - continue if this fails)
         try:
+            if ctx:
+                await ctx.report_progress(3, total_steps, "Fetching quality metrics...")
             analysis["metrics"] = await client.get_metrics(dataset_id)
         except Exception as e:
             logger.warning(f"DQV metrics unavailable for dataset {dataset_id}: {e}")
@@ -95,6 +102,8 @@ def register_analysis_tools(mcp: FastMCP) -> None:
 
         # Try to check DOI eligibility (optional - continue if this fails)
         try:
+            if ctx:
+                await ctx.report_progress(4, total_steps, "Checking DOI eligibility...")
             analysis["doi_eligibility"] = await client.check_eligibility(dataset_id)
         except Exception as e:
             logger.warning(f"DOI eligibility check unavailable for dataset {dataset_id}: {e}")
@@ -107,5 +116,8 @@ def register_analysis_tools(mcp: FastMCP) -> None:
             analysis["degradation_reasons"] = degradation_reasons
         else:
             analysis["degraded"] = False
+
+        if ctx:
+            await ctx.report_progress(total_steps, total_steps, "Analysis complete")
 
         return analysis
