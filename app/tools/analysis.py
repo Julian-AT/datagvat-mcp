@@ -1,5 +1,6 @@
 """Analysis tools for quality metrics and eligibility."""
 
+import logging
 from typing import Annotated, Any
 
 from fastmcp import FastMCP, Context
@@ -8,6 +9,8 @@ from pydantic import StringConstraints
 
 from app.dependencies import get_piveau_client
 from app.models import IdentifierType
+
+logger = logging.getLogger(__name__)
 
 
 def register_analysis_tools(mcp: FastMCP) -> None:
@@ -57,6 +60,7 @@ def register_analysis_tools(mcp: FastMCP) -> None:
     ) -> dict[str, Any]:
         client = get_piveau_client(ctx)
         analysis: dict[str, Any] = {"dataset_id": dataset_id}
+        degradation_reasons: list[str] = []
 
         # Try to get dataset metadata (critical - fail if this doesn't work)
         try:
@@ -76,19 +80,32 @@ def register_analysis_tools(mcp: FastMCP) -> None:
                 "count": len(distributions),
                 "formats": list({d.get("format") for d in distributions if d.get("format")}),
             }
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Distributions unavailable for dataset {dataset_id}: {e}")
             analysis["distributions"] = None
+            degradation_reasons.append("Distribution information unavailable")
 
         # Try to get metrics (optional - continue if this fails)
         try:
             analysis["metrics"] = await client.get_metrics(dataset_id)
-        except Exception:
+        except Exception as e:
+            logger.warning(f"DQV metrics unavailable for dataset {dataset_id}: {e}")
             analysis["metrics"] = None
+            degradation_reasons.append("Quality metrics unavailable")
 
         # Try to check DOI eligibility (optional - continue if this fails)
         try:
             analysis["doi_eligibility"] = await client.check_eligibility(dataset_id)
-        except Exception:
+        except Exception as e:
+            logger.warning(f"DOI eligibility check unavailable for dataset {dataset_id}: {e}")
             analysis["doi_eligibility"] = None
+            degradation_reasons.append("DOI eligibility check unavailable")
+
+        # Add degradation tracking to response
+        if degradation_reasons:
+            analysis["degraded"] = True
+            analysis["degradation_reasons"] = degradation_reasons
+        else:
+            analysis["degraded"] = False
 
         return analysis
