@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -17,6 +17,17 @@ class ValueType(str, Enum):
 class IdentifierType(str, Enum):
     EU_RA_DOI = "eu-ra-doi"
     MOCK = "mock"
+
+
+SortOption = Literal[
+    "relevance+desc",
+    "modified+desc",
+    "modified+asc",
+    "issued+desc",
+    "issued+asc",
+    "title+asc",
+    "title+desc",
+]
 
 
 class Distribution(BaseModel):
