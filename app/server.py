@@ -23,6 +23,7 @@ from app.tools.analysis import register_analysis_tools
 from app.tools.discovery import register_discovery_tools
 from app.tools.management import register_management_tools
 from app.tools.vocabularies import register_vocabulary_tools
+from app.tools.preview import register_preview_tools
 
 
 @dataclass
@@ -88,6 +89,7 @@ register_discovery_tools(mcp)
 register_management_tools(mcp)
 register_analysis_tools(mcp)
 register_vocabulary_tools(mcp)
+register_preview_tools(mcp)
 register_resources(mcp)
 register_prompts(mcp)
 
