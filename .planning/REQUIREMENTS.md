@@ -32,14 +32,14 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Enterprise Reliability
 
-- [ ] **ENTERPRISE-01**: Server uses FastMCP 2.14+ with built-in retry middleware
-- [ ] **ENTERPRISE-02**: Server uses FastMCP 2.14+ with built-in rate limiting middleware
-- [ ] **ENTERPRISE-03**: Server uses FastMCP 2.14+ with built-in structured logging middleware
-- [ ] **ENTERPRISE-04**: All tool errors return consistent error format with isError: true
-- [ ] **ENTERPRISE-05**: All requests have correlation IDs for request tracing
-- [ ] **ENTERPRISE-06**: Long-running operations report progress to user
-- [ ] **ENTERPRISE-07**: All user inputs are validated and sanitized before use
-- [ ] **ENTERPRISE-08**: Server gracefully degrades when Piveau API is unavailable
+- [x] **ENTERPRISE-01**: Server uses FastMCP 2.14+ with built-in retry middleware
+- [x] **ENTERPRISE-02**: Server uses FastMCP 2.14+ with built-in rate limiting middleware
+- [x] **ENTERPRISE-03**: Server uses FastMCP 2.14+ with built-in structured logging middleware
+- [x] **ENTERPRISE-04**: All tool errors return consistent error format with isError: true
+- [x] **ENTERPRISE-05**: All requests have correlation IDs for request tracing
+- [x] **ENTERPRISE-06**: Long-running operations report progress to user
+- [x] **ENTERPRISE-07**: All user inputs are validated and sanitized before use
+- [x] **ENTERPRISE-08**: Server gracefully degrades when Piveau API is unavailable
 
 ## v2 Requirements
 
@@ -102,14 +102,14 @@ Which phases cover which requirements. Updated by create-roadmap.
 | PREVIEW-01 | Phase 4 | Pending |
 | PREVIEW-02 | Phase 4 | Pending |
 | PREVIEW-03 | Phase 5 | Pending |
-| ENTERPRISE-01 | Phase 1 | Pending |
-| ENTERPRISE-02 | Phase 1 | Pending |
-| ENTERPRISE-03 | Phase 1 | Pending |
-| ENTERPRISE-04 | Phase 1 | Pending |
-| ENTERPRISE-05 | Phase 1 | Pending |
-| ENTERPRISE-06 | Phase 1 | Pending |
-| ENTERPRISE-07 | Phase 1 | Pending |
-| ENTERPRISE-08 | Phase 1 | Pending |
+| ENTERPRISE-01 | Phase 1 | Complete |
+| ENTERPRISE-02 | Phase 1 | Complete |
+| ENTERPRISE-03 | Phase 1 | Complete |
+| ENTERPRISE-04 | Phase 1 | Complete |
+| ENTERPRISE-05 | Phase 1 | Complete |
+| ENTERPRISE-06 | Phase 1 | Complete |
+| ENTERPRISE-07 | Phase 1 | Complete |
+| ENTERPRISE-08 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 24 total
