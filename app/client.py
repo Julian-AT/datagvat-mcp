@@ -287,3 +287,75 @@ class PiveauClient:
     async def get_vocabulary(self, vocabulary_id: str) -> dict[str, Any]:
         result = await self._request("GET", f"/vocabularies/{vocabulary_id}")
         return result if isinstance(result, dict) else {"data": result}
+
+    # Search operations
+
+    async def search_datasets_advanced(
+        self,
+        query: str | None = None,
+        facets: dict[str, list[str]] | None = None,
+        min_date: str | None = None,
+        max_date: str | None = None,
+        sort: str = "relevance+desc",
+        limit: int = 20,
+        page: int = 0,
+    ) -> dict[str, Any]:
+        """Search datasets with full filter and sort support.
+
+        Uses Piveau Hub native /search endpoint with Elasticsearch-backed
+        faceted search, fuzzy matching, and relevance scoring.
+
+        Args:
+            query: Full-text search query. Supports Solr syntax:
+                   - Fuzzy: "health~" matches health, heath, healh
+                   - Wildcard: "europ*" matches europe, european
+                   - Phrase: "open data" (exact phrase)
+                   - Boolean: "health AND (data OR dataset)"
+            facets: Filter dict for faceted search. OR within same facet,
+                    AND between different facets.
+                    Example: {"format": ["CSV", "JSON"], "theme": ["AGRI"]}
+                    means (CSV OR JSON) AND AGRI theme.
+            min_date: Start date for date range filter (ISO 8601 with timezone).
+                      Example: "2025-01-01T00:00:00Z"
+            max_date: End date for date range filter (ISO 8601 with timezone).
+            sort: Sort order. One of:
+                  - "relevance+desc" (default, requires query)
+                  - "modified+desc" (most recently updated)
+                  - "modified+asc" (oldest first)
+                  - "issued+desc" (most recently published)
+                  - "issued+asc" (oldest published)
+                  - "title+asc" (alphabetical)
+                  - "title+desc" (reverse alphabetical)
+            limit: Results per page (1-100 recommended, max 1000).
+            page: Page number (0-indexed). Max result window ~10K.
+
+        Returns:
+            Dict with keys:
+            - "results": List of dataset dicts
+            - "count": Total matching datasets (approximate for large sets)
+            - "facets": Dict of facet values with counts, e.g.
+                        {"format": {"CSV": 20, "JSON": 15}, "theme": {...}}
+
+        Raises:
+            ToolError: If API request fails (connection, 5xx errors)
+        """
+        params: dict[str, Any] = {
+            "limit": limit,
+            "page": page,
+            "sort": sort,
+        }
+
+        if query:
+            params["q"] = query
+
+        if facets:
+            # Piveau expects facets as JSON string
+            params["facets"] = json.dumps(facets)
+
+        if min_date:
+            params["minDate"] = min_date
+        if max_date:
+            params["maxDate"] = max_date
+
+        result = await self._request("GET", "/search", params=params)
+        return result if isinstance(result, dict) else {"results": [], "count": 0}
