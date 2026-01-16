@@ -88,12 +88,33 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (To be populated by create-roadmap) | | |
+| SEARCH-01 | Phase 2 | Pending |
+| SEARCH-02 | Phase 2 | Pending |
+| SEARCH-03 | Phase 2 | Pending |
+| SEARCH-04 | Phase 2 | Pending |
+| SEARCH-05 | Phase 2 | Pending |
+| SEARCH-06 | Phase 2 | Pending |
+| SEARCH-07 | Phase 2 | Pending |
+| SEARCH-08 | Phase 2 | Pending |
+| ADVSEARCH-01 | Phase 3 | Pending |
+| ADVSEARCH-02 | Phase 3 | Pending |
+| ADVSEARCH-03 | Phase 6 | Pending |
+| PREVIEW-01 | Phase 4 | Pending |
+| PREVIEW-02 | Phase 4 | Pending |
+| PREVIEW-03 | Phase 5 | Pending |
+| ENTERPRISE-01 | Phase 1 | Pending |
+| ENTERPRISE-02 | Phase 1 | Pending |
+| ENTERPRISE-03 | Phase 1 | Pending |
+| ENTERPRISE-04 | Phase 1 | Pending |
+| ENTERPRISE-05 | Phase 1 | Pending |
+| ENTERPRISE-06 | Phase 1 | Pending |
+| ENTERPRISE-07 | Phase 1 | Pending |
+| ENTERPRISE-08 | Phase 1 | Pending |
 
 **Coverage:**
 - v1 requirements: 24 total
-- Mapped to phases: 0 (pending roadmap creation)
-- Unmapped: 24 ⚠️
+- Mapped to phases: 24
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-01-16*
