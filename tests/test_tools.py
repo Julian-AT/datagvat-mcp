@@ -162,6 +162,141 @@ class TestSearchDatasets:
         assert len(result["results"]) == 3
         mock_client.list_catalogue_datasets.assert_called_once_with("test-cat", 20, 0)
 
+    async def test_search_datasets_with_query(self, sample_datasets_list: list):
+        """Test text query search with fuzzy matching support."""
+        mock_client = AsyncMock(spec=PiveauClient)
+        mock_client.search_datasets_advanced.return_value = {
+            "results": sample_datasets_list[:1],
+            "count": 1,
+            "facets": {"theme": {"AGRI": 1}}
+        }
+        ctx = create_mock_context(client=mock_client)
+
+        from app.tools.discovery import register_discovery_tools
+        mcp = FastMCP("test")
+        register_discovery_tools(mcp)
+
+        tools = mcp._tool_manager._tools
+        search_datasets = tools["search_datasets"].fn
+        result = await search_datasets(
+            ctx,
+            query="agriculture~",
+            limit=20,
+            page=0
+        )
+
+        assert len(result["results"]) == 1
+        assert result["count"] == 1
+        call_args = mock_client.search_datasets_advanced.call_args
+        assert call_args[1]["query"] == "agriculture~"
+
+    async def test_search_datasets_with_theme_filter(self, sample_datasets_list: list):
+        """Test theme filtering with EU DCAT-AP codes."""
+        mock_client = AsyncMock(spec=PiveauClient)
+        mock_client.search_datasets_advanced.return_value = {
+            "results": sample_datasets_list[:2],
+            "count": 2,
+            "facets": {
+                "theme": {"AGRI": 2},
+                "format": {"CSV": 1, "JSON": 1}
+            }
+        }
+        ctx = create_mock_context(client=mock_client)
+
+        from app.tools.discovery import register_discovery_tools
+        mcp = FastMCP("test")
+        register_discovery_tools(mcp)
+
+        tools = mcp._tool_manager._tools
+        search_datasets = tools["search_datasets"].fn
+        result = await search_datasets(
+            ctx,
+            themes=["AGRI", "ENVI"],
+            limit=20,
+            page=0
+        )
+
+        assert len(result["results"]) == 2
+        assert result["count"] == 2
+        assert "facets" in result
+        call_args = mock_client.search_datasets_advanced.call_args
+        assert call_args[1]["facets"] == {"theme": ["AGRI", "ENVI"]}
+
+    async def test_search_datasets_with_multiple_filters(self, sample_datasets_list: list):
+        """Test combining query, theme, format, and date filters."""
+        mock_client = AsyncMock(spec=PiveauClient)
+        mock_client.search_datasets_advanced.return_value = {
+            "results": sample_datasets_list[:1],
+            "count": 1,
+            "facets": {
+                "theme": {"AGRI": 1},
+                "format": {"CSV": 1}
+            }
+        }
+        ctx = create_mock_context(client=mock_client)
+
+        from app.tools.discovery import register_discovery_tools
+        mcp = FastMCP("test")
+        register_discovery_tools(mcp)
+
+        tools = mcp._tool_manager._tools
+        search_datasets = tools["search_datasets"].fn
+        result = await search_datasets(
+            ctx,
+            query="crops",
+            themes=["AGRI"],
+            formats=["CSV"],
+            min_date="2025-01-01",
+            max_date="2025-12-31",
+            sort_by="modified_desc",
+            limit=10,
+            page=0
+        )
+
+        assert len(result["results"]) == 1
+        assert result["count"] == 1
+
+        call_args = mock_client.search_datasets_advanced.call_args
+        assert call_args[1]["query"] == "crops"
+        assert call_args[1]["facets"] == {"theme": ["AGRI"], "format": ["CSV"]}
+        assert call_args[1]["min_date"] == "2025-01-01T00:00:00Z"
+        assert call_args[1]["max_date"] == "2025-12-31T23:59:59Z"
+        assert call_args[1]["sort"] == "modified+desc"
+        assert call_args[1]["limit"] == 10
+        assert call_args[1]["page"] == 0
+
+    async def test_search_datasets_sort_options(self, sample_datasets_list: list):
+        """Test all 7 sort options map correctly to API format."""
+        mock_client = AsyncMock(spec=PiveauClient)
+        mock_client.search_datasets_advanced.return_value = {
+            "results": sample_datasets_list,
+            "count": 3,
+            "facets": {}
+        }
+        ctx = create_mock_context(client=mock_client)
+
+        from app.tools.discovery import register_discovery_tools
+        mcp = FastMCP("test")
+        register_discovery_tools(mcp)
+
+        tools = mcp._tool_manager._tools
+        search_datasets = tools["search_datasets"].fn
+
+        # Test relevance sort (default)
+        await search_datasets(ctx, sort_by="relevance", limit=20, page=0)
+        call_args = mock_client.search_datasets_advanced.call_args
+        assert call_args[1]["sort"] == "relevance+desc"
+
+        # Test date sorts
+        await search_datasets(ctx, sort_by="modified_desc", limit=20, page=0)
+        call_args = mock_client.search_datasets_advanced.call_args
+        assert call_args[1]["sort"] == "modified+desc"
+
+        # Test title sort
+        await search_datasets(ctx, sort_by="title_asc", limit=20, page=0)
+        call_args = mock_client.search_datasets_advanced.call_args
+        assert call_args[1]["sort"] == "title+asc"
+
 
 class TestGetDataset:
     async def test_get_dataset_success(self, sample_dataset: dict):
