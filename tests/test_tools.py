@@ -117,34 +117,49 @@ class TestGetCatalogue:
 class TestSearchDatasets:
     async def test_search_datasets_all(self, sample_datasets_list: list):
         mock_client = AsyncMock(spec=PiveauClient)
-        mock_client.list_datasets.return_value = sample_datasets_list
+        mock_client.search_datasets_advanced.return_value = {
+            "results": sample_datasets_list,
+            "count": 3,
+            "facets": {}
+        }
         ctx = create_mock_context(client=mock_client)
-        
+
         from app.tools.discovery import register_discovery_tools
         mcp = FastMCP("test")
         register_discovery_tools(mcp)
-        
+
         tools = mcp._tool_manager._tools
         search_datasets = tools["search_datasets"].fn
-        result = await search_datasets(ctx, catalogue_id=None, limit=20, offset=0)
-        
-        assert len(result) == 3
-        mock_client.list_datasets.assert_called_once()
+        result = await search_datasets(ctx, catalogue_id=None, limit=20, page=0)
+
+        assert isinstance(result, dict)
+        assert "results" in result
+        assert "count" in result
+        assert "facets" in result
+        assert len(result["results"]) == 3
+        assert result["count"] == 3
+        mock_client.search_datasets_advanced.assert_called_once()
 
     async def test_search_datasets_in_catalogue(self, sample_datasets_list: list):
         mock_client = AsyncMock(spec=PiveauClient)
         mock_client.list_catalogue_datasets.return_value = sample_datasets_list
         ctx = create_mock_context(client=mock_client)
-        
+
         from app.tools.discovery import register_discovery_tools
         mcp = FastMCP("test")
         register_discovery_tools(mcp)
-        
+
         tools = mcp._tool_manager._tools
         search_datasets = tools["search_datasets"].fn
-        result = await search_datasets(ctx, catalogue_id="test-cat", limit=20, offset=0)
-        
-        assert len(result) == 3
+        result = await search_datasets(ctx, catalogue_id="test-cat", limit=20, page=0)
+
+        # Backward compatibility: catalogue_id-only still uses legacy list_catalogue_datasets
+        # but returns dict format
+        assert isinstance(result, dict)
+        assert "results" in result
+        assert "count" in result
+        assert "facets" in result
+        assert len(result["results"]) == 3
         mock_client.list_catalogue_datasets.assert_called_once_with("test-cat", 20, 0)
 
 
