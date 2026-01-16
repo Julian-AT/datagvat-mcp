@@ -88,14 +88,14 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEARCH-01 | Phase 2 | Pending |
-| SEARCH-02 | Phase 2 | Pending |
-| SEARCH-03 | Phase 2 | Pending |
-| SEARCH-04 | Phase 2 | Pending |
-| SEARCH-05 | Phase 2 | Pending |
-| SEARCH-06 | Phase 2 | Pending |
-| SEARCH-07 | Phase 2 | Pending |
-| SEARCH-08 | Phase 2 | Pending |
+| SEARCH-01 | Phase 2 | Complete |
+| SEARCH-02 | Phase 2 | Complete |
+| SEARCH-03 | Phase 2 | Complete |
+| SEARCH-04 | Phase 2 | Complete |
+| SEARCH-05 | Phase 2 | Complete |
+| SEARCH-06 | Phase 2 | Complete |
+| SEARCH-07 | Phase 2 | Complete |
+| SEARCH-08 | Phase 2 | Complete |
 | ADVSEARCH-01 | Phase 3 | Pending |
 | ADVSEARCH-02 | Phase 3 | Pending |
 | ADVSEARCH-03 | Phase 6 | Pending |
