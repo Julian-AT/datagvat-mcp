@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-16)
 
 **Core value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
-**Current focus:** Phase 3 — Quality & Autocomplete
+**Current focus:** Phase 4 — Data Preview
 
 ## Current Position
 
-Phase: 3 of 6 (Quality & Autocomplete)
-Plan: 1 of 1 (Quality & Autocomplete)
-Status: Phase verified and complete
-Last activity: 2026-01-16 — Completed 03-01-PLAN.md, verified phase goal
+Phase: 4 of 6 (Data Preview)
+Plan: 1 of 2 (Preview Service)
+Status: In progress
+Last activity: 2026-01-16 — Completed 04-01-PLAN.md
 
-Progress: ███████░░░░ 75%
+Progress: ████████░░░ 80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
+- Total plans completed: 8
 - Average duration: 6 min
-- Total execution time: 0.75 hours
+- Total execution time: 0.85 hours
 
 **By Phase:**
 
@@ -30,9 +30,10 @@ Progress: ███████░░░░ 75%
 | 01-enterprise-foundation | 3 | 27 min | 9 min |
 | 02-basic-search | 3 | 18 min | 6 min |
 | 03-quality-autocomplete | 1 | 4 min | 4 min |
+| 04-data-preview | 1 | 6 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (6 min), 02-02 (8 min), 02-03 (4 min), 03-01 (4 min)
+- Last 5 plans: 02-02 (8 min), 02-03 (4 min), 03-01 (4 min), 04-01 (6 min)
 - Trend: Excellent - Execution time consistently under 10 min/plan
 
 ## Accumulated Context
@@ -68,6 +69,12 @@ Recent decisions affecting current work:
 - Autocomplete uses static vocabularies (EU themes, formats, common terms) for instant response (03-01, 2026-01-16)
 - Prefix matches score 100, substring matches score 50 for autocomplete relevance (03-01, 2026-01-16)
 - No external API calls for autocomplete - all data in-memory (03-01, 2026-01-16)
+- 64KB default preview (enough for ~1000 CSV rows) (04-01, 2026-01-16)
+- 512KB max preview to prevent memory issues (04-01, 2026-01-16)
+- Infer types from 10 sample rows for efficiency (04-01, 2026-01-16)
+- Support multiple CSV delimiters via csv.Sniffer (04-01, 2026-01-16)
+- Recover truncated JSON by finding last complete object (04-01, 2026-01-16)
+- Detect nested data arrays via common keys (data, results, items, records) (04-01, 2026-01-16)
 
 ### Pending Todos
 
@@ -80,6 +87,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-16
-Stopped at: Completed 03-01-PLAN.md - Phase 3 complete, quality ranking and autocomplete verified
+Stopped at: Completed 04-01-PLAN.md - Preview service created
 Resume file: None
-Next: Phase 4 - Data Preview
+Next: 04-02-PLAN.md - Preview tool integration
