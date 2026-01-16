@@ -102,15 +102,16 @@ class TestGetCatalogue:
         mock_client = AsyncMock(spec=PiveauClient)
         mock_client.get_catalogue.side_effect = PiveauNotFoundError("Not found", 404)
         ctx = create_mock_context(client=mock_client)
-        
+
         from app.tools.discovery import register_discovery_tools
+        from fastmcp.exceptions import ToolError
         mcp = FastMCP("test")
         register_discovery_tools(mcp)
-        
+
         tools = mcp._tool_manager._tools
         get_catalogue = tools["get_catalogue"].fn
-        
-        with pytest.raises(PiveauNotFoundError):
+
+        with pytest.raises(ToolError):
             await get_catalogue(ctx, catalogue_id="nonexistent")
 
 
@@ -430,24 +431,19 @@ class TestAnalyzeDatasetQuality:
     async def test_analyze_quality_handles_errors(self):
         mock_client = AsyncMock(spec=PiveauClient)
         mock_client.get_dataset.side_effect = PiveauApiError("Failed")
-        mock_client.get_distributions.side_effect = PiveauApiError("Failed")
-        mock_client.get_metrics.side_effect = Exception("Failed")
-        mock_client.check_eligibility.side_effect = Exception("Failed")
         ctx = create_mock_context(client=mock_client)
-        
+
         from app.tools.analysis import register_analysis_tools
+        from fastmcp.exceptions import ToolError
         mcp = FastMCP("test")
         register_analysis_tools(mcp)
-        
+
         tools = mcp._tool_manager._tools
         analyze_quality = tools["analyze_dataset_quality"].fn
-        result = await analyze_quality(ctx, dataset_id="test-dataset")
-        
-        assert result["dataset_id"] == "test-dataset"
-        assert "error" in result["metadata"]
-        assert "error" in result["distributions"]
-        assert result["metrics"] is None
-        assert result["doi_eligibility"] == {"eligible": False}
+
+        # Critical error (get_dataset fails) should raise ToolError
+        with pytest.raises(ToolError):
+            await analyze_quality(ctx, dataset_id="test-dataset")
 
 
 class TestListDatasetDrafts:
