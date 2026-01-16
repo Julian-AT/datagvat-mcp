@@ -96,8 +96,8 @@ Which phases cover which requirements. Updated by create-roadmap.
 | SEARCH-06 | Phase 2 | Complete |
 | SEARCH-07 | Phase 2 | Complete |
 | SEARCH-08 | Phase 2 | Complete |
-| ADVSEARCH-01 | Phase 3 | Pending |
-| ADVSEARCH-02 | Phase 3 | Pending |
+| ADVSEARCH-01 | Phase 3 | Complete |
+| ADVSEARCH-02 | Phase 3 | Complete |
 | ADVSEARCH-03 | Phase 6 | Pending |
 | PREVIEW-01 | Phase 4 | Pending |
 | PREVIEW-02 | Phase 4 | Pending |
