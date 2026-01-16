@@ -5,6 +5,7 @@ import logging
 from typing import Any
 
 import httpx
+from fastmcp.exceptions import ToolError
 from rdflib import Graph
 
 from app.models import ValueType, IdentifierType
@@ -88,9 +89,25 @@ class PiveauClient:
             )
             response.raise_for_status()
             return await self._parse_response(response)
+        except (httpx.ConnectError, httpx.TimeoutException) as e:
+            # API unreachable - provide actionable guidance
+            logger.warning(f"Piveau API unavailable at {self.base_url}: {e}")
+            raise ToolError(
+                f"Piveau API unavailable at {self.base_url}: {e}. "
+                "Check network connection and API status at https://www.data.gv.at"
+            ) from e
         except httpx.HTTPStatusError as e:
+            if e.response.status_code >= 500:
+                # Server error - after retries, provide clear error message
+                logger.error(f"Piveau API server error ({e.response.status_code}): {e.response.text[:200]}")
+                raise ToolError(
+                    f"Piveau API server error ({e.response.status_code}). "
+                    "The API is experiencing issues. Please try again later."
+                ) from e
+            # Client errors (4xx) - use existing detailed handler
             self._handle_http_error(e)
         except httpx.RequestError as e:
+            logger.error(f"Request failed: {e}")
             raise PiveauApiError(f"Request failed: {e}") from e
 
     def _handle_http_error(self, error: httpx.HTTPStatusError) -> None:
