@@ -10,6 +10,63 @@ from app.dependencies import get_piveau_client
 from app.models import ValueType
 
 
+def calculate_quality_score(dataset: dict[str, Any]) -> float:
+    """Calculate quality score for a dataset based on metadata completeness.
+
+    Score components (0-100 scale):
+    - Has title: 10 points
+    - Has description: 15 points
+    - Has publisher: 10 points
+    - Has license: 15 points
+    - Has contact point: 10 points
+    - Has distributions: 20 points (10 + 2 per distribution up to 5)
+    - Has modified date: 10 points
+    - Has keywords/theme: 10 points
+
+    Returns:
+        Float score 0-100 where 100 is highest quality.
+    """
+    score = 0.0
+
+    # Title (10 points)
+    if dataset.get("dct:title") or dataset.get("title"):
+        score += 10
+
+    # Description (15 points)
+    if dataset.get("dct:description") or dataset.get("description"):
+        score += 15
+
+    # Publisher (10 points)
+    if dataset.get("dct:publisher") or dataset.get("publisher"):
+        score += 10
+
+    # License (15 points)
+    if dataset.get("dct:license") or dataset.get("license"):
+        score += 15
+
+    # Contact point (10 points)
+    if dataset.get("dcat:contactPoint") or dataset.get("contactPoint"):
+        score += 10
+
+    # Distributions (20 points max)
+    distributions = dataset.get("dcat:distribution") or dataset.get("distribution") or []
+    if distributions:
+        dist_count = len(distributions) if isinstance(distributions, list) else 1
+        score += min(10 + (dist_count * 2), 20)
+
+    # Modified date (10 points)
+    if dataset.get("dct:modified") or dataset.get("modified"):
+        score += 10
+
+    # Keywords/themes (10 points)
+    has_keywords = dataset.get("dcat:keyword") or dataset.get("keyword")
+    has_theme = dataset.get("dcat:theme") or dataset.get("theme")
+    if has_keywords or has_theme:
+        score += 10
+
+    return score
+
+
 def register_discovery_tools(mcp: FastMCP) -> None:
     @mcp.tool(
         name="list_catalogues",
@@ -175,6 +232,17 @@ def register_discovery_tools(mcp: FastMCP) -> None:
                 ),
             ),
         ] = "relevance",
+        boost_quality: Annotated[
+            bool,
+            Field(
+                default=False,
+                description=(
+                    "Boost high-quality datasets in search results. "
+                    "Uses dataset quality metrics (completeness, freshness, compliance) "
+                    "to re-rank results. Only effective when query is provided."
+                ),
+            ),
+        ] = False,
         limit: Annotated[int, Field(ge=1, le=100, default=20)] = 20,
         page: Annotated[int, Field(ge=0, default=0)] = 0,
         catalogue_id: Annotated[
@@ -250,6 +318,8 @@ def register_discovery_tools(mcp: FastMCP) -> None:
                     filter_parts.append(f"{len(publishers)} publishers")
                 if min_date or max_date:
                     filter_parts.append("date range")
+                if boost_quality and query:
+                    filter_parts.append("quality boost")
 
                 desc = f"Searching with {', '.join(filter_parts)}" if filter_parts else "Listing datasets"
                 await ctx.report_progress(0, 1, desc)
@@ -264,6 +334,23 @@ def register_discovery_tools(mcp: FastMCP) -> None:
                 limit=limit,
                 page=page,
             )
+
+            # If quality boost requested and we have results, re-rank
+            if boost_quality and query and result.get("results"):
+                # Calculate quality score for each result
+                scored_results = []
+                for dataset in result["results"]:
+                    quality_score = calculate_quality_score(dataset)
+                    scored_results.append({
+                        "dataset": dataset,
+                        "quality_score": quality_score
+                    })
+
+                # Re-rank: sort by quality score descending
+                scored_results.sort(key=lambda x: x["quality_score"], reverse=True)
+
+                # Replace results with re-ranked datasets
+                result["results"] = [item["dataset"] for item in scored_results]
 
             if ctx:
                 count = result.get("count", 0)
