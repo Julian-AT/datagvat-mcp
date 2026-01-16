@@ -6,6 +6,9 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from fastmcp import FastMCP
+from fastmcp.server.middleware.error_handling import RetryMiddleware, ErrorHandlingMiddleware
+from fastmcp.server.middleware.rate_limiting import RateLimitingMiddleware
+from fastmcp.server.middleware.logging import StructuredLoggingMiddleware
 
 from app.client import PiveauClient
 from app.config import get_settings
@@ -58,6 +61,24 @@ mcp = FastMCP(
     instructions="Access Austrian Open Government Data from data.gv.at via the Piveau Hub API.",
     lifespan=lifespan,
     middleware=[
+        StructuredLoggingMiddleware(
+            include_payloads=False,
+            include_payload_length=True,
+            estimate_payload_tokens=True,
+        ),
+        ErrorHandlingMiddleware(),
+        RetryMiddleware(
+            max_retries=3,
+            base_delay=1.0,
+            max_delay=60.0,
+            backoff_multiplier=2.0,
+            retry_exceptions=(ConnectionError, TimeoutError),
+        ),
+        RateLimitingMiddleware(
+            max_requests_per_second=10.0,
+            burst_capacity=20,
+            global_limit=False,
+        ),
         AuditMiddleware(),
         AuthMiddleware(),
     ],
