@@ -3,6 +3,8 @@
 from typing import Annotated, Any
 
 from fastmcp import FastMCP, Context
+from fastmcp.exceptions import ToolError
+from pydantic import StringConstraints
 
 from app.dependencies import get_piveau_client
 from app.models import IdentifierType
@@ -16,11 +18,14 @@ def register_analysis_tools(mcp: FastMCP) -> None:
     )
     async def get_dataset_metrics(
         ctx: Context,
-        dataset_id: Annotated[str, "The dataset identifier"],
+        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
         include_history: bool = False,
     ) -> dict[str, Any]:
         client = get_piveau_client(ctx)
-        return await client.get_metrics(dataset_id, historic=include_history)
+        try:
+            return await client.get_metrics(dataset_id, historic=include_history)
+        except Exception as e:
+            raise ToolError(f"Failed to fetch metrics for dataset '{dataset_id}': {e}") from e
 
     @mcp.tool(
         name="check_doi_eligibility",
@@ -29,14 +34,17 @@ def register_analysis_tools(mcp: FastMCP) -> None:
     )
     async def check_doi_eligibility(
         ctx: Context,
-        dataset_id: Annotated[str, "The dataset identifier"],
+        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
         identifier_type: str = "eu-ra-doi",
     ) -> dict[str, Any]:
         client = get_piveau_client(ctx)
         valid_types = [t.value for t in IdentifierType]
         if identifier_type not in valid_types:
             identifier_type = IdentifierType.EU_RA_DOI.value
-        return await client.check_eligibility(dataset_id, identifier_type)
+        try:
+            return await client.check_eligibility(dataset_id, identifier_type)
+        except Exception as e:
+            raise ToolError(f"Failed to check DOI eligibility for dataset '{dataset_id}': {e}") from e
 
     @mcp.tool(
         name="analyze_dataset_quality",
@@ -45,11 +53,12 @@ def register_analysis_tools(mcp: FastMCP) -> None:
     )
     async def analyze_dataset_quality(
         ctx: Context,
-        dataset_id: Annotated[str, "The dataset identifier"],
+        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
     ) -> dict[str, Any]:
         client = get_piveau_client(ctx)
         analysis: dict[str, Any] = {"dataset_id": dataset_id}
 
+        # Try to get dataset metadata (critical - fail if this doesn't work)
         try:
             dataset = await client.get_dataset(dataset_id)
             analysis["metadata"] = {
@@ -58,25 +67,28 @@ def register_analysis_tools(mcp: FastMCP) -> None:
                 "has_publisher": bool(dataset.get("dct:publisher") or dataset.get("publisher")),
             }
         except Exception as e:
-            analysis["metadata"] = {"error": str(e)}
+            raise ToolError(f"Failed to analyze dataset '{dataset_id}': {e}") from e
 
+        # Try to get distributions (optional - continue if this fails)
         try:
             distributions = await client.get_distributions(dataset_id)
             analysis["distributions"] = {
                 "count": len(distributions),
                 "formats": list({d.get("format") for d in distributions if d.get("format")}),
             }
-        except Exception as e:
-            analysis["distributions"] = {"error": str(e)}
+        except Exception:
+            analysis["distributions"] = None
 
+        # Try to get metrics (optional - continue if this fails)
         try:
             analysis["metrics"] = await client.get_metrics(dataset_id)
         except Exception:
             analysis["metrics"] = None
 
+        # Try to check DOI eligibility (optional - continue if this fails)
         try:
             analysis["doi_eligibility"] = await client.check_eligibility(dataset_id)
         except Exception:
-            analysis["doi_eligibility"] = {"eligible": False}
+            analysis["doi_eligibility"] = None
 
         return analysis

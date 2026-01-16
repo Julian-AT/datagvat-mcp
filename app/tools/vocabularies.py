@@ -3,7 +3,7 @@
 from typing import Annotated, Any
 
 from fastmcp import FastMCP, Context
-from pydantic import Field
+from pydantic import Field, StringConstraints
 
 from app.dependencies import get_piveau_client
 
@@ -29,7 +29,7 @@ def register_vocabulary_tools(mcp: FastMCP) -> None:
     )
     async def get_vocabulary(
         ctx: Context,
-        vocabulary_id: Annotated[str, "The vocabulary identifier"],
+        vocabulary_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
     ) -> dict[str, Any]:
         client = get_piveau_client(ctx)
         return await client.get_vocabulary(vocabulary_id)
@@ -41,9 +41,9 @@ def register_vocabulary_tools(mcp: FastMCP) -> None:
     )
     async def search_vocabulary_terms(
         ctx: Context,
-        vocabulary_id: Annotated[str, "The vocabulary identifier"],
-        query: Annotated[str, "Search query"],
-        language: str = "de",
+        vocabulary_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
+        query: Annotated[str, StringConstraints(min_length=1, max_length=200)],
+        language: Annotated[str, StringConstraints(min_length=2, max_length=3)] = "de",
     ) -> list[dict[str, Any]]:
         client = get_piveau_client(ctx)
         vocab_data = await client.get_vocabulary(vocabulary_id)

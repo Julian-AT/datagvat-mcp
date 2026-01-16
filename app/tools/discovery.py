@@ -3,7 +3,8 @@
 from typing import Annotated, Any
 
 from fastmcp import FastMCP, Context
-from pydantic import Field
+from fastmcp.exceptions import ToolError
+from pydantic import Field, StringConstraints
 
 from app.dependencies import get_piveau_client
 from app.models import ValueType
@@ -22,11 +23,14 @@ def register_discovery_tools(mcp: FastMCP) -> None:
         value_type: str = "metadata",
     ) -> list[dict[str, Any]]:
         client = get_piveau_client(ctx)
-        await ctx.report_progress(0, 1, "Fetching catalogues...")
-        vt = ValueType(value_type) if value_type in [e.value for e in ValueType] else ValueType.METADATA
-        result = await client.list_catalogues(limit=limit, offset=offset, value_type=vt)
-        await ctx.report_progress(1, 1, f"Retrieved {len(result)} catalogues")
-        return result
+        try:
+            await ctx.report_progress(0, 1, "Fetching catalogues...")
+            vt = ValueType(value_type) if value_type in [e.value for e in ValueType] else ValueType.METADATA
+            result = await client.list_catalogues(limit=limit, offset=offset, value_type=vt)
+            await ctx.report_progress(1, 1, f"Retrieved {len(result)} catalogues")
+            return result
+        except Exception as e:
+            raise ToolError(f"Failed to list catalogues: {e}") from e
 
     @mcp.tool(
         name="get_catalogue",
@@ -35,10 +39,13 @@ def register_discovery_tools(mcp: FastMCP) -> None:
     )
     async def get_catalogue(
         ctx: Context,
-        catalogue_id: Annotated[str, "The catalogue identifier"],
+        catalogue_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
     ) -> dict[str, Any]:
         client = get_piveau_client(ctx)
-        return await client.get_catalogue(catalogue_id)
+        try:
+            return await client.get_catalogue(catalogue_id)
+        except Exception as e:
+            raise ToolError(f"Failed to get catalogue '{catalogue_id}': {e}") from e
 
     @mcp.tool(
         name="search_datasets",
@@ -47,14 +54,18 @@ def register_discovery_tools(mcp: FastMCP) -> None:
     )
     async def search_datasets(
         ctx: Context,
-        catalogue_id: Annotated[str | None, "Filter by catalogue ID"] = None,
+        catalogue_id: Annotated[str | None, StringConstraints(min_length=1, max_length=200)] = None,
         limit: Annotated[int, Field(ge=1, le=100)] = 20,
         offset: Annotated[int, Field(ge=0)] = 0,
     ) -> list[dict[str, Any]]:
         client = get_piveau_client(ctx)
-        if catalogue_id:
-            return await client.list_catalogue_datasets(catalogue_id, limit, offset)
-        return await client.list_datasets(limit, offset)
+        try:
+            if catalogue_id:
+                return await client.list_catalogue_datasets(catalogue_id, limit, offset)
+            return await client.list_datasets(limit, offset)
+        except Exception as e:
+            scope = f" in catalogue '{catalogue_id}'" if catalogue_id else ""
+            raise ToolError(f"Failed to search datasets{scope}: {e}") from e
 
     @mcp.tool(
         name="get_dataset",
@@ -63,10 +74,13 @@ def register_discovery_tools(mcp: FastMCP) -> None:
     )
     async def get_dataset(
         ctx: Context,
-        dataset_id: Annotated[str, "The dataset identifier"],
+        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
     ) -> dict[str, Any]:
         client = get_piveau_client(ctx)
-        return await client.get_dataset(dataset_id)
+        try:
+            return await client.get_dataset(dataset_id)
+        except Exception as e:
+            raise ToolError(f"Failed to get dataset '{dataset_id}': {e}") from e
 
     @mcp.tool(
         name="get_dataset_distributions",
@@ -75,11 +89,14 @@ def register_discovery_tools(mcp: FastMCP) -> None:
     )
     async def get_dataset_distributions(
         ctx: Context,
-        dataset_id: Annotated[str, "The dataset identifier"],
+        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
         limit: Annotated[int, Field(ge=1, le=100)] = 50,
     ) -> list[dict[str, Any]]:
         client = get_piveau_client(ctx)
-        return await client.get_distributions(dataset_id, limit=limit)
+        try:
+            return await client.get_distributions(dataset_id, limit=limit)
+        except Exception as e:
+            raise ToolError(f"Failed to get distributions for dataset '{dataset_id}': {e}") from e
 
     @mcp.tool(
         name="get_catalogue_record",
@@ -88,8 +105,11 @@ def register_discovery_tools(mcp: FastMCP) -> None:
     )
     async def get_catalogue_record(
         ctx: Context,
-        dataset_id: Annotated[str, "The dataset identifier"],
+        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
     ) -> dict[str, Any]:
         client = get_piveau_client(ctx)
-        result = await client._request("GET", f"/datasets/{dataset_id}/record")
-        return result if isinstance(result, dict) else {"data": result}
+        try:
+            result = await client._request("GET", f"/datasets/{dataset_id}/record")
+            return result if isinstance(result, dict) else {"data": result}
+        except Exception as e:
+            raise ToolError(f"Failed to get catalogue record for dataset '{dataset_id}': {e}") from e
