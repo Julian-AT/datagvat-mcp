@@ -5,23 +5,24 @@
 See: .planning/PROJECT.md (updated 2026-01-16)
 
 **Core value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
-**Current focus:** Phase 6 — Semantic Search
+**Current focus:** Phase 8 — Workflow Optimization & Fumadocs Documentation
 
 ## Current Position
 
-Phase: 6 of 6 (Semantic Search) - COMPLETE
-Plan: 1 of 1 complete
-Status: Phase 6 verified and complete
-Last activity: 2026-01-17 — Completed 06-01-PLAN.md
+Phase: 8 of 8 (Workflow Optimization & Fumadocs Documentation) - IN PROGRESS
+Plan: 1 of ? complete (08-02 complete)
+Status: Active - documentation site established
+Last activity: 2026-01-17 — Completed 08-02-PLAN.md (Fumadocs setup)
+Next: Continue with 08-03 (content creation) or other Phase 8 plans
 
-Progress: ████████████ 100% (6 of 6 phases)
+Progress: ███████████░ 88% (7 of 8 phases complete, Phase 8 in progress)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
-- Average duration: 6.5 min
-- Total execution time: 1.2 hours
+- Total plans completed: 13
+- Average duration: 7.5 min
+- Total execution time: 1.6 hours
 
 **By Phase:**
 
@@ -33,10 +34,12 @@ Progress: ████████████ 100% (6 of 6 phases)
 | 04-data-preview | 2 | 14 min | 7 min |
 | 05-related-datasets | 1 | 8 min | 8 min |
 | 06-semantic-search | 1 | 12 min | 12 min |
+| 07-api-endpoint-fix | 1 | ~15 min | ~15 min |
+| 08-workflow-docs | 1 | 20 min | 20 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-01 (6 min), 04-02 (8 min), 05-01 (8 min), 06-01 (12 min)
-- Trend: Good - Execution time consistently under 15 min/plan
+- Last 5 plans: 05-01 (8 min), 06-01 (12 min), 07-01 (~15 min), 08-02 (20 min)
+- Trend: Documentation and setup tasks taking longer than pure code tasks (expected)
 
 ## Accumulated Context
 
@@ -89,6 +92,19 @@ Recent decisions affecting current work:
 - Graceful fallback to original query when LLM expansion fails or low confidence (06-01, 2026-01-17)
 - Merge semantic expansion with explicit user filters using set union (06-01, 2026-01-17)
 - Default quality boost enabled for semantic search (users expect relevance) (06-01, 2026-01-17)
+- API base URL changed to https://www.data.gv.at/api/hub/search (correct endpoint) (07-01, 2026-01-17)
+- Response unwrapping for search API: extract {"result": {...}} wrapper (07-01, 2026-01-17)
+- Facet parameter "categories" not "theme" for EU theme filtering (07-01, 2026-01-17)
+- Catalogue list returns array of ID strings, converted to [{"id": "..."}] format (07-01, 2026-01-17)
+- Next.js 16.1.3 with Fumadocs for documentation (fumadocs-ui peer dependency requirement) (08-02, 2026-01-17)
+- Tailwind CSS v4 with CSS-based configuration for Fumadocs UI styling (08-02, 2026-01-17)
+- Language-suffixed MDX files (index.de.mdx) for German content translations (08-02, 2026-01-17)
+- Dynamic [lang] routing for bilingual documentation (/en, /de) (08-02, 2026-01-17)
+
+### Roadmap Evolution
+
+- Phase 7 added: API Endpoint Fix - Discovered during user testing that search API was using wrong base URL
+- Phase 8 added: Workflow Optimization & Fumadocs Documentation - Create comprehensive bilingual documentation site
 
 ### Pending Todos
 
@@ -96,11 +112,15 @@ None yet.
 
 ### Blockers/Concerns
 
-None yet.
+**Phase 8 (current):**
+- TypeScript build with --noEmit fails on fumadocs-mdx type definitions
+  - Dev server works correctly, runtime behavior is fine
+  - Type inference issue, not functional problem
+  - Can be addressed in future optimization if production builds needed
 
 ## Session Continuity
 
 Last session: 2026-01-17
-Stopped at: Phase 6 execution and verification complete - ALL PHASES COMPLETE
+Stopped at: Completed 08-02-PLAN.md (Fumadocs setup with i18n)
 Resume file: None
-Next: Project complete - all phases finished
+Next: Continue Phase 8 with content creation or workflow optimization plans
