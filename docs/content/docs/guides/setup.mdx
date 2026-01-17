@@ -1,0 +1,239 @@
+---
+title: Installation & Setup
+description: Get started with Austria MCP server
+---
+
+# Installation & Setup
+
+Get the Austria MCP server running in your Claude Desktop environment in minutes.
+
+## Prerequisites
+
+Before installing, ensure you have:
+
+- **Python 3.11 or higher** - [Download Python](https://www.python.org/downloads/)
+- **pip or uv package manager** - uv recommended for faster installs
+- **Claude Desktop** or compatible MCP client - [Download Claude Desktop](https://claude.ai/download)
+
+## Installation
+
+### Using uv (Recommended)
+
+[uv](https://github.com/astral-sh/uv) is a fast Python package manager that provides better dependency resolution and faster installs.
+
+```bash
+# Install uv if you don't have it
+pip install uv
+
+# Clone the repository
+git clone https://github.com/yourusername/datagvat-mcp.git
+cd datagvat-mcp
+
+# Install dependencies
+uv pip install -e .
+```
+
+### Using pip
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/datagvat-mcp.git
+cd datagvat-mcp
+
+# Install dependencies
+pip install -e .
+```
+
+### From PyPI (Future)
+
+```bash
+# Once published to PyPI
+pip install datagvat-mcp
+```
+
+## Configuration
+
+### Claude Desktop Setup
+
+Add the Austria MCP server to your Claude Desktop configuration:
+
+**Location:** `~/.claude/claude_desktop_config.json` (macOS/Linux) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows)
+
+**Configuration:**
+
+```json
+{
+  "mcpServers": {
+    "datagvat-local": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/absolute/path/to/datagvat-mcp",
+        "run",
+        "datagvat-mcp"
+      ]
+    }
+  }
+}
+```
+
+**Important:** Replace `/absolute/path/to/datagvat-mcp` with the actual path where you cloned the repository.
+
+**Windows example:**
+```json
+{
+  "mcpServers": {
+    "datagvat-local": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "C:\\Users\\YourName\\datagvat-mcp",
+        "run",
+        "datagvat-mcp"
+      ]
+    }
+  }
+}
+```
+
+**macOS/Linux example:**
+```json
+{
+  "mcpServers": {
+    "datagvat-local": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/Users/yourname/datagvat-mcp",
+        "run",
+        "datagvat-mcp"
+      ]
+    }
+  }
+}
+```
+
+### Using pip instead of uv
+
+If you prefer pip over uv:
+
+```json
+{
+  "mcpServers": {
+    "datagvat-pip": {
+      "command": "python",
+      "args": [
+        "-m",
+        "app.server"
+      ],
+      "cwd": "/absolute/path/to/datagvat-mcp"
+    }
+  }
+}
+```
+
+## Environment Variables
+
+Optional configuration via `.env` file in the project root:
+
+```bash
+# API Configuration
+AUSTRIA_MCP_PIVEAU_API_BASE=https://www.data.gv.at/api/hub/search
+AUSTRIA_MCP_REQUEST_TIMEOUT=30
+
+# Logging
+AUSTRIA_MCP_LOG_LEVEL=INFO
+AUSTRIA_MCP_LOG_FORMAT=json
+
+# Development
+AUSTRIA_MCP_DEV_MODE=false
+```
+
+### Available Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `AUSTRIA_MCP_PIVEAU_API_BASE` | `https://www.data.gv.at/api/hub/search` | Piveau API base URL |
+| `AUSTRIA_MCP_REQUEST_TIMEOUT` | `30` | Request timeout in seconds |
+| `AUSTRIA_MCP_LOG_LEVEL` | `INFO` | Logging level (DEBUG, INFO, WARNING, ERROR) |
+| `AUSTRIA_MCP_LOG_FORMAT` | `json` | Log format (json, text) |
+| `AUSTRIA_MCP_DEV_MODE` | `false` | Enable development features |
+
+## Verify Installation
+
+1. **Restart Claude Desktop** to load the new MCP server configuration
+
+2. **Test the connection** by running a simple command in Claude Desktop:
+
+```
+list_catalogues(limit=5)
+```
+
+You should see a list of Austrian data catalogues:
+
+```json
+[
+  {
+    "id": "stadt-wien",
+    "title": "Stadt Wien Open Data"
+  },
+  {
+    "id": "data-gv-at",
+    "title": "data.gv.at"
+  }
+]
+```
+
+3. **Try a search** to verify full functionality:
+
+```
+search_datasets(query="population", limit=5)
+```
+
+## Troubleshooting
+
+### Server not appearing in Claude Desktop
+
+1. **Check config file syntax** - Ensure JSON is valid (no trailing commas, proper quotes)
+2. **Verify paths** - Use absolute paths, not relative paths or `~`
+3. **Restart Claude Desktop** - Configuration is only loaded on startup
+4. **Check logs** - Look in Claude Desktop logs for MCP server errors
+
+### Connection errors
+
+If you see connection errors:
+
+1. **Test API access** directly:
+```bash
+curl https://www.data.gv.at/api/hub/search/catalogues
+```
+
+2. **Check firewall settings** - Ensure outbound HTTPS is allowed
+3. **Verify network** - Try from a different network if behind corporate firewall
+
+### Import errors
+
+If you see Python import errors:
+
+1. **Verify Python version:**
+```bash
+python --version  # Should be 3.11 or higher
+```
+
+2. **Reinstall dependencies:**
+```bash
+uv pip install -e . --force-reinstall
+```
+
+3. **Check virtual environment** - Ensure you're using the correct Python environment
+
+## Next Steps
+
+- **[Configuration Guide](/docs/guides/configuration)** - Advanced configuration options
+- **[API Reference](/docs/api/tools)** - Explore all available tools
+- **[Resources](/docs/api/resources)** - Direct data access via MCP resources
+
+## Getting Help
+
+- **GitHub Issues** - [Report bugs or request features](https://github.com/yourusername/datagvat-mcp/issues)
+- **Discussions** - [Ask questions and share tips](https://github.com/yourusername/datagvat-mcp/discussions)

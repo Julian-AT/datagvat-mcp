@@ -1,0 +1,315 @@
+---
+title: Configuration
+description: Advanced configuration options for Austria MCP server
+---
+
+# Configuration
+
+Advanced configuration options to customize the Austria MCP server for your needs.
+
+## Environment Variables
+
+Configure the server behavior using environment variables in a `.env` file or your system environment.
+
+### API Configuration
+
+```bash
+# Piveau API base URL
+AUSTRIA_MCP_PIVEAU_API_BASE=https://www.data.gv.at/api/hub/search
+
+# Request timeout in seconds (default: 30)
+AUSTRIA_MCP_REQUEST_TIMEOUT=30
+
+# Maximum retries for failed requests (default: 3)
+AUSTRIA_MCP_MAX_RETRIES=3
+
+# Retry backoff multiplier (default: 1 second, exponential)
+AUSTRIA_MCP_RETRY_BACKOFF=1
+```
+
+### Rate Limiting
+
+The server includes built-in rate limiting to protect the Piveau API:
+
+```bash
+# Requests per second (default: 10)
+AUSTRIA_MCP_RATE_LIMIT=10
+
+# Burst capacity (default: 20)
+AUSTRIA_MCP_RATE_BURST=20
+```
+
+**Note:** These defaults are conservative. You can increase them if you have higher rate limits or are running a local Piveau instance.
+
+### Logging Configuration
+
+```bash
+# Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+AUSTRIA_MCP_LOG_LEVEL=INFO
+
+# Log format: json or text
+# json is recommended for production, text for development
+AUSTRIA_MCP_LOG_FORMAT=json
+
+# Log file path (optional, defaults to stdout)
+AUSTRIA_MCP_LOG_FILE=/var/log/datagvat-mcp.log
+
+# Enable request/response logging (default: false)
+AUSTRIA_MCP_LOG_REQUESTS=false
+```
+
+### Development Mode
+
+```bash
+# Enable development features (default: false)
+AUSTRIA_MCP_DEV_MODE=true
+
+# When enabled:
+# - More verbose error messages
+# - Request/response debugging
+# - Relaxed validation
+```
+
+## Claude Desktop Configuration
+
+### Multiple Server Instances
+
+You can run multiple instances with different configurations:
+
+```json
+{
+  "mcpServers": {
+    "datagvat-production": {
+      "command": "uv",
+      "args": ["--directory", "/path/to/datagvat-mcp", "run", "datagvat-mcp"],
+      "env": {
+        "AUSTRIA_MCP_LOG_LEVEL": "WARNING",
+        "AUSTRIA_MCP_LOG_FORMAT": "json"
+      }
+    },
+    "datagvat-development": {
+      "command": "uv",
+      "args": ["--directory", "/path/to/datagvat-mcp-dev", "run", "datagvat-mcp"],
+      "env": {
+        "AUSTRIA_MCP_DEV_MODE": "true",
+        "AUSTRIA_MCP_LOG_LEVEL": "DEBUG"
+      }
+    }
+  }
+}
+```
+
+### Custom API Endpoint
+
+If you're running a local Piveau instance or custom API:
+
+```json
+{
+  "mcpServers": {
+    "datagvat-local-api": {
+      "command": "uv",
+      "args": ["--directory", "/path/to/datagvat-mcp", "run", "datagvat-mcp"],
+      "env": {
+        "AUSTRIA_MCP_PIVEAU_API_BASE": "http://localhost:8080/api/hub/search",
+        "AUSTRIA_MCP_REQUEST_TIMEOUT": "60"
+      }
+    }
+  }
+}
+```
+
+## Performance Tuning
+
+### Request Timeout
+
+Adjust based on your network conditions:
+
+```bash
+# Fast network
+AUSTRIA_MCP_REQUEST_TIMEOUT=10
+
+# Slow network or large datasets
+AUSTRIA_MCP_REQUEST_TIMEOUT=60
+
+# Very slow network
+AUSTRIA_MCP_REQUEST_TIMEOUT=120
+```
+
+### Preview Data Limits
+
+Configure data preview behavior (set in code, not env vars - this is for reference):
+
+- **Default preview:** 64KB (suitable for ~1000 CSV rows)
+- **Maximum preview:** 512KB (prevents memory issues)
+- **Row limit:** 100 rows maximum per preview
+
+To modify these, edit `app/preview.py`:
+
+```python
+DEFAULT_PREVIEW_BYTES = 65536  # 64KB
+MAX_PREVIEW_BYTES = 524288     # 512KB
+MAX_PREVIEW_ROWS = 100
+```
+
+### Search Result Limits
+
+The server enforces limits to prevent overwhelming responses:
+
+- **Default limit:** 20 datasets per page
+- **Maximum limit:** 100 datasets per page
+- **Pagination:** Use `page` parameter for additional results
+
+## Security
+
+### API Key Management (Future)
+
+When API keys are required for write operations:
+
+```bash
+# Piveau API key for dataset management
+AUSTRIA_MCP_API_KEY=your-api-key-here
+
+# Never commit API keys to version control
+# Use .env files (excluded from git)
+```
+
+### Network Security
+
+Configure HTTPS settings:
+
+```bash
+# Verify SSL certificates (default: true)
+AUSTRIA_MCP_VERIFY_SSL=true
+
+# In development, you may disable SSL verification
+# WARNING: Only use in trusted development environments
+AUSTRIA_MCP_VERIFY_SSL=false
+```
+
+## Monitoring
+
+### Health Checks
+
+The server provides health check endpoints (when running as a service):
+
+```bash
+# Check server health
+curl http://localhost:8080/health
+
+# Response:
+{
+  "status": "healthy",
+  "version": "1.0.0",
+  "api_reachable": true
+}
+```
+
+### Metrics
+
+Enable metrics collection:
+
+```bash
+# Enable Prometheus metrics (default: false)
+AUSTRIA_MCP_METRICS_ENABLED=true
+
+# Metrics endpoint port
+AUSTRIA_MCP_METRICS_PORT=9090
+```
+
+Access metrics at `http://localhost:9090/metrics`.
+
+## Troubleshooting Configuration
+
+### Configuration Not Applied
+
+1. **Check environment variable precedence:**
+   - System environment variables
+   - `.env` file in project root
+   - Claude Desktop config `env` section
+   - Default values
+
+2. **Verify .env file location:**
+   ```bash
+   # Should be in project root
+   ls -la /path/to/datagvat-mcp/.env
+   ```
+
+3. **Check for typos:**
+   ```bash
+   # Variable names are case-sensitive
+   AUSTRIA_MCP_LOG_LEVEL=INFO  # Correct
+   austria_mcp_log_level=INFO  # Wrong
+   ```
+
+### Debugging Configuration
+
+Enable debug logging to see loaded configuration:
+
+```bash
+AUSTRIA_MCP_LOG_LEVEL=DEBUG
+AUSTRIA_MCP_DEV_MODE=true
+```
+
+Check logs for configuration values:
+
+```
+2024-01-17 10:00:00 DEBUG Loaded configuration:
+  PIVEAU_API_BASE: https://www.data.gv.at/api/hub/search
+  REQUEST_TIMEOUT: 30
+  LOG_LEVEL: DEBUG
+  RATE_LIMIT: 10/s
+```
+
+## Configuration Validation
+
+The server validates configuration on startup:
+
+```python
+# Example validation errors
+ConfigError: AUSTRIA_MCP_REQUEST_TIMEOUT must be positive integer
+ConfigError: AUSTRIA_MCP_LOG_LEVEL must be one of: DEBUG, INFO, WARNING, ERROR, CRITICAL
+ConfigError: AUSTRIA_MCP_PIVEAU_API_BASE must be valid URL
+```
+
+## Example Configurations
+
+### Production Setup
+
+```bash
+# .env for production
+AUSTRIA_MCP_LOG_LEVEL=WARNING
+AUSTRIA_MCP_LOG_FORMAT=json
+AUSTRIA_MCP_LOG_FILE=/var/log/datagvat-mcp.log
+AUSTRIA_MCP_REQUEST_TIMEOUT=30
+AUSTRIA_MCP_RATE_LIMIT=10
+AUSTRIA_MCP_VERIFY_SSL=true
+AUSTRIA_MCP_METRICS_ENABLED=true
+```
+
+### Development Setup
+
+```bash
+# .env for development
+AUSTRIA_MCP_DEV_MODE=true
+AUSTRIA_MCP_LOG_LEVEL=DEBUG
+AUSTRIA_MCP_LOG_FORMAT=text
+AUSTRIA_MCP_LOG_REQUESTS=true
+AUSTRIA_MCP_REQUEST_TIMEOUT=60
+AUSTRIA_MCP_VERIFY_SSL=false
+```
+
+### Testing Setup
+
+```bash
+# .env for testing
+AUSTRIA_MCP_PIVEAU_API_BASE=http://localhost:8080/api/hub/search
+AUSTRIA_MCP_LOG_LEVEL=ERROR
+AUSTRIA_MCP_REQUEST_TIMEOUT=10
+AUSTRIA_MCP_MAX_RETRIES=1
+```
+
+## Next Steps
+
+- **[API Reference](/docs/api/tools)** - Explore all available tools
+- **[Resources](/docs/api/resources)** - Direct data access patterns
+- **[Prompts](/docs/api/prompts)** - Workflow automation templates

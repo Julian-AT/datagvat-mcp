@@ -1,0 +1,239 @@
+---
+title: Installation & Einrichtung
+description: Erste Schritte mit dem Austria MCP Server
+---
+
+# Installation & Einrichtung
+
+Bringen Sie den Austria MCP Server in wenigen Minuten in Ihrer Claude Desktop Umgebung zum Laufen.
+
+## Voraussetzungen
+
+Vor der Installation stellen Sie sicher, dass Sie Folgendes haben:
+
+- **Python 3.11 oder höher** - [Python herunterladen](https://www.python.org/downloads/)
+- **pip oder uv Paketmanager** - uv wird für schnellere Installationen empfohlen
+- **Claude Desktop** oder kompatibler MCP-Client - [Claude Desktop herunterladen](https://claude.ai/download)
+
+## Installation
+
+### Mit uv (Empfohlen)
+
+[uv](https://github.com/astral-sh/uv) ist ein schneller Python-Paketmanager, der bessere Abhängigkeitsauflösung und schnellere Installationen bietet.
+
+```bash
+# uv installieren, falls noch nicht vorhanden
+pip install uv
+
+# Repository klonen
+git clone https://github.com/yourusername/datagvat-mcp.git
+cd datagvat-mcp
+
+# Abhängigkeiten installieren
+uv pip install -e .
+```
+
+### Mit pip
+
+```bash
+# Repository klonen
+git clone https://github.com/yourusername/datagvat-mcp.git
+cd datagvat-mcp
+
+# Abhängigkeiten installieren
+pip install -e .
+```
+
+### Von PyPI (Zukünftig)
+
+```bash
+# Sobald auf PyPI veröffentlicht
+pip install datagvat-mcp
+```
+
+## Konfiguration
+
+### Claude Desktop Einrichtung
+
+Fügen Sie den Austria MCP Server zu Ihrer Claude Desktop Konfiguration hinzu:
+
+**Speicherort:** `~/.claude/claude_desktop_config.json` (macOS/Linux) oder `%APPDATA%\Claude\claude_desktop_config.json` (Windows)
+
+**Konfiguration:**
+
+```json
+{
+  "mcpServers": {
+    "datagvat-local": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/absoluter/pfad/zu/datagvat-mcp",
+        "run",
+        "datagvat-mcp"
+      ]
+    }
+  }
+}
+```
+
+**Wichtig:** Ersetzen Sie `/absoluter/pfad/zu/datagvat-mcp` mit dem tatsächlichen Pfad, wo Sie das Repository geklont haben.
+
+**Windows Beispiel:**
+```json
+{
+  "mcpServers": {
+    "datagvat-local": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "C:\\Users\\IhrName\\datagvat-mcp",
+        "run",
+        "datagvat-mcp"
+      ]
+    }
+  }
+}
+```
+
+**macOS/Linux Beispiel:**
+```json
+{
+  "mcpServers": {
+    "datagvat-local": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/Users/ihrname/datagvat-mcp",
+        "run",
+        "datagvat-mcp"
+      ]
+    }
+  }
+}
+```
+
+### pip anstelle von uv verwenden
+
+Falls Sie pip gegenüber uv bevorzugen:
+
+```json
+{
+  "mcpServers": {
+    "datagvat-pip": {
+      "command": "python",
+      "args": [
+        "-m",
+        "app.server"
+      ],
+      "cwd": "/absoluter/pfad/zu/datagvat-mcp"
+    }
+  }
+}
+```
+
+## Umgebungsvariablen
+
+Optionale Konfiguration über `.env` Datei im Projektstammverzeichnis:
+
+```bash
+# API-Konfiguration
+AUSTRIA_MCP_PIVEAU_API_BASE=https://www.data.gv.at/api/hub/search
+AUSTRIA_MCP_REQUEST_TIMEOUT=30
+
+# Protokollierung
+AUSTRIA_MCP_LOG_LEVEL=INFO
+AUSTRIA_MCP_LOG_FORMAT=json
+
+# Entwicklung
+AUSTRIA_MCP_DEV_MODE=false
+```
+
+### Verfügbare Umgebungsvariablen
+
+| Variable | Standard | Beschreibung |
+|----------|----------|--------------|
+| `AUSTRIA_MCP_PIVEAU_API_BASE` | `https://www.data.gv.at/api/hub/search` | Piveau API Basis-URL |
+| `AUSTRIA_MCP_REQUEST_TIMEOUT` | `30` | Request-Timeout in Sekunden |
+| `AUSTRIA_MCP_LOG_LEVEL` | `INFO` | Protokollierungsstufe (DEBUG, INFO, WARNING, ERROR) |
+| `AUSTRIA_MCP_LOG_FORMAT` | `json` | Protokollformat (json, text) |
+| `AUSTRIA_MCP_DEV_MODE` | `false` | Entwicklungsfunktionen aktivieren |
+
+## Installation überprüfen
+
+1. **Starten Sie Claude Desktop neu**, um die neue MCP-Server-Konfiguration zu laden
+
+2. **Testen Sie die Verbindung**, indem Sie einen einfachen Befehl in Claude Desktop ausführen:
+
+```
+list_catalogues(limit=5)
+```
+
+Sie sollten eine Liste österreichischer Datenkataloge sehen:
+
+```json
+[
+  {
+    "id": "stadt-wien",
+    "title": "Stadt Wien Open Data"
+  },
+  {
+    "id": "data-gv-at",
+    "title": "data.gv.at"
+  }
+]
+```
+
+3. **Probieren Sie eine Suche aus**, um die volle Funktionalität zu überprüfen:
+
+```
+search_datasets(query="bevölkerung", limit=5)
+```
+
+## Fehlerbehebung
+
+### Server erscheint nicht in Claude Desktop
+
+1. **Prüfen Sie die Konfigurationsdatei-Syntax** - Stellen Sie sicher, dass JSON gültig ist (keine nachgestellten Kommata, korrekte Anführungszeichen)
+2. **Überprüfen Sie Pfade** - Verwenden Sie absolute Pfade, nicht relative Pfade oder `~`
+3. **Starten Sie Claude Desktop neu** - Konfiguration wird nur beim Start geladen
+4. **Prüfen Sie Protokolle** - Suchen Sie in Claude Desktop Logs nach MCP-Server-Fehlern
+
+### Verbindungsfehler
+
+Falls Verbindungsfehler auftreten:
+
+1. **Testen Sie API-Zugriff** direkt:
+```bash
+curl https://www.data.gv.at/api/hub/search/catalogues
+```
+
+2. **Prüfen Sie Firewall-Einstellungen** - Stellen Sie sicher, dass ausgehende HTTPS-Verbindungen erlaubt sind
+3. **Überprüfen Sie das Netzwerk** - Versuchen Sie es von einem anderen Netzwerk, falls hinter einer Unternehmens-Firewall
+
+### Import-Fehler
+
+Falls Python-Import-Fehler auftreten:
+
+1. **Überprüfen Sie die Python-Version:**
+```bash
+python --version  # Sollte 3.11 oder höher sein
+```
+
+2. **Installieren Sie Abhängigkeiten neu:**
+```bash
+uv pip install -e . --force-reinstall
+```
+
+3. **Prüfen Sie die virtuelle Umgebung** - Stellen Sie sicher, dass Sie die richtige Python-Umgebung verwenden
+
+## Nächste Schritte
+
+- **[Konfigurationsleitfaden](/de/docs/guides/configuration)** - Erweiterte Konfigurationsoptionen
+- **[API-Referenz](/de/docs/api/tools)** - Erkunden Sie alle verfügbaren Tools
+- **[Ressourcen](/de/docs/api/resources)** - Direkter Datenzugriff über MCP-Ressourcen
+
+## Hilfe erhalten
+
+- **GitHub Issues** - [Fehler melden oder Funktionen anfragen](https://github.com/yourusername/datagvat-mcp/issues)
+- **Diskussionen** - [Fragen stellen und Tipps teilen](https://github.com/yourusername/datagvat-mcp/discussions)
