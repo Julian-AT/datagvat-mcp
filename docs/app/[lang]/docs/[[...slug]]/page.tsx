@@ -6,6 +6,8 @@ import {
   DocsDescription,
   DocsTitle,
 } from "fumadocs-ui/page";
+import { createRelativeLink } from 'fumadocs-ui/mdx';
+import { useMDXComponents } from '@/mdx-components';
 
 export default async function Page({
   params,
@@ -19,12 +21,16 @@ export default async function Page({
 
   const MDX = page.data.body;
 
+  const components = useMDXComponents({
+    a: createRelativeLink(source, page),
+  });
+
   return (
     <DocsPage toc={page.data.toc}>
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
-        <MDX />
+        <MDX components={components} />
       </DocsBody>
     </DocsPage>
   );
