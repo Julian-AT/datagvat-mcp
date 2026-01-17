@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-16)
 
 **Core value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
-**Current focus:** Phase 5 — Related Datasets
+**Current focus:** Phase 6 — Semantic Search
 
 ## Current Position
 
-Phase: 5 of 6 (Related Datasets) - COMPLETE
+Phase: 6 of 6 (Semantic Search) - COMPLETE
 Plan: 1 of 1 complete
-Status: Phase 5 verified and complete
-Last activity: 2026-01-17 — Phase 5 execution and verification complete
+Status: Phase 6 verified and complete
+Last activity: 2026-01-17 — Completed 06-01-PLAN.md
 
-Progress: ██████████░ 83% (5 of 6 phases)
+Progress: ████████████ 100% (6 of 6 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
+- Total plans completed: 11
 - Average duration: 6.5 min
-- Total execution time: 1.1 hours
+- Total execution time: 1.2 hours
 
 **By Phase:**
 
@@ -32,10 +32,11 @@ Progress: ██████████░ 83% (5 of 6 phases)
 | 03-quality-autocomplete | 1 | 4 min | 4 min |
 | 04-data-preview | 2 | 14 min | 7 min |
 | 05-related-datasets | 1 | 8 min | 8 min |
+| 06-semantic-search | 1 | 12 min | 12 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (4 min), 04-01 (6 min), 04-02 (8 min), 05-01 (8 min)
-- Trend: Excellent - Execution time consistently under 10 min/plan
+- Last 5 plans: 04-01 (6 min), 04-02 (8 min), 05-01 (8 min), 06-01 (12 min)
+- Trend: Good - Execution time consistently under 15 min/plan
 
 ## Accumulated Context
 
@@ -83,6 +84,11 @@ Recent decisions affecting current work:
 - Publisher bonus 15 points for same-org datasets (05-01, 2026-01-17)
 - Score components capped (themes 60, keywords 30, total 100) (05-01, 2026-01-17)
 - Minimum score threshold 20 points default to filter weak matches (05-01, 2026-01-17)
+- FastMCP Context.sample() for LLM query expansion instead of external APIs (06-01, 2026-01-17)
+- German/English auto-detection using linguistic heuristics (der/die/das, von, für) (06-01, 2026-01-17)
+- Graceful fallback to original query when LLM expansion fails or low confidence (06-01, 2026-01-17)
+- Merge semantic expansion with explicit user filters using set union (06-01, 2026-01-17)
+- Default quality boost enabled for semantic search (users expect relevance) (06-01, 2026-01-17)
 
 ### Pending Todos
 
@@ -95,6 +101,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-17
-Stopped at: Phase 5 execution and verification complete
+Stopped at: Phase 6 execution and verification complete - ALL PHASES COMPLETE
 Resume file: None
-Next: Phase 6 - Semantic Search
+Next: Project complete - all phases finished
