@@ -1,0 +1,464 @@
+---
+title: Complete Workflows
+description: End-to-end scenarios combining multiple tools
+---
+
+# Complete Workflows
+
+Learn how to combine Austria MCP tools for complete data discovery workflows.
+
+## Workflow 1: Find → Preview → Download
+
+Complete journey from search to data access.
+
+### Step 1: Search for Datasets
+
+```python
+# Find health-related CSV datasets from Vienna
+results = search_datasets(
+  query="health statistics",
+  themes=["HEAL"],
+  formats=["CSV"],
+  publishers=["Stadt Wien"],
+  quality_boost=True,
+  limit=10
+)
+
+# Display results count
+print(f"Found {results['count']} datasets")
+
+# Review top 3 results
+for i, dataset in enumerate(results['results'][:3], 1):
+  title = dataset.get('title', {}).get('de', 'No title')
+  print(f"{i}. {title}")
+```
+
+### Step 2: Select and Examine Dataset
+
+```python
+# Pick the first result
+dataset_id = results['results'][0]['id']
+
+# Get complete metadata
+dataset = get_dataset(dataset_id=dataset_id)
+
+# Review key information
+print(f"Title: {dataset['title']['de']}")
+print(f"Description: {dataset['description']['de'][:200]}...")
+print(f"Modified: {dataset['modified']}")
+print(f"Publisher: {dataset['publisher']['name']}")
+print(f"License: {dataset.get('license', 'Not specified')}")
+```
+
+### Step 3: Get Download URLs
+
+```python
+# Retrieve all distributions
+distributions = get_dataset_distributions(dataset_id=dataset_id)
+
+# Find CSV distribution
+csv_dist = next(
+  (d for d in distributions
+   if d.get('format', {}).get('id') == 'CSV'),
+  None
+)
+
+if csv_dist:
+  download_url = csv_dist['access_url']
+  file_size = csv_dist.get('byte_size', 'Unknown')
+  print(f"Download URL: {download_url}")
+  print(f"File size: {file_size} bytes")
+```
+
+### Step 4: Preview Before Download
+
+```python
+# Check schema first
+schema = preview_schema(url=download_url, format="CSV")
+
+print("Columns:")
+for col in schema['columns']:
+  print(f"  - {col['name']}: {col['type']}")
+
+# Preview sample data
+preview = preview_data(url=download_url, max_rows=20, format="CSV")
+
+print(f"\nShowing {preview['row_count']} sample rows:")
+for row in preview['data'][:5]:
+  print(row)
+```
+
+### Step 5: Verify and Download
+
+```python
+# Verify structure matches expectations
+expected_columns = ["year", "region", "cases"]
+actual_columns = [c['name'] for c in schema['columns']]
+
+if all(col in actual_columns for col in expected_columns):
+  print("✓ Schema validated")
+  # Proceed with full download using download_url
+  # (Download implementation depends on your environment)
+else:
+  print("✗ Schema mismatch, check dataset")
+```
+
+## Workflow 2: Semantic Search → Related Datasets
+
+Discover related data through intelligent search and recommendations.
+
+### Step 1: Natural Language Query
+
+```python
+# Use semantic search for natural language
+results = semantic_search_datasets(
+  natural_query="climate change data for Austrian cities",
+  limit=5
+)
+
+print(f"Found {len(results['results'])} highly relevant datasets")
+
+# Display semantic search results
+for i, dataset in enumerate(results['results'], 1):
+  title = dataset.get('title', {}).get('de', 'No title')
+  categories = [c.get('id') for c in dataset.get('categories', [])]
+  print(f"{i}. {title}")
+  print(f"   Categories: {', '.join(categories)}")
+```
+
+### Step 2: Analyze Quality
+
+```python
+# Pick most relevant dataset
+dataset_id = results['results'][0]['id']
+
+# Get comprehensive quality analysis
+quality = analyze_dataset_quality(dataset_id=dataset_id)
+
+print(f"Quality Score: {quality['score']}/100")
+print(f"Completeness: {quality['completeness']}")
+print("\nQuality Components:")
+for component, value in quality['components'].items():
+  status = "✓" if value else "✗"
+  print(f"  {status} {component}")
+```
+
+### Step 3: Find Related Datasets
+
+```python
+# Discover similar datasets
+related = find_related_datasets(
+  dataset_id=dataset_id,
+  limit=5,
+  min_score=30
+)
+
+print(f"\nFound {len(related['results'])} related datasets:")
+
+for dataset in related['results']:
+  title = dataset.get('title', {}).get('de', 'No title')
+  score = dataset.get('match_score', 0)
+  themes = [t.get('id') for t in dataset.get('themes', [])]
+
+  print(f"Score {score}: {title}")
+  print(f"  Shared themes: {', '.join(themes)}")
+```
+
+### Step 4: Compare Datasets
+
+```python
+# Compare original and related dataset
+original = get_dataset(dataset_id=dataset_id)
+related_id = related['results'][0]['id']
+related_dataset = get_dataset(dataset_id=related_id)
+
+# Compare key attributes
+print("\nComparison:")
+print(f"Original Publisher: {original['publisher']['name']}")
+print(f"Related Publisher: {related_dataset['publisher']['name']}")
+
+original_themes = {c['id'] for c in original.get('categories', [])}
+related_themes = {c['id'] for c in related_dataset.get('categories', [])}
+shared_themes = original_themes & related_themes
+
+print(f"Shared themes: {', '.join(shared_themes)}")
+```
+
+## Workflow 3: Quality-Filtered Search
+
+Find high-quality datasets for production use.
+
+### Step 1: Quality-Aware Search
+
+```python
+# Search with quality boost enabled
+results = search_datasets(
+  query="",
+  themes=["ECON"],
+  formats=["CSV", "JSON"],
+  quality_boost=True,
+  sort="modified+desc",
+  limit=20
+)
+```
+
+### Step 2: Filter by Quality Metrics
+
+```python
+# Analyze each dataset for quality
+high_quality_datasets = []
+
+for dataset in results['results'][:10]:
+  dataset_id = dataset['id']
+
+  # Get quality analysis
+  quality = analyze_dataset_quality(dataset_id=dataset_id)
+
+  # Filter: score > 70 and all critical components present
+  if quality['score'] > 70:
+    critical_ok = all([
+      quality['components']['has_title'],
+      quality['components']['has_description'],
+      quality['components']['has_publisher'],
+      quality['components']['has_license']
+    ])
+
+    if critical_ok:
+      high_quality_datasets.append({
+        'id': dataset_id,
+        'title': dataset.get('title', {}).get('de', 'No title'),
+        'score': quality['score'],
+        'modified': dataset.get('modified')
+      })
+
+print(f"Found {len(high_quality_datasets)} high-quality datasets")
+```
+
+### Step 3: Verify Data Accessibility
+
+```python
+# Ensure data is actually accessible
+accessible_datasets = []
+
+for dataset in high_quality_datasets:
+  # Get distributions
+  distributions = get_dataset_distributions(dataset_id=dataset['id'])
+
+  # Check for valid download URLs
+  has_csv = any(
+    d.get('format', {}).get('id') == 'CSV' and d.get('access_url')
+    for d in distributions
+  )
+
+  if has_csv:
+    # Verify URL is accessible by checking schema
+    csv_url = next(
+      d['access_url'] for d in distributions
+      if d.get('format', {}).get('id') == 'CSV'
+    )
+
+    try:
+      schema = preview_schema(url=csv_url, format="CSV")
+
+      accessible_datasets.append({
+        **dataset,
+        'url': csv_url,
+        'columns': len(schema['columns'])
+      })
+
+      print(f"✓ {dataset['title']}")
+      print(f"  Score: {dataset['score']}, Columns: {len(schema['columns'])}")
+
+    except Exception as e:
+      print(f"✗ {dataset['title']} - URL not accessible")
+
+print(f"\n{len(accessible_datasets)} datasets ready for use")
+```
+
+## Workflow 4: Multi-Language Search
+
+Handle German and English queries effectively.
+
+### Step 1: German Query
+
+```python
+# German semantic search
+de_results = semantic_search_datasets(
+  natural_query="Gesundheitsdaten aus Wien",
+  limit=10
+)
+
+print("German query results:")
+for dataset in de_results['results'][:3]:
+  print(f"- {dataset['title']['de']}")
+```
+
+### Step 2: English Query Equivalent
+
+```python
+# English semantic search (same intent)
+en_results = semantic_search_datasets(
+  natural_query="health data from Vienna",
+  limit=10
+)
+
+print("\nEnglish query results:")
+for dataset in en_results['results'][:3]:
+  print(f"- {dataset['title'].get('de', 'No title')}")
+```
+
+### Step 3: Compare Results
+
+```python
+# Extract dataset IDs
+de_ids = {d['id'] for d in de_results['results']}
+en_ids = {d['id'] for d in en_results['results']}
+
+# Find overlap
+overlap = de_ids & en_ids
+print(f"\nOverlapping datasets: {len(overlap)}/{len(de_ids)}")
+
+# Language detection worked correctly if high overlap
+overlap_pct = (len(overlap) / len(de_ids)) * 100
+if overlap_pct > 70:
+  print(f"✓ Language detection effective ({overlap_pct:.0f}% overlap)")
+```
+
+## Workflow 5: Catalogue Exploration
+
+Explore all data from a specific publisher.
+
+### Step 1: List Catalogues
+
+```python
+# Get all catalogues
+catalogues = list_catalogues(limit=50)
+
+# Find Vienna catalogue
+vienna = next(
+  c for c in catalogues
+  if 'wien' in c.get('title', {}).get('de', '').lower()
+)
+
+print(f"Found: {vienna['title']['de']}")
+print(f"Catalogue ID: {vienna['id']}")
+print(f"Dataset count: {vienna['count']}")
+```
+
+### Step 2: Get Catalogue Metadata
+
+```python
+# Get detailed catalogue information
+catalogue = get_catalogue(catalogue_id=vienna['id'])
+
+print(f"\nCatalogue: {catalogue['title']['de']}")
+print(f"Description: {catalogue.get('description', {}).get('de', 'N/A')[:200]}")
+print(f"Datasets: {catalogue['count']}")
+print(f"Modified: {catalogue['modified']}")
+```
+
+### Step 3: Browse Catalogue Datasets
+
+```python
+# Search within specific catalogue
+datasets = search_datasets(
+  query="",
+  catalogues=[vienna['id']],
+  sort="modified+desc",
+  limit=20
+)
+
+print(f"\nRecent datasets from {vienna['title']['de']}:")
+
+for i, dataset in enumerate(datasets['results'][:10], 1):
+  title = dataset['title']['de']
+  modified = dataset['modified']
+  categories = [c['id'] for c in dataset.get('categories', [])]
+
+  print(f"{i}. {title}")
+  print(f"   Modified: {modified}, Categories: {', '.join(categories)}")
+```
+
+### Step 4: Category Distribution
+
+```python
+# Analyze what categories the catalogue covers
+category_counts = {}
+
+for dataset in datasets['results']:
+  for category in dataset.get('categories', []):
+    cat_id = category['id']
+    category_counts[cat_id] = category_counts.get(cat_id, 0) + 1
+
+print("\nCategory distribution:")
+for cat, count in sorted(
+  category_counts.items(),
+  key=lambda x: x[1],
+  reverse=True
+):
+  print(f"  {cat}: {count} datasets")
+```
+
+## Best Practices
+
+### Error Handling
+
+Always wrap workflows in try-except blocks:
+
+```python
+try:
+  results = search_datasets(query="data", limit=10)
+  # Process results...
+except ToolError as e:
+  print(f"Error: {e}")
+  # Handle gracefully
+```
+
+### Pagination
+
+For large result sets, paginate through results:
+
+```python
+limit = 20
+offset = 0
+all_results = []
+
+while True:
+  page = search_datasets(
+    query="environment",
+    limit=limit,
+    offset=offset
+  )
+
+  all_results.extend(page['results'])
+
+  # Check if more pages exist
+  if offset + limit >= page['count']:
+    break
+
+  offset += limit
+
+print(f"Retrieved {len(all_results)} total datasets")
+```
+
+### Caching Results
+
+Cache expensive operations:
+
+```python
+# Cache quality analysis results
+quality_cache = {}
+
+def get_quality_cached(dataset_id):
+  if dataset_id not in quality_cache:
+    quality_cache[dataset_id] = analyze_dataset_quality(
+      dataset_id=dataset_id
+    )
+  return quality_cache[dataset_id]
+```
+
+## Next Steps
+
+- **[API Reference](/docs/api/tools)** - Complete tool documentation
+- **[Best Practices](/docs/best-practices/optimization)** - Performance optimization
+- **[Getting Started](/docs/tutorials/getting-started)** - Basics tutorial

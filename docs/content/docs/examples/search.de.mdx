@@ -1,0 +1,309 @@
+---
+title: Suchbeispiele
+description: Häufige Suchmuster und Anwendungsfälle
+---
+
+# Suchbeispiele
+
+Meistern Sie die Datensatzsuche mit diesen praktischen Beispielen.
+
+## Einfache Textsuche
+
+Einfache Schlüsselwortsuche über alle Datensätze:
+
+```python
+# Suche nach Bevölkerungsdaten
+search_datasets(query="Bevölkerung", limit=10)
+
+# Suche nach Umweltdaten
+search_datasets(query="Umwelt", limit=10)
+
+# Suche nach Verkehrsdaten
+search_datasets(query="Verkehr", limit=10)
+```
+
+**Tipps:**
+- Verwenden Sie deutsche Schlüsselwörter für bessere Ergebnisse (die meisten Datensätze sind auf Deutsch)
+- Die API durchsucht Titel, Beschreibungen und Schlüsselwörter
+- Relevanzbasiertes Ranking wird automatisch angewendet
+
+## Gefilterte Suche
+
+### Nach Kategorie
+
+Filtern nach EU DCAT-AP Themencodes:
+
+```python
+# Nur Gesundheitsdaten
+search_datasets(
+  query="Statistiken",
+  themes=["HEAL"],
+  limit=10
+)
+
+# Umwelt- ODER Energiedaten
+search_datasets(
+  query="Klima",
+  themes=["ENVI", "ENER"],
+  limit=10
+)
+
+# Bevölkerungs- und Gesellschaftsdaten
+search_datasets(
+  query="Demographie",
+  themes=["SOCI"],
+  limit=10
+)
+```
+
+**Alle 13 EU-Themencodes:**
+- `AGRI` - Landwirtschaft, Fischerei, Forstwirtschaft und Nahrungsmittel
+- `ECON` - Wirtschaft und Finanzen
+- `EDUC` - Bildung, Kultur und Sport
+- `ENER` - Energie
+- `ENVI` - Umwelt
+- `GOVE` - Regierung und öffentlicher Sektor
+- `HEAL` - Gesundheit
+- `INTR` - Internationale Themen
+- `JUST` - Justiz, Rechtssystem und öffentliche Sicherheit
+- `REGI` - Regionen und Städte
+- `SOCI` - Bevölkerung und Gesellschaft
+- `TECH` - Wissenschaft und Technologie
+- `TRAN` - Verkehr
+
+### Nach Format
+
+Filtern nach verfügbaren Dateiformaten:
+
+```python
+# Nur CSV-Datensätze
+search_datasets(
+  query="Daten",
+  formats=["CSV"],
+  limit=10
+)
+
+# JSON- oder XML-Datensätze
+search_datasets(
+  query="api",
+  formats=["JSON", "XML"],
+  limit=10
+)
+
+# Excel-Dateien
+search_datasets(
+  query="Statistiken",
+  formats=["XLSX"],
+  limit=10
+)
+```
+
+**Häufige Formate:** CSV, JSON, XML, XLSX, PDF, HTML, RDF, SHP (Shapefile)
+
+### Nach Herausgeber
+
+Filtern nach veröffentlichender Organisation:
+
+```python
+# Daten aus Wien
+search_datasets(
+  query="",
+  publishers=["Stadt Wien"],
+  limit=10
+)
+
+# Datensätze der Bundesregierung
+search_datasets(
+  query="",
+  publishers=["Bundesministerium"],
+  limit=10
+)
+```
+
+### Kombinierte Filter
+
+Kombinieren Sie mehrere Filter für präzise Ergebnisse:
+
+```python
+# CSV-Gesundheitsdaten aus Wien
+search_datasets(
+  query="Gesundheit",
+  themes=["HEAL"],
+  formats=["CSV"],
+  publishers=["Stadt Wien"],
+  limit=10
+)
+```
+
+## Datumsbereichsfilterung
+
+Filtern nach Änderungs- oder Veröffentlichungsdatum:
+
+```python
+# Im Jahr 2024 geänderte Datensätze
+search_datasets(
+  query="",
+  modified_since="2024-01-01",
+  modified_until="2024-12-31",
+  limit=10
+)
+
+# Kürzlich aktualisierte Datensätze (letzte 30 Tage)
+search_datasets(
+  query="",
+  modified_since="2024-12-15",
+  limit=10
+)
+
+# Vor 2020 veröffentlichte Datensätze
+search_datasets(
+  query="",
+  issued_until="2020-01-01",
+  limit=10
+)
+```
+
+**Datumsformat:** ISO 8601 (YYYY-MM-DD)
+
+## Sortieroptionen
+
+Steuerung der Ergebnisreihenfolge:
+
+```python
+# Am relevantesten zuerst (Standard bei Abfrage)
+search_datasets(
+  query="Bevölkerung",
+  sort="relevance+desc",
+  limit=10
+)
+
+# Zuletzt geändert zuerst
+search_datasets(
+  query="",
+  sort="modified+desc",
+  limit=10
+)
+
+# Alphabetisch nach Titel
+search_datasets(
+  query="",
+  sort="title+asc",
+  limit=10
+)
+
+# Kürzlich veröffentlichte Datensätze
+search_datasets(
+  query="",
+  sort="issued+desc",
+  limit=10
+)
+```
+
+**Verfügbare Sortieroptionen:**
+- `relevance+desc` / `relevance+asc` - Nach Suchrelevanz (erfordert Abfrage)
+- `modified+desc` / `modified+asc` - Nach Änderungsdatum
+- `issued+desc` / `issued+asc` - Nach Veröffentlichungsdatum
+- `title+asc` / `title+desc` - Alphabetisch
+
+## Paginierung
+
+Arbeiten mit großen Ergebnismengen:
+
+```python
+# Erste Seite (10 Ergebnisse)
+seite1 = search_datasets(
+  query="Daten",
+  limit=10,
+  offset=0
+)
+
+# Zweite Seite (nächste 10 Ergebnisse)
+seite2 = search_datasets(
+  query="Daten",
+  limit=10,
+  offset=10
+)
+
+# Dritte Seite
+seite3 = search_datasets(
+  query="Daten",
+  limit=10,
+  offset=20
+)
+```
+
+**Ergebnis-Metadaten:**
+- `count` - Gesamtzahl übereinstimmender Datensätze
+- `results` - Array von Datensätzen für aktuelle Seite
+
+Gesamtseitenzahl berechnen: `gesamt_seiten = ceil(count / limit)`
+
+## Qualitätsbewusste Suche
+
+Hochwertige Datensätze in den Ergebnissen bevorzugen:
+
+```python
+# Vollständige, gut dokumentierte Datensätze priorisieren
+search_datasets(
+  query="Gesundheit",
+  quality_boost=True,
+  limit=10
+)
+```
+
+Qualitätsverstärkung berücksichtigt:
+- Metadatenvollständigkeit (8 Komponenten)
+- Vorhandensein von Titel und Beschreibung
+- Schlüsselwörter und Kategorien
+- Herausgeberinformationen
+- Lizenzklarheit
+- Kontaktinformationen
+- Zeitliche und räumliche Abdeckung
+- Dokumentationsqualität
+
+Bewertungsbereich: 0-100
+
+## Erweiterte Suchmuster
+
+### Multi-Themen-Suche
+
+Finden Sie Datensätze, die mehrere Bereiche umfassen:
+
+```python
+# Klima- und Energiedaten
+search_datasets(
+  query="erneuerbar",
+  themes=["ENVI", "ENER"],
+  limit=10
+)
+```
+
+### Formatvergleich
+
+Verfügbarkeit über Formate hinweg vergleichen:
+
+```python
+# Prüfen, ob Daten sowohl als CSV als auch als JSON verfügbar sind
+csv_ergebnisse = search_datasets(query="Statistiken", formats=["CSV"])
+json_ergebnisse = search_datasets(query="Statistiken", formats=["JSON"])
+```
+
+### Herausgeber-Erkundung
+
+Erkunden Sie, was ein Herausgeber anbietet:
+
+```python
+# Alle Datensätze aus einem bestimmten Katalog
+search_datasets(
+  query="",
+  catalogues=["l9"],  # Stadt Wien Katalog-ID
+  limit=50
+)
+```
+
+## Nächste Schritte
+
+- **[Semantische Suche](/docs/examples/semantic-search)** - Natürlichsprachige Abfragen
+- **[Vorschau-Beispiele](/docs/examples/preview)** - Dateninspektion
+- **[Workflows](/docs/examples/workflows)** - Vollständige Szenarien
+- **[API-Referenz](/docs/api/tools)** - Vollständige Parameterdokumentation
