@@ -3,6 +3,9 @@ title: MCP Ressourcen
 description: Direkter Datenzugriff über MCP-Ressourcen
 ---
 
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+
 # MCP Ressourcen
 
 MCP-Ressourcen bieten direkten Datenzugriff ohne Tool-Aufrufe. Sie verwenden ein URI-basiertes System für sofortigen Datenabruf.
@@ -22,239 +25,231 @@ Ressourcen sind schreibgeschützte Datenendpunkte, auf die Claude direkt zugreif
 
 ### Kataloge
 
-#### Alle Kataloge auflisten
+<Accordions type="single" collapsible>
+  <Accordion title="Alle Kataloge auflisten" id="list-catalogues-resource">
+    **URI:** `piveau://catalogues`
 
-**URI:** `piveau://catalogues`
+    **Rückgabewert:** Array aller verfügbaren Datenkataloge (bis zu 1000)
 
-**Rückgabewert:** Array aller verfügbaren Datenkataloge (bis zu 1000)
+    **Beispielnutzung in Claude:**
+    ```
+    Lade die Katalog-Ressource, um zu sehen, was verfügbar ist
+    ```
 
-**Beispielnutzung in Claude:**
-```
-Lade die Katalog-Ressource, um zu sehen, was verfügbar ist
-```
+    **Antwortformat:**
+    ```json
+    [
+      {
+        "id": "stadt-wien",
+        "title": "Stadt Wien Open Data",
+        "description": "Open Data der Stadt Wien"
+      },
+      {
+        "id": "data-gv-at",
+        "title": "data.gv.at"
+      }
+    ]
+    ```
+  </Accordion>
 
-**Antwortformat:**
-```json
-[
-  {
-    "id": "stadt-wien",
-    "title": "Stadt Wien Open Data",
-    "description": "Open Data der Stadt Wien"
-  },
-  {
-    "id": "data-gv-at",
-    "title": "data.gv.at"
-  }
-]
-```
+  <Accordion title="Bestimmten Katalog abrufen" id="get-catalogue-resource">
+    **URI:** `piveau://catalogues/{catalogue_id}`
 
----
+    **Parameter:**
+    - `catalogue_id` - Eindeutige Katalog-ID
 
-#### Bestimmten Katalog abrufen
+    **Rückgabewert:** Vollständige Metadaten für den Katalog
 
-**URI:** `piveau://catalogues/{catalogue_id}`
+    **Beispielnutzung:**
+    ```
+    Zeige mir Details aus Ressource piveau://catalogues/stadt-wien
+    ```
 
-**Parameter:**
-- `catalogue_id` - Eindeutige Katalog-ID
+    **Antwortformat:**
+    ```json
+    {
+      "id": "stadt-wien",
+      "title": "Stadt Wien Open Data",
+      "description": "Umfassendes Open Data Portal...",
+      "publisher": {
+        "name": "Stadt Wien",
+        "type": "Municipality"
+      },
+      "datasets_count": 500
+    }
+    ```
+  </Accordion>
 
-**Rückgabewert:** Vollständige Metadaten für den Katalog
+  <Accordion title="Katalog-Datensätze auflisten" id="list-catalogue-datasets-resource">
+    **URI:** `piveau://catalogues/{catalogue_id}/datasets`
 
-**Beispielnutzung:**
-```
-Zeige mir Details aus Ressource piveau://catalogues/stadt-wien
-```
+    **Parameter:**
+    - `catalogue_id` - Eindeutige Katalog-ID
 
-**Antwortformat:**
-```json
-{
-  "id": "stadt-wien",
-  "title": "Stadt Wien Open Data",
-  "description": "Umfassendes Open Data Portal...",
-  "publisher": {
-    "name": "Stadt Wien",
-    "type": "Municipality"
-  },
-  "datasets_count": 500
-}
-```
+    **Rückgabewert:** Array von Datensätzen innerhalb des Katalogs (bis zu 100)
 
----
-
-#### Katalog-Datensätze auflisten
-
-**URI:** `piveau://catalogues/{catalogue_id}/datasets`
-
-**Parameter:**
-- `catalogue_id` - Eindeutige Katalog-ID
-
-**Rückgabewert:** Array von Datensätzen innerhalb des Katalogs (bis zu 100)
-
-**Beispielnutzung:**
-```
-Lade Datensätze aus Ressource piveau://catalogues/stadt-wien/datasets
-```
-
----
+    **Beispielnutzung:**
+    ```
+    Lade Datensätze aus Ressource piveau://catalogues/stadt-wien/datasets
+    ```
+  </Accordion>
+</Accordions>
 
 ### Datensätze
 
-#### Datensatz-Metadaten abrufen
+<Accordions type="single" collapsible>
+  <Accordion title="Datensatz-Metadaten abrufen" id="get-dataset-resource">
+    **URI:** `piveau://datasets/{dataset_id}`
 
-**URI:** `piveau://datasets/{dataset_id}`
+    **Parameter:**
+    - `dataset_id` - Eindeutige Datensatz-ID
 
-**Parameter:**
-- `dataset_id` - Eindeutige Datensatz-ID
+    **Rückgabewert:** Vollständige Datensatz-Metadaten einschließlich Titel, Beschreibung, Herausgeber, Kategorien, Schlagwörter und mehr
 
-**Rückgabewert:** Vollständige Datensatz-Metadaten einschließlich Titel, Beschreibung, Herausgeber, Kategorien, Schlagwörter und mehr
+    **Beispielnutzung:**
+    ```
+    Hole Datensatz-Details aus Ressource piveau://datasets/dataset-123
+    ```
 
-**Beispielnutzung:**
-```
-Hole Datensatz-Details aus Ressource piveau://datasets/dataset-123
-```
+    **Antwortformat:**
+    ```json
+    {
+      "id": "dataset-123",
+      "title": "Bevölkerungsstatistik 2024",
+      "description": "Jährliche Bevölkerungsdaten für österreichische Gemeinden",
+      "publisher": {...},
+      "themes": ["SOCI"],
+      "keywords": ["bevölkerung", "statistik", "demografie"],
+      "distributions": [...]
+    }
+    ```
+  </Accordion>
 
-**Antwortformat:**
-```json
-{
-  "id": "dataset-123",
-  "title": "Bevölkerungsstatistik 2024",
-  "description": "Jährliche Bevölkerungsdaten für österreichische Gemeinden",
-  "publisher": {...},
-  "themes": ["SOCI"],
-  "keywords": ["bevölkerung", "statistik", "demografie"],
-  "distributions": [...]
-}
-```
+  <Accordion title="Datensatz-Distributionen abrufen" id="get-dataset-distributions-resource">
+    **URI:** `piveau://datasets/{dataset_id}/distributions`
 
----
+    **Parameter:**
+    - `dataset_id` - Eindeutige Datensatz-ID
 
-#### Datensatz-Distributionen abrufen
+    **Rückgabewert:** Array herunterladbarer Dateidistributionen (bis zu 100)
 
-**URI:** `piveau://datasets/{dataset_id}/distributions`
+    **Beispielnutzung:**
+    ```
+    Zeige mir Distributionen aus Ressource piveau://datasets/dataset-123/distributions
+    ```
 
-**Parameter:**
-- `dataset_id` - Eindeutige Datensatz-ID
+    **Antwortformat:**
+    ```json
+    [
+      {
+        "id": "dist-1",
+        "title": "Bevölkerung CSV",
+        "format": "CSV",
+        "downloadURL": "https://example.com/bevoelkerung.csv",
+        "byteSize": 1048576,
+        "mediaType": "text/csv"
+      },
+      {
+        "id": "dist-2",
+        "title": "Bevölkerung JSON",
+        "format": "JSON",
+        "downloadURL": "https://example.com/bevoelkerung.json",
+        "byteSize": 524288,
+        "mediaType": "application/json"
+      }
+    ]
+    ```
+  </Accordion>
 
-**Rückgabewert:** Array herunterladbarer Dateidistributionen (bis zu 100)
+  <Accordion title="Datensatz-Qualitätsmetriken abrufen" id="get-dataset-metrics-resource">
+    **URI:** `piveau://datasets/{dataset_id}/metrics`
 
-**Beispielnutzung:**
-```
-Zeige mir Distributionen aus Ressource piveau://datasets/dataset-123/distributions
-```
+    **Parameter:**
+    - `dataset_id` - Eindeutige Datensatz-ID
 
-**Antwortformat:**
-```json
-[
-  {
-    "id": "dist-1",
-    "title": "Bevölkerung CSV",
-    "format": "CSV",
-    "downloadURL": "https://example.com/bevoelkerung.csv",
-    "byteSize": 1048576,
-    "mediaType": "text/csv"
-  },
-  {
-    "id": "dist-2",
-    "title": "Bevölkerung JSON",
-    "format": "JSON",
-    "downloadURL": "https://example.com/bevoelkerung.json",
-    "byteSize": 524288,
-    "mediaType": "application/json"
-  }
-]
-```
+    **Rückgabewert:** Data Quality Vocabulary (DQV) Metriken
 
----
+    **Beispielnutzung:**
+    ```
+    Prüfe Qualitätsmetriken aus Ressource piveau://datasets/dataset-123/metrics
+    ```
 
-#### Datensatz-Qualitätsmetriken abrufen
-
-**URI:** `piveau://datasets/{dataset_id}/metrics`
-
-**Parameter:**
-- `dataset_id` - Eindeutige Datensatz-ID
-
-**Rückgabewert:** Data Quality Vocabulary (DQV) Metriken
-
-**Beispielnutzung:**
-```
-Prüfe Qualitätsmetriken aus Ressource piveau://datasets/dataset-123/metrics
-```
-
-**Antwortformat:**
-```json
-{
-  "completeness": 0.95,
-  "accuracy": 0.88,
-  "consistency": 0.92,
-  "availability": 1.0,
-  "overall_score": 0.91
-}
-```
-
----
+    **Antwortformat:**
+    ```json
+    {
+      "completeness": 0.95,
+      "accuracy": 0.88,
+      "consistency": 0.92,
+      "availability": 1.0,
+      "overall_score": 0.91
+    }
+    ```
+  </Accordion>
+</Accordions>
 
 ### Vokabulare
 
-#### Alle Vokabulare auflisten
+<Accordions type="single" collapsible>
+  <Accordion title="Alle Vokabulare auflisten" id="list-vocabularies-resource">
+    **URI:** `piveau://vocabularies`
 
-**URI:** `piveau://vocabularies`
+    **Rückgabewert:** Array aller kontrollierten Vokabulare (bis zu 1000)
 
-**Rückgabewert:** Array aller kontrollierten Vokabulare (bis zu 1000)
+    **Beispielnutzung:**
+    ```
+    Lade Vokabulare aus Ressource piveau://vocabularies
+    ```
 
-**Beispielnutzung:**
-```
-Lade Vokabulare aus Ressource piveau://vocabularies
-```
-
-**Antwortformat:**
-```json
-[
-  {
-    "id": "eu-themes",
-    "title": "EU Datenkategorien",
-    "type": "ConceptScheme"
-  },
-  {
-    "id": "file-formats",
-    "title": "Dateiformat-Vokabular",
-    "type": "ConceptScheme"
-  }
-]
-```
-
----
-
-#### Bestimmtes Vokabular abrufen
-
-**URI:** `piveau://vocabularies/{vocabulary_id}`
-
-**Parameter:**
-- `vocabulary_id` - Eindeutige Vokabular-ID
-
-**Rückgabewert:** Vollständiges Vokabular mit allen Begriffen und Labels
-
-**Beispielnutzung:**
-```
-Zeige mir Ressource piveau://vocabularies/eu-themes
-```
-
-**Antwortformat:**
-```json
-{
-  "id": "eu-themes",
-  "title": "EU Datenkategorien",
-  "@graph": [
-    {
-      "@id": "http://publications.europa.eu/resource/authority/data-theme/HEAL",
-      "prefLabel": {
-        "en": "Health",
-        "de": "Gesundheit"
+    **Antwortformat:**
+    ```json
+    [
+      {
+        "id": "eu-themes",
+        "title": "EU Datenkategorien",
+        "type": "ConceptScheme"
+      },
+      {
+        "id": "file-formats",
+        "title": "Dateiformat-Vokabular",
+        "type": "ConceptScheme"
       }
-    }
-  ]
-}
-```
+    ]
+    ```
+  </Accordion>
 
----
+  <Accordion title="Bestimmtes Vokabular abrufen" id="get-vocabulary-resource">
+    **URI:** `piveau://vocabularies/{vocabulary_id}`
+
+    **Parameter:**
+    - `vocabulary_id` - Eindeutige Vokabular-ID
+
+    **Rückgabewert:** Vollständiges Vokabular mit allen Begriffen und Labels
+
+    **Beispielnutzung:**
+    ```
+    Zeige mir Ressource piveau://vocabularies/eu-themes
+    ```
+
+    **Antwortformat:**
+    ```json
+    {
+      "id": "eu-themes",
+      "title": "EU Datenkategorien",
+      "@graph": [
+        {
+          "@id": "http://publications.europa.eu/resource/authority/data-theme/HEAL",
+          "prefLabel": {
+            "en": "Health",
+            "de": "Gesundheit"
+          }
+        }
+      ]
+    }
+    ```
+  </Accordion>
+</Accordions>
+
+
 
 ## Nutzungsmuster
 
