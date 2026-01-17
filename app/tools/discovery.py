@@ -8,6 +8,7 @@ from pydantic import Field, StringConstraints
 
 from app.dependencies import get_piveau_client
 from app.models import ValueType
+from app.similarity import find_related
 
 
 def calculate_quality_score(dataset: dict[str, Any]) -> float:
@@ -409,3 +410,55 @@ def register_discovery_tools(mcp: FastMCP) -> None:
             return result if isinstance(result, dict) else {"data": result}
         except Exception as e:
             raise ToolError(f"Failed to get catalogue record for dataset '{dataset_id}': {e}") from e
+
+    @mcp.tool(
+        name="find_related_datasets",
+        description=(
+            "Find datasets related to a source dataset based on shared themes and keywords. "
+            "Returns similar datasets ranked by a similarity score (0-100). "
+            "Useful for discovering additional relevant data sources."
+        ),
+        annotations={"readOnlyHint": True},
+    )
+    async def find_related_datasets(
+        ctx: Context,
+        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
+        limit: Annotated[
+            int,
+            Field(
+                ge=1,
+                le=50,
+                default=10,
+                description="Maximum number of related datasets to return (1-50, default 10).",
+            ),
+        ] = 10,
+        min_score: Annotated[
+            float,
+            Field(
+                ge=0,
+                le=100,
+                default=20.0,
+                description="Minimum similarity score to include (0-100, default 20).",
+            ),
+        ] = 20.0,
+    ) -> dict[str, Any]:
+        """Find datasets similar to the source dataset."""
+        client = get_piveau_client(ctx)
+        try:
+            if ctx:
+                await ctx.report_progress(0, 2, "Fetching source dataset...")
+
+            result = await find_related(
+                client=client,
+                dataset_id=dataset_id,
+                limit=limit,
+                min_score=min_score,
+            )
+
+            if ctx:
+                related_count = len(result.get("related", []))
+                await ctx.report_progress(2, 2, f"Found {related_count} related datasets")
+
+            return result
+        except Exception as e:
+            raise ToolError(f"Failed to find related datasets for '{dataset_id}': {e}") from e
