@@ -92,12 +92,44 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (To be populated by create-roadmap) | | |
+| FOUND-01 | Phase 10 | Pending |
+| FOUND-02 | Phase 10 | Pending |
+| FOUND-03 | Phase 10 | Pending |
+| FOUND-04 | Phase 10 | Pending |
+| FOUND-05 | Phase 10 | Pending |
+| FOUND-06 | Phase 10 | Pending |
+| LLM-01 | Phase 11 | Pending |
+| LLM-02 | Phase 11 | Pending |
+| LLM-03 | Phase 11 | Pending |
+| LLM-04 | Phase 11 | Pending |
+| LLM-05 | Phase 11 | Pending |
+| SEARCH-01 | Phase 12 | Pending |
+| SEARCH-02 | Phase 12 | Pending |
+| SEARCH-03 | Phase 12 | Pending |
+| SEARCH-04 | Phase 12 | Pending |
+| SEARCH-05 | Phase 12 | Pending |
+| SEARCH-06 | Phase 12 | Pending |
+| SEARCH-07 | Phase 12 | Pending |
+| ICON-01 | Phase 13 | Pending |
+| ICON-02 | Phase 13 | Pending |
+| ICON-03 | Phase 13 | Pending |
+| ICON-04 | Phase 13 | Pending |
+| VISUAL-01 | Phase 14 | Pending |
+| VISUAL-02 | Phase 14 | Pending |
+| VISUAL-03 | Phase 14 | Pending |
+| VISUAL-04 | Phase 14 | Pending |
+| VISUAL-05 | Phase 14 | Pending |
+| VISUAL-06 | Phase 14 | Pending |
+| ENGAGE-01 | Phase 15 | Pending |
+| ENGAGE-02 | Phase 15 | Pending |
+| ENGAGE-03 | Phase 15 | Pending |
+| ENGAGE-04 | Phase 15 | Pending |
+| ENGAGE-05 | Phase 15 | Pending |
 
 **Coverage:**
-- v1.1 requirements: 30 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 30 ⚠️
+- v1.1 requirements: 33 total
+- Mapped to phases: 33
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-01-17*
