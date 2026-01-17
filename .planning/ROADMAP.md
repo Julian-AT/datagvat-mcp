@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Basic Search** - Full-text search with faceted filtering, sorting, and fuzzy matching
 - [x] **Phase 3: Quality & Autocomplete** - Quality-aware ranking and search suggestions
 - [x] **Phase 4: Data Preview** - Schema introspection and data preview for tabular datasets
-- [ ] **Phase 5: Related Datasets** - Content-based dataset similarity and recommendations
+- [x] **Phase 5: Related Datasets** - Content-based dataset similarity and recommendations
 - [ ] **Phase 6: Semantic Search** - Natural language query understanding via LLM
 
 ## Phase Details
@@ -99,7 +99,7 @@ Plans:
 **Plans**: 1
 
 Plans:
-- [ ] 05-01: Similarity Service & Related Datasets Tool
+- [x] 05-01: Similarity Service & Related Datasets Tool
 
 ### Phase 6: Semantic Search
 **Goal**: Natural language queries matched semantically
@@ -127,9 +127,9 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Basic Search | 3/3 | Complete | 2026-01-16 |
 | 3. Quality & Autocomplete | 1/1 | Complete | 2026-01-16 |
 | 4. Data Preview | 2/2 | Complete | 2026-01-17 |
-| 5. Related Datasets | 0/1 | Planned | - |
+| 5. Related Datasets | 1/1 | Complete | 2026-01-17 |
 | 6. Semantic Search | 0/TBD | Not started | - |
 
 ---
 *Roadmap created: 2026-01-16*
-*Last updated: 2026-01-17 after Phase 4 completion*
+*Last updated: 2026-01-17 after Phase 5 completion*
