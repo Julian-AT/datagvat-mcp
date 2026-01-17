@@ -8,6 +8,19 @@ A comprehensive MCP server for Austrian Open Government Data via data.gv.at. The
 
 Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
 
+## Current Milestone: v1.1 Documentation Excellence
+
+**Goal:** Perfect the documentation site with full Fumadocs enterprise features, fix styling and i18n issues, and integrate AI-powered enhancements.
+
+**Target features:**
+- Fix styling inconsistencies and layout issues
+- Resolve internationalization (i18n) routing and language switching problems
+- Integrate Fumadocs enterprise features (AI search, llms.txt, feedback, OG images)
+- Add icon support throughout documentation
+- Implement proper SEO and metadata
+- Perfect responsive design across all devices
+- Enhance search experience with AI-powered features
+
 ## Requirements
 
 ### Validated
@@ -38,9 +51,28 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 
 ### Active
 
-<!-- Next milestone scope. TBD after v1.0 deployment feedback. -->
+<!-- v1.1 Documentation Excellence scope -->
 
-(To be defined based on user feedback and deployment experience)
+**Documentation Fixes:**
+- [ ] Fix styling inconsistencies (Tailwind CSS integration, theme issues)
+- [ ] Resolve i18n routing and language switching issues
+- [ ] Fix broken links and navigation
+- [ ] Correct responsive design problems
+
+**Enterprise Features Integration:**
+- [ ] AI-powered search (Fumadocs search with embeddings)
+- [ ] llms.txt support for AI assistants
+- [ ] Feedback system for documentation improvement
+- [ ] OG image generation for social sharing
+- [ ] Icon integration throughout documentation
+- [ ] Proper SEO metadata and sitemap
+
+**Enhanced User Experience:**
+- [ ] Improved documentation navigation and discoverability
+- [ ] Code playground or interactive examples
+- [ ] Video tutorials or animated guides
+- [ ] Better error messages and troubleshooting guides
+- [ ] Quick start templates and boilerplates
 
 ### Out of Scope
 
@@ -95,4 +127,4 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 | German/English bilingual | Austrian data users speak both languages | ✓ Good — v1.0 |
 
 ---
-*Last updated: 2026-01-17 after v1.0 milestone completion*
+*Last updated: 2026-01-17 after v1.1 milestone initialization*
