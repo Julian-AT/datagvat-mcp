@@ -9,6 +9,7 @@ from pydantic import Field, StringConstraints
 from app.dependencies import get_piveau_client
 from app.models import ValueType
 from app.similarity import find_related
+from app.semantic import expand_natural_query, semantic_search
 
 
 def calculate_quality_score(dataset: dict[str, Any]) -> float:
@@ -462,3 +463,151 @@ def register_discovery_tools(mcp: FastMCP) -> None:
             return result
         except Exception as e:
             raise ToolError(f"Failed to find related datasets for '{dataset_id}': {e}") from e
+
+    @mcp.tool(
+        name="semantic_search_datasets",
+        description=(
+            "Search for datasets using natural language queries. "
+            "Ask in plain English or German - the system will understand your intent "
+            "and find relevant datasets. Examples: 'health data from Vienna', "
+            "'Gesundheitsdaten aus Wien', 'environmental datasets for research'. "
+            "Uses AI to expand your query into themes, keywords, and filters."
+        ),
+        annotations={"readOnlyHint": True},
+    )
+    async def semantic_search_datasets(
+        ctx: Context,
+        natural_query: Annotated[
+            str,
+            Field(
+                description=(
+                    "Natural language query in English or German. "
+                    "Examples: 'health data from Vienna', 'transport information for tourists', "
+                    "'Umweltdaten für die Forschung', 'economic statistics about Austria'. "
+                    "The system will understand your intent and find relevant datasets."
+                ),
+            ),
+        ],
+        themes: Annotated[
+            list[str] | None,
+            Field(
+                default=None,
+                description=(
+                    "Additional theme filters (optional). Valid codes: AGRI (Agriculture), "
+                    "ECON (Economy), EDUC (Education), ENER (Energy), ENVI (Environment), "
+                    "GOVE (Government), HEAL (Health), INTR (International), JUST (Justice), "
+                    "REGI (Regions), SOCI (Society), TECH (Technology), TRAN (Transport). "
+                    "Will be combined with AI-detected themes."
+                ),
+            ),
+        ] = None,
+        formats: Annotated[
+            list[str] | None,
+            Field(
+                default=None,
+                description=(
+                    "Additional format filters (optional). Examples: CSV, JSON, XML, PDF. "
+                    "Will be combined with AI-detected formats if any."
+                ),
+            ),
+        ] = None,
+        publishers: Annotated[
+            list[str] | None,
+            Field(
+                default=None,
+                description=(
+                    "Additional publisher filters (optional). Organization IDs. "
+                    "Will be combined with AI-detected publishers if any."
+                ),
+            ),
+        ] = None,
+        min_date: Annotated[
+            str | None,
+            Field(
+                default=None,
+                pattern=r"^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}Z)?$",
+                description=(
+                    "Filter datasets modified/issued after this date (optional). "
+                    "Format: YYYY-MM-DD or ISO 8601 (2025-01-01T00:00:00Z)."
+                ),
+            ),
+        ] = None,
+        max_date: Annotated[
+            str | None,
+            Field(
+                default=None,
+                pattern=r"^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}Z)?$",
+                description=(
+                    "Filter datasets modified/issued before this date (optional). "
+                    "Format: YYYY-MM-DD or ISO 8601 (2025-01-01T23:59:59Z)."
+                ),
+            ),
+        ] = None,
+        sort_by: Annotated[
+            str,
+            Field(
+                default="relevance",
+                description=(
+                    "Sort order. Options: relevance (default), "
+                    "modified_desc (most recent), modified_asc (oldest), "
+                    "title_asc (alphabetical), title_desc (reverse alphabetical), "
+                    "issued_desc (most recently published), issued_asc (oldest published)."
+                ),
+            ),
+        ] = "relevance",
+        boost_quality: Annotated[
+            bool,
+            Field(
+                default=True,
+                description=(
+                    "Boost high-quality datasets in search results. "
+                    "Defaults to True for semantic search as quality is often important "
+                    "when users ask natural language questions."
+                ),
+            ),
+        ] = True,
+        limit: Annotated[int, Field(ge=1, le=100, default=20)] = 20,
+        page: Annotated[int, Field(ge=0, default=0)] = 0,
+    ) -> dict[str, Any]:
+        """Search datasets using natural language understanding with AI expansion."""
+        try:
+            # Progress reporting for user feedback
+            if ctx:
+                await ctx.report_progress(0, 3, "Understanding your natural language query...")
+
+            # Call semantic search with all provided parameters
+            result = await semantic_search(
+                ctx=ctx,
+                query=natural_query,
+                themes=themes,
+                formats=formats,
+                publishers=publishers,
+                min_date=min_date,
+                max_date=max_date,
+                sort_by=sort_by,
+                boost_quality=boost_quality,
+                limit=limit,
+                page=page,
+            )
+
+            if ctx:
+                count = result.get("count", 0)
+                results_len = len(result.get("results", []))
+                expansion = result.get("expansion_info", {})
+                confidence = expansion.get("confidence", "unknown")
+                semantic_themes = expansion.get("semantic_themes", [])
+
+                progress_msg = f"Found {count} datasets (showing {results_len})"
+                if semantic_themes:
+                    progress_msg += f", AI detected themes: {', '.join(semantic_themes)}"
+                if confidence in ("high", "medium"):
+                    progress_msg += f" [AI confidence: {confidence}]"
+
+                await ctx.report_progress(3, 3, progress_msg)
+
+            return result
+
+        except ToolError:
+            raise
+        except Exception as e:
+            raise ToolError(f"Failed to perform semantic search for '{natural_query}': {e}") from e
