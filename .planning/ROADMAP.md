@@ -96,10 +96,10 @@ Plans:
   1. User can discover similar datasets based on themes and keywords
   2. Related suggestions are relevant to the original dataset
 **Research**: Unlikely (content-based similarity using existing metadata)
-**Plans**: TBD
+**Plans**: 1
 
 Plans:
-- [ ] (Plans will be created during phase planning)
+- [ ] 05-01: Similarity Service & Related Datasets Tool
 
 ### Phase 6: Semantic Search
 **Goal**: Natural language queries matched semantically
@@ -127,7 +127,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Basic Search | 3/3 | Complete | 2026-01-16 |
 | 3. Quality & Autocomplete | 1/1 | Complete | 2026-01-16 |
 | 4. Data Preview | 2/2 | Complete | 2026-01-17 |
-| 5. Related Datasets | 0/TBD | Not started | - |
+| 5. Related Datasets | 0/1 | Planned | - |
 | 6. Semantic Search | 0/TBD | Not started | - |
 
 ---
