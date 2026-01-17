@@ -26,8 +26,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Data Preview & Understanding
 
-- [ ] **PREVIEW-01**: User can view schema (column names and types) for CSV/JSON datasets
-- [ ] **PREVIEW-02**: User can preview first 10-20 rows of tabular datasets
+- [x] **PREVIEW-01**: User can view schema (column names and types) for CSV/JSON datasets
+- [x] **PREVIEW-02**: User can preview first 10-20 rows of tabular datasets
 - [ ] **PREVIEW-03**: User can discover related datasets based on themes and keywords
 
 ### Enterprise Reliability
@@ -99,8 +99,8 @@ Which phases cover which requirements. Updated by create-roadmap.
 | ADVSEARCH-01 | Phase 3 | Complete |
 | ADVSEARCH-02 | Phase 3 | Complete |
 | ADVSEARCH-03 | Phase 6 | Pending |
-| PREVIEW-01 | Phase 4 | Pending |
-| PREVIEW-02 | Phase 4 | Pending |
+| PREVIEW-01 | Phase 4 | Complete |
+| PREVIEW-02 | Phase 4 | Complete |
 | PREVIEW-03 | Phase 5 | Pending |
 | ENTERPRISE-01 | Phase 1 | Complete |
 | ENTERPRISE-02 | Phase 1 | Complete |
@@ -118,4 +118,4 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 ---
 *Requirements defined: 2026-01-16*
-*Last updated: 2026-01-16 after initial definition*
+*Last updated: 2026-01-17 after Phase 4 completion*

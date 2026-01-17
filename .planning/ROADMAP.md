@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Enterprise Foundation** - Production-ready infrastructure with retries, rate limiting, and structured logging
 - [x] **Phase 2: Basic Search** - Full-text search with faceted filtering, sorting, and fuzzy matching
 - [x] **Phase 3: Quality & Autocomplete** - Quality-aware ranking and search suggestions
-- [ ] **Phase 4: Data Preview** - Schema introspection and data preview for tabular datasets
+- [x] **Phase 4: Data Preview** - Schema introspection and data preview for tabular datasets
 - [ ] **Phase 5: Related Datasets** - Content-based dataset similarity and recommendations
 - [ ] **Phase 6: Semantic Search** - Natural language query understanding via LLM
 
@@ -82,10 +82,11 @@ Plans:
   3. Preview respects size limits and handles errors gracefully
 **Research**: Likely (file parsing, HTTP range headers, format handling)
 **Research topics**: HTTP Range header support on data.gv.at distributions, CSV/JSON parsing libraries with size limits, encoding detection, preview size optimization
-**Plans**: TBD
+**Plans**: 2
 
 Plans:
-- [ ] (Plans will be created during phase planning)
+- [x] 04-01: Preview Service Core (6 min)
+- [x] 04-02: MCP Tools Integration (8 min)
 
 ### Phase 5: Related Datasets
 **Goal**: Users discover similar datasets through content similarity
@@ -125,10 +126,10 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Enterprise Foundation | 3/3 | Complete | 2026-01-16 |
 | 2. Basic Search | 3/3 | Complete | 2026-01-16 |
 | 3. Quality & Autocomplete | 1/1 | Complete | 2026-01-16 |
-| 4. Data Preview | 0/TBD | Not started | - |
+| 4. Data Preview | 2/2 | Complete | 2026-01-17 |
 | 5. Related Datasets | 0/TBD | Not started | - |
 | 6. Semantic Search | 0/TBD | Not started | - |
 
 ---
 *Roadmap created: 2026-01-16*
-*Last updated: 2026-01-16 after initial creation*
+*Last updated: 2026-01-17 after Phase 4 completion*
