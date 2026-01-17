@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-01-16)
 
 ## Current Position
 
-Phase: 4 of 6 (Data Preview) - COMPLETE
-Plan: All plans complete
-Status: Phase verified and complete
-Last activity: 2026-01-17 — Phase 4 verified, ready for Phase 5
+Phase: 5 of 6 (Related Datasets) - IN PROGRESS
+Plan: 1 of 1 complete
+Status: Phase 5 Plan 1 complete
+Last activity: 2026-01-17 — Completed 05-01-PLAN.md
 
-Progress: █████████░░ 67% (4 of 6 phases)
+Progress: ██████████░ 83% (5 of 6 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
-- Average duration: 6 min
-- Total execution time: 0.98 hours
+- Total plans completed: 10
+- Average duration: 6.5 min
+- Total execution time: 1.1 hours
 
 **By Phase:**
 
@@ -31,9 +31,10 @@ Progress: █████████░░ 67% (4 of 6 phases)
 | 02-basic-search | 3 | 18 min | 6 min |
 | 03-quality-autocomplete | 1 | 4 min | 4 min |
 | 04-data-preview | 2 | 14 min | 7 min |
+| 05-related-datasets | 1 | 8 min | 8 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-03 (4 min), 03-01 (4 min), 04-01 (6 min), 04-02 (8 min)
+- Last 5 plans: 03-01 (4 min), 04-01 (6 min), 04-02 (8 min), 05-01 (8 min)
 - Trend: Excellent - Execution time consistently under 10 min/plan
 
 ## Accumulated Context
@@ -78,6 +79,10 @@ Recent decisions affecting current work:
 - URL validation requires http:// or https:// prefix (04-02, 2026-01-16)
 - Format auto-detection from URL extension when not specified (04-02, 2026-01-16)
 - Estimated bytes calculation: CSV ~500 bytes/row, JSON ~200 bytes/object (04-02, 2026-01-16)
+- Theme matches weighted 3x higher than keyword matches (30 vs 10 points) (05-01, 2026-01-17)
+- Publisher bonus 15 points for same-org datasets (05-01, 2026-01-17)
+- Score components capped (themes 60, keywords 30, total 100) (05-01, 2026-01-17)
+- Minimum score threshold 20 points default to filter weak matches (05-01, 2026-01-17)
 
 ### Pending Todos
 
@@ -90,6 +95,6 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-17
-Stopped at: Phase 4 verified complete
+Stopped at: Completed 05-01-PLAN.md
 Resume file: None
-Next: Phase 5 - Related Datasets
+Next: Verify Phase 5 complete or Phase 6 - Advanced Search
