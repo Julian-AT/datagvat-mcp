@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { defineI18nUI } from 'fumadocs-ui/i18n';
 import { i18n } from '@/lib/i18n';
 
-const { provider } = defineI18nUI(i18n, {
+const { provider: I18nProvider } = defineI18nUI(i18n, {
   translations: {
     en: {
       displayName: 'English',
@@ -22,17 +22,21 @@ const { provider } = defineI18nUI(i18n, {
   },
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   params,
   children,
 }: {
   params: Promise<{ lang: string }>;
   children: ReactNode;
 }) {
+  const { lang } = await params;
+
   return (
-    <html lang={provider.locale} suppressHydrationWarning>
+    <html lang={lang} suppressHydrationWarning>
       <body>
-        <RootProvider>{children}</RootProvider>
+        <I18nProvider locale={lang}>
+          <RootProvider>{children}</RootProvider>
+        </I18nProvider>
       </body>
     </html>
   );
