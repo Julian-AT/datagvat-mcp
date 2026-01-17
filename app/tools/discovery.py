@@ -70,6 +70,11 @@ def calculate_quality_score(dataset: dict[str, Any]) -> float:
 
 
 def register_discovery_tools(mcp: FastMCP) -> None:
+    """Register discovery tools for searching and listing datasets.
+
+    Args:
+        mcp: The FastMCP server instance to register tools with.
+    """
     @mcp.tool(
         name="list_catalogues",
         description="List available data catalogues in the Austrian Open Data Portal.",

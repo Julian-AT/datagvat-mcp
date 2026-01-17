@@ -14,7 +14,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    piveau_api_base: str = Field(default="https://qs.data.gv.at/api/hub/repo")
+    piveau_api_base: str = Field(default="https://www.data.gv.at/api/hub/search")
     piveau_api_key: SecretStr | None = Field(default=None)
     request_timeout: int = Field(default=30, ge=5, le=300)
     user_agent: str = Field(default="Austria-MCP-Agent/1.0")
@@ -22,6 +22,11 @@ class Settings(BaseSettings):
 
     @property
     def api_key_value(self) -> str | None:
+        """Get the API key value as a plain string.
+
+        Returns:
+            The API key string or None if not configured.
+        """
         if self.piveau_api_key:
             return self.piveau_api_key.get_secret_value()
         return None
@@ -31,6 +36,11 @@ _settings: Settings | None = None
 
 
 def get_settings() -> Settings:
+    """Get the application settings singleton.
+
+    Returns:
+        The Settings instance, creating it if necessary.
+    """
     global _settings
     if _settings is None:
         _settings = Settings()

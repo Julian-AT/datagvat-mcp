@@ -10,6 +10,11 @@ from app.dependencies import get_piveau_client
 
 
 def register_management_tools(mcp: FastMCP) -> None:
+    """Register dataset management tools for drafts and publishing.
+
+    Args:
+        mcp: The FastMCP server instance to register tools with.
+    """
     @mcp.tool(
         name="list_dataset_drafts",
         description="List dataset drafts you have access to.",

@@ -10,6 +10,11 @@ from app.dependencies import get_piveau_client
 
 
 def register_vocabulary_tools(mcp: FastMCP) -> None:
+    """Register vocabulary tools for controlled vocabularies and autocomplete.
+
+    Args:
+        mcp: The FastMCP server instance to register tools with.
+    """
     @mcp.tool(
         name="list_vocabularies",
         description="List available controlled vocabularies.",

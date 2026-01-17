@@ -8,6 +8,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class ValueType(str, Enum):
+    """Value types for Piveau API responses."""
+
     URI_REFS = "uriRefs"
     IDENTIFIERS = "identifiers"
     ORIGINAL_IDS = "originalIds"
@@ -15,6 +17,8 @@ class ValueType(str, Enum):
 
 
 class IdentifierType(str, Enum):
+    """Identifier types for DOI registration."""
+
     EU_RA_DOI = "eu-ra-doi"
     MOCK = "mock"
 
@@ -31,6 +35,12 @@ SortOption = Literal[
 
 
 class Distribution(BaseModel):
+    """Data distribution (file/resource) in DCAT-AP format.
+
+    Represents a specific downloadable file or accessible endpoint
+    associated with a dataset.
+    """
+
     model_config = ConfigDict(populate_by_name=True)
 
     id: str
@@ -45,6 +55,12 @@ class Distribution(BaseModel):
 
 
 class Dataset(BaseModel):
+    """Dataset metadata in DCAT-AP format.
+
+    Represents a dataset with its metadata including title, description,
+    publisher, themes, keywords, and associated distributions.
+    """
+
     model_config = ConfigDict(populate_by_name=True)
 
     id: str
@@ -64,6 +80,11 @@ class Dataset(BaseModel):
 
 
 class Catalogue(BaseModel):
+    """Data catalogue metadata in DCAT-AP format.
+
+    Represents a data catalogue that contains multiple datasets.
+    """
+
     model_config = ConfigDict(populate_by_name=True)
 
     id: str
@@ -79,6 +100,11 @@ class Catalogue(BaseModel):
 
 
 class DatasetDraft(BaseModel):
+    """Draft dataset for creation/update operations.
+
+    Simplified model for creating or updating datasets via the Piveau API.
+    """
+
     title: dict[str, str]
     description: dict[str, str]
     keywords: list[str] = Field(default_factory=list)
@@ -88,6 +114,12 @@ class DatasetDraft(BaseModel):
 
 
 class EligibilityResult(BaseModel):
+    """Result of DOI eligibility check.
+
+    Indicates whether a dataset is eligible for DOI registration
+    and provides details about missing requirements if not eligible.
+    """
+
     eligible: bool
     identifier_type: str
     missing_fields: list[str] = Field(default_factory=list)

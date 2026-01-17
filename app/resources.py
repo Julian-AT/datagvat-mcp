@@ -8,6 +8,14 @@ from app.dependencies import get_piveau_client
 
 
 def register_resources(mcp: FastMCP) -> None:
+    """Register MCP resources for data access.
+
+    Registers resource handlers for catalogues, datasets, distributions,
+    metrics, and vocabularies following the piveau:// URI scheme.
+
+    Args:
+        mcp: The FastMCP server instance to register resources with.
+    """
     @mcp.resource("piveau://catalogues")
     async def catalogues_resource(ctx: Context) -> list[dict[str, Any]]:
         """All available data catalogues."""

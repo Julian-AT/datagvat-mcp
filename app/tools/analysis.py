@@ -14,6 +14,11 @@ logger = logging.getLogger(__name__)
 
 
 def register_analysis_tools(mcp: FastMCP) -> None:
+    """Register analysis tools for quality metrics and eligibility checks.
+
+    Args:
+        mcp: The FastMCP server instance to register tools with.
+    """
     @mcp.tool(
         name="get_dataset_metrics",
         description="Get metadata quality metrics (DQV) for a dataset.",
