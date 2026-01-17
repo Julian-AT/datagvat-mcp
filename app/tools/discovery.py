@@ -2,14 +2,14 @@
 
 from typing import Annotated, Any
 
-from fastmcp import FastMCP, Context
+from fastmcp import Context, FastMCP
 from fastmcp.exceptions import ToolError
 from pydantic import Field, StringConstraints
 
 from app.dependencies import get_piveau_client
 from app.models import ValueType
+from app.semantic import semantic_search
 from app.similarity import find_related
-from app.semantic import expand_natural_query, semantic_search
 
 
 def calculate_quality_score(dataset: dict[str, Any]) -> float:

@@ -3,7 +3,7 @@
 import logging
 from typing import Annotated, Any
 
-from fastmcp import FastMCP, Context
+from fastmcp import Context, FastMCP
 from fastmcp.exceptions import ToolError
 from pydantic import StringConstraints
 

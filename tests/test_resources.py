@@ -1,9 +1,7 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from fastmcp import FastMCP, Context
+from fastmcp import Context, FastMCP
 
-from app.client import PiveauClient
 from app.config import Settings
 from app.server import AppState
 

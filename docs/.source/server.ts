@@ -1,7 +1,27 @@
 // @ts-nocheck
-import { default as __fd_glob_2 } from "../content/docs/meta.json?collection=meta"
-import * as __fd_glob_1 from "../content/docs/index.mdx?collection=docs"
-import * as __fd_glob_0 from "../content/docs/index.de.mdx?collection=docs"
+import * as __fd_glob_22 from "../content/docs/tutorials/getting-started.mdx?collection=docs"
+import * as __fd_glob_21 from "../content/docs/tutorials/getting-started.de.mdx?collection=docs"
+import * as __fd_glob_20 from "../content/docs/guides/setup.mdx?collection=docs"
+import * as __fd_glob_19 from "../content/docs/guides/setup.de.mdx?collection=docs"
+import * as __fd_glob_18 from "../content/docs/guides/configuration.mdx?collection=docs"
+import * as __fd_glob_17 from "../content/docs/guides/configuration.de.mdx?collection=docs"
+import * as __fd_glob_16 from "../content/docs/examples/workflows.mdx?collection=docs"
+import * as __fd_glob_15 from "../content/docs/examples/workflows.de.mdx?collection=docs"
+import * as __fd_glob_14 from "../content/docs/examples/search.mdx?collection=docs"
+import * as __fd_glob_13 from "../content/docs/examples/search.de.mdx?collection=docs"
+import * as __fd_glob_12 from "../content/docs/examples/preview.mdx?collection=docs"
+import * as __fd_glob_11 from "../content/docs/examples/preview.de.mdx?collection=docs"
+import * as __fd_glob_10 from "../content/docs/best-practices/optimization.mdx?collection=docs"
+import * as __fd_glob_9 from "../content/docs/best-practices/optimization.de.mdx?collection=docs"
+import * as __fd_glob_8 from "../content/docs/api/tools.mdx?collection=docs"
+import * as __fd_glob_7 from "../content/docs/api/tools.de.mdx?collection=docs"
+import * as __fd_glob_6 from "../content/docs/api/resources.mdx?collection=docs"
+import * as __fd_glob_5 from "../content/docs/api/resources.de.mdx?collection=docs"
+import * as __fd_glob_4 from "../content/docs/api/prompts.mdx?collection=docs"
+import * as __fd_glob_3 from "../content/docs/api/prompts.de.mdx?collection=docs"
+import * as __fd_glob_2 from "../content/docs/index.mdx?collection=docs"
+import * as __fd_glob_1 from "../content/docs/index.de.mdx?collection=docs"
+import { default as __fd_glob_0 } from "../content/docs/meta.json?collection=docs"
 import { server } from 'fumadocs-mdx/runtime/server';
 import type * as Config from '../source.config';
 
@@ -10,6 +30,4 @@ const create = server<typeof Config, import("fumadocs-mdx/runtime/types").Intern
   }
 }>({"doc":{"passthroughs":["extractedReferences"]}});
 
-export const docs = await create.doc("docs", "content/docs", {"index.de.mdx": __fd_glob_0, "index.mdx": __fd_glob_1, });
-
-export const meta = await create.meta("meta", "content/docs", {"meta.json": __fd_glob_2, });
+export const docs = await create.docs("docs", "content/docs", {"meta.json": __fd_glob_0, }, {"index.de.mdx": __fd_glob_1, "index.mdx": __fd_glob_2, "api/prompts.de.mdx": __fd_glob_3, "api/prompts.mdx": __fd_glob_4, "api/resources.de.mdx": __fd_glob_5, "api/resources.mdx": __fd_glob_6, "api/tools.de.mdx": __fd_glob_7, "api/tools.mdx": __fd_glob_8, "best-practices/optimization.de.mdx": __fd_glob_9, "best-practices/optimization.mdx": __fd_glob_10, "examples/preview.de.mdx": __fd_glob_11, "examples/preview.mdx": __fd_glob_12, "examples/search.de.mdx": __fd_glob_13, "examples/search.mdx": __fd_glob_14, "examples/workflows.de.mdx": __fd_glob_15, "examples/workflows.mdx": __fd_glob_16, "guides/configuration.de.mdx": __fd_glob_17, "guides/configuration.mdx": __fd_glob_18, "guides/setup.de.mdx": __fd_glob_19, "guides/setup.mdx": __fd_glob_20, "tutorials/getting-started.de.mdx": __fd_glob_21, "tutorials/getting-started.mdx": __fd_glob_22, });

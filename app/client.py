@@ -8,7 +8,7 @@ import httpx
 from fastmcp.exceptions import ToolError
 from rdflib import Graph
 
-from app.models import ValueType, IdentifierType
+from app.models import IdentifierType, ValueType
 
 logger = logging.getLogger(__name__)
 

@@ -7,9 +7,9 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from fastmcp import FastMCP
-from fastmcp.server.middleware.error_handling import RetryMiddleware, ErrorHandlingMiddleware
-from fastmcp.server.middleware.rate_limiting import RateLimitingMiddleware
+from fastmcp.server.middleware.error_handling import ErrorHandlingMiddleware, RetryMiddleware
 from fastmcp.server.middleware.logging import StructuredLoggingMiddleware
+from fastmcp.server.middleware.rate_limiting import RateLimitingMiddleware
 
 from app.client import PiveauClient
 from app.config import get_settings
@@ -18,13 +18,13 @@ if TYPE_CHECKING:
     from app.config import Settings
 
 from app.middleware import AuditMiddleware, AuthMiddleware
-from app.resources import register_resources
 from app.prompts import register_prompts
+from app.resources import register_resources
 from app.tools.analysis import register_analysis_tools
 from app.tools.discovery import register_discovery_tools
 from app.tools.management import register_management_tools
-from app.tools.vocabularies import register_vocabulary_tools
 from app.tools.preview import register_preview_tools
+from app.tools.vocabularies import register_vocabulary_tools
 
 
 @dataclass

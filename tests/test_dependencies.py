@@ -1,11 +1,10 @@
-import pytest
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 from fastmcp import Context
 
-from app.dependencies import get_app_state, get_piveau_client, get_server_settings, has_api_key
 from app.client import PiveauClient
 from app.config import Settings
+from app.dependencies import get_app_state, get_piveau_client, get_server_settings, has_api_key
 from app.server import AppState
 
 

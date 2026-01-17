@@ -1,11 +1,11 @@
 """MCP Middleware for authentication and logging."""
 
-import time
 import logging
+import time
 from typing import Any
 
-from fastmcp.server.middleware import Middleware, MiddlewareContext
 from fastmcp.exceptions import ToolError
+from fastmcp.server.middleware import Middleware, MiddlewareContext
 
 logger = logging.getLogger(__name__)
 

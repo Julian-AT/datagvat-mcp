@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from fastmcp import FastMCP, Context
+from fastmcp import Context, FastMCP
 
 from app.dependencies import get_piveau_client
 

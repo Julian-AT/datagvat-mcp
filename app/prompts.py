@@ -1,7 +1,7 @@
 """MCP Prompts for common workflows."""
 
 from fastmcp import FastMCP
-from fastmcp.prompts import Prompt, Message
+from fastmcp.prompts import Message, Prompt
 
 
 def register_prompts(mcp: FastMCP) -> None:

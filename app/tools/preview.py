@@ -2,22 +2,21 @@
 
 from typing import Annotated, Any
 
-from fastmcp import FastMCP, Context
+from fastmcp import Context, FastMCP
 from fastmcp.exceptions import ToolError
 from pydantic import Field
 
 from app.preview import (
-    fetch_preview_bytes,
-    detect_format,
-    parse_csv_schema,
-    parse_csv_rows,
-    parse_json_schema,
-    parse_json_rows,
-    PreviewError,
     DEFAULT_PREVIEW_BYTES,
-    DEFAULT_PREVIEW_ROWS,
     MAX_PREVIEW_ROWS,
     SUPPORTED_FORMATS,
+    PreviewError,
+    detect_format,
+    fetch_preview_bytes,
+    parse_csv_rows,
+    parse_csv_schema,
+    parse_json_rows,
+    parse_json_schema,
 )
 
 
@@ -30,9 +29,7 @@ def _validate_url(url: str) -> None:
     if not url:
         raise ToolError("URL is required")
     if not url.startswith(("http://", "https://")):
-        raise ToolError(
-            f"Invalid URL: {url}. URL must start with http:// or https://"
-        )
+        raise ToolError(f"Invalid URL: {url}. URL must start with http:// or https://")
 
 
 def _format_supported_formats() -> str:
@@ -67,9 +64,7 @@ def register_preview_tools(mcp: FastMCP) -> None:
             str | None,
             Field(
                 default=None,
-                description=(
-                    "File format: 'csv' or 'json'. Auto-detected from URL if not specified."
-                ),
+                description=("File format: 'csv' or 'json'. Auto-detected from URL if not specified."),
             ),
         ] = None,
     ) -> dict[str, Any]:
@@ -97,8 +92,7 @@ def register_preview_tools(mcp: FastMCP) -> None:
 
             if detected_format not in ("csv", "json"):
                 raise ToolError(
-                    f"Unsupported format: {detected_format}. "
-                    f"Supported formats: {_format_supported_formats()}"
+                    f"Unsupported format: {detected_format}. Supported formats: {_format_supported_formats()}"
                 )
 
             # Parse schema based on format
@@ -124,13 +118,11 @@ def register_preview_tools(mcp: FastMCP) -> None:
             # Convert to user-friendly error
             if e.reason == "fetch_failed":
                 raise ToolError(
-                    f"Failed to fetch file: {e}. "
-                    "Check that the URL is accessible and points to a valid file."
+                    f"Failed to fetch file: {e}. Check that the URL is accessible and points to a valid file."
                 ) from e
             elif e.reason == "parse_failed":
                 raise ToolError(
-                    f"Failed to parse file: {e}. "
-                    "The file may be malformed or in an unexpected format."
+                    f"Failed to parse file: {e}. The file may be malformed or in an unexpected format."
                 ) from e
             else:
                 raise ToolError(str(e)) from e
@@ -217,8 +209,7 @@ def register_preview_tools(mcp: FastMCP) -> None:
 
             if detected_format not in ("csv", "json"):
                 raise ToolError(
-                    f"Unsupported format: {detected_format}. "
-                    f"Supported formats: {_format_supported_formats()}"
+                    f"Unsupported format: {detected_format}. Supported formats: {_format_supported_formats()}"
                 )
 
             # Parse rows based on format
@@ -244,13 +235,11 @@ def register_preview_tools(mcp: FastMCP) -> None:
             # Convert to user-friendly error
             if e.reason == "fetch_failed":
                 raise ToolError(
-                    f"Failed to fetch file: {e}. "
-                    "Check that the URL is accessible and points to a valid file."
+                    f"Failed to fetch file: {e}. Check that the URL is accessible and points to a valid file."
                 ) from e
             elif e.reason == "parse_failed":
                 raise ToolError(
-                    f"Failed to parse file: {e}. "
-                    "The file may be malformed or in an unexpected format."
+                    f"Failed to parse file: {e}. The file may be malformed or in an unexpected format."
                 ) from e
             else:
                 raise ToolError(str(e)) from e

@@ -1,9 +1,10 @@
-import pytest
+from collections.abc import AsyncGenerator
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock
-from typing import Any, AsyncGenerator
 
 import httpx
-from fastmcp import FastMCP, Context
+import pytest
+from fastmcp import Context, FastMCP
 from fastmcp.server.middleware import MiddlewareContext
 
 from app.client import PiveauClient
@@ -216,12 +217,12 @@ def create_mock_response(
 
 @pytest.fixture
 def mcp_server() -> FastMCP:
-    from app.tools.discovery import register_discovery_tools
+    from app.prompts import register_prompts
+    from app.resources import register_resources
     from app.tools.analysis import register_analysis_tools
+    from app.tools.discovery import register_discovery_tools
     from app.tools.management import register_management_tools
     from app.tools.vocabularies import register_vocabulary_tools
-    from app.resources import register_resources
-    from app.prompts import register_prompts
     
     mcp = FastMCP(
         name="austria-data-test",

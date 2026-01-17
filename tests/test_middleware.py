@@ -1,14 +1,14 @@
-import pytest
 import logging
 from unittest.mock import AsyncMock, MagicMock
 
-from fastmcp.server.middleware import MiddlewareContext
+import pytest
 from fastmcp.exceptions import ToolError
+from fastmcp.server.middleware import MiddlewareContext
 
-from app.middleware import AuditMiddleware, AuthMiddleware
-from app.config import Settings
-from app.server import AppState
 from app.client import PiveauClient
+from app.config import Settings
+from app.middleware import AuditMiddleware, AuthMiddleware
+from app.server import AppState
 
 
 def create_middleware_context(
