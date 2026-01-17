@@ -20,9 +20,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Advanced Search
 
-- [ ] **ADVSEARCH-01**: User sees high-quality datasets ranked higher in search results
-- [ ] **ADVSEARCH-02**: User receives autocomplete suggestions while typing search queries
-- [ ] **ADVSEARCH-03**: User can search using natural language and get semantically relevant results
+- [x] **ADVSEARCH-01**: User sees high-quality datasets ranked higher in search results
+- [x] **ADVSEARCH-02**: User receives autocomplete suggestions while typing search queries
+- [x] **ADVSEARCH-03**: User can search using natural language and get semantically relevant results
 
 ### Data Preview & Understanding
 
@@ -98,7 +98,7 @@ Which phases cover which requirements. Updated by create-roadmap.
 | SEARCH-08 | Phase 2 | Complete |
 | ADVSEARCH-01 | Phase 3 | Complete |
 | ADVSEARCH-02 | Phase 3 | Complete |
-| ADVSEARCH-03 | Phase 6 | Pending |
+| ADVSEARCH-03 | Phase 6 | Complete |
 | PREVIEW-01 | Phase 4 | Complete |
 | PREVIEW-02 | Phase 4 | Complete |
 | PREVIEW-03 | Phase 5 | Complete |
@@ -118,4 +118,4 @@ Which phases cover which requirements. Updated by create-roadmap.
 
 ---
 *Requirements defined: 2026-01-16*
-*Last updated: 2026-01-17 after Phase 5 completion*
+*Last updated: 2026-01-17 after Phase 6 completion*
