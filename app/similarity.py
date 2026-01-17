@@ -232,14 +232,18 @@ async def find_related(
                 else:
                     cand_title = str(title_field)
 
-            scored.append({
-                "id": cand_id,
-                "title": cand_title,
-                "similarity_score": score,
-                "matching_themes": list(set(features["themes"]) & set(cand_features["themes"])),
-                "matching_keywords": list(set(features["keywords"]) & set(cand_features["keywords"]))[:5],
-                "same_publisher": features["publisher"] == cand_features["publisher"] if features["publisher"] else False,
-            })
+            scored.append(
+                {
+                    "id": cand_id,
+                    "title": cand_title,
+                    "similarity_score": score,
+                    "matching_themes": list(set(features["themes"]) & set(cand_features["themes"])),
+                    "matching_keywords": list(set(features["keywords"]) & set(cand_features["keywords"]))[:5],
+                    "same_publisher": features["publisher"] == cand_features["publisher"]
+                    if features["publisher"]
+                    else False,
+                }
+            )
 
     # Sort by score descending, take top N
     scored.sort(key=lambda x: x["similarity_score"], reverse=True)
