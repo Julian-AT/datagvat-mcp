@@ -1,0 +1,5 @@
+{
+  "title": "Examples",
+  "icon": "Code",
+  "pages": ["search", "preview", "workflows"]
+}
