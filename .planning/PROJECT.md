@@ -12,48 +12,35 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 
 ### Validated
 
-<!-- Shipped and confirmed valuable. -->
+<!-- Shipped and confirmed valuable in v1.0 -->
 
-- ✓ MCP server foundation with FastMCP framework — existing
-- ✓ Piveau Hub API client with async HTTP operations — existing
-- ✓ Discovery tools (list/get catalogues, datasets, distributions) — existing
-- ✓ Analysis tools (metrics, DOI eligibility, quality analysis) — existing
-- ✓ Management tools (drafts, publish, hide) — existing
-- ✓ Vocabulary tools (list/get/search) — existing
-- ✓ MCP Resources for direct data access — existing
-- ✓ MCP Prompts for common workflows — existing
-- ✓ Middleware pipeline (audit logging, auth enforcement) — existing
-- ✓ Environment-based configuration with pydantic-settings — existing
-- ✓ Docker deployment support — existing
-- ✓ Test suite with pytest — existing
+**v1.0 MVP (shipped 2026-01-17):**
+- ✓ MCP server foundation with FastMCP framework
+- ✓ Enterprise infrastructure (retry, rate limiting, structured logging, graceful degradation) — v1.0
+- ✓ Advanced search filtering (theme, format, publisher, date range) — v1.0
+- ✓ Fuzzy matching for typo tolerance — v1.0
+- ✓ Quality-aware ranking and autocomplete suggestions — v1.0
+- ✓ Semantic search with LLM query expansion (German/English) — v1.0
+- ✓ Data preview capabilities (schema introspection, sample rows for CSV/JSON) — v1.0
+- ✓ Related dataset discovery via content similarity — v1.0
+- ✓ Comprehensive bilingual documentation (English/German) — v1.0
+- ✓ Progress reporting for long-running operations — v1.0
+- ✓ Input validation and sanitization across all tools — v1.0
+- ✓ Discovery tools (list/get catalogues, datasets, distributions)
+- ✓ Analysis tools (metrics, DOI eligibility, quality analysis)
+- ✓ Management tools (drafts, publish, hide)
+- ✓ Vocabulary tools (list/get/search)
+- ✓ MCP Resources for direct data access
+- ✓ MCP Prompts for common workflows
+- ✓ Test suite with pytest (268 tests)
+- ✓ CI/CD pipeline with GitHub Actions
+- ✓ mypy --strict type safety compliance
 
 ### Active
 
-<!-- Current scope. Building toward these. -->
+<!-- Next milestone scope. TBD after v1.0 deployment feedback. -->
 
-**Search Overhaul:**
-- [ ] Advanced filtering (theme, format, publisher, date range, spatial, language)
-- [ ] Improved search relevance and ranking
-- [ ] Autocomplete and search suggestions
-- [ ] Fuzzy matching for typo tolerance
-
-**Enterprise Grade:**
-- [ ] Robust error handling with retries and exponential backoff
-- [ ] Comprehensive structured logging with correlation IDs
-- [ ] Input validation and sanitization across all tools
-- [ ] Rate limiting and request throttling
-- [ ] Graceful degradation when API is unavailable
-
-**FastMCP Full Utilization:**
-- [ ] Sampling/completions for AI-powered dataset recommendations
-- [ ] Image and file handling for data previews
-- [ ] Progress reporting for long-running operations
-
-**All-in-One Experience:**
-- [ ] Dataset preview capabilities (show sample data)
-- [ ] Smart dataset recommendations based on query context
-- [ ] Austrian open data knowledge base (answer ecosystem questions)
-- [ ] Download assistance with format guidance
+(To be defined based on user feedback and deployment experience)
 
 ### Out of Scope
 
@@ -66,22 +53,25 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 
 ## Context
 
-**Existing Codebase:**
-- Python 3.11+ async codebase with FastMCP 2.3.0+
+**v1.0 Shipped (2026-01-17):**
+- 3,534 lines Python (async, typed with mypy --strict)
+- 11,526 lines MDX documentation (bilingual)
+- 25 MCP tools, 268 tests
 - Layered architecture: MCP interface → Middleware → Dependencies → Client → Models
-- Piveau Hub API integration via httpx with RDF parsing (rdflib)
-- Current search is basic pass-through to API with limited filtering
+- Piveau Hub API integration via httpx
+- CI/CD pipeline with GitHub Actions
 
-**Technical Environment:**
-- Piveau Hub API (data.gv.at) — DCAT-AP compliant, returns JSON-LD/RDF
-- MCP protocol for AI assistant integration
-- Claude Desktop primary client target
+**Technical Stack:**
+- FastMCP 2.14+ with enterprise middleware (retry, rate limiting, logging)
+- Fumadocs for bilingual documentation (German/English)
+- Python 3.11+ with async/await patterns
+- httpx for HTTP, rdflib for RDF parsing, pydantic for validation
 
-**Known Issues (from CONCERNS.md):**
-- Search functionality incomplete
-- Error handling inconsistent across tools
-- Limited use of FastMCP advanced features
-- No retry logic for transient failures
+**Deployment Ready:**
+- Production build succeeds (24 documentation pages)
+- All 24 v1 requirements satisfied
+- Cross-phase integration verified (100% connected)
+- 6/6 E2E user flows functional
 
 ## Constraints
 
@@ -100,7 +90,9 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 | FastMCP as framework | MCP protocol compliance, active development | ✓ Good |
 | httpx for HTTP | Async support, modern API | ✓ Good |
 | Pydantic for models | Validation, serialization, settings | ✓ Good |
-| Consumers over publishers | Primary audience is analysts/developers | — Pending |
+| Consumers over publishers | Primary audience is analysts/developers | ✓ Good |
+| Fumadocs for documentation | Modern framework, i18n support, interactive components | ✓ Good — v1.0 |
+| German/English bilingual | Austrian data users speak both languages | ✓ Good — v1.0 |
 
 ---
-*Last updated: 2026-01-16 after initialization*
+*Last updated: 2026-01-17 after v1.0 milestone completion*

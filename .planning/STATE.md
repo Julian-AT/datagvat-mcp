@@ -5,24 +5,25 @@
 See: .planning/PROJECT.md (updated 2026-01-16)
 
 **Core value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
-**Current focus:** Phase 9 — Fumadocs Component Integration
+**Current focus:** v1.0 shipped - Planning next milestone
 
 ## Current Position
 
-Phase: 9 of 9 (Fumadocs Component Integration) - COMPLETE
-Plan: 4 of 4 complete (09-01, 09-02, 09-03, 09-04)
-Status: All phases complete - Project ready for milestone audit
-Last activity: 2026-01-17 — Completed Phase 9 (Fumadocs Component Integration)
-Next: All 9 phases finished - ready for /gsd:audit-milestone
+Milestone: v1.0 MVP - SHIPPED (2026-01-17)
+Phases: 9/9 complete (20 plans executed)
+Status: Milestone complete - ready for deployment
+Last activity: 2026-01-17 — v1.0 milestone archived
+Next: Define requirements for next milestone (/gsd:define-requirements)
 
-Progress: █████████████ 100% (9 of 9 phases complete, 20 of 20 plans complete)
+Progress: █████████████ 100% v1.0 complete
 
 ## Performance Metrics
 
-**Velocity:**
+**v1.0 Milestone:**
 - Total plans completed: 20
 - Average duration: 10.9 min
 - Total execution time: 3.6 hours
+- Timeline: 144 days (Aug 2025 → Jan 2026)
 
 **By Phase:**
 
