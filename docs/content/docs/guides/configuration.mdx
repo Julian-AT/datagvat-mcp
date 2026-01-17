@@ -7,6 +7,30 @@ description: Advanced configuration options for Austria MCP server
 
 Advanced configuration options to customize the Austria MCP server for your needs.
 
+## Configuration Files
+
+Austria MCP uses these configuration files:
+
+<Files>
+  <Folder name="Project Root">
+    <File name=".env" />
+    <File name=".env.example" />
+    <Folder name=".mcp">
+      <File name="config.json" />
+    </Folder>
+  </Folder>
+  <Folder name="Claude Desktop" defaultOpen>
+    <Folder name="AppData/Roaming/Claude">
+      <File name="claude_desktop_config.json" />
+    </Folder>
+  </Folder>
+</Files>
+
+**Configuration file locations:**
+- **`.env`** - Project root, environment variables
+- **`.mcp/config.json`** - Project root, MCP server settings
+- **`claude_desktop_config.json`** - Claude Desktop application directory
+
 ## Environment Variables
 
 Configure the server behavior using environment variables in a `.env` file or your system environment.

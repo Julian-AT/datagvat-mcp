@@ -7,6 +7,30 @@ description: Erweiterte Konfigurationsoptionen für den Austria MCP Server
 
 Erweiterte Konfigurationsoptionen zur Anpassung des Austria MCP Servers an Ihre Bedürfnisse.
 
+## Konfigurationsdateien
+
+Austria MCP verwendet diese Konfigurationsdateien:
+
+<Files>
+  <Folder name="Projektstamm">
+    <File name=".env" />
+    <File name=".env.example" />
+    <Folder name=".mcp">
+      <File name="config.json" />
+    </Folder>
+  </Folder>
+  <Folder name="Claude Desktop" defaultOpen>
+    <Folder name="AppData/Roaming/Claude">
+      <File name="claude_desktop_config.json" />
+    </Folder>
+  </Folder>
+</Files>
+
+**Speicherorte der Konfigurationsdateien:**
+- **`.env`** - Projektstamm, Umgebungsvariablen
+- **`.mcp/config.json`** - Projektstamm, MCP-Server-Einstellungen
+- **`claude_desktop_config.json`** - Claude Desktop Anwendungsverzeichnis
+
 ## Umgebungsvariablen
 
 Konfigurieren Sie das Serververhalten mit Umgebungsvariablen in einer `.env` Datei oder Ihrer Systemumgebung.
