@@ -20,6 +20,7 @@ dev = [
     "pytest-cov>=4.1.0",
     "pytest-mock>=3.12.0",
     "ruff>=0.4.0",
+    "mypy>=1.0.0",
 ]
 
 [build-system]
@@ -66,3 +67,9 @@ exclude_lines = [
 ]
 show_missing = true
 fail_under = 80
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true

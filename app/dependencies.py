@@ -12,7 +12,12 @@ if TYPE_CHECKING:
 
 def get_app_state(ctx: Context) -> "AppState":
     """Get the AppState from lifespan context."""
-    return ctx.request_context.lifespan_context
+    if ctx.request_context is None:
+        raise RuntimeError("Request context is not available")
+    state = ctx.request_context.lifespan_context
+    if not isinstance(state, object):
+        raise RuntimeError("Lifespan context is not available")
+    return state  # type: ignore[return-value]
 
 
 def get_piveau_client(ctx: Context) -> "PiveauClient":

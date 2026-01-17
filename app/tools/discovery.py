@@ -261,10 +261,10 @@ def register_discovery_tools(mcp: FastMCP) -> None:
                 scope = f" in catalogue '{catalogue_id}'"
                 if ctx:
                     await ctx.report_progress(0, 1, f"Listing datasets{scope}...")
-                result = await client.list_catalogue_datasets(catalogue_id, limit, page)
+                dataset_list = await client.list_catalogue_datasets(catalogue_id, limit, page)
                 if ctx:
-                    await ctx.report_progress(1, 1, f"Retrieved {len(result)} datasets")
-                return {"results": result, "count": len(result), "facets": {}}
+                    await ctx.report_progress(1, 1, f"Retrieved {len(dataset_list)} datasets")
+                return {"results": dataset_list, "count": len(dataset_list), "facets": {}}
 
             # Enhanced search with filters
             # Build facets dict
@@ -280,7 +280,7 @@ def register_discovery_tools(mcp: FastMCP) -> None:
                         f"Invalid theme codes: {invalid}. "
                         f"Valid codes: {', '.join(valid_themes)}"
                     )
-                facets["theme"] = themes_upper
+                facets["categories"] = themes_upper
 
             if formats:
                 # Uppercase for consistency (API is case-insensitive but uppercase is standard)

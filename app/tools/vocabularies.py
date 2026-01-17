@@ -212,9 +212,13 @@ def register_vocabulary_tools(mcp: FastMCP) -> None:
         try:
             result = await client._request("GET", "/resources")
             if isinstance(result, list):
-                return result
+                typed_result: list[dict[str, Any]] = [item if isinstance(item, dict) else {} for item in result]
+                return typed_result
             if isinstance(result, dict) and "@graph" in result:
-                return result["@graph"]
-            return [result] if result else []
+                graph = result["@graph"]
+                if isinstance(graph, list):
+                    typed_graph: list[dict[str, Any]] = [item if isinstance(item, dict) else {} for item in graph]
+                    return typed_graph
+            return [result] if isinstance(result, dict) else []
         except Exception as e:
             raise ToolError(f"Failed to get resource types: {e}") from e

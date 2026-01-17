@@ -13,7 +13,7 @@ def register_prompts(mcp: FastMCP) -> None:
         else:
             instruction = f"Search for datasets about '{topic}' using the search_datasets tool."
 
-        return Prompt(
+        return Prompt(  # type: ignore[call-arg]
             messages=[
                 Message(
                     role="user",
@@ -25,7 +25,7 @@ def register_prompts(mcp: FastMCP) -> None:
     @mcp.prompt()
     def quality_audit(dataset_id: str) -> Prompt:
         """Audit the quality of a dataset."""
-        return Prompt(
+        return Prompt(  # type: ignore[call-arg]
             messages=[
                 Message(
                     role="user",
@@ -44,7 +44,7 @@ Summarize findings and suggest improvements.""",
     @mcp.prompt()
     def publication_checklist(draft_id: str, catalogue_id: str) -> Prompt:
         """Pre-publication checklist for a dataset draft."""
-        return Prompt(
+        return Prompt(  # type: ignore[call-arg]
             messages=[
                 Message(
                     role="user",
@@ -65,7 +65,7 @@ Provide a go/no-go recommendation with specific issues to address.""",
     def compare_datasets(dataset_ids: list[str]) -> Prompt:
         """Compare multiple datasets."""
         ids_str = ", ".join(dataset_ids)
-        return Prompt(
+        return Prompt(  # type: ignore[call-arg]
             messages=[
                 Message(
                     role="user",
@@ -85,7 +85,7 @@ Create a comparison table and recommend which to use based on quality and comple
     @mcp.prompt()
     def catalogue_overview(catalogue_id: str) -> Prompt:
         """Overview of a catalogue's contents."""
-        return Prompt(
+        return Prompt(  # type: ignore[call-arg]
             messages=[
                 Message(
                     role="user",

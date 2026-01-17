@@ -1,6 +1,7 @@
 """Austria Open Data MCP Server."""
 
 import logging
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
@@ -34,7 +35,7 @@ class AppState:
 
 
 @asynccontextmanager
-async def lifespan(mcp: FastMCP):
+async def lifespan(mcp: FastMCP) -> AsyncGenerator[AppState, None]:
     settings = get_settings()
     logging.basicConfig(
         level=getattr(logging, settings.log_level.upper(), logging.INFO),

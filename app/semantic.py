@@ -141,7 +141,9 @@ Return only JSON, no additional explanations:"""
 
         # Try to parse the JSON response
         try:
-            expanded = json.loads(response.strip())
+            # Extract string content from SamplingResult
+            response_text = str(response).strip()
+            expanded = json.loads(response_text)
 
             # Validate required fields and add missing ones
             result = {
@@ -164,7 +166,8 @@ Return only JSON, no additional explanations:"""
 
         except json.JSONDecodeError as e:
             logger.warning(f"Failed to parse LLM response as JSON: {e}")
-            logger.debug(f"LLM response was: {response[:200]}...")
+            response_text = str(response) if response else ""
+            logger.debug(f"LLM response was: {response_text[:200]}...")
             return fallback_result
 
     except Exception as e:
@@ -256,8 +259,39 @@ async def semantic_search(
             semantic_desc = f"themes={semantic_themes}" if semantic_themes else "keyword expansion"
             await ctx.report_progress(1, 2, f"Searching with {semantic_desc}...")
 
+        # Build facets dict for advanced search
+        facets_dict: dict[str, list[str]] = {}
+        if "themes" in search_params and search_params["themes"]:
+            theme_list = search_params.pop("themes")
+            if isinstance(theme_list, list):
+                facets_dict["categories"] = theme_list
+        if "formats" in search_params and search_params["formats"]:
+            format_list = search_params.pop("formats")
+            if isinstance(format_list, list):
+                facets_dict["format"] = format_list
+        if "publishers" in search_params and search_params["publishers"]:
+            pub_list = search_params.pop("publishers")
+            if isinstance(pub_list, list):
+                facets_dict["publisher"] = pub_list
+
+        # Extract valid parameters for search_datasets_advanced
+        query_param = search_params.pop("query", None)
+        min_date = search_params.pop("min_date", None)
+        max_date = search_params.pop("max_date", None)
+        sort = search_params.pop("sort", "relevance+desc")
+        limit = search_params.pop("limit", 20)
+        page = search_params.pop("page", 0)
+
         # Call the advanced search from client
-        result = await client.search_datasets_advanced(**search_params)
+        result = await client.search_datasets_advanced(
+            query=query_param if isinstance(query_param, str) else None,
+            facets=facets_dict if facets_dict else None,
+            min_date=min_date if isinstance(min_date, str) else None,
+            max_date=max_date if isinstance(max_date, str) else None,
+            sort=sort if isinstance(sort, str) else "relevance+desc",
+            limit=limit if isinstance(limit, int) else 20,
+            page=page if isinstance(page, int) else 0,
+        )
 
         # Step 4: Add expansion information to results
         result["expansion_info"] = {
@@ -281,10 +315,7 @@ async def semantic_search(
 
         try:
             # Simple fallback search with original query
-            fallback_params = {"query": query}
-            fallback_params.update(kwargs)
-
-            result = await client.search_datasets_advanced(**fallback_params)
+            result = await client.search_datasets_advanced(query=query)
             result["expansion_info"] = {
                 "original_query": query,
                 "expanded_query": query,

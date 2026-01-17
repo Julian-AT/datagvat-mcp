@@ -19,7 +19,7 @@ def extract_features(dataset: dict[str, Any]) -> dict[str, Any]:
     Returns:
         Dict with keys: themes (list[str]), keywords (list[str]), publisher (str | None)
     """
-    features = {
+    features: dict[str, list[str] | str | None] = {
         "themes": [],
         "keywords": [],
         "publisher": None,
@@ -27,6 +27,7 @@ def extract_features(dataset: dict[str, Any]) -> dict[str, Any]:
 
     # Extract themes - try both RDF and JSON formats
     themes = dataset.get("dcat:theme") or dataset.get("theme") or []
+    theme_list: list[str] = []
     if themes:
         if isinstance(themes, list):
             for theme in themes:
@@ -36,7 +37,7 @@ def extract_features(dataset: dict[str, Any]) -> dict[str, Any]:
                     if "/" in theme_id:
                         code = theme_id.split("/")[-1].upper()
                         if code:
-                            features["themes"].append(code)
+                            theme_list.append(code)
                 elif isinstance(theme, str):
                     # Direct code or URI
                     if "/" in theme:
@@ -44,12 +45,14 @@ def extract_features(dataset: dict[str, Any]) -> dict[str, Any]:
                     else:
                         code = theme.upper()
                     if code:
-                        features["themes"].append(code)
+                        theme_list.append(code)
         elif isinstance(themes, str):
-            features["themes"].append(themes.upper())
+            theme_list.append(themes.upper())
+    features["themes"] = theme_list
 
     # Extract keywords
     keywords = dataset.get("dcat:keyword") or dataset.get("keyword") or []
+    keyword_list: list[str] = []
     if keywords:
         if isinstance(keywords, list):
             for kw in keywords:
@@ -57,11 +60,12 @@ def extract_features(dataset: dict[str, Any]) -> dict[str, Any]:
                     # Multilingual: {"@value": "text", "@language": "de"}
                     val = kw.get("@value", "")
                     if val:
-                        features["keywords"].append(val.lower())
+                        keyword_list.append(val.lower())
                 elif isinstance(kw, str):
-                    features["keywords"].append(kw.lower())
+                    keyword_list.append(kw.lower())
         elif isinstance(keywords, str):
-            features["keywords"].append(keywords.lower())
+            keyword_list.append(keywords.lower())
+    features["keywords"] = keyword_list
 
     # Extract publisher
     publisher = dataset.get("dct:publisher") or dataset.get("publisher")
@@ -246,7 +250,11 @@ async def find_related(
             )
 
     # Sort by score descending, take top N
-    scored.sort(key=lambda x: x["similarity_score"], reverse=True)
+    def get_score(item: dict[str, Any]) -> float:
+        score = item.get("similarity_score")
+        return float(score) if isinstance(score, (int, float)) else 0.0
+
+    scored.sort(key=get_score, reverse=True)
     related = scored[:limit]
 
     return {

@@ -2,6 +2,7 @@
 
 import time
 import logging
+from typing import Any
 
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 from fastmcp.exceptions import ToolError
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 class AuditMiddleware(Middleware):
     """Logs tool executions with timing."""
 
-    async def on_call_tool(self, context: MiddlewareContext, call_next):
+    async def on_call_tool(self, context: MiddlewareContext, call_next: Any) -> Any:
         tool_name = self._get_tool_name(context)
         request_id = self._get_request_id(context)
         start = time.perf_counter()
@@ -32,11 +33,13 @@ class AuditMiddleware(Middleware):
     def _get_tool_name(self, context: MiddlewareContext) -> str:
         try:
             if hasattr(context, "arguments") and context.arguments:
-                return context.arguments.get("name", "unknown")
+                name = context.arguments.get("name", "unknown")
+                return str(name) if name is not None else "unknown"
             if hasattr(context, "message") and context.message:
                 params = getattr(context.message, "params", None)
                 if params:
-                    return getattr(params, "name", "unknown")
+                    name = getattr(params, "name", "unknown")
+                    return str(name) if name is not None else "unknown"
         except Exception:
             pass
         return "unknown"
@@ -44,7 +47,8 @@ class AuditMiddleware(Middleware):
     def _get_request_id(self, context: MiddlewareContext) -> str:
         try:
             if context.fastmcp_context:
-                return context.fastmcp_context.request_id or "no-id"
+                req_id = context.fastmcp_context.request_id or "no-id"
+                return str(req_id)
         except Exception:
             pass
         return f"req-{int(time.time() * 1000)}"
@@ -61,7 +65,7 @@ class AuthMiddleware(Middleware):
         "hide_dataset",
     })
 
-    async def on_call_tool(self, context: MiddlewareContext, call_next):
+    async def on_call_tool(self, context: MiddlewareContext, call_next: Any) -> Any:
         tool_name = self._get_tool_name(context)
 
         if tool_name in self.WRITE_TOOLS:
@@ -76,11 +80,13 @@ class AuthMiddleware(Middleware):
     def _get_tool_name(self, context: MiddlewareContext) -> str:
         try:
             if hasattr(context, "arguments") and context.arguments:
-                return context.arguments.get("name", "")
+                name = context.arguments.get("name", "")
+                return str(name) if name is not None else ""
             if hasattr(context, "message") and context.message:
                 params = getattr(context.message, "params", None)
                 if params:
-                    return getattr(params, "name", "")
+                    name = getattr(params, "name", "")
+                    return str(name) if name is not None else ""
         except Exception:
             pass
         return ""

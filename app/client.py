@@ -2,7 +2,7 @@
 
 import json
 import logging
-from typing import Any
+from typing import Any, NoReturn
 
 import httpx
 from fastmcp.exceptions import ToolError
@@ -56,7 +56,7 @@ class PiveauClient:
     async def __aenter__(self) -> "PiveauClient":
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+    async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         await self.close()
 
     async def _request(
@@ -110,7 +110,7 @@ class PiveauClient:
             logger.error(f"Request failed: {e}")
             raise PiveauApiError(f"Request failed: {e}") from e
 
-    def _handle_http_error(self, error: httpx.HTTPStatusError) -> None:
+    def _handle_http_error(self, error: httpx.HTTPStatusError) -> NoReturn:
         status = error.response.status_code
         try:
             details = error.response.json()
@@ -131,13 +131,15 @@ class PiveauClient:
             return {}
 
         if "json" in content_type:
-            return response.json()
+            parsed: dict[str, Any] | list[Any] = response.json()
+            return parsed
 
         if content_type in self.RDF_CONTENT_TYPES:
             return self._parse_rdf(response.text, content_type)
 
         try:
-            return response.json()
+            parsed = response.json()
+            return parsed
         except json.JSONDecodeError:
             return {"_raw": response.text}
 
@@ -153,16 +155,22 @@ class PiveauClient:
         try:
             graph = Graph()
             graph.parse(data=content, format=rdf_format)
-            return json.loads(graph.serialize(format="json-ld"))
+            serialized = graph.serialize(format="json-ld")
+            parsed: dict[str, Any] = json.loads(serialized)
+            return parsed
         except Exception as e:
             logger.warning(f"RDF parse failed: {e}")
             return {"_raw": content}
 
-    def _extract_list(self, result: Any) -> list[dict[str, Any]]:
+    def _extract_list(self, result: dict[str, Any] | list[Any]) -> list[dict[str, Any]]:
         if isinstance(result, list):
-            return result
+            typed_result: list[dict[str, Any]] = [item if isinstance(item, dict) else {} for item in result]
+            return typed_result
         if isinstance(result, dict) and "@graph" in result:
-            return result["@graph"]
+            graph = result["@graph"]
+            if isinstance(graph, list):
+                typed_graph: list[dict[str, Any]] = [item if isinstance(item, dict) else {} for item in graph]
+                return typed_graph
         return []
 
     # Catalogue operations
@@ -173,14 +181,22 @@ class PiveauClient:
         offset: int = 0,
         value_type: ValueType | str = ValueType.METADATA,
     ) -> list[dict[str, Any]]:
-        vt = value_type.value if isinstance(value_type, ValueType) else value_type
-        result = await self._request("GET", "/catalogues", params={"limit": limit, "offset": offset, "valueType": vt})
-        logger.info(f"Catalogues: {result}")
+        """List catalogues. The search API returns a simple array of catalogue IDs."""
+        result = await self._request("GET", "/catalogues", params={"limit": limit, "offset": offset})
+        # API returns an array of catalogue ID strings, convert to dict format
+        if isinstance(result, list):
+            return [{"id": cat_id} for cat_id in result if isinstance(cat_id, str)]
         return self._extract_list(result)
 
     async def get_catalogue(self, catalogue_id: str) -> dict[str, Any]:
-        result = await self._request("GET", f"/catalogues/{catalogue_id}")
-        return result if isinstance(result, dict) else {"data": result}
+        """Get catalogue details. The search API returns {"result": {...}}."""
+        response = await self._request("GET", f"/catalogues/{catalogue_id}")
+        if isinstance(response, dict):
+            if "result" in response:
+                result = response["result"]
+                return result if isinstance(result, dict) else {"data": result}
+            return response
+        return {"data": response}
 
     async def list_catalogue_datasets(
         self,
@@ -208,8 +224,14 @@ class PiveauClient:
         return self._extract_list(result)
 
     async def get_dataset(self, dataset_id: str) -> dict[str, Any]:
-        result = await self._request("GET", f"/datasets/{dataset_id}")
-        return result if isinstance(result, dict) else {"data": result}
+        """Get dataset details. The search API returns {"result": {...}}."""
+        response = await self._request("GET", f"/datasets/{dataset_id}")
+        if isinstance(response, dict):
+            if "result" in response:
+                result = response["result"]
+                return result if isinstance(result, dict) else {"data": result}
+            return response
+        return {"data": response}
 
     async def get_distributions(self, dataset_id: str, limit: int = 100, offset: int = 0) -> list[dict[str, Any]]:
         result = await self._request(
@@ -242,15 +264,20 @@ class PiveauClient:
 
         location = response.headers.get("Location", "")
         if location:
-            return location.split("/")[-1]
+            draft_id: str = location.split("/")[-1]
+            return draft_id
         try:
             data = response.json()
-            return data.get("id", data.get("@id", ""))
+            if isinstance(data, dict):
+                result = data.get("id") or data.get("@id") or ""
+                return str(result)
+            return ""
         except Exception:
             return ""
 
     async def get_draft(self, draft_id: str, catalogue_id: str) -> dict[str, Any]:
-        return await self._request("GET", f"/drafts/datasets/{draft_id}", params={"catalogue": catalogue_id}, require_auth=True)
+        result = await self._request("GET", f"/drafts/datasets/{draft_id}", params={"catalogue": catalogue_id}, require_auth=True)
+        return result if isinstance(result, dict) else {"data": result}
 
     async def update_draft(self, draft_id: str, catalogue_id: str, payload: dict[str, Any]) -> None:
         await self._request(
@@ -357,5 +384,13 @@ class PiveauClient:
         if max_date:
             params["maxDate"] = max_date
 
-        result = await self._request("GET", "/search", params=params)
-        return result if isinstance(result, dict) else {"results": [], "count": 0}
+        response = await self._request("GET", "/search", params=params)
+        # The search API returns {"result": {"count": N, "results": [...]}}
+        if isinstance(response, dict) and "result" in response:
+            result = response["result"]
+            return {
+                "results": result.get("results", []),
+                "count": result.get("count", 0),
+                "facets": result.get("facets", {}),
+            }
+        return {"results": [], "count": 0, "facets": {}}
