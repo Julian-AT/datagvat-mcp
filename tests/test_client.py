@@ -1,9 +1,10 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
+import pytest
+from fastmcp.exceptions import ToolError
 
-from app.client import PiveauClient, PiveauApiError, PiveauNotFoundError, PiveauAuthError
+from app.client import PiveauApiError, PiveauAuthError, PiveauClient, PiveauNotFoundError
 from app.models import IdentifierType
 
 
@@ -117,19 +118,19 @@ class TestPiveauClientRequest:
         mock_response.json.side_effect = ValueError()
         http_error = httpx.HTTPStatusError("500", request=MagicMock(), response=mock_response)
         mock_response.raise_for_status.side_effect = http_error
-        
+
         with patch.object(client._client, "request", new_callable=AsyncMock) as mock_request:
             mock_request.return_value = mock_response
-            with pytest.raises(PiveauApiError) as exc_info:
+            with pytest.raises(ToolError) as exc_info:
                 await client._request("GET", "/error")
-            assert exc_info.value.status_code == 500
+            assert "server error (500)" in str(exc_info.value)
 
     async def test_request_connection_error(self, client: PiveauClient):
         with patch.object(client._client, "request", new_callable=AsyncMock) as mock_request:
-            mock_request.side_effect = httpx.RequestError("Connection failed")
-            with pytest.raises(PiveauApiError) as exc_info:
+            mock_request.side_effect = httpx.ConnectError("Connection failed")
+            with pytest.raises(ToolError) as exc_info:
                 await client._request("GET", "/test")
-            assert "Request failed" in str(exc_info.value)
+            assert "Piveau API unavailable" in str(exc_info.value)
 
 
 class TestPiveauClientParseResponse:
@@ -170,14 +171,17 @@ class TestPiveauClientCatalogueOperations:
         mock_response = MagicMock(spec=httpx.Response)
         mock_response.status_code = 200
         mock_response.headers = {"content-type": "application/json"}
-        mock_response.content = b'[{"@id": "cat-1"}]'
-        mock_response.json.return_value = sample_catalogues_list
+        # API returns array of ID strings
+        mock_response.content = b'["cat-1", "cat-2"]'
+        mock_response.json.return_value = ["cat-1", "cat-2"]
         mock_response.raise_for_status = MagicMock()
-        
+
         with patch.object(client._client, "request", new_callable=AsyncMock) as mock_request:
             mock_request.return_value = mock_response
             result = await client.list_catalogues(limit=10, offset=0)
             assert len(result) == 2
+            assert result[0] == {"id": "cat-1"}
+            assert result[1] == {"id": "cat-2"}
             mock_request.assert_called_once()
             call_kwargs = mock_request.call_args.kwargs
             assert call_kwargs["params"]["limit"] == 10

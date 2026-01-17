@@ -2,7 +2,7 @@
 
 from typing import Annotated, Any
 
-from fastmcp import FastMCP, Context
+from fastmcp import Context, FastMCP
 from fastmcp.exceptions import ToolError
 from pydantic import Field, StringConstraints
 
@@ -137,7 +137,6 @@ def register_vocabulary_tools(mcp: FastMCP) -> None:
             - suggestions: List of suggestion dicts with {text, category, score}
             - count: Total suggestions found
         """
-        client = get_piveau_client(ctx)
         query_lower = query.lower()
         suggestions: list[dict[str, Any]] = []
 

@@ -1,12 +1,12 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from fastmcp import FastMCP, Context
+import pytest
+from fastmcp import Context, FastMCP
 
-from app.client import PiveauClient, PiveauNotFoundError, PiveauApiError
+from app.client import PiveauApiError, PiveauClient, PiveauNotFoundError
 from app.config import Settings
-from app.server import AppState
 from app.models import ValueType
+from app.server import AppState
 
 
 def create_mock_context(
@@ -103,8 +103,9 @@ class TestGetCatalogue:
         mock_client.get_catalogue.side_effect = PiveauNotFoundError("Not found", 404)
         ctx = create_mock_context(client=mock_client)
 
-        from app.tools.discovery import register_discovery_tools
         from fastmcp.exceptions import ToolError
+
+        from app.tools.discovery import register_discovery_tools
         mcp = FastMCP("test")
         register_discovery_tools(mcp)
 
@@ -221,7 +222,7 @@ class TestSearchDatasets:
         assert result["count"] == 2
         assert "facets" in result
         call_args = mock_client.search_datasets_advanced.call_args
-        assert call_args[1]["facets"] == {"theme": ["AGRI", "ENVI"]}
+        assert call_args[1]["facets"] == {"categories": ["AGRI", "ENVI"]}
 
     async def test_search_datasets_with_multiple_filters(self, sample_datasets_list: list):
         """Test combining query, theme, format, and date filters."""
@@ -259,7 +260,7 @@ class TestSearchDatasets:
 
         call_args = mock_client.search_datasets_advanced.call_args
         assert call_args[1]["query"] == "crops"
-        assert call_args[1]["facets"] == {"theme": ["AGRI"], "format": ["CSV"]}
+        assert call_args[1]["facets"] == {"categories": ["AGRI"], "format": ["CSV"]}
         assert call_args[1]["min_date"] == "2025-01-01T00:00:00Z"
         assert call_args[1]["max_date"] == "2025-12-31T23:59:59Z"
         assert call_args[1]["sort"] == "modified+desc"
@@ -433,8 +434,9 @@ class TestAnalyzeDatasetQuality:
         mock_client.get_dataset.side_effect = PiveauApiError("Failed")
         ctx = create_mock_context(client=mock_client)
 
-        from app.tools.analysis import register_analysis_tools
         from fastmcp.exceptions import ToolError
+
+        from app.tools.analysis import register_analysis_tools
         mcp = FastMCP("test")
         register_analysis_tools(mcp)
 

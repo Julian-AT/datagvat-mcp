@@ -1,7 +1,7 @@
 import os
-import pytest
 from unittest.mock import patch
 
+import pytest
 from pydantic import SecretStr
 
 from app.config import Settings, get_settings
@@ -11,7 +11,7 @@ class TestSettings:
     def test_default_values(self):
         with patch.dict(os.environ, {}, clear=True):
             settings = Settings()
-            assert settings.piveau_api_base == "https://qs.data.gv.at/api/hub/repo"
+            assert settings.piveau_api_base == "https://www.data.gv.at/api/hub/search"
             assert settings.piveau_api_key is None
             assert settings.request_timeout == 30
             assert settings.user_agent == "Austria-MCP-Agent/1.0"

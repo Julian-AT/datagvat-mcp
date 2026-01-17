@@ -1,15 +1,15 @@
 """Test suite for semantic search functionality."""
 
 import json
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from fastmcp import FastMCP, Context
+import pytest
+from fastmcp import Context, FastMCP
 from fastmcp.exceptions import ToolError
 
-from app.semantic import expand_natural_query, semantic_search, detect_language
 from app.client import PiveauClient
 from app.config import Settings
+from app.semantic import detect_language, expand_natural_query, semantic_search
 from app.server import AppState
 
 
@@ -267,7 +267,7 @@ class TestSemanticSearch:
             mock_client.search_datasets_advanced.assert_called_once()
             call_args = mock_client.search_datasets_advanced.call_args
             assert call_args[1]["query"] == "health vienna medical"
-            assert set(call_args[1]["themes"]) == {"HEAL", "REGI"}
+            assert set(call_args[1]["facets"]["categories"]) == {"HEAL", "REGI"}
 
             # Check expansion info is included
             assert "expansion_info" in result
@@ -342,9 +342,9 @@ class TestSemanticSearch:
 
             # Check merging
             call_args = mock_client.search_datasets_advanced.call_args
-            assert set(call_args[1]["themes"]) == {"HEAL", "REGI"}  # Merged
-            assert set(call_args[1]["formats"]) == {"CSV", "JSON"}  # Merged
-            assert call_args[1]["publishers"] == ["org-123"]  # Explicit only
+            assert set(call_args[1]["facets"]["categories"]) == {"HEAL", "REGI"}  # Merged
+            assert set(call_args[1]["facets"]["format"]) == {"CSV", "JSON"}  # Merged
+            assert call_args[1]["facets"]["publisher"] == ["org-123"]  # Explicit only
 
     @pytest.mark.asyncio
     async def test_semantic_search_low_confidence_fallback(self):
