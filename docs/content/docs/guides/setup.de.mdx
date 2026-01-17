@@ -15,6 +15,27 @@ Vor der Installation stellen Sie sicher, dass Sie Folgendes haben:
 - **pip oder uv Paketmanager** - uv wird für schnellere Installationen empfohlen
 - **Claude Desktop** oder kompatibler MCP-Client - [Claude Desktop herunterladen](https://claude.ai/download)
 
+## Projektstruktur
+
+Nach der Installation sieht Ihr Projektverzeichnis so aus:
+
+<Files>
+  <Folder name=".mcp" defaultOpen>
+    <File name="config.json" />
+    <File name="settings.json" />
+  </Folder>
+  <Folder name="claude_desktop_config">
+    <File name="claude_desktop_config.json" />
+  </Folder>
+  <File name=".env" />
+  <File name="README.md" />
+</Files>
+
+Wichtige Dateien:
+- `.mcp/config.json` - MCP-Server-Konfiguration
+- `.env` - Umgebungsvariablen (API-Schlüssel, URLs)
+- `claude_desktop_config.json` - Claude Desktop MCP-Konfiguration
+
 ## Installation
 
 ### Mit uv (Empfohlen)
@@ -50,6 +71,44 @@ pip install -e .
 # Sobald auf PyPI veröffentlicht
 pip install datagvat-mcp
 ```
+
+## Server-Verzeichnisstruktur
+
+Der Austria MCP Server hat eine gut organisierte Struktur:
+
+<Files>
+  <Folder name="src" defaultOpen>
+    <Folder name="austria_mcp">
+      <File name="__init__.py" />
+      <File name="server.py" />
+      <Folder name="client">
+        <File name="piveau.py" />
+      </Folder>
+      <Folder name="models">
+        <File name="dataset.py" />
+        <File name="catalogue.py" />
+      </Folder>
+      <Folder name="middleware">
+        <File name="logging.py" />
+        <File name="auth.py" />
+      </Folder>
+    </Folder>
+  </Folder>
+  <Folder name="tests">
+    <File name="test_server.py" />
+    <File name="test_client.py" />
+  </Folder>
+  <File name="pyproject.toml" />
+  <File name=".env.example" />
+  <File name="README.md" />
+</Files>
+
+Wichtige Verzeichnisse:
+- `src/austria_mcp/` - Haupt-Server-Code
+- `src/austria_mcp/client/` - Piveau API-Client
+- `src/austria_mcp/models/` - Datenmodelle
+- `src/austria_mcp/middleware/` - Request/Response-Middleware
+- `tests/` - Test-Suite
 
 ## Konfiguration
 

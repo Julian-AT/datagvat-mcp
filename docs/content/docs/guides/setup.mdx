@@ -15,6 +15,27 @@ Before installing, ensure you have:
 - **pip or uv package manager** - uv recommended for faster installs
 - **Claude Desktop** or compatible MCP client - [Download Claude Desktop](https://claude.ai/download)
 
+## Project Structure
+
+After installation, your project directory looks like this:
+
+<Files>
+  <Folder name=".mcp" defaultOpen>
+    <File name="config.json" />
+    <File name="settings.json" />
+  </Folder>
+  <Folder name="claude_desktop_config">
+    <File name="claude_desktop_config.json" />
+  </Folder>
+  <File name=".env" />
+  <File name="README.md" />
+</Files>
+
+Key files:
+- `.mcp/config.json` - MCP server configuration
+- `.env` - Environment variables (API keys, URLs)
+- `claude_desktop_config.json` - Claude Desktop MCP configuration
+
 ## Installation
 
 ### Using uv (Recommended)
@@ -50,6 +71,44 @@ pip install -e .
 # Once published to PyPI
 pip install datagvat-mcp
 ```
+
+## Server Directory Layout
+
+The Austria MCP server has a well-organized structure:
+
+<Files>
+  <Folder name="src" defaultOpen>
+    <Folder name="austria_mcp">
+      <File name="__init__.py" />
+      <File name="server.py" />
+      <Folder name="client">
+        <File name="piveau.py" />
+      </Folder>
+      <Folder name="models">
+        <File name="dataset.py" />
+        <File name="catalogue.py" />
+      </Folder>
+      <Folder name="middleware">
+        <File name="logging.py" />
+        <File name="auth.py" />
+      </Folder>
+    </Folder>
+  </Folder>
+  <Folder name="tests">
+    <File name="test_server.py" />
+    <File name="test_client.py" />
+  </Folder>
+  <File name="pyproject.toml" />
+  <File name=".env.example" />
+  <File name="README.md" />
+</Files>
+
+Key directories:
+- `src/austria_mcp/` - Main server code
+- `src/austria_mcp/client/` - Piveau API client
+- `src/austria_mcp/models/` - Data models
+- `src/austria_mcp/middleware/` - Request/response middleware
+- `tests/` - Test suite
 
 ## Configuration
 
