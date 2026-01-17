@@ -1,0 +1,478 @@
+---
+title: MCP Prompts
+description: Workflow-Automatisierungsvorlagen für häufige Aufgaben
+---
+
+# MCP Prompts
+
+MCP Prompts sind wiederverwendbare Workflow-Vorlagen, die Ihnen helfen, häufige Aufgaben schnell zu erledigen. Sie kombinieren mehrere Tool-Aufrufe zu geführten Workflows mit klaren Anweisungen.
+
+## Was sind Prompts?
+
+Prompts sind vordefinierte Gesprächsstarter, die Claude durch mehrstufige Workflows führen. Anstatt mehrere Tool-Aufrufe manuell zu orchestrieren, können Sie einen Prompt verwenden, um gängige Muster zu automatisieren.
+
+**Vorteile:**
+
+- **Schnellere Workflows** - Vorkonfigurierte mehrstufige Prozesse
+- **Konsistente Ergebnisse** - Standardisierter Ansatz für häufige Aufgaben
+- **Lernwerkzeug** - Sehen Sie, wie Tools effektiv kombiniert werden
+- **Zeitersparnis** - Überspringen Sie wiederholende Anweisungen
+
+## Verfügbare Prompts
+
+### dataset_search
+
+Finden Sie Datensätze zu einem bestimmten Thema mit geführter Erkundung.
+
+**Parameter:**
+
+| Name | Typ | Erforderlich | Beschreibung |
+|------|-----|--------------|--------------|
+| topic | string | Ja | Suchthema (z.B. "gesundheit", "umwelt", "bevölkerung") |
+| catalogue_id | string | Nein | Suche auf bestimmten Katalog beschränken |
+
+**Was es tut:**
+
+1. Sucht nach Datensätzen, die zum Thema passen
+2. Zeigt Titel, Beschreibung und verfügbare Formate für jedes Ergebnis
+3. Hebt wichtige Metadaten zur schnellen Bewertung hervor
+
+**Beispiel:**
+
+```
+Verwende den dataset_search Prompt mit topic="gesundheit"
+```
+
+**Ergebnis:**
+
+Claude sucht nach gesundheitsbezogenen Datensätzen und präsentiert sie in einem organisierten Format mit hervorgehobenen Schlüsseldetails.
+
+**Mit Katalogfilter:**
+
+```
+Verwende dataset_search Prompt mit topic="bevölkerung" und catalogue_id="stadt-wien"
+```
+
+---
+
+### quality_audit
+
+Führen Sie eine umfassende Qualitätsprüfung eines Datensatzes durch.
+
+**Parameter:**
+
+| Name | Typ | Erforderlich | Beschreibung |
+|------|-----|--------------|--------------|
+| dataset_id | string | Ja | Eindeutige Datensatz-ID zur Prüfung |
+
+**Was es tut:**
+
+1. Ruft vollständige Datensatz-Metadaten ab
+2. Holt alle verfügbaren Distributionen
+3. Analysiert Qualitätsmetriken (DQV-Scores)
+4. Prüft DOI-Eignung
+5. Fasst Ergebnisse zusammen und schlägt Verbesserungen vor
+
+**Beispiel:**
+
+```
+Führe quality_audit Prompt für dataset_id="dataset-123" aus
+```
+
+**Audit umfasst:**
+
+- **Metadaten-Vollständigkeit** - Titel, Beschreibung, Herausgeber, Kontakt
+- **Distributions-Analyse** - Dateiformate, Größen, Zugänglichkeit
+- **Qualitäts-Scores** - Vollständigkeits-, Genauigkeits-, Konsistenzmetriken
+- **DOI-Bereitschaft** - Fehlende Felder, Empfehlungen
+- **Verbesserungsvorschläge** - Umsetzbare Schritte zur Qualitätsverbesserung
+
+**Ausgabeformat:**
+
+```markdown
+## Qualitätsprüfung: [Datensatz-Titel]
+
+### Metadaten-Qualität
+✓ Titel: Vorhanden
+✓ Beschreibung: Vorhanden und detailliert
+✗ Kontaktpunkt: Fehlt
+
+### Distributionen
+- CSV-Format: 2,4 MB, zugänglich
+- JSON-Format: 1,8 MB, zugänglich
+
+### Qualitätsmetriken
+- Vollständigkeit: 85%
+- Genauigkeit: 92%
+- Konsistenz: 88%
+- Gesamt: 88%
+
+### DOI-Eignung
+Status: Nicht geeignet
+Fehlende Felder: Ersteller, Version
+
+### Empfehlungen
+1. Kontaktpunkt-Informationen hinzufügen
+2. Ersteller/Autor-Metadaten einschließen
+3. Versionsinformationen für DOI-Eignung hinzufügen
+```
+
+---
+
+### publication_checklist
+
+Pre-Publikations-Checkliste für einen Datensatz-Entwurf zur Sicherstellung der Veröffentlichungsreife.
+
+**Parameter:**
+
+| Name | Typ | Erforderlich | Beschreibung |
+|------|-----|--------------|--------------|
+| draft_id | string | Ja | Entwurfs-ID zur Überprüfung |
+| catalogue_id | string | Ja | Katalog, der den Entwurf enthält |
+
+**Was es tut:**
+
+1. Ruft Entwurfs-Metadaten ab
+2. Überprüft erforderliche Felder (Titel, Beschreibung, Herausgeber)
+3. Prüft auf angehängte Distributionen
+4. Überprüft Schlagwörter und Themen
+5. Bestätigt Lizenzinformationen
+6. Gibt Go/No-Go-Empfehlung
+
+**Beispiel:**
+
+```
+Verwende publication_checklist Prompt für draft_id="draft-456" in catalogue_id="stadt-wien"
+```
+
+**Checklisten-Elemente:**
+
+- **Erforderliche Metadaten** - Titel, Beschreibung, Herausgeber
+- **Optionale Metadaten** - Schlagwörter, Themen, Kontaktpunkt
+- **Distributionen** - Mindestens eine Datei angehängt
+- **Lizenzierung** - Lizenz angegeben und gültig
+- **Qualität** - Metadaten-Vollständigkeitsscore
+
+**Ausgabeformat:**
+
+```markdown
+## Publikations-Checkliste: [Entwurfs-Titel]
+
+### Erforderliche Felder
+✓ Titel: Vorhanden
+✓ Beschreibung: Vorhanden (250 Zeichen)
+✓ Herausgeber: Stadt Wien
+
+### Optionale Felder
+✓ Schlagwörter: 5 Schlagwörter vorhanden
+✓ Themen: SOCI, HEAL
+✗ Kontaktpunkt: Fehlt
+
+### Distributionen
+✓ 2 Distributionen angehängt
+  - CSV (bevoelkerung.csv)
+  - JSON (bevoelkerung.json)
+
+### Lizenz
+✓ CC BY 4.0
+
+### Empfehlung
+⚠️ Bereit mit Empfehlungen
+- Kontaktpunkt vor Veröffentlichung hinzufügen
+- Erwägen Sie, mehr Schlagwörter für bessere Auffindbarkeit hinzuzufügen
+
+### Aktion
+Zum Veröffentlichen: Verwende publish_dataset(draft_id="draft-456", catalogue_id="stadt-wien")
+```
+
+---
+
+### compare_datasets
+
+Vergleichen Sie mehrere Datensätze nebeneinander, um die beste Option auszuwählen.
+
+**Parameter:**
+
+| Name | Typ | Erforderlich | Beschreibung |
+|------|-----|--------------|--------------|
+| dataset_ids | string[] | Ja | Liste der zu vergleichenden Datensatz-IDs (2-5 Datensätze) |
+
+**Was es tut:**
+
+1. Ruft Metadaten für jeden Datensatz ab
+2. Holt Qualitätsmetriken
+3. Listet verfügbare Formate auf
+4. Erstellt Vergleichstabelle
+5. Empfiehlt basierend auf Qualität und Vollständigkeit, welcher verwendet werden soll
+
+**Beispiel:**
+
+```
+Verwende compare_datasets Prompt mit dataset_ids=["dataset-1", "dataset-2", "dataset-3"]
+```
+
+**Vergleich umfasst:**
+
+- **Metadaten** - Titel, Beschreibung, Herausgeber
+- **Formate** - Verfügbare Dateiformate
+- **Qualitäts-Scores** - Gesamtqualitätsmetriken
+- **Aktualität** - Datum der letzten Änderung
+- **Vollständigkeit** - Metadaten-Vollständigkeitsprozentsatz
+
+**Ausgabeformat:**
+
+```markdown
+## Datensatz-Vergleich
+
+| Datensatz | Titel | Herausgeber | Formate | Qualität | Geändert |
+|-----------|-------|-------------|---------|----------|----------|
+| dataset-1 | Bevölkerung 2024 | Stadt Wien | CSV, JSON, XML | 92% | 2024-01-15 |
+| dataset-2 | Bevölkerung 2023 | Statistik Austria | CSV | 78% | 2023-12-01 |
+| dataset-3 | Bevölkerungsdaten | BEV | CSV, PDF | 65% | 2022-06-15 |
+
+### Empfehlung
+
+**Beste Wahl: dataset-1 (Bevölkerung 2024)**
+
+Gründe:
+- Höchster Qualitäts-Score (92%)
+- Aktuellste Daten (2024-01-15)
+- Mehrere Formate verfügbar
+- Vollständige Metadaten
+- Aktive Wartung
+
+Alternative: dataset-2 für historischen Vergleich (2023-Daten)
+```
+
+---
+
+### catalogue_overview
+
+Erhalten Sie einen umfassenden Überblick über die Inhalte und Schwerpunkte eines Katalogs.
+
+**Parameter:**
+
+| Name | Typ | Erforderlich | Beschreibung |
+|------|-----|--------------|--------------|
+| catalogue_id | string | Ja | Katalog-ID zur Analyse |
+
+**Was es tut:**
+
+1. Ruft Katalog-Metadaten ab
+2. Listet erste 20 Datensätze auf
+3. Identifiziert gemeinsame Themen und Topics
+4. Analysiert Datenqualitätstrends
+5. Fasst Schwerpunktbereiche des Katalogs zusammen
+
+**Beispiel:**
+
+```
+Verwende catalogue_overview Prompt für catalogue_id="stadt-wien"
+```
+
+**Überblick umfasst:**
+
+- **Kataloginformationen** - Titel, Beschreibung, Herausgeber
+- **Datensatz-Anzahl** - Gesamt verfügbare Datensätze
+- **Themenverteilung** - Häufigste Datenthemen
+- **Formatverteilung** - Verfügbare Dateiformate
+- **Qualitätstrends** - Durchschnittliche Qualitäts-Scores
+- **Schwerpunktbereiche** - Hauptthemen abgedeckt
+
+**Ausgabeformat:**
+
+```markdown
+## Katalog-Überblick: Stadt Wien Open Data
+
+### Informationen
+- Herausgeber: Stadt Wien
+- Datensätze: 500+
+- Zuletzt aktualisiert: 2024-01-15
+
+### Datensatz-Auswahl (20 von 500)
+1. Bevölkerungsstatistik 2024 (SOCI)
+2. Verkehrsfluss-Daten (TRAN)
+3. Luftqualitäts-Monitoring (ENVI)
+...
+
+### Themenverteilung
+- Gesellschaft (SOCI): 35%
+- Verkehr (TRAN): 20%
+- Umwelt (ENVI): 15%
+- Regierung (GOVE): 12%
+- Andere: 18%
+
+### Formatverteilung
+- CSV: 65%
+- JSON: 45%
+- XML: 30%
+- PDF: 20%
+- GeoJSON: 15%
+
+### Qualitätstrends
+- Durchschnittlicher Qualitäts-Score: 82%
+- Datensätze mit hoher Qualität (>80%): 70%
+- Datensätze mit Distributionen: 95%
+
+### Schwerpunktbereiche
+
+Der Stadt Wien Katalog konzentriert sich auf:
+1. **Stadtplanung und Gesellschaft** - Bevölkerung, Wohnen, soziale Dienste
+2. **Verkehr** - Verkehrsfluss, öffentlicher Nahverkehr, Parken
+3. **Umwelt** - Luftqualität, Grünflächen, Abfallwirtschaft
+4. **Regierungstransparenz** - Budget, Verträge, Entscheidungen
+
+### Highlights
+- Starke Metadatenqualität über alle Datensätze
+- Regelmäßige Updates (die meisten innerhalb der letzten 6 Monate)
+- Mehrfache Formatverfügbarkeit
+- Umfassende Distributions-Abdeckung
+```
+
+---
+
+## Prompts verwenden
+
+### Grundlegende Verwendung
+
+Um einen Prompt in Claude Desktop zu verwenden:
+
+```
+Verwende den [prompt_name] Prompt mit [parametern]
+```
+
+Zum Beispiel:
+
+```
+Verwende den dataset_search Prompt mit topic="umwelt"
+```
+
+### Prompts kombinieren
+
+Verketten Sie Prompts für komplexe Workflows:
+
+```
+1. Verwende catalogue_overview für catalogue_id="stadt-wien"
+2. Verwende dataset_search mit topic="gesundheit" und catalogue_id="stadt-wien"
+3. Für das Top-Ergebnis verwende quality_audit
+```
+
+### Prompts anpassen
+
+Während Prompts einen Ausgangspunkt bieten, können Sie den Workflow anpassen:
+
+```
+Verwende den quality_audit Prompt für dataset_id="dataset-123",
+aber prüfe auch auf verwandte Datensätze und vergleiche deren Qualität
+```
+
+Claude wird dem Basis-Prompt folgen und Ihre benutzerdefinierten Anforderungen hinzufügen.
+
+## Prompt vs. Tool - Wann was verwenden
+
+### Verwenden Sie Prompts wenn:
+
+- **System lernen** - Sehen Sie, wie Tools zusammenarbeiten
+- **Gängige Workflows** - Wiederholte Aufgaben wie Audits, Suchen
+- **Schnellstart** - Schnelle Ergebnisse ohne detaillierte Anweisungen
+- **Konsistenz** - Standardisiertes Ausgabeformat gewünscht
+
+### Verwenden Sie Tools direkt wenn:
+
+- **Benutzerdefinierte Workflows** - Einzigartige Kombination von Operationen
+- **Spezifische Parameter** - Feinkörnige Kontrolle erforderlich
+- **Einmalige Aufgaben** - Einzelner Tool-Aufruf ausreichend
+- **Integration** - Automatisierte Systeme entwickeln
+
+## Best Practices
+
+### 1. Mit Prompts beginnen
+
+Wenn Sie das System lernen, verwenden Sie Prompts, um zu sehen, wie Tools kombiniert werden:
+
+```
+Verwende quality_audit um zu lernen, wie man Datensatz-Qualität bewertet
+```
+
+Replizieren Sie dann das Muster mit direkten Tool-Aufrufen zur Anpassung.
+
+### 2. Für Ihre Bedürfnisse modifizieren
+
+Prompts sind Vorlagen, keine starren Skripte:
+
+```
+Verwende dataset_search mit topic="gesundheit", aber zeige nur Datensätze
+mit CSV-Format und Qualitäts-Score über 80%
+```
+
+### 3. Prompts strategisch verketten
+
+Bauen Sie komplexe Workflows durch Verkettung von Prompts:
+
+```
+1. catalogue_overview zum Verständnis verfügbarer Daten
+2. dataset_search zur Suche spezifischer Datensätze
+3. compare_datasets zur Auswahl der besten Option
+4. quality_audit des ausgewählten Datensatzes
+```
+
+### 4. Mit direkten Tool-Aufrufen kombinieren
+
+Mischen Sie Prompts und Tools für Flexibilität:
+
+```
+Verwende dataset_search mit topic="bevölkerung",
+dann für jedes Ergebnis rufe preview_data auf der CSV-Distribution auf
+```
+
+## Benutzerdefinierte Workflows erstellen
+
+Obwohl Sie keine benutzerdefinierten Prompts hinzufügen können (sie sind serverseitig definiert), können Sie wiederverwendbare Workflow-Anweisungen erstellen:
+
+```
+Mein Workflow zur Bewertung von Datensätzen:
+1. Verwende dataset_search zur Kandidatensuche
+2. Verwende compare_datasets zur Vorauswahl
+3. Verwende quality_audit auf Top 3
+4. Verwende preview_data auf der besten Option
+5. Verwende find_related_datasets zur Entdeckung von Alternativen
+
+Bitte führe diesen Workflow für topic="verkehr" aus
+```
+
+Speichern Sie diese Workflow-Anweisungen für wiederholte Verwendung über Sitzungen hinweg.
+
+## Leistungshinweise
+
+Prompts führen mehrere Tool-Aufrufe sequenziell aus:
+
+- **dataset_search**: ~1 Sekunde
+- **quality_audit**: ~2-3 Sekunden (4 Tool-Aufrufe)
+- **publication_checklist**: ~1-2 Sekunden (3 Tool-Aufrufe)
+- **compare_datasets**: ~1 Sekunde pro Datensatz
+- **catalogue_overview**: ~2-3 Sekunden
+
+Für schnellere Ergebnisse verwenden Sie direkte Tool-Aufrufe, wenn Sie genau wissen, was Sie benötigen.
+
+## Fehlerbehandlung
+
+Wenn ein Prompt auf einen Fehler stößt, wird Claude:
+
+1. Den spezifischen fehlgeschlagenen Schritt melden
+2. Die Fehlermeldung anzeigen
+3. Alternative Ansätze vorschlagen
+4. Mit verbleibenden Schritten fortfahren, wenn möglich
+
+Beispiel:
+
+```
+Führe quality_audit für dataset-123 aus...
+
+✓ Schritt 1: Metadaten abrufen - Erfolg
+✓ Schritt 2: Distributionen abrufen - Erfolg
+✗ Schritt 3: Qualitätsmetriken abrufen - Fehlgeschlagen (Metriken nicht verfügbar)
+! Schritt 4: DOI-Eignung prüfen - Übersprungen
+
+Audit mit eingeschränkten Ergebnissen abgeschlossen. Metrik-Service nicht verfügbar.
+Empfehlung basierend auf verfügbaren Daten...
+```
