@@ -248,7 +248,7 @@ Master dataset discovery with these practical search examples.
     search_datasets(
       query="",
       themes=["ENVI"],
-      modified_since="2024-01-01",
+      min_date="2024-01-01",
       limit=10
     )
     ```
@@ -264,9 +264,9 @@ Master dataset discovery with these practical search examples.
       themes=["HEAL"],
       formats=["CSV"],
       publishers=["Stadt Wien"],
-      modified_since="2024-01-01",
-      quality_boost=True,
-      sort="modified+desc",
+      min_date="2024-01-01",
+      boost_quality=True,
+      sort_by="modified_desc",
       limit=10
     )
 
@@ -275,8 +275,8 @@ Master dataset discovery with these practical search examples.
       query="climate renewable",
       themes=["ENVI", "ENER"],
       formats=["CSV", "JSON"],
-      modified_since="2023-01-01",
-      quality_boost=True,
+      min_date="2023-01-01",
+      boost_quality=True,
       limit=20
     )
     ```
@@ -293,22 +293,22 @@ Master dataset discovery with these practical search examples.
     # Datasets modified in 2024
     search_datasets(
       query="",
-      modified_since="2024-01-01",
-      modified_until="2024-12-31",
+      min_date="2024-01-01",
+      max_date="2024-12-31",
       limit=10
     )
 
     # Recently updated datasets (last 30 days)
     search_datasets(
       query="",
-      modified_since="2024-12-15",
+      min_date="2024-12-15",
       limit=10
     )
 
     # Datasets published before 2020
     search_datasets(
       query="",
-      issued_until="2020-01-01",
+      max_date="2020-01-01",
       limit=10
     )
     ```
@@ -325,26 +325,25 @@ Master dataset discovery with these practical search examples.
       query="health",
       themes=["HEAL"],
       publishers=["Stadt Wien"],
-      modified_since="2024-01-01",
-      sort="modified+desc",
+      min_date="2024-01-01",
+      sort_by="modified_desc",
       limit=10
     )
 
-    # Datasets published in 2023, updated in 2024
+    # Datasets modified in 2024
     search_datasets(
       query="",
-      issued_since="2023-01-01",
-      issued_until="2023-12-31",
-      modified_since="2024-01-01",
+      min_date="2024-01-01",
+      max_date="2024-12-31",
       limit=10
     )
 
-    # Legacy datasets (published before 2020) that are still updated
+    # Legacy datasets that are still updated
     search_datasets(
       query="",
-      issued_until="2020-01-01",
-      modified_since="2024-01-01",
-      sort="modified+desc",
+      max_date="2020-01-01",
+      min_date="2024-01-01",
+      sort_by="modified_desc",
       limit=10
     )
     ```
@@ -361,30 +360,30 @@ Master dataset discovery with these practical search examples.
     # Most relevant first (default with query)
     search_datasets(
       query="population",
-      sort="relevance+desc",
+      sort_by="relevance",
       limit=10
     )
 
     # Most recently modified first
     search_datasets(
       query="",
-      sort="modified+desc",
+      sort_by="modified_desc",
       limit=10
     )
 
     # Alphabetical by title
     search_datasets(
       query="",
-      sort="title+asc",
+      sort_by="title_asc",
       limit=10
     )
     ```
 
     **Available sort options:**
-    - `relevance+desc` / `relevance+asc` - By search relevance (requires query)
-    - `modified+desc` / `modified+asc` - By modification date
-    - `issued+desc` / `issued+asc` - By publication date
-    - `title+asc` / `title+desc` - Alphabetical
+    - `relevance` - By search relevance (requires query)
+    - `modified_desc` / `modified_asc` - By modification date
+    - `issued_desc` / `issued_asc` - By publication date
+    - `title_asc` / `title_desc` - Alphabetical
   </Tab>
 
   <Tab value="Advanced Sorting">
@@ -395,16 +394,16 @@ Master dataset discovery with these practical search examples.
     search_datasets(
       query="health statistics",
       themes=["HEAL"],
-      quality_boost=True,
-      sort="relevance+desc",
+      boost_quality=True,
+      sort_by="relevance",
       limit=10
     )
 
     # Recently published datasets, sorted by relevance
     search_datasets(
       query="climate",
-      issued_since="2024-01-01",
-      sort="relevance+desc",
+      min_date="2024-01-01",
+      sort_by="relevance",
       limit=10
     )
 
@@ -412,14 +411,14 @@ Master dataset discovery with these practical search examples.
     search_datasets(
       query="",
       publishers=["Statistik Austria"],
-      sort="issued+asc",
+      sort_by="issued_asc",
       limit=10
     )
 
     # Recently updated datasets across all categories
     search_datasets(
       query="",
-      sort="modified+desc",
+      sort_by="modified_desc",
       limit=50
     )
     ```
@@ -437,21 +436,21 @@ Master dataset discovery with these practical search examples.
     page1 = search_datasets(
       query="data",
       limit=10,
-      offset=0
+      page=0
     )
 
     # Get second page (next 10 results)
     page2 = search_datasets(
       query="data",
       limit=10,
-      offset=10
+      page=1
     )
 
     # Get third page
     page3 = search_datasets(
       query="data",
       limit=10,
-      offset=20
+      page=2
     )
     ```
 
@@ -469,23 +468,23 @@ Master dataset discovery with these practical search examples.
     # Paginate through all results
     all_results = []
     limit = 20
-    offset = 0
+    page = 0
 
     while True:
-      page = search_datasets(
+      response = search_datasets(
         query="environment",
         themes=["ENVI"],
         limit=limit,
-        offset=offset
+        page=page
       )
 
-      all_results.extend(page['results'])
+      all_results.extend(response['results'])
 
       # Check if more pages exist
-      if offset + limit >= page['count']:
+      if (page + 1) * limit >= response['count']:
         break
 
-      offset += limit
+      page += 1
 
     print(f"Retrieved {len(all_results)} total datasets")
 
@@ -493,29 +492,29 @@ Master dataset discovery with these practical search examples.
     def fetch_all_datasets(query, **filters):
       results = []
       limit = 50  # Larger page size for efficiency
-      offset = 0
+      page = 0
       total = None
 
       while True:
-        page = search_datasets(
+        response = search_datasets(
           query=query,
           limit=limit,
-          offset=offset,
+          page=page,
           **filters
         )
 
         if total is None:
-          total = page['count']
+          total = response['count']
 
-        results.extend(page['results'])
+        results.extend(response['results'])
         progress = len(results) / total * 100
 
         print(f"Progress: {progress:.1f}% ({len(results)}/{total})")
 
-        if offset + limit >= page['count']:
+        if (page + 1) * limit >= response['count']:
           break
 
-        offset += limit
+        page += 1
 
       return results
     ```
@@ -532,13 +531,13 @@ Master dataset discovery with these practical search examples.
     # Prioritize complete, well-documented datasets
     search_datasets(
       query="health",
-      quality_boost=True,
+      boost_quality=True,
       limit=10
     )
 
     # Compare with and without quality boost
     without_boost = search_datasets(query="health", limit=10)
-    with_boost = search_datasets(query="health", quality_boost=True, limit=10)
+    with_boost = search_datasets(query="health", boost_quality=True, limit=10)
     ```
 
     Quality boost considers:
@@ -562,9 +561,9 @@ Master dataset discovery with these practical search examples.
     search_datasets(
       query="",
       themes=["HEAL"],
-      modified_since="2024-01-01",
-      quality_boost=True,
-      sort="modified+desc",
+      min_date="2024-01-01",
+      boost_quality=True,
+      sort_by="modified_desc",
       limit=20
     )
 
@@ -572,8 +571,8 @@ Master dataset discovery with these practical search examples.
     search_datasets(
       query="statistics",
       formats=["CSV", "JSON"],
-      quality_boost=True,
-      sort="relevance+desc",
+      boost_quality=True,
+      sort_by="relevance",
       limit=10
     )
 
@@ -582,9 +581,9 @@ Master dataset discovery with these practical search examples.
       query="environment climate",
       themes=["ENVI", "ENER"],
       formats=["CSV"],
-      modified_since="2023-01-01",
-      quality_boost=True,
-      sort="relevance+desc",
+      min_date="2023-01-01",
+      boost_quality=True,
+      sort_by="relevance",
       limit=20
     )
     ```
@@ -630,8 +629,8 @@ Master dataset discovery with these practical search examples.
     search_datasets(
       query="sustainable renewable green",
       themes=["ENVI", "ENER", "TRAN"],
-      quality_boost=True,
-      sort="relevance+desc",
+      boost_quality=True,
+      sort_by="relevance",
       limit=20
     )
 
@@ -640,7 +639,7 @@ Master dataset discovery with these practical search examples.
       query="public administration statistics",
       themes=["GOVE", "JUST", "SOCI"],
       formats=["CSV"],
-      modified_since="2023-01-01",
+      min_date="2023-01-01",
       limit=20
     )
 
@@ -648,7 +647,7 @@ Master dataset discovery with these practical search examples.
     search_datasets(
       query="innovation digital research",
       themes=["ECON", "EDUC", "TECH"],
-      quality_boost=True,
+      boost_quality=True,
       limit=20
     )
     ```
@@ -737,8 +736,8 @@ Master dataset discovery with these practical search examples.
       query="",
       publishers=["Stadt Wien"],
       themes=["HEAL"],
-      modified_since="2023-01-01",
-      sort="modified+desc",
+      min_date="2023-01-01",
+      sort_by="modified_desc",
       limit=50
     )
 
