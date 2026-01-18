@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-01-17)
 ## Current Position
 
 Milestone: v1.1 Documentation Excellence
-Phase: 16 of 17 (Documentation Polish & Release Prep)
-Plan: 6 of 6 complete
-Status: Phase complete - 100% documentation accuracy achieved
-Last activity: 2026-01-18 — Completed 16-06-PLAN.md (Comprehensive parameter error fix across all workflow examples)
+Phase: 17 of 17 (Fumadocs Workspace Restructuring)
+Plan: 1 of 1 complete
+Status: Phase complete - Two-workspace architecture operational
+Last activity: 2026-01-18 — Completed 17-01-PLAN.md (Fumadocs workspace restructuring with independent configs)
 
-Progress: █░░░░░░░░░ 13% (7/33 plans complete)
+Progress: ████░░░░░░ 24% (8/33 plans complete)
 
 ## Performance Metrics
 
@@ -40,10 +40,11 @@ Progress: █░░░░░░░░░ 13% (7/33 plans complete)
 | 09-fumadocs-component-integration | 4 | 46 min | 11.5 min |
 | 10-foundation-fixes | 2 | 16 min | 8 min |
 | 16-documentation-polish-and-release-prep | 6 | 23 min | 3.8 min |
+| 17-fumadocs-workspace-restructuring | 1 | 14 min | 14 min |
 
 **Recent Trend:**
-- Last 5 plans: 16-02 (8 min), 16-03 (4 min), 16-05 (1 min), 16-06 (4 min)
-- Trend: Documentation improvements consistently fast; gap closure and comprehensive fixes equally efficient
+- Last 5 plans: 16-03 (4 min), 16-05 (1 min), 16-06 (4 min), 17-01 (14 min)
+- Trend: Workspace restructuring took longer due to configuration debugging, but completed successfully
 
 ## Accumulated Context
 
@@ -150,6 +151,10 @@ Recent decisions affecting current work:
 - Grep-based discovery ensures all instances of error pattern found (16-06, 2026-01-18)
 - Replace_all strategy for efficient bulk corrections (16-06, 2026-01-18)
 - Comprehensive verification across all documentation prevents future gaps (16-06, 2026-01-18)
+- Import generated API workspace from .source/api/server instead of virtual module path (17-01, 2026-01-18)
+- API workspace includes lastModified plugin for consistency with root workspace (17-01, 2026-01-18)
+- API content structured at api/api/ to preserve /api/ URL paths while maintaining workspace isolation (17-01, 2026-01-18)
+- Both workspaces use shared mdxOptions (rehype plugins, transformers) from root config (17-01, 2026-01-18)
 
 ### Roadmap Evolution
 
@@ -170,6 +175,6 @@ None - all issues resolved.
 ## Session Continuity
 
 Last session: 2026-01-18
-Stopped at: Completed 16-06-PLAN.md (Comprehensive parameter error fix - Phase 16 complete with 100% documentation accuracy)
+Stopped at: Completed 17-01-PLAN.md (Fumadocs workspace restructuring - Phase 17 complete)
 Resume file: None
-Next: Phase 17 (Production Release & Publishing)
+Next: Additional phases as planned
