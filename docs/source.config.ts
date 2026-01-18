@@ -7,6 +7,7 @@ import {
 import { rehypeCodeDefaultOptions } from 'fumadocs-core/mdx-plugins';
 import { remarkFeedbackBlock } from 'fumadocs-core/mdx-plugins/remark-feedback-block';
 import { transformerNotationDiff, transformerNotationHighlight } from '@shikijs/transformers';
+import lastModified from 'fumadocs-mdx/plugins/last-modified';
 
 export const docs = defineDocs({
   dir: "content/docs",
@@ -22,6 +23,7 @@ export const docs = defineDocs({
 });
 
 export default defineConfig({
+  plugins: [lastModified()],
   mdxOptions: {
     remarkPlugins: [remarkFeedbackBlock],
     rehypeCodeOptions: {

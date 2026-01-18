@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { LangHtml } from '@/components/lang-html';
+import { i18n } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: {
@@ -18,8 +20,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body>{children}</body>
+    <html lang={i18n.defaultLanguage} suppressHydrationWarning>
+      <body>
+        <LangHtml>{children}</LangHtml>
+      </body>
     </html>
   );
 }

@@ -5,6 +5,7 @@ import { defineI18nUI } from "fumadocs-ui/i18n";
 import { i18n } from "@/lib/i18n";
 import { SearchDialog } from "fumadocs-ui/components/dialog/search";
 import DefaultSearchDialog from "@/components/search";
+import { redirect } from "next/navigation";
 
 const { provider } = defineI18nUI(i18n, {
   translations: {
@@ -33,14 +34,16 @@ export default async function RootLayout({
 }) {
   const { lang } = await params;
 
+  if (!i18n.languages.includes(lang as any)) {
+    redirect(`/${i18n.defaultLanguage}`);
+  }
+
+  const validLang = lang as typeof i18n.languages[number];
+
   return (
-    <html lang={lang} suppressHydrationWarning>
-      <body>
-        <RootProvider i18n={provider(lang)} search={{
-          enabled: true,
-          SearchDialog: DefaultSearchDialog,
-        }}>{children}</RootProvider>
-      </body>
-    </html>
+    <RootProvider i18n={provider(validLang)} search={{
+      enabled: true,
+      SearchDialog: DefaultSearchDialog,
+    }}>{children}</RootProvider>
   );
 }

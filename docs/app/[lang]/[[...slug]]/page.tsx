@@ -11,6 +11,7 @@ import { useMDXComponents } from "@/mdx-components";
 import { Feedback } from '@/components/feedback/client';
 import { onPageFeedbackAction } from '@/lib/github';
 import { Breadcrumb } from '@/components/breadcrumb';
+import { LLMCopyButton, ViewOptions } from "@/components/page-actions";
 
 export default async function Page({
   params,
@@ -29,8 +30,16 @@ export default async function Page({
   });
 
   return (
-    <DocsPage toc={page.data.toc}>
-      <Breadcrumb tree={source.pageTree[lang]} />
+    <DocsPage toc={page.data.toc} tableOfContent={{
+      style: "clerk",
+    }} breadcrumb={<Breadcrumb tree={source.pageTree[lang]} />}>
+      <div className="flex flex-row gap-2 items-center border-b pt-2 pb-6">
+        <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
+        <ViewOptions
+          markdownUrl={`${page.url}.mdx`}
+          githubUrl={`https://github.com/${owner}/${repo}/blob/dev/apps/docs/content/docs/${page.path}`}
+        />
+      </div>
       <DocsBody>
         <MDX components={components} />
       </DocsBody>

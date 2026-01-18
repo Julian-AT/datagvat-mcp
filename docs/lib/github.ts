@@ -1,4 +1,4 @@
-import { App, Octokit } from 'octokit';
+import { App, type Octokit } from 'octokit';
 import type { ActionResponse, PageFeedback, BlockFeedback } from '@/components/feedback/schema';
 
 export const repo = 'datagvat-mcp';

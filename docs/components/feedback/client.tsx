@@ -3,7 +3,7 @@ import { cn } from '../../lib/cn';
 import { buttonVariants } from '../ui/button';
 import { MessageSquare, ThumbsDown, ThumbsUp } from 'lucide-react';
 import {
-  ReactNode,
+  type ReactNode,
   type SyntheticEvent,
   useEffect,
   useEffectEvent,

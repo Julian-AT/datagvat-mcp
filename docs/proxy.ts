@@ -1,24 +1,36 @@
 import { createI18nMiddleware } from 'fumadocs-core/i18n/middleware';
 import { isMarkdownPreferred, rewritePath } from 'fumadocs-core/negotiation';
 import { i18n } from '@/lib/i18n';
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
+const { rewrite: rewriteLLM } = rewritePath('/docs{/*path}', '/llms.mdx/docs{/*path}');
+const i18nMiddleware = createI18nMiddleware(i18n);
 
-const { rewrite: rewriteLLM } = rewritePath('/{/*path}', '/llms.mdx{/*path}');
-
-export default function proxy(request: NextRequest) {
-
+export default function proxy(request: NextRequest, event?: any) {
   if (isMarkdownPreferred(request)) {
     const result = rewriteLLM(request.nextUrl.pathname);
     if (result) {
       return NextResponse.rewrite(new URL(result, request.nextUrl));
     }
   }
-  createI18nMiddleware(i18n)
   
-  return NextResponse.next();
+  const pathname = request.nextUrl.pathname;
+  const hasLocalePrefix = i18n.languages.some(lang => 
+    pathname === `/${lang}` || pathname.startsWith(`/${lang}/`)
+  );
+  
+  if (!hasLocalePrefix && pathname !== '/') {
+    const locale = i18n.defaultLanguage;
+    const redirectUrl = new URL(
+      `/${locale}${pathname}${request.nextUrl.search}`,
+      request.url
+    );
+    return NextResponse.redirect(redirectUrl);
+  }
+  
+  return i18nMiddleware(request, event);
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|logo.svg).*)'],
 };
