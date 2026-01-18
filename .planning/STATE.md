@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-01-17)
 
 **Core value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
-**Current focus:** Phase 10 — Foundation Fixes
+**Current focus:** Phase 16 — Documentation Polish & Release Prep
 
 ## Current Position
 
 Milestone: v1.1 Documentation Excellence
-Phase: 10 of 15 (Foundation Fixes)
-Plan: 2 of 3 complete
+Phase: 16 of 17 (Documentation Polish & Release Prep)
+Plan: 1 of 3 complete
 Status: In progress
-Last activity: 2026-01-18 — Completed 10-02-PLAN.md (navigation and styling fixes)
+Last activity: 2026-01-18 — Completed 16-01-PLAN.md (testing and verification)
 
-Progress: █░░░░░░░░░ 6% (2/33 plans complete)
+Progress: █░░░░░░░░░ 6% (3/33 plans complete)
 
 ## Performance Metrics
 
@@ -39,10 +39,11 @@ Progress: █░░░░░░░░░ 6% (2/33 plans complete)
 | 08-workflow-docs | 4 | 82 min | 21 min |
 | 09-fumadocs-component-integration | 4 | 46 min | 11.5 min |
 | 10-foundation-fixes | 2 | 16 min | 8 min |
+| 16-documentation-polish-and-release-prep | 1 | 6 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 09-03 (21 min), 09-04 (6 min), 10-01 (<1 min), 10-02 (16 min)
-- Trend: Foundation fixes mixed - some files existed (10-01 fast), others needed verification and enhancements (10-02 standard)
+- Last 5 plans: 09-04 (6 min), 10-01 (<1 min), 10-02 (16 min), 16-01 (6 min)
+- Trend: Testing and documentation updates fast when issues documented clearly
 
 ## Accumulated Context
 
@@ -130,6 +131,11 @@ Recent decisions affecting current work:
 - Tailwind CSS v4 CSS-based config is correct approach (not v3 preset) - verified 08-02 decision (10-02, 2026-01-18)
 - lucideIconsPlugin enables :icon[name] syntax in MDX for icon rendering (10-02, 2026-01-18)
 - Austria brand colors (--color-austria-red: #b91e23) defined in @theme for consistent branding (10-02, 2026-01-18)
+- uv configuration must use python -m app.server (no script entrypoint in pyproject.toml) (16-01, 2026-01-18)
+- Directory structure is app/ not src/austria_mcp/ - document reality not fictional structure (16-01, 2026-01-18)
+- fastmcp dev workflow for local testing before Claude Desktop integration (16-01, 2026-01-18)
+- Claude Desktop log locations documented for all platforms (Windows/macOS/Linux) (16-01, 2026-01-18)
+- Test-driven documentation validation pattern: test workflows then fix documentation (16-01, 2026-01-18)
 
 ### Roadmap Evolution
 
@@ -149,6 +155,6 @@ None - all issues resolved.
 ## Session Continuity
 
 Last session: 2026-01-18
-Stopped at: Completed 10-02-PLAN.md (navigation and styling fixes)
+Stopped at: Completed 16-01-PLAN.md (testing and verification)
 Resume file: None
-Next: Continue Phase 10 with final plan (10-03)
+Next: Continue Phase 16 with plan 16-02 (documentation quality improvements)
