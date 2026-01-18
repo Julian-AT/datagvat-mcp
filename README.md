@@ -1,6 +1,8 @@
-# Austria MCP
+# DataGVAT MCP Server
 
 MCP server for Austrian Open Government Data via the [data.gv.at](https://data.gv.at) platform.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Installation
 
@@ -119,14 +121,26 @@ Add to `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "austria-data": {
+    "datagvat": {
       "command": "python",
       "args": ["-m", "app.server"],
-      "cwd": "/path/to/austria-mcp"
+      "cwd": "/path/to/datagvat-mcp"
     }
   }
 }
 ```
+
+## Documentation
+
+Full documentation is available at `/docs`. To run the documentation site locally:
+
+```bash
+cd docs
+pnpm install
+pnpm dev
+```
+
+Visit http://localhost:3000 to view the documentation.
 
 ## License
 

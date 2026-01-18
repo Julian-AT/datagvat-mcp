@@ -1,12 +1,14 @@
 {
-  "name": "austria-mcp-docs",
-  "version": "0.0.0",
+  "name": "datagvat-mcp-docs",
+  "version": "1.0.0",
+  "description": "Documentation for DataGVAT MCP Server",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "clean": "rm -rf .next node_modules"
   },
   "dependencies": {
     "@radix-ui/react-icons": "^1.3.2",
@@ -29,5 +31,8 @@
     "@types/react-dom": "^19.0.2",
     "tailwindcss": "^4.0.21",
     "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

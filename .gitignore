@@ -30,6 +30,8 @@ ENV/
 .claude
 node_modules/
 .next/
+*.tsbuildinfo
+package-lock.json
 .env.local
 .env.development.local
 .env.test.local
