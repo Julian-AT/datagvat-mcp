@@ -55,7 +55,7 @@ export function LanguageToggle({ lang }: { lang: string }) {
             onClick={() => setIsOpen(false)}
           />
           <div className="absolute right-0 top-full mt-2 z-20 min-w-[150px] rounded-md border border-fd-border bg-fd-popover p-1 shadow-lg">
-            {i18n.languages.map((language) => (
+            {i18n.languages.map((language: string) => (
               <Link
                 key={language}
                 href={getNewPath(language)}

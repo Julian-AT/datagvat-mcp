@@ -1,227 +1,350 @@
 'use client';
+import { cn } from '../../lib/cn';
+import { buttonVariants } from '../ui/button';
+import { MessageSquare, ThumbsDown, ThumbsUp } from 'lucide-react';
+import {
+  ReactNode,
+  type SyntheticEvent,
+  useEffect,
+  useEffectEvent,
+  useState,
+  useTransition,
+} from 'react';
+import { Collapsible, CollapsibleContent } from '../ui/collapsible';
+import { cva } from 'class-variance-authority';
+import { usePathname } from 'next/navigation';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import type { FeedbackBlockProps } from 'fumadocs-core/mdx-plugins/remark-feedback-block';
+import {
+  actionResponse,
+  blockFeedback,
+  pageFeedback,
+  type ActionResponse,
+  type BlockFeedback,
+  type PageFeedback,
+} from './schema';
+import { z } from 'zod/mini';
 
-import { useState, type ReactNode } from 'react';
-import { ThumbsUp, ThumbsDown, MessageSquare, ExternalLink } from 'lucide-react';
-import type { PageFeedback, BlockFeedback, ActionResponse } from './schema';
+const rateButtonVariants = cva(
+  'inline-flex items-center gap-2 px-3 py-2 rounded-full font-medium border text-sm [&_svg]:size-4 disabled:cursor-not-allowed',
+  {
+    variants: {
+      active: {
+        true: 'bg-fd-accent text-fd-accent-foreground [&_svg]:fill-current',
+        false: 'text-fd-muted-foreground',
+      },
+    },
+  },
+);
 
-interface FeedbackProps {
-  onSendAction: (feedback: PageFeedback) => Promise<ActionResponse>;
-}
+const pageFeedbackResult = z.extend(pageFeedback, {
+  response: actionResponse,
+});
 
-export function Feedback({ onSendAction }: FeedbackProps) {
-  const [opinion, setOpinion] = useState<'positive' | 'negative' | null>(null);
-  const [message, setMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [githubUrl, setGithubUrl] = useState<string | null>(null);
+const blockFeedbackResult = z.extend(blockFeedback, {
+  response: actionResponse,
+});
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!opinion) return;
-
-    setIsSubmitting(true);
-    try {
-      const feedback: PageFeedback = {
-        url: window.location.pathname,
-        opinion,
-        message: message || undefined,
-      };
-
-      const response = await onSendAction(feedback);
-      setSubmitted(true);
-      if (response.githubUrl) {
-        setGithubUrl(response.githubUrl);
-      }
-    } catch (error) {
-      console.error('Failed to submit feedback:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  if (submitted) {
-    return (
-      <div className="rounded-lg border bg-card p-6 my-8">
-        <h3 className="text-lg font-semibold mb-2">Thank you for your feedback!</h3>
-        <p className="text-sm text-muted-foreground">
-          Your feedback helps us improve the documentation.
-        </p>
-        {githubUrl && (
-          <a
-            href={githubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 mt-4 text-sm text-primary hover:underline"
-          >
-            View on GitHub <ExternalLink className="w-4 h-4" />
-          </a>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <div className="rounded-lg border bg-card p-6 my-8">
-      <h3 className="text-lg font-semibold mb-4">Was this page helpful?</h3>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex gap-4">
-          <button
-            type="button"
-            onClick={() => setOpinion('positive')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md border transition-colors ${
-              opinion === 'positive'
-                ? 'bg-primary text-primary-foreground'
-                : 'hover:bg-accent'
-            }`}
-          >
-            <ThumbsUp className="w-4 h-4" />
-            Yes
-          </button>
-          <button
-            type="button"
-            onClick={() => setOpinion('negative')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md border transition-colors ${
-              opinion === 'negative'
-                ? 'bg-primary text-primary-foreground'
-                : 'hover:bg-accent'
-            }`}
-          >
-            <ThumbsDown className="w-4 h-4" />
-            No
-          </button>
-        </div>
-
-        {opinion && (
-          <div className="space-y-2">
-            <label htmlFor="message" className="text-sm font-medium flex items-center gap-2">
-              <MessageSquare className="w-4 h-4" />
-              Tell us more (optional)
-            </label>
-            <textarea
-              id="message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              className="w-full min-h-[100px] px-3 py-2 rounded-md border bg-background"
-              placeholder="What can we improve?"
-            />
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
-            </button>
-          </div>
-        )}
-      </form>
-    </div>
-  );
-}
-
-interface FeedbackBlockProps {
-  id: string;
-  body: string;
-  children: ReactNode;
-  onSendAction: (feedback: BlockFeedback) => Promise<ActionResponse>;
-}
-
-export function FeedbackBlock({
-  id,
-  body,
-  children,
+/**
+ * A feedback component to be attached at the end of page
+ */
+export function Feedback({
   onSendAction,
-}: FeedbackBlockProps) {
-  const [isOpen, setIsOpen] = useState(false);
+}: {
+  onSendAction: (feedback: PageFeedback) => Promise<ActionResponse>;
+}) {
+  const url = usePathname();
+  const { previous, setPrevious } = useSubmissionStorage(url, (v) => {
+    const result = pageFeedbackResult.safeParse(v);
+    return result.success ? result.data : null;
+  });
+  const [opinion, setOpinion] = useState<'good' | 'bad' | null>(null);
   const [message, setMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [githubUrl, setGithubUrl] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!message.trim()) return;
+  function submit(e?: SyntheticEvent) {
+    if (opinion == null) return;
 
-    setIsSubmitting(true);
-    try {
-      const feedback: BlockFeedback = {
-        url: window.location.pathname,
-        blockId: id,
-        blockBody: body,
+    startTransition(async () => {
+      const feedback: PageFeedback = {
+        url,
+        opinion,
         message,
       };
 
       const response = await onSendAction(feedback);
-      setSubmitted(true);
-      if (response.githubUrl) {
-        setGithubUrl(response.githubUrl);
-      }
-    } catch (error) {
-      console.error('Failed to submit feedback:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+      setPrevious({
+        response,
+        ...feedback,
+      });
+      setMessage('');
+      setOpinion(null);
+    });
+
+    e?.preventDefault();
+  }
+
+  const activeOpinion = previous?.opinion ?? opinion;
 
   return (
-    <div className="relative group my-4">
-      <div className="rounded-lg border bg-card/50 p-4 pr-12">
-        {children}
+    <Collapsible
+      open={opinion !== null || previous !== null}
+      onOpenChange={(v) => {
+        if (!v) setOpinion(null);
+      }}
+      className="border-y py-3"
+    >
+      <div className="flex flex-row items-center gap-2">
+        <p className="text-sm font-medium pe-2">How is this guide?</p>
         <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="absolute top-4 right-4 p-2 rounded-md hover:bg-accent transition-colors"
-          title="Send feedback about this section"
+          disabled={previous !== null}
+          className={cn(
+            rateButtonVariants({
+              active: activeOpinion === 'good',
+            }),
+          )}
+          onClick={() => {
+            setOpinion('good');
+          }}
         >
-          <MessageSquare className="w-4 h-4" />
+          <ThumbsUp />
+          Good
+        </button>
+        <button
+          disabled={previous !== null}
+          className={cn(
+            rateButtonVariants({
+              active: activeOpinion === 'bad',
+            }),
+          )}
+          onClick={() => {
+            setOpinion('bad');
+          }}
+        >
+          <ThumbsDown />
+          Bad
         </button>
       </div>
+      <CollapsibleContent className="mt-3">
+        {previous ? (
+          <div className="px-3 py-6 flex flex-col items-center gap-3 bg-fd-card text-fd-muted-foreground text-sm text-center rounded-xl">
+            <p>Thank you for your feedback!</p>
+            <div className="flex flex-row items-center gap-2">
+              <a
+                href={previous.response?.githubUrl}
+                rel="noreferrer noopener"
+                target="_blank"
+                className={cn(
+                  buttonVariants({
+                    color: 'primary',
+                  }),
+                  'text-xs',
+                )}
+              >
+                View on GitHub
+              </a>
 
-      {isOpen && !submitted && (
-        <form onSubmit={handleSubmit} className="mt-2 rounded-lg border bg-card p-4 space-y-3">
-          <label htmlFor={`feedback-${id}`} className="text-sm font-medium">
-            Feedback for this section
-          </label>
-          <textarea
-            id={`feedback-${id}`}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            className="w-full min-h-[80px] px-3 py-2 rounded-md border bg-background text-sm"
-            placeholder="What would you like to share about this section?"
-            autoFocus
-          />
-          <div className="flex gap-2">
+              <button
+                className={cn(
+                  buttonVariants({
+                    color: 'secondary',
+                  }),
+                  'text-xs',
+                )}
+                onClick={() => {
+                  setOpinion(previous.opinion);
+                  setPrevious(null);
+                }}
+              >
+                Submit Again
+              </button>
+            </div>
+          </div>
+        ) : (
+          <form className="flex flex-col gap-3" onSubmit={submit}>
+            <textarea
+              autoFocus
+              required
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="border rounded-lg bg-fd-secondary text-fd-secondary-foreground p-3 resize-none focus-visible:outline-none placeholder:text-fd-muted-foreground"
+              placeholder="Leave your feedback..."
+              onKeyDown={(e) => {
+                if (!e.shiftKey && e.key === 'Enter') {
+                  submit(e);
+                }
+              }}
+            />
             <button
               type="submit"
-              disabled={isSubmitting || !message.trim()}
-              className="px-3 py-1.5 text-sm rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              className={cn(buttonVariants({ color: 'outline' }), 'w-fit px-3')}
+              disabled={isPending}
             >
-              {isSubmitting ? 'Submitting...' : 'Submit'}
+              Submit
             </button>
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className="px-3 py-1.5 text-sm rounded-md border hover:bg-accent"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      )}
-
-      {submitted && (
-        <div className="mt-2 rounded-lg border bg-card p-4">
-          <p className="text-sm text-muted-foreground">Thank you for your feedback!</p>
-          {githubUrl && (
-            <a
-              href={githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 mt-2 text-sm text-primary hover:underline"
-            >
-              View on GitHub <ExternalLink className="w-4 h-4" />
-            </a>
-          )}
-        </div>
-      )}
-    </div>
+          </form>
+        )}
+      </CollapsibleContent>
+    </Collapsible>
   );
+}
+
+/**
+ * A feedback component for each content block in page, should be used with `remark-feedback-block`.
+ *
+ * See https://fumadocs.dev/docs/integrations/feedback.
+ */
+export function FeedbackBlock({
+  id,
+  body,
+  onSendAction,
+  children,
+}: FeedbackBlockProps & {
+  onSendAction: (feedback: BlockFeedback) => Promise<ActionResponse>;
+  children: ReactNode;
+}) {
+  const url = usePathname();
+  const blockId = `${url}-${id}`;
+  const { previous, setPrevious } = useSubmissionStorage(blockId, (v) => {
+    const result = blockFeedbackResult.safeParse(v);
+    if (result.success) return result.data;
+    return null;
+  });
+  const [message, setMessage] = useState('');
+  const [isPending, startTransition] = useTransition();
+  const [open, setOpen] = useState(false);
+
+  function submit(e?: SyntheticEvent) {
+    startTransition(async () => {
+      const feedback: BlockFeedback = {
+        blockId,
+        blockBody: body,
+        url,
+        message,
+      };
+
+      const response = await onSendAction(feedback);
+      setPrevious({
+        response,
+        ...feedback,
+      });
+      setMessage('');
+    });
+
+    e?.preventDefault();
+  }
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <div className="relative group/feedback">
+        <div
+          className={cn(
+            'absolute -inset-1 rounded-sm pointer-events-none z-[-1]',
+            open ? 'bg-fd-accent' : 'group-hover/feedback:bg-fd-accent',
+          )}
+        />
+        <PopoverTrigger
+          className={cn(
+            buttonVariants({ variant: 'secondary', size: 'sm' }),
+            'absolute -top-7 end-0 backdrop-blur-sm text-fd-muted-foreground gap-1.5',
+            !open && 'invisible group-hover/feedback:visible hover:visible',
+          )}
+          onClick={(e) => {
+            setOpen((prev) => !prev);
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+        >
+          <MessageSquare className="size-3.5" />
+          Feedback
+        </PopoverTrigger>
+
+        <div className="[.prose-no-margin_&]:prose-no-margin">{children}</div>
+      </div>
+
+      <PopoverContent className="min-w-[300px]">
+        {previous ? (
+          <div className="flex flex-col items-center gap-2 text-fd-muted-foreground text-sm text-center rounded-xl">
+            <p>Thank you for your feedback!</p>
+            <div className="flex flex-row items-center gap-2">
+              <a
+                href={previous.response?.githubUrl}
+                rel="noreferrer noopener"
+                target="_blank"
+                className={cn(
+                  buttonVariants({
+                    color: 'primary',
+                  }),
+                  'text-xs',
+                )}
+              >
+                View on GitHub
+              </a>
+
+              <button
+                className={cn(
+                  buttonVariants({
+                    color: 'secondary',
+                  }),
+                  'text-xs',
+                )}
+                onClick={() => {
+                  setPrevious(null);
+                }}
+              >
+                Submit Again
+              </button>
+            </div>
+          </div>
+        ) : (
+          <form className="flex flex-col gap-2" onSubmit={submit}>
+            <textarea
+              autoFocus
+              required
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="border rounded-lg bg-fd-secondary text-fd-secondary-foreground p-3 resize-none focus-visible:outline-none placeholder:text-fd-muted-foreground"
+              placeholder="Leave your feedback..."
+              onKeyDown={(e) => {
+                if (!e.shiftKey && e.key === 'Enter') {
+                  submit(e);
+                }
+              }}
+            />
+            <button
+              type="submit"
+              className={cn(buttonVariants({ color: 'outline' }), 'w-fit px-3')}
+              disabled={isPending}
+            >
+              Submit
+            </button>
+          </form>
+        )}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function useSubmissionStorage<Result>(blockId: string, validate: (v: unknown) => Result | null) {
+  const storageKey = `docs-feedback-${blockId}`;
+  const [value, setValue] = useState<Result | null>(null);
+  const validateCallback = useEffectEvent(validate);
+
+  useEffect(() => {
+    const item = localStorage.getItem(storageKey);
+    if (item === null) return;
+    const validated = validateCallback(JSON.parse(item));
+
+    if (validated !== null) setValue(validated);
+  }, [storageKey]);
+
+  return {
+    previous: value,
+    setPrevious(result: Result | null) {
+      if (result) localStorage.setItem(storageKey, JSON.stringify(result));
+      else localStorage.removeItem(storageKey);
+
+      setValue(result);
+    },
+  };
 }
