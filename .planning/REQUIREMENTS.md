@@ -136,14 +136,14 @@ Which phases cover which requirements. Updated by create-roadmap.
 | ENGAGE-03 | Phase 15 | Pending |
 | ENGAGE-04 | Phase 15 | Pending |
 | ENGAGE-05 | Phase 15 | Pending |
-| POLISH-01 | Phase 16 | Pending |
-| POLISH-02 | Phase 16 | Pending |
-| POLISH-03 | Phase 16 | Pending |
-| POLISH-04 | Phase 16 | Pending |
-| POLISH-05 | Phase 16 | Pending |
-| POLISH-06 | Phase 16 | Pending |
-| POLISH-07 | Phase 16 | Pending |
-| POLISH-08 | Phase 16 | Pending |
+| POLISH-01 | Phase 16 | Complete |
+| POLISH-02 | Phase 16 | Complete |
+| POLISH-03 | Phase 16 | Complete |
+| POLISH-04 | Phase 16 | Complete |
+| POLISH-05 | Phase 16 | Complete |
+| POLISH-06 | Phase 16 | Complete |
+| POLISH-07 | Phase 16 | Complete |
+| POLISH-08 | Phase 16 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 41 total
