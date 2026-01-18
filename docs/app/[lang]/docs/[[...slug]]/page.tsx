@@ -8,6 +8,8 @@ import {
 } from "fumadocs-ui/page";
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import { useMDXComponents } from "@/mdx-components";
+import { Feedback } from '@/components/feedback/client';
+import { onPageFeedbackAction } from '@/lib/github';
 
 export default async function Page({
   params,
@@ -27,12 +29,10 @@ export default async function Page({
 
   return (
     <DocsPage toc={page.data.toc}>
-      <DocsTitle>{page.data.title}</DocsTitle>
-      test
-      <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
         <MDX components={components} />
       </DocsBody>
+      <Feedback onSendAction={onPageFeedbackAction} />
     </DocsPage>
   );
 }

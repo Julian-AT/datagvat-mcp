@@ -105,7 +105,7 @@ You can run multiple instances with different configurations:
   "mcpServers": {
     "datagvat-production": {
       "command": "uv",
-      "args": ["--directory", "/path/to/datagvat-mcp", "run", "datagvat-mcp"],
+      "args": ["--directory", "/path/to/datagvat-mcp/mcp", "run", "datagvat-mcp"],
       "env": {
         "AUSTRIA_MCP_LOG_LEVEL": "WARNING",
         "AUSTRIA_MCP_LOG_FORMAT": "json"
@@ -113,7 +113,7 @@ You can run multiple instances with different configurations:
     },
     "datagvat-development": {
       "command": "uv",
-      "args": ["--directory", "/path/to/datagvat-mcp-dev", "run", "datagvat-mcp"],
+      "args": ["--directory", "/path/to/datagvat-mcp-dev/mcp", "run", "datagvat-mcp"],
       "env": {
         "AUSTRIA_MCP_DEV_MODE": "true",
         "AUSTRIA_MCP_LOG_LEVEL": "DEBUG"
@@ -132,7 +132,7 @@ If you're running a local Piveau instance or custom API:
   "mcpServers": {
     "datagvat-local-api": {
       "command": "uv",
-      "args": ["--directory", "/path/to/datagvat-mcp", "run", "datagvat-mcp"],
+      "args": ["--directory", "/path/to/datagvat-mcp/mcp", "run", "datagvat-mcp"],
       "env": {
         "AUSTRIA_MCP_PIVEAU_API_BASE": "http://localhost:8080/api/hub/search",
         "AUSTRIA_MCP_REQUEST_TIMEOUT": "60"
@@ -255,7 +255,7 @@ Access metrics at `http://localhost:9090/metrics`.
 2. **Verify .env file location:**
    ```bash
    # Should be in project root
-   ls -la /path/to/datagvat-mcp/.env
+   ls -la /path/to/datagvat-mcp/mcp/.env
    ```
 
 3. **Check for typos:**

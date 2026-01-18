@@ -9,6 +9,7 @@ This directory contains the documentation site for the DataGVAT MCP Server, buil
 - 🔍 Full-text search
 - 📖 Auto-generated API documentation
 - ⚡ Built with Next.js 16 (Turbopack)
+- 💬 User feedback system with GitHub Discussions integration
 
 ## Getting Started
 
@@ -77,6 +78,16 @@ description: A brief description
 # My Page
 
 Content goes here...
+```
+
+### Using Feedback Blocks
+
+You can add feedback blocks to allow users to provide targeted feedback on specific sections:
+
+```mdx
+<FeedbackBlock id="unique-id" body="Brief description">
+  Your content here. Users can click the message icon to provide feedback.
+</FeedbackBlock>
 ```
 
 ## Technologies

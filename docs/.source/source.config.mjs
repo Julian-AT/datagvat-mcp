@@ -6,6 +6,7 @@ import {
   metaSchema
 } from "fumadocs-mdx/config";
 import { rehypeCodeDefaultOptions } from "fumadocs-core/mdx-plugins";
+import { remarkFeedbackBlock } from "fumadocs-core/mdx-plugins/remark-feedback-block";
 import { transformerNotationDiff, transformerNotationHighlight } from "@shikijs/transformers";
 var docs = defineDocs({
   dir: "content/docs",
@@ -21,6 +22,7 @@ var docs = defineDocs({
 });
 var source_config_default = defineConfig({
   mdxOptions: {
+    remarkPlugins: [remarkFeedbackBlock],
     rehypeCodeOptions: {
       inline: "tailing-curly-colon",
       themes: {

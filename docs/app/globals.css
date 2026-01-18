@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "fumadocs-ui/css/solar.css";
+@import "tailwindcss" layer(base);
+@import "fumadocs-ui/css/neutral.css";
 @import "fumadocs-ui/css/preset.css";
 
 @theme {
@@ -8,3 +8,8 @@
   --color-austria-red-hover: #a01a1f;
 }
 
+@source "../../node_modules/fumadocs-ui/dist/**/*.js";
+@source "./app/**/*.{ts,tsx}";
+@source "./components/**/*.{ts,tsx}";
+@source "./content/**/*.{md,mdx}";
+@source "./mdx-components.tsx";

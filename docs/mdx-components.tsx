@@ -8,6 +8,8 @@ import { Callout } from 'fumadocs-ui/components/callout';
 import { Card, Cards } from 'fumadocs-ui/components/card';
 import { File, Files, Folder } from 'fumadocs-ui/components/files';
 import { ImageZoom } from 'fumadocs-ui/components/image-zoom';
+import { FeedbackBlock } from '@/components/feedback/client';
+import { onBlockFeedbackAction } from '@/lib/github';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -27,5 +29,8 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     File,
     Files,
     Folder,
+    FeedbackBlock: (props: any) => (
+      <FeedbackBlock {...props} onSendAction={onBlockFeedbackAction} />
+    ),
   };
 }

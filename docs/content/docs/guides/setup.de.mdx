@@ -48,7 +48,7 @@ pip install uv
 
 # Repository klonen
 git clone https://github.com/yourusername/datagvat-mcp.git
-cd datagvat-mcp
+cd datagvat-mcp/mcp
 
 # Abhängigkeiten installieren
 uv pip install -e .
@@ -59,7 +59,7 @@ uv pip install -e .
 ```bash
 # Repository klonen
 git clone https://github.com/yourusername/datagvat-mcp.git
-cd datagvat-mcp
+cd datagvat-mcp/mcp
 
 # Abhängigkeiten installieren
 pip install -e .
@@ -127,7 +127,7 @@ Fügen Sie den Austria MCP Server zu Ihrer Claude Desktop Konfiguration hinzu:
       "command": "uv",
       "args": [
         "--directory",
-        "/absoluter/pfad/zu/datagvat-mcp",
+        "/absoluter/pfad/zu/datagvat-mcp/mcp",
         "run",
         "datagvat-mcp"
       ]
@@ -136,7 +136,7 @@ Fügen Sie den Austria MCP Server zu Ihrer Claude Desktop Konfiguration hinzu:
 }
 ```
 
-**Wichtig:** Ersetzen Sie `/absoluter/pfad/zu/datagvat-mcp` mit dem tatsächlichen Pfad, wo Sie das Repository geklont haben.
+**Wichtig:** Ersetzen Sie `/absoluter/pfad/zu/datagvat-mcp/mcp` mit dem tatsächlichen Pfad zum Server-Verzeichnis in Ihrem geklonten Repository.
 
 **Windows Beispiel:**
 ```json
@@ -146,7 +146,7 @@ Fügen Sie den Austria MCP Server zu Ihrer Claude Desktop Konfiguration hinzu:
       "command": "uv",
       "args": [
         "--directory",
-        "C:\\Users\\IhrName\\datagvat-mcp",
+        "C:\\Users\\IhrName\\datagvat-mcp\\mcp",
         "run",
         "datagvat-mcp"
       ]
@@ -163,7 +163,7 @@ Fügen Sie den Austria MCP Server zu Ihrer Claude Desktop Konfiguration hinzu:
       "command": "uv",
       "args": [
         "--directory",
-        "/Users/ihrname/datagvat-mcp",
+        "/Users/ihrname/datagvat-mcp/mcp",
         "run",
         "datagvat-mcp"
       ]
@@ -185,7 +185,7 @@ Falls Sie pip gegenüber uv bevorzugen:
         "-m",
         "app.server"
       ],
-      "cwd": "/absoluter/pfad/zu/datagvat-mcp"
+      "cwd": "/absoluter/pfad/zu/datagvat-mcp/mcp"
     }
   }
 }
