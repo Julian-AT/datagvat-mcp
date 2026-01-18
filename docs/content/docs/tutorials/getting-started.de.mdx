@@ -5,19 +5,19 @@ description: Ihre ersten Schritte mit Austria MCP
 
 # Erste Schritte
 
-Lernen Sie, wie Sie in 5 Minuten nach österreichischen Open Data suchen.
+In 5 Minuten zur ersten Datenabfrage.
 
 ## Voraussetzungen
 
-Bevor Sie beginnen, stellen Sie sicher, dass Sie Folgendes haben:
+Was du brauchst:
 
-- Einen KI-Assistenten, der MCP unterstützt (z.B. Claude Desktop, Cline oder kompatible Tools)
+- Einen KI-Assistenten mit MCP-Unterstützung (z.B. Claude Desktop, Cline oder kompatible Tools)
 - Den Austria MCP Server installiert und konfiguriert
-- Grundlegendes Verständnis für die Interaktion mit Ihrem KI-Assistenten
+- Grundlegendes Verständnis für die Interaktion mit deinem KI-Assistenten
 
 ## 1. Nach Datensätzen suchen
 
-Die häufigste Operation ist die Suche nach Datensätzen. Verwenden Sie `search_datasets`, um Daten über Schlüsselwörter zu finden:
+Die häufigste Operation ist die Suche nach Datensätzen. Verwende `search_datasets`, um Daten über Schlüsselwörter zu finden:
 
 ```python
 search_datasets(query="Bevölkerung", limit=10)
@@ -33,7 +33,7 @@ Dies gibt bis zu 10 Datensätze zum Thema Bevölkerung zurück. Die Ergebnisse u
 
 ## 2. Nach Kategorie filtern
 
-Grenzen Sie Ihre Suchergebnisse mithilfe von Themenfiltern ein. Österreich verwendet EU DCAT-AP Themencodes:
+Grenze deine Suchergebnisse mit Themenfiltern ein. Österreich verwendet EU DCAT-AP Themencodes:
 
 ```python
 search_datasets(
@@ -55,7 +55,7 @@ Siehe [API-Referenz](/api/tools) für die vollständige Liste der 13 EU-Themenco
 
 ## 3. Datensatz-Details abrufen
 
-Sobald Sie einen Datensatz gefunden haben, rufen Sie seine vollständigen Metadaten ab:
+Sobald du einen Datensatz gefunden hast, rufe seine vollständigen Metadaten ab:
 
 ```python
 get_dataset(dataset_id="17f04f16-1c02-4f94-90e3-e27e92535a83")
@@ -71,7 +71,7 @@ Dies gibt umfassende Informationen zurück, einschließlich:
 
 ## 4. Daten-Vorschau
 
-Überprüfen Sie den Inhalt des Datensatzes vor dem Herunterladen mit dem zweistufigen Vorschau-Workflow:
+Überprüfe den Inhalt des Datensatzes vor dem Download mit dem zweistufigen Vorschau-Workflow:
 
 ```python
 # Schritt 1: Datensatz-Distributionen abrufen, um Download-URLs zu finden
@@ -97,7 +97,7 @@ Die Vorschau zeigt:
 
 ## 5. Semantische Suche verwenden
 
-Für natürlichsprachige Abfragen verwenden Sie die semantische Suche, die Ihre Abfrage automatisch um verwandte Begriffe erweitert:
+Für natürlichsprachliche Abfragen verwende die semantische Suche, die deine Abfrage automatisch um verwandte Begriffe erweitert:
 
 ```python
 semantic_search_datasets(
@@ -132,7 +132,7 @@ Das System bewertet Beziehungen basierend auf:
 
 ## Nächste Schritte
 
-Nachdem Sie die Grundlagen verstanden haben, erkunden Sie diese Ressourcen:
+Nachdem du die Grundlagen kennst, erkunde diese Ressourcen:
 
 - **[API-Referenz](/api/tools)** - Vollständige Tool-Dokumentation
 - **[Suchbeispiele](/examples/search)** - Erweiterte Suchmuster
@@ -157,4 +157,4 @@ Nachdem Sie die Grundlagen verstanden haben, erkunden Sie diese Ressourcen:
 2. `analyze_dataset_quality` - Qualitätsmetriken abrufen
 3. `get_dataset_metrics` - DQV-Metadatenqualität anzeigen
 
-Bereit für mehr Details? Schauen Sie sich die [Beispiel-Workflows](/examples/workflows) für vollständige End-to-End-Szenarien an.
+Bereit für mehr Details? Schau dir die [Beispiel-Workflows](/examples/workflows) für vollständige End-to-End-Szenarien an.
