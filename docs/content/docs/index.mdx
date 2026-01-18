@@ -45,6 +45,62 @@ MCP enables:
 - **Tool Integration**: Seamless function calling capabilities
 - **Extensibility**: Easy to extend with custom functionality
 
+## Architecture Overview
+
+The Austria MCP server connects Claude Desktop to Austrian government datasets through a robust, layered architecture:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Claude Desktop                         │
+│                      (MCP Client)                          │
+└────────────────────┬────────────────────────────────────────┘
+                     │ MCP Protocol (stdio)
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  Austria MCP Server                         │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │              FastMCP Framework                       │  │
+│  │     (Protocol handling & standard MCP features)      │  │
+│  └─────────────────────────────────────────────────────┘  │
+│                           │                                 │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │             Middleware Stack                         │  │
+│  │  ┌────────────────────────────────────────────┐    │  │
+│  │  │ Logging → Error → Retry → RateLimit        │    │  │
+│  │  │        → Audit → Auth                      │    │  │
+│  │  └────────────────────────────────────────────┘    │  │
+│  └─────────────────────────────────────────────────────┘  │
+│                           │                                 │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │               Tool Categories                        │  │
+│  │  • Discovery (search, list catalogues)              │  │
+│  │  • Management (create, update, delete datasets)     │  │
+│  │  • Analysis (quality scoring, find related)         │  │
+│  │  • Vocabularies (EU themes, formats, terms)         │  │
+│  │  • Preview (CSV, JSON, XML data samples)            │  │
+│  └─────────────────────────────────────────────────────┘  │
+│                           │                                 │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │            Piveau API Client                         │  │
+│  │   (Connection pooling, request optimization)         │  │
+│  └─────────────────────────────────────────────────────┘  │
+└────────────────────┬────────────────────────────────────────┘
+                     │ HTTPS
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│               Piveau API (data.gv.at)                       │
+│        Austrian Open Government Data Catalog               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+This architecture provides:
+
+- **Clean separation** between MCP protocol handling (FastMCP) and business logic (tools)
+- **Layered middleware** for logging, error handling, retries, rate limiting, and auth
+- **Organized tools** by functional category for easy discovery
+- **Efficient API client** with connection pooling and request optimization
+
 ## Getting Started
 
 <Steps>

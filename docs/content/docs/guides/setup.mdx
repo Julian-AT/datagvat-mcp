@@ -15,6 +15,71 @@ Before installing, ensure you have:
 - **pip or uv package manager** - uv recommended for faster installs
 - **Claude Desktop** or compatible MCP client - [Download Claude Desktop](https://claude.ai/download)
 
+## How Austria MCP Works
+
+Understanding the data flow helps you troubleshoot issues and optimize your queries:
+
+```
+   User: "Find population datasets from 2023"
+      │
+      ▼
+┌─────────────────────────────────────────────┐
+│         Claude Desktop                      │
+│  Interprets → Calls search_datasets tool   │
+└──────────────────┬──────────────────────────┘
+                   │ MCP Protocol (stdio)
+                   ▼
+┌─────────────────────────────────────────────┐
+│      Austria MCP Server receives request   │
+│                                             │
+│  1. Middleware processing:                 │
+│     • Logging (record request)             │
+│     • Auth validation                      │
+│     • Rate limiting check                  │
+│                                             │
+│  2. Tool execution:                        │
+│     • Parse parameters                     │
+│     • Semantic query expansion (LLM)       │
+│     • Build API request                    │
+└──────────────────┬──────────────────────────┘
+                   │ HTTPS GET
+                   ▼
+┌─────────────────────────────────────────────┐
+│   Piveau API searches catalog              │
+│   (data.gv.at)                             │
+└──────────────────┬──────────────────────────┘
+                   │ JSON response
+                   ▼
+┌─────────────────────────────────────────────┐
+│  Server processes and enhances results:    │
+│     • Quality scoring (metadata analysis)  │
+│     • Theme enrichment (EU vocabularies)   │
+│     • Semantic ranking (relevance boost)   │
+│     • Format structured response           │
+└──────────────────┬──────────────────────────┘
+                   │ MCP response
+                   ▼
+┌─────────────────────────────────────────────┐
+│   Claude Desktop receives structured data  │
+│   Presents natural language summary        │
+└─────────────────────────────────────────────┘
+      │
+      ▼
+   User: "Population 2023 datasets:
+          • Vienna Population Statistics (quality: 95)
+          • National Demographics 2023 (quality: 87)
+          ..."
+```
+
+**Why use the MCP server?**
+
+The server adds value beyond direct API access:
+- **Semantic understanding** - Expands queries with related terms
+- **Quality scoring** - Ranks datasets by metadata completeness
+- **Data previews** - Inspects CSV/JSON contents before download
+- **Error handling** - Retries failed requests with exponential backoff
+- **Rate limiting** - Protects against API throttling
+
 ## Project Structure
 
 After installation, your project directory looks like this:
@@ -354,7 +419,27 @@ search_datasets(query="population", limit=5)
 
 **Cause:** The `cwd` path doesn't point to the `mcp/` directory.
 
-**Fix:** Ensure your config points to the directory containing the `app/` folder:
+**Fix:** Ensure your config points to the directory containing the `app/` folder.
+
+The correct directory structure looks like this:
+
+```
+datagvat-mcp/                    ❌ cwd="..." (too high - repo root)
+  ├── docs/
+  ├── .planning/
+  └── mcp/                       ✅ cwd=".../mcp" (CORRECT - contains app/)
+      ├── app/                   ❌ cwd=".../app" (too low - inside app/)
+      │   ├── server.py
+      │   ├── client.py
+      │   ├── tools/
+      │   └── ...
+      ├── tests/
+      ├── pyproject.toml
+      ├── .env
+      └── README.md
+```
+
+Your configuration must point to the `mcp/` directory:
 
 ```json
 {
@@ -362,7 +447,10 @@ search_datasets(query="population", limit=5)
 }
 ```
 
-Not `/datagvat-mcp` (too high) or `/datagvat-mcp/mcp/app` (too low).
+**Common mistakes:**
+- ❌ `/datagvat-mcp` - Too high (repo root, no `app/` folder here)
+- ❌ `/datagvat-mcp/mcp/app` - Too low (Python can't import from inside `app/`)
+- ✅ `/datagvat-mcp/mcp` - Correct (contains `app/` as a Python package)
 
 ### Command not found
 

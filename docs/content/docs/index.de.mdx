@@ -18,6 +18,62 @@ Dein MCP Server für österreichische Open Government Data – Entdecken, Analys
 
 Das Model Context Protocol (MCP) ist ein offenes Protokoll, das standardisiert, wie Anwendungen Kontext für LLMs bereitstellen. Austria MCP implementiert dieses Protokoll und gibt KI-Assistenten direkten Zugriff auf österreichische Regierungsdatensätze.
 
+## Architektur-Überblick
+
+Der Austria MCP Server verbindet Claude Desktop mit österreichischen Regierungsdatensätzen durch eine robuste, geschichtete Architektur:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Claude Desktop                         │
+│                      (MCP Client)                          │
+└────────────────────┬────────────────────────────────────────┘
+                     │ MCP Protocol (stdio)
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  Austria MCP Server                         │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │              FastMCP Framework                       │  │
+│  │  (Protokoll-Handling & Standard MCP-Features)       │  │
+│  └─────────────────────────────────────────────────────┘  │
+│                           │                                 │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │             Middleware Stack                         │  │
+│  │  ┌────────────────────────────────────────────┐    │  │
+│  │  │ Logging → Error → Retry → RateLimit        │    │  │
+│  │  │        → Audit → Auth                      │    │  │
+│  │  └────────────────────────────────────────────┘    │  │
+│  └─────────────────────────────────────────────────────┘  │
+│                           │                                 │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │               Tool-Kategorien                        │  │
+│  │  • Discovery (search, list catalogues)              │  │
+│  │  • Management (create, update, delete datasets)     │  │
+│  │  • Analysis (quality scoring, find related)         │  │
+│  │  • Vocabularies (EU themes, formats, terms)         │  │
+│  │  • Preview (CSV, JSON, XML data samples)            │  │
+│  └─────────────────────────────────────────────────────┘  │
+│                           │                                 │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │            Piveau API Client                         │  │
+│  │   (Connection Pooling, Request Optimization)         │  │
+│  └─────────────────────────────────────────────────────┘  │
+└────────────────────┬────────────────────────────────────────┘
+                     │ HTTPS
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│               Piveau API (data.gv.at)                       │
+│        Österreichischer Open Government Data Katalog       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+Diese Architektur bietet:
+
+- **Klare Trennung** zwischen MCP-Protokoll-Handling (FastMCP) und Business-Logik (Tools)
+- **Geschichtete Middleware** für Logging, Error Handling, Retries, Rate Limiting und Auth
+- **Organisierte Tools** nach funktionalen Kategorien für einfache Auffindbarkeit
+- **Effizienter API-Client** mit Connection Pooling und Request-Optimierung
+
 ## Erste Schritte
 
 Installiere den Austria MCP Server und starte durch – Tausende österreichische Datensätze warten auf dich.

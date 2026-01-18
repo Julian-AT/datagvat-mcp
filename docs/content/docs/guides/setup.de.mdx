@@ -15,6 +15,71 @@ Was du brauchst:
 - **pip oder uv Paketmanager** - uv wird für schnellere Installationen empfohlen
 - **Claude Desktop** oder kompatibler MCP-Client - [Claude Desktop herunterladen](https://claude.ai/download)
 
+## So funktioniert Austria MCP
+
+Der Datenfluss hilft dir, Probleme zu beheben und deine Abfragen zu optimieren:
+
+```
+   User: "Finde Bevölkerungsdatensätze von 2023"
+      │
+      ▼
+┌─────────────────────────────────────────────┐
+│         Claude Desktop                      │
+│  Interpretiert → Ruft search_datasets auf  │
+└──────────────────┬──────────────────────────┘
+                   │ MCP Protocol (stdio)
+                   ▼
+┌─────────────────────────────────────────────┐
+│      Austria MCP Server empfängt Anfrage   │
+│                                             │
+│  1. Middleware-Verarbeitung:               │
+│     • Logging (Anfrage protokollieren)     │
+│     • Auth-Validierung                     │
+│     • Rate Limiting Check                  │
+│                                             │
+│  2. Tool-Ausführung:                       │
+│     • Parameter parsen                     │
+│     • Semantische Query-Erweiterung (LLM)  │
+│     • API-Anfrage erstellen                │
+└──────────────────┬──────────────────────────┘
+                   │ HTTPS GET
+                   ▼
+┌─────────────────────────────────────────────┐
+│   Piveau API durchsucht Katalog            │
+│   (data.gv.at)                             │
+└──────────────────┬──────────────────────────┘
+                   │ JSON response
+                   ▼
+┌─────────────────────────────────────────────┐
+│  Server verarbeitet und verbessert:        │
+│     • Quality Scoring (Metadatenanalyse)   │
+│     • Theme Enrichment (EU-Vokabulare)     │
+│     • Semantisches Ranking (Relevanz)      │
+│     • Strukturierte Antwort formatieren    │
+└──────────────────┬──────────────────────────┘
+                   │ MCP response
+                   ▼
+┌─────────────────────────────────────────────┐
+│   Claude Desktop empfängt strukturierte    │
+│   Daten und zeigt natürliche Zusammenfassung│
+└─────────────────────────────────────────────┘
+      │
+      ▼
+   User: "Bevölkerung 2023 Datensätze:
+          • Wiener Bevölkerungsstatistik (quality: 95)
+          • Bundesweite Demografie 2023 (quality: 87)
+          ..."
+```
+
+**Warum den MCP Server verwenden?**
+
+Der Server bietet Mehrwert über direkten API-Zugriff hinaus:
+- **Semantisches Verständnis** - Erweitert Abfragen mit verwandten Begriffen
+- **Quality Scoring** - Rankt Datensätze nach Metadaten-Vollständigkeit
+- **Datenvorschau** - Prüft CSV/JSON-Inhalte vor dem Download
+- **Error Handling** - Wiederholt fehlgeschlagene Anfragen mit Exponential Backoff
+- **Rate Limiting** - Schützt vor API-Throttling
+
 ## Projektstruktur
 
 Nach der Installation sieht dein Projektverzeichnis so aus:
@@ -354,7 +419,27 @@ search_datasets(query="bevölkerung", limit=5)
 
 **Ursache:** Der `cwd` Pfad zeigt nicht auf das `mcp/` Verzeichnis.
 
-**Lösung:** Stelle sicher, dass deine Konfiguration auf das Verzeichnis zeigt, das den `app/` Ordner enthält:
+**Lösung:** Stelle sicher, dass deine Konfiguration auf das Verzeichnis zeigt, das den `app/` Ordner enthält.
+
+Die korrekte Verzeichnisstruktur sieht so aus:
+
+```
+datagvat-mcp/                    ❌ cwd="..." (zu hoch - Repo-Root)
+  ├── docs/
+  ├── .planning/
+  └── mcp/                       ✅ cwd=".../mcp" (KORREKT - enthält app/)
+      ├── app/                   ❌ cwd=".../app" (zu tief - in app/ drin)
+      │   ├── server.py
+      │   ├── client.py
+      │   ├── tools/
+      │   └── ...
+      ├── tests/
+      ├── pyproject.toml
+      ├── .env
+      └── README.md
+```
+
+Deine Konfiguration muss auf das `mcp/` Verzeichnis zeigen:
 
 ```json
 {
@@ -362,7 +447,10 @@ search_datasets(query="bevölkerung", limit=5)
 }
 ```
 
-Nicht `/datagvat-mcp` (zu hoch) oder `/datagvat-mcp/mcp/app` (zu tief).
+**Häufige Fehler:**
+- ❌ `/datagvat-mcp` - Zu hoch (Repo-Root, kein `app/` Ordner hier)
+- ❌ `/datagvat-mcp/mcp/app` - Zu tief (Python kann nicht aus `app/` importieren)
+- ✅ `/datagvat-mcp/mcp` - Korrekt (enthält `app/` als Python-Package)
 
 ### Befehl nicht gefunden
 
