@@ -27,7 +27,7 @@ export default defineConfig({
   workspaces: {
     'api': {
       dir: 'content/api',
-      config: await import('./content/api/source.config.ts'),
+      config: await import('./content/api/source.config'),
     },
   },
   mdxOptions: {

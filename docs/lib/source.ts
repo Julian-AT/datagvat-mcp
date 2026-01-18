@@ -1,5 +1,5 @@
 import { docs } from "../.source/server";
-import * as ApiWorkspace from "fumadocs-mdx:collections/api/server";
+import { docs as apiDocs } from "../.source/api/server";
 import { type InferPageType, loader, multiple } from "fumadocs-core/source";
 import { i18n } from "./i18n";
 import { lucideIconsPlugin } from "fumadocs-core/source/lucide-icons";
@@ -7,7 +7,7 @@ import { lucideIconsPlugin } from "fumadocs-core/source/lucide-icons";
 export const source = loader(
   multiple({
     root: docs.toFumadocsSource(),
-    api: ApiWorkspace.docs.toFumadocsSource(),
+    api: apiDocs.toFumadocsSource(),
   }),
   {
     baseUrl: "/",

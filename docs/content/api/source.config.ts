@@ -1,4 +1,5 @@
-import { defineDocs, frontmatterSchema, metaSchema } from "fumadocs-mdx/config";
+import { defineConfig, defineDocs, frontmatterSchema, metaSchema } from "fumadocs-mdx/config";
+import lastModified from 'fumadocs-mdx/plugins/last-modified';
 
 export const docs = defineDocs({
   dir: ".",  // cwd is already docs/content/api/
@@ -11,4 +12,8 @@ export const docs = defineDocs({
   meta: {
     schema: metaSchema,
   },
+});
+
+export default defineConfig({
+  plugins: [lastModified()],
 });
