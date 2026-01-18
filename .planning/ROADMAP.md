@@ -18,6 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 13: Icon Integration** - Add visual navigation aids throughout
 - [ ] **Phase 14: Visual & Social** - Perfect appearance and social sharing
 - [ ] **Phase 15: User Engagement** - Feedback system and analytics
+- [ ] **Phase 16: Documentation Polish & Release Prep** - Test MCP server, polish docs, add visual resources
 
 ## Phase Details
 
@@ -116,10 +117,27 @@ Plans:
 Plans:
 - [ ] 15-01: [To be planned]
 
+### Phase 16: Documentation Polish & Release Prep
+**Goal**: Production-ready documentation with comprehensive setup guides and quality content
+**Depends on**: Phase 15 (needs complete feature set documented)
+**Requirements**: POLISH-01, POLISH-02, POLISH-03, POLISH-04, POLISH-05
+**Success Criteria** (what must be TRUE):
+  1. MCP server tested end-to-end (cloud-hosted and self-hosted flows)
+  2. Setup documentation complete and accurate (Claude Desktop, self-hosting)
+  3. German documentation improved for clarity and natural language
+  4. Visual resources added where helpful (diagrams, screenshots, architecture)
+  5. All documentation reviewed for accuracy and usefulness
+**Research**: Likely (MCP testing, documentation best practices)
+**Research topics**: MCP server setup flows, Claude Desktop configuration, documentation structure patterns, visual resource placement
+**Plans**: TBD
+
+Plans:
+- [ ] 16-01: [To be planned]
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15
+Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15 → 16
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -129,3 +147,4 @@ Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15
 | 13. Icon Integration | 0/TBD | Not started | - |
 | 14. Visual & Social | 0/TBD | Not started | - |
 | 15. User Engagement | 0/TBD | Not started | - |
+| 16. Documentation Polish & Release Prep | 0/TBD | Not started | - |
