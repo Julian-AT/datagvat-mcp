@@ -69,6 +69,15 @@ Requirements for v1.1 Documentation Excellence milestone. Each maps to roadmap p
 - [ ] **POLISH-07**: Documentation structure reviewed for discoverability
 - [ ] **POLISH-08**: Technical accuracy verified across all pages
 
+### Fumadocs Workspace Restructuring
+
+- [ ] **WORKSPACE-01**: API reference separated into independent workspace
+- [ ] **WORKSPACE-02**: Main workspace contains guides, tutorials, examples, best practices
+- [ ] **WORKSPACE-03**: Each workspace has independent source.config.ts
+- [ ] **WORKSPACE-04**: Workspaces integrated via multiple() loader with unified navigation
+- [ ] **WORKSPACE-05**: URLs unchanged, routing works correctly across workspaces
+- [ ] **WORKSPACE-06**: Build succeeds with both workspaces generating collections
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -144,10 +153,16 @@ Which phases cover which requirements. Updated by create-roadmap.
 | POLISH-06 | Phase 16 | Complete |
 | POLISH-07 | Phase 16 | Complete |
 | POLISH-08 | Phase 16 | Complete |
+| WORKSPACE-01 | Phase 17 | Pending |
+| WORKSPACE-02 | Phase 17 | Pending |
+| WORKSPACE-03 | Phase 17 | Pending |
+| WORKSPACE-04 | Phase 17 | Pending |
+| WORKSPACE-05 | Phase 17 | Pending |
+| WORKSPACE-06 | Phase 17 | Pending |
 
 **Coverage:**
-- v1.1 requirements: 41 total
-- Mapped to phases: 41
+- v1.1 requirements: 47 total
+- Mapped to phases: 47
 - Unmapped: 0 ✓
 
 ---

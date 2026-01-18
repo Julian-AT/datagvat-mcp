@@ -142,19 +142,19 @@ Plans:
 ### Phase 17: Fumadocs Workspace Restructuring
 **Goal**: Cleaner content organization with separate workspaces for different documentation types
 **Depends on**: Phase 16 (needs polished documentation to restructure)
-**Requirements**: WORKSPACE-01, WORKSPACE-02, WORKSPACE-03, WORKSPACE-04
+**Requirements**: WORKSPACE-01, WORKSPACE-02, WORKSPACE-03, WORKSPACE-04, WORKSPACE-05, WORKSPACE-06
 **Success Criteria** (what must be TRUE):
   1. API reference separated into its own workspace
   2. Main workspace contains guides, tutorials, examples, best practices
   3. Each workspace has independent configuration
   4. Navigation and routing work correctly across workspaces
   5. Content discoverability improved by separation
-**Research**: Likely (Fumadocs workspace configuration, routing patterns)
+**Research**: Completed (Fumadocs workspace documentation)
 **Research topics**: Fumadocs workspace setup, multi-workspace routing, source configuration per workspace
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 17-01: [To be planned]
+- [ ] 17-01: Workspace setup and content migration
 
 ## Progress
 
