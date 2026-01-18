@@ -1,11 +1,13 @@
 import { docs } from "../.source/server";
 import { type InferPageType, loader } from "fumadocs-core/source";
 import { i18n } from "./i18n";
+import { lucideIconsPlugin } from "fumadocs-core/source/lucide-icons";
 
 export const source = loader({
   baseUrl: "/docs",
   source: docs.toFumadocsSource(),
   i18n,
+  plugins: [lucideIconsPlugin()],
 });
 
 export function getPageImage(page: InferPageType<typeof source>) {

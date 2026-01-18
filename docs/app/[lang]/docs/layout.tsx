@@ -1,8 +1,9 @@
 import { source } from '@/lib/source';
 import { i18n } from '@/lib/i18n';
-import type { Metadata } from 'next';
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
 import type { ReactNode } from 'react';
+import { Logo } from '@/components/logo';
+import { LanguageToggle } from '@/components/language-toggle';
 
 export default async function Layout({
   params,
@@ -17,7 +18,8 @@ export default async function Layout({
     <DocsLayout
       tree={source.pageTree[lang]}
       nav={{
-        title: 'Austria MCP',
+        title: <Logo />,
+        children: <LanguageToggle lang={lang} />,
       }}
     >
       {children}
@@ -29,7 +31,7 @@ export async function generateStaticParams() {
   return i18n.languages.map((lang) => ({ lang }));
 }
 
-export function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Metadata {
+export function generateMetadata() {
   return {
     title: 'Austria MCP Documentation',
     description: 'Comprehensive guide to using the Austria MCP server',
