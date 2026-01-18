@@ -154,7 +154,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 17-01: Workspace setup and content migration
+- [x] 17-01: Workspace setup and content migration
 
 ## Progress
 
@@ -170,4 +170,4 @@ Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15 → 16 �
 | 14. Visual & Social | 0/TBD | Not started | - |
 | 15. User Engagement | 0/TBD | Not started | - |
 | 16. Documentation Polish & Release Prep | 6/6 | ✓ Complete | 2026-01-18 |
-| 17. Fumadocs Workspace Restructuring | 0/TBD | Not started | - |
+| 17. Fumadocs Workspace Restructuring | 1/1 | ✓ Complete | 2026-01-18 |

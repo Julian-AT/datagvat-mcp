@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-01-17)
 
 **Core value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
-**Current focus:** Phase 16 — Documentation Polish & Release Prep
+**Current focus:** Phase 17 — Fumadocs Workspace Restructuring (Complete)
 
 ## Current Position
 
