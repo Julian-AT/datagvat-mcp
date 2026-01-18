@@ -139,10 +139,27 @@ Plans:
 - [x] 16-05: Fix search.mdx parameter error
 - [x] 16-06: Comprehensive parameter error fix
 
+### Phase 17: Fumadocs Workspace Restructuring
+**Goal**: Cleaner content organization with separate workspaces for different documentation types
+**Depends on**: Phase 16 (needs polished documentation to restructure)
+**Requirements**: WORKSPACE-01, WORKSPACE-02, WORKSPACE-03, WORKSPACE-04
+**Success Criteria** (what must be TRUE):
+  1. API reference separated into its own workspace
+  2. Main workspace contains guides, tutorials, examples, best practices
+  3. Each workspace has independent configuration
+  4. Navigation and routing work correctly across workspaces
+  5. Content discoverability improved by separation
+**Research**: Likely (Fumadocs workspace configuration, routing patterns)
+**Research topics**: Fumadocs workspace setup, multi-workspace routing, source configuration per workspace
+**Plans**: TBD
+
+Plans:
+- [ ] 17-01: [To be planned]
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15 → 16
+Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -153,3 +170,4 @@ Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15 → 16
 | 14. Visual & Social | 0/TBD | Not started | - |
 | 15. User Engagement | 0/TBD | Not started | - |
 | 16. Documentation Polish & Release Prep | 6/6 | ✓ Complete | 2026-01-18 |
+| 17. Fumadocs Workspace Restructuring | 0/TBD | Not started | - |

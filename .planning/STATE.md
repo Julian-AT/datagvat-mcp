@@ -157,6 +157,7 @@ Recent decisions affecting current work:
 - Phase 8 added: Workflow Optimization & Fumadocs Documentation - Create comprehensive bilingual documentation site
 - Phase 9 added: Fumadocs Component Integration - Enhance documentation with interactive Fumadocs UI components (Tabs, Accordions, Files, Steps, TypeTable, ImageZoom, etc.)
 - Phase 16 added: Documentation Polish & Release Prep - Test MCP server end-to-end, polish documentation quality, add visual resources, prepare for production release
+- Phase 17 added: Fumadocs Workspace Restructuring - Separate API reference into its own workspace for cleaner content organization
 
 ### Pending Todos
 
