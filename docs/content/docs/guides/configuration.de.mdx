@@ -5,7 +5,7 @@ description: Erweiterte Konfigurationsoptionen für den Austria MCP Server
 
 # Konfiguration
 
-Erweiterte Konfigurationsoptionen zur Anpassung des Austria MCP Servers an Ihre Bedürfnisse.
+Konfiguriere den Austria MCP Server für deine Anforderungen.
 
 ## Konfigurationsdateien
 
@@ -33,7 +33,7 @@ Austria MCP verwendet diese Konfigurationsdateien:
 
 ## Umgebungsvariablen
 
-Konfigurieren Sie das Serververhalten mit Umgebungsvariablen in einer `.env` Datei oder Ihrer Systemumgebung.
+Serververhalten mit Umgebungsvariablen in einer `.env` Datei oder deiner Systemumgebung steuern.
 
 ### API-Konfiguration
 
@@ -47,7 +47,7 @@ AUSTRIA_MCP_REQUEST_TIMEOUT=30
 # Maximale Wiederholungsversuche für fehlgeschlagene Anfragen (Standard: 3)
 AUSTRIA_MCP_MAX_RETRIES=3
 
-# Wiederholungs-Backoff-Multiplikator (Standard: 1 Sekunde, exponentiell)
+# Retry Backoff Multiplikator (Standard: 1 Sekunde, exponentiell)
 AUSTRIA_MCP_RETRY_BACKOFF=1
 ```
 
@@ -63,9 +63,9 @@ AUSTRIA_MCP_RATE_LIMIT=10
 AUSTRIA_MCP_RATE_BURST=20
 ```
 
-**Hinweis:** Diese Standardwerte sind konservativ. Sie können sie erhöhen, wenn Sie höhere Rate Limits haben oder eine lokale Piveau-Instanz betreiben.
+**Hinweis:** Diese Standardwerte sind konservativ. Du kannst sie erhöhen, wenn du höhere Rate Limits hast oder eine lokale Piveau-Instanz betreibst.
 
-### Protokollierungskonfiguration
+### Logging-Konfiguration
 
 ```bash
 # Protokollierungsstufe: DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -98,7 +98,7 @@ AUSTRIA_MCP_DEV_MODE=true
 
 ### Mehrere Server-Instanzen
 
-Sie können mehrere Instanzen mit unterschiedlichen Konfigurationen betreiben:
+Du kannst mehrere Instanzen mit unterschiedlichen Konfigurationen betreiben:
 
 ```json
 {
@@ -125,7 +125,7 @@ Sie können mehrere Instanzen mit unterschiedlichen Konfigurationen betreiben:
 
 ### Benutzerdefinierter API-Endpunkt
 
-Falls Sie eine lokale Piveau-Instanz oder benutzerdefinierte API betreiben:
+Falls du eine lokale Piveau-Instanz oder benutzerdefinierte API betreibst:
 
 ```json
 {
@@ -146,7 +146,7 @@ Falls Sie eine lokale Piveau-Instanz oder benutzerdefinierte API betreiben:
 
 ### Request-Timeout
 
-Passen Sie basierend auf Ihren Netzwerkbedingungen an:
+Passe basierend auf deinen Netzwerkbedingungen an:
 
 ```bash
 # Schnelles Netzwerk
@@ -161,7 +161,7 @@ AUSTRIA_MCP_REQUEST_TIMEOUT=120
 
 ### Datenvorschau-Limits
 
-Konfigurieren Sie das Datenvorschau-Verhalten (im Code festgelegt, nicht als Umgebungsvariablen - dies dient als Referenz):
+Konfiguriere das Datenvorschau-Verhalten (im Code festgelegt, nicht als Umgebungsvariablen - dies dient als Referenz):
 
 - **Standard-Vorschau:** 64KB (geeignet für ~1000 CSV-Zeilen)
 - **Maximale Vorschau:** 512KB (verhindert Speicherprobleme)
@@ -246,19 +246,19 @@ Greifen Sie auf Metriken unter `http://localhost:9090/metrics` zu.
 
 ### Konfiguration nicht angewendet
 
-1. **Überprüfen Sie die Rangfolge der Umgebungsvariablen:**
+1. **Überprüfe die Rangfolge der Umgebungsvariablen:**
    - System-Umgebungsvariablen
    - `.env`-Datei im Projektstamm
    - Claude Desktop Config `env`-Sektion
    - Standardwerte
 
-2. **Überprüfen Sie den Speicherort der .env-Datei:**
+2. **Überprüfe den Speicherort der .env-Datei:**
    ```bash
    # Sollte im Projektstamm sein
    ls -la /pfad/zu/datagvat-mcp/.env
    ```
 
-3. **Prüfen Sie auf Tippfehler:**
+3. **Prüfe auf Tippfehler:**
    ```bash
    # Variablennamen sind groß-/kleinschreibungssensitiv
    AUSTRIA_MCP_LOG_LEVEL=INFO  # Richtig
@@ -267,14 +267,14 @@ Greifen Sie auf Metriken unter `http://localhost:9090/metrics` zu.
 
 ### Konfiguration debuggen
 
-Aktivieren Sie Debug-Protokollierung, um geladene Konfiguration zu sehen:
+Aktiviere Debug-Logging, um geladene Konfiguration zu sehen:
 
 ```bash
 AUSTRIA_MCP_LOG_LEVEL=DEBUG
 AUSTRIA_MCP_DEV_MODE=true
 ```
 
-Prüfen Sie Protokolle auf Konfigurationswerte:
+Prüfe Logs auf Konfigurationswerte:
 
 ```
 2024-01-17 10:00:00 DEBUG Geladene Konfiguration:
@@ -334,6 +334,6 @@ AUSTRIA_MCP_MAX_RETRIES=1
 
 ## Nächste Schritte
 
-- **[API-Referenz](/de/api/tools)** - Erkunden Sie alle verfügbaren Tools
+- **[API-Referenz](/de/api/tools)** - Erkunde alle verfügbaren Tools
 - **[Ressourcen](/de/api/resources)** - Direktzugriffsmuster für Daten
-- **[Prompts](/de/api/prompts)** - Workflow-Automatisierungsvorlagen
+- **[Prompts](/de/api/prompts)** - Workflow-Templates

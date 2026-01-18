@@ -5,13 +5,13 @@ description: Best Practices für die effiziente Nutzung von Austria MCP
 
 # Performance-Optimierung
 
-Maximieren Sie Leistung und Effizienz bei der Arbeit mit Austria MCP.
+Best Practices für effiziente Nutzung von Austria MCP.
 
 ## Such-Optimierung
 
-### Verwenden Sie spezifische Filter
+### Verwende spezifische Filter
 
-Grenzen Sie Suchen früh ein, um Ergebnismengen zu reduzieren:
+Grenze Suchen früh ein, um Ergebnismengen zu reduzieren:
 
 ```python
 # ✗ Langsam: Alles abrufen und dann filtern
@@ -24,9 +24,9 @@ csv_results = search_datasets(query="", formats=["CSV"], limit=100)
 
 **Leistungsgewinn:** 10-50x schneller für gefilterte Suchen
 
-### Begrenzen Sie Ergebnismengen
+### Begrenze Ergebnismengen
 
-Fordern Sie nur an, was Sie benötigen:
+Fordere nur an, was du brauchst:
 
 ```python
 # ✗ Verschwenderisch: Mehr anfordern als benötigt
@@ -39,9 +39,9 @@ results = search_datasets(query="Gesundheit", limit=5)
 
 **Auswirkung:** Kleinere Nutzlasten, schnellere Netzwerkübertragung, reduzierte Parsing-Zeit
 
-### Verwenden Sie Quality Boost gezielt
+### Verwende Quality Boost gezielt
 
-Aktivieren Sie Quality Boost nur, wenn Qualität wichtig ist:
+Aktiviere Quality Boost nur, wenn Qualität wichtig ist:
 
 ```python
 # ✓ Gut: Qualität ist wichtig für Produktionsdaten
