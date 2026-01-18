@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-01-17)
 
 **Core value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
-**Current focus:** Phase 17 — Fumadocs Workspace Restructuring (Complete)
+**Current focus:** Planning next milestone (v1.2)
 
 ## Current Position
 
-Milestone: v1.1 Documentation Excellence
-Phase: 17 of 17 (Fumadocs Workspace Restructuring)
-Plan: 1 of 1 complete
-Status: Phase complete - Two-workspace architecture operational
-Last activity: 2026-01-18 — Completed 17-01-PLAN.md (Fumadocs workspace restructuring with independent configs)
+Milestone: v1.1 Documentation Excellence — COMPLETE (2026-01-18)
+Phase: Ready for next milestone
+Plan: N/A
+Status: v1.1 shipped - planning v1.2
+Last activity: 2026-01-18 — v1.1 milestone complete
 
-Progress: ████░░░░░░ 24% (8/33 plans complete)
+Progress: Archive complete (9/9 plans shipped in v1.1)
 
 ## Performance Metrics
 

@@ -8,24 +8,32 @@ A comprehensive MCP server for Austrian Open Government Data via data.gv.at. The
 
 Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
 
-## Current Milestone: v1.1 Documentation Excellence
+## Current State
 
-**Goal:** Perfect the documentation site with full Fumadocs enterprise features, fix styling and i18n issues, and integrate AI-powered enhancements.
+**Latest shipped:** v1.1 Documentation Excellence (2026-01-18)
 
-**Target features:**
-- Fix styling inconsistencies and layout issues
-- Resolve internationalization (i18n) routing and language switching problems
-- Integrate Fumadocs enterprise features (AI search, llms.txt, feedback, OG images)
-- Add icon support throughout documentation
-- Implement proper SEO and metadata
-- Perfect responsive design across all devices
-- Enhance search experience with AI-powered features
+**What's working:**
+- MCP server with 17 tools for Austrian open data discovery and analysis
+- Enterprise infrastructure (retry, rate limiting, logging, graceful degradation)
+- Smart search with semantic matching, quality ranking, and autocomplete
+- Data preview and schema introspection for CSV/JSON
+- Bilingual documentation (EN/DE) with i18n routing and Fumadocs workspace architecture
+- Comprehensive testing (268 tests, mypy --strict compliance)
+
+**Recent improvements (v1.1):**
+- i18n foundation with automatic locale detection
+- Two-workspace documentation architecture (learning + API reference)
+- 100% accurate code examples (verified and corrected)
+- Conversational German documentation style
+- ASCII architecture diagrams
+
+**Next milestone:** v1.2 - scope TBD based on user needs
 
 ## Requirements
 
 ### Validated
 
-<!-- Shipped and confirmed valuable in v1.0 -->
+<!-- Shipped and confirmed valuable across releases -->
 
 **v1.0 MVP (shipped 2026-01-17):**
 - ✓ MCP server foundation with FastMCP framework
@@ -49,30 +57,25 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 - ✓ CI/CD pipeline with GitHub Actions
 - ✓ mypy --strict type safety compliance
 
+**v1.1 Documentation Excellence (shipped 2026-01-18):**
+- ✓ i18n routing foundation with Fumadocs middleware — v1.1
+- ✓ Root HTML layout for Next.js App Router compliance — v1.1
+- ✓ Icon plugin integration (lucide-react :icon[] syntax) — v1.1
+- ✓ Austria brand colors in Tailwind theme — v1.1
+- ✓ MCP server setup tested end-to-end (cloud + self-hosted) — v1.1
+- ✓ Corrected documentation (directory structure, uv configuration) — v1.1
+- ✓ Conversational German documentation (du-form) — v1.1
+- ✓ ASCII architecture diagrams — v1.1
+- ✓ 100% accurate code examples — v1.1
+- ✓ Two-workspace Fumadocs architecture (learning + API) — v1.1
+- ✓ Independent workspace configurations — v1.1
+- ✓ Unified navigation across workspaces — v1.1
+
 ### Active
 
-<!-- v1.1 Documentation Excellence scope -->
+<!-- Next milestone requirements - TBD via /gsd:define-requirements -->
 
-**Documentation Fixes:**
-- [ ] Fix styling inconsistencies (Tailwind CSS integration, theme issues)
-- [ ] Resolve i18n routing and language switching issues
-- [ ] Fix broken links and navigation
-- [ ] Correct responsive design problems
-
-**Enterprise Features Integration:**
-- [ ] AI-powered search (Fumadocs search with embeddings)
-- [ ] llms.txt support for AI assistants
-- [ ] Feedback system for documentation improvement
-- [ ] OG image generation for social sharing
-- [ ] Icon integration throughout documentation
-- [ ] Proper SEO metadata and sitemap
-
-**Enhanced User Experience:**
-- [ ] Improved documentation navigation and discoverability
-- [ ] Code playground or interactive examples
-- [ ] Video tutorials or animated guides
-- [ ] Better error messages and troubleshooting guides
-- [ ] Quick start templates and boilerplates
+To be defined for v1.2 milestone. Run `/gsd:discuss-milestone` to explore options.
 
 ### Out of Scope
 
@@ -127,4 +130,4 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 | German/English bilingual | Austrian data users speak both languages | ✓ Good — v1.0 |
 
 ---
-*Last updated: 2026-01-17 after v1.1 milestone initialization*
+*Last updated: 2026-01-18 after v1.1 milestone completion*

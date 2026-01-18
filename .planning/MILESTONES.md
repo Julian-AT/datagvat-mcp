@@ -1,5 +1,33 @@
 # Project Milestones: Austria MCP
 
+## v1.1 Documentation Excellence (Shipped: 2026-01-18)
+
+**Delivered:** Improved documentation infrastructure with i18n foundation, comprehensive polish, and two-workspace architecture.
+
+**Phases completed:** 10 (partial), 16, 17 (9 plans total)
+
+**Key accomplishments:**
+
+- i18n foundation with Fumadocs middleware and bilingual routing (/en, /de)
+- End-to-end verified MCP server installation (cloud + self-hosted)
+- German documentation converted to conversational du-form style
+- ASCII architecture diagrams and improved navigation structure
+- 100% accurate code examples through grep-based error detection
+- Two-workspace Fumadocs architecture (learning content + API reference)
+
+**Stats:**
+
+- 149 files created/modified
+- +15,389 / -7,234 lines changed
+- 3 phases (2 complete + 1 partial), 9 plans, 25+ tasks
+- 1 day from first commit to ship (2026-01-17 → 2026-01-18)
+
+**Git range:** `feat(10-01)` → `feat(17-01)`
+
+**What's next:** v1.2 milestone - scope to be determined based on actual user needs.
+
+---
+
 ## v1.0 MVP (Shipped: 2026-01-17)
 
 **Delivered:** Comprehensive MCP server for Austrian Open Government Data with smart search, quality insights, data preview, and AI-powered semantic matching.
