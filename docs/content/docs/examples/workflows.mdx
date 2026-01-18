@@ -308,7 +308,7 @@ Learn how to combine Austria MCP tools for complete data discovery workflows.
       themes=["ECON"],
       formats=["CSV", "JSON"],
       quality_boost=True,
-      sort="modified+desc",
+      sort_by="modified_desc",
       limit=20
     )
 
@@ -363,7 +363,7 @@ Learn how to combine Austria MCP tools for complete data discovery workflows.
           themes=["ECON"],
           formats=["CSV", "JSON"],
           quality_boost=True,
-          sort="modified+desc",
+          sort_by="modified_desc",
           limit=20
         )
 
@@ -567,7 +567,7 @@ Learn how to combine Austria MCP tools for complete data discovery workflows.
     datasets = search_datasets(
       query="",
       catalogues=[vienna['id']],
-      sort="modified+desc",
+      sort_by="modified_desc",
       limit=20
     )
 
@@ -632,7 +632,7 @@ Learn how to combine Austria MCP tools for complete data discovery workflows.
         datasets = search_datasets(
           query="",
           catalogues=[vienna['id']],
-          sort="modified+desc",
+          sort_by="modified_desc",
           limit=20
         )
 
