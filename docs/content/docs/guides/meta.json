@@ -1,5 +1,6 @@
 {
   "title": "Guides",
+  "description": "Step-by-step guides for installation, configuration, and common use cases",
   "icon": "Book",
   "pages": ["setup", "configuration"]
 }

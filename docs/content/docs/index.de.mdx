@@ -3,20 +3,47 @@ title: Austria MCP Dokumentation
 description: Umfassender Leitfaden zur Verwendung des Austria MCP-Servers für österreichische Open Government Data
 ---
 
-# Willkommen bei Austria MCP
+# Austria MCP Dokumentation
 
-Dein MCP Server für österreichische Open Government Data – Entdecken, Analysieren, Zugreifen auf Tausende Datensätze über deinen KI-Assistenten.
+Der maßgebliche MCP Server für österreichische Open Government Data – Entdecken, Analysieren und Zugriff auf Tausende Datensätze über KI-Assistenten.
 
-## Funktionen
+<Callout title="Schnellstart">
+  Neu bei Austria MCP? Schau dir die [Installationsanleitung](/guides/setup) an und starte in wenigen Minuten.
+</Callout>
 
-- Intelligente Suche mit natürlicher Sprache
-- Automatische Bewertung nach Datenqualität
-- Datenvorschau für CSV und JSON
-- Semantische Suche mit Deutsch/Englisch-Unterstützung
+## Was ist Austria MCP?
+
+Austria MCP ist ein Model Context Protocol Server, der KI-Assistenten nahtlosen Zugriff auf Tausende österreichische Regierungsdatensätze bietet. Er ermöglicht Abfragen in natürlicher Sprache, qualitätsbewusstes Ranking und Datenvorschauen.
+
+## Hauptfunktionen
+
+<Cards>
+  <Card title="Intelligente Datensatz-Suche" href="/api/tools#search_datasets">
+    Durchsuche Tausende österreichische Datensätze mit natürlichen Sprachabfragen und semantischem Verständnis.
+  </Card>
+  <Card title="Qualitätsbewusstes Ranking" href="/examples/search#quality-aware-search">
+    Datensätze werden automatisch nach Vollständigkeit, Aktualisierungsfrequenz und Metadatenqualität bewertet.
+  </Card>
+  <Card title="Datenvorschau" href="/examples/preview">
+    Vorschau von Datensatzinhalten vor dem Download mit Beispieldaten und Formatvalidierung.
+  </Card>
+  <Card title="Zweisprachiger Support" href="/tutorials/getting-started">
+    Volle Unterstützung für deutsche und englische Abfragen, Metadaten und Dokumentation.
+  </Card>
+</Cards>
 
 ## Was ist MCP?
 
-Das Model Context Protocol (MCP) ist ein offenes Protokoll, das standardisiert, wie Anwendungen Kontext für LLMs bereitstellen. Austria MCP implementiert dieses Protokoll und gibt KI-Assistenten direkten Zugriff auf österreichische Regierungsdatensätze.
+<Callout>
+  Das Model Context Protocol (MCP) ist ein offenes Protokoll, das standardisiert, wie Anwendungen Kontext für LLMs bereitstellen. Austria MCP implementiert dieses Protokoll und gibt KI-Assistenten nahtlosen Zugriff auf österreichische Regierungsdatensätze.
+</Callout>
+
+MCP ermöglicht:
+
+- **Standardisierte Kommunikation**: Konsistente Schnittstelle für KI-Assistenten
+- **Reicher Kontext**: Strukturierter Datenzugriff für bessere KI-Antworten
+- **Tool-Integration**: Nahtlose Function-Calling-Funktionen
+- **Erweiterbarkeit**: Einfach mit eigenen Funktionen erweiterbar
 
 ## Architektur-Überblick
 
@@ -76,4 +103,39 @@ Diese Architektur bietet:
 
 ## Erste Schritte
 
-Installiere den Austria MCP Server und starte durch – Tausende österreichische Datensätze warten auf dich.
+<Steps>
+  <Step>
+    ### Austria MCP installieren
+
+    Folge der [Installationsanleitung](/guides/setup), um den Server einzurichten.
+  </Step>
+
+  <Step>
+    ### Client konfigurieren
+
+    Verbinde deinen KI-Assistenten mit unserem [Konfigurationsguide](/guides/configuration).
+  </Step>
+
+  <Step>
+    ### Starte die Erkundung
+
+    Probiere [Beispielabfragen](/examples/search) aus, um österreichische Datensätze zu entdecken.
+  </Step>
+</Steps>
+
+## Nächste Schritte
+
+<Cards>
+  <Card title="Getting Started Tutorial" href="/tutorials/getting-started" icon="GraduationCap">
+    Vervollständige deine erste Datensatzsuche in unter 5 Minuten
+  </Card>
+  <Card title="Setup Guide" href="/guides/setup" icon="Book">
+    Installiere und konfiguriere Austria MCP für deine Umgebung
+  </Card>
+  <Card title="Suchbeispiele" href="/examples/search" icon="Code">
+    Sieh dir echte Suchmuster und Abfragetechniken an
+  </Card>
+  <Card title="API-Referenz" href="/api/tools" icon="BookOpen">
+    Erkunde alle verfügbaren Tools und ihre Parameter
+  </Card>
+</Cards>
