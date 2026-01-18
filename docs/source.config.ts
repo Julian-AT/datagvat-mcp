@@ -24,6 +24,12 @@ export const docs = defineDocs({
 
 export default defineConfig({
   plugins: [lastModified()],
+  workspaces: {
+    'api': {
+      dir: 'content/api',
+      config: await import('./content/api/source.config.ts'),
+    },
+  },
   mdxOptions: {
     remarkPlugins: [remarkFeedbackBlock],
     rehypeCodeOptions: {
