@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-01-17)
 
 Milestone: v1.1 Documentation Excellence
 Phase: 16 of 17 (Documentation Polish & Release Prep)
-Plan: 2 of 3 complete
-Status: In progress
-Last activity: 2026-01-18 — Completed 16-02-PLAN.md (German documentation review and improvements)
+Plan: 3 of 3 complete
+Status: Phase complete
+Last activity: 2026-01-18 — Completed 16-03-PLAN.md (Visual resources and documentation structure improvements)
 
-Progress: █░░░░░░░░░ 9% (4/33 plans complete)
+Progress: █░░░░░░░░░ 9% (5/33 plans complete)
 
 ## Performance Metrics
 
@@ -39,11 +39,11 @@ Progress: █░░░░░░░░░ 9% (4/33 plans complete)
 | 08-workflow-docs | 4 | 82 min | 21 min |
 | 09-fumadocs-component-integration | 4 | 46 min | 11.5 min |
 | 10-foundation-fixes | 2 | 16 min | 8 min |
-| 16-documentation-polish-and-release-prep | 2 | 14 min | 7 min |
+| 16-documentation-polish-and-release-prep | 3 | 18 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 10-01 (<1 min), 10-02 (16 min), 16-01 (6 min), 16-02 (8 min)
-- Trend: Documentation improvements fast, testing/verification very fast when issues documented clearly
+- Last 5 plans: 10-02 (16 min), 16-01 (6 min), 16-02 (8 min), 16-03 (4 min)
+- Trend: Documentation improvements consistently fast when issues are clearly documented
 
 ## Accumulated Context
 
@@ -140,6 +140,11 @@ Recent decisions affecting current work:
 - Keep technical terms in English where German would be awkward: Logging, Retry Backoff, Rate Limiting, MCP-specific terms (16-02, 2026-01-18)
 - Simplify German instructions: "Verwende" instead of "Verwenden Sie", direct imperatives over formal constructions (16-02, 2026-01-18)
 - Remove AI-translation artifacts: natural practical language over word-for-word translation (16-02, 2026-01-18)
+- Use ASCII diagrams in code blocks for architecture visualization (16-03, 2026-01-18)
+- Navigation order follows learning progression: tutorials -> guides -> examples -> api -> best-practices (16-03, 2026-01-18)
+- Section descriptions in meta.json files provide navigation context (16-03, 2026-01-18)
+- Cards component for actionable next steps instead of plain link lists (16-03, 2026-01-18)
+- Fumadocs native Mermaid support available for future enhancement (rehype-mermaid plugin) (16-03, 2026-01-18)
 
 ### Roadmap Evolution
 
@@ -159,6 +164,6 @@ None - all issues resolved.
 ## Session Continuity
 
 Last session: 2026-01-18
-Stopped at: Completed 16-02-PLAN.md (German documentation review and improvements)
+Stopped at: Completed 16-03-PLAN.md (Visual resources and documentation structure improvements) - Phase 16 complete
 Resume file: None
-Next: Continue Phase 16 with final plan (16-03)
+Next: Phase 17 (Production Release & Publishing)
