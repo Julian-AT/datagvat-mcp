@@ -10,14 +10,15 @@ import { createRelativeLink } from "fumadocs-ui/mdx";
 import { useMDXComponents } from "@/mdx-components";
 import { Feedback } from '@/components/feedback/client';
 import { onPageFeedbackAction } from '@/lib/github';
+import { Breadcrumb } from '@/components/breadcrumb';
 
 export default async function Page({
   params,
 }: {
   params: Promise<{ lang: string; slug?: string[] }>;
 }) {
-  const { lang, slug = [] } = await params;
-  const page = source.getPage(slug, lang);
+  const { lang, slug } = await params;
+  const page = source.getPage(slug || [], lang);
 
   if (!page) notFound();
 
@@ -29,6 +30,7 @@ export default async function Page({
 
   return (
     <DocsPage toc={page.data.toc}>
+      <Breadcrumb tree={source.pageTree[lang]} />
       <DocsBody>
         <MDX components={components} />
       </DocsBody>

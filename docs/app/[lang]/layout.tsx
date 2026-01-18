@@ -3,6 +3,8 @@ import { RootProvider } from "fumadocs-ui/provider/next";
 import type { ReactNode } from "react";
 import { defineI18nUI } from "fumadocs-ui/i18n";
 import { i18n } from "@/lib/i18n";
+import { SearchDialog } from "fumadocs-ui/components/dialog/search";
+import DefaultSearchDialog from "@/components/search";
 
 const { provider } = defineI18nUI(i18n, {
   translations: {
@@ -34,7 +36,10 @@ export default async function RootLayout({
   return (
     <html lang={lang} suppressHydrationWarning>
       <body>
-        <RootProvider i18n={provider(lang)}>{children}</RootProvider>
+        <RootProvider i18n={provider(lang)} search={{
+          enabled: true,
+          SearchDialog: DefaultSearchDialog,
+        }}>{children}</RootProvider>
       </body>
     </html>
   );

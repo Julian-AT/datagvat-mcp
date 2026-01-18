@@ -19,7 +19,6 @@ export default async function Layout({
       tree={source.pageTree[lang]}
       nav={{
         title: <Logo />,
-        children: <LanguageToggle lang={lang} />,
       }}
     >
       {children}

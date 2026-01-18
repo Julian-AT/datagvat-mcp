@@ -23,7 +23,7 @@ import {
   type BlockFeedback,
   type PageFeedback,
 } from './schema';
-import { z } from 'zod/mini';
+import { z } from 'zod';
 
 const rateButtonVariants = cva(
   'inline-flex items-center gap-2 px-3 py-2 rounded-full font-medium border text-sm [&_svg]:size-4 disabled:cursor-not-allowed',
@@ -37,11 +37,13 @@ const rateButtonVariants = cva(
   },
 );
 
-const pageFeedbackResult = z.extend(pageFeedback, {
+const pageFeedbackResult = z.object({
+  ...pageFeedback.shape,
   response: actionResponse,
 });
 
-const blockFeedbackResult = z.extend(blockFeedback, {
+const blockFeedbackResult = z.object({
+  ...blockFeedback.shape,
   response: actionResponse,
 });
 

@@ -1,5 +1,4 @@
 import { createMDX } from 'fumadocs-mdx/next';
-
 const withMDX = createMDX();
 
 const config = {
@@ -7,11 +6,12 @@ const config = {
   async rewrites() {
     return [
       {
-        source: '/docs/:path*.mdx',
-        destination: '/llms.mdx/docs/:path*',
+        source: '/:path*.mdx',
+        destination: '/llms.mdx/:path*',
       },
     ];
   },
+  serverExternalPackages: ['@takumi-rs/image-response'],
 };
 
 export default withMDX(config);
