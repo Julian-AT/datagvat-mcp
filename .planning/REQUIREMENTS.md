@@ -58,6 +58,17 @@ Requirements for v1.1 Documentation Excellence milestone. Each maps to roadmap p
 - [ ] **ENGAGE-04**: Analytics integration for usage tracking (PostHog or similar)
 - [ ] **ENGAGE-05**: Feedback submission creates GitHub discussion automatically
 
+### Documentation Polish & Release Prep
+
+- [ ] **POLISH-01**: MCP server tested end-to-end (cloud-hosted flow verified)
+- [ ] **POLISH-02**: MCP server tested end-to-end (self-hosted flow verified with Claude Desktop)
+- [ ] **POLISH-03**: Setup documentation complete and accurate (covers all installation paths)
+- [ ] **POLISH-04**: German documentation improved for clarity and natural language
+- [ ] **POLISH-05**: Visual resources added where helpful (diagrams, screenshots, architecture)
+- [ ] **POLISH-06**: All code examples tested and working
+- [ ] **POLISH-07**: Documentation structure reviewed for discoverability
+- [ ] **POLISH-08**: Technical accuracy verified across all pages
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -125,10 +136,18 @@ Which phases cover which requirements. Updated by create-roadmap.
 | ENGAGE-03 | Phase 15 | Pending |
 | ENGAGE-04 | Phase 15 | Pending |
 | ENGAGE-05 | Phase 15 | Pending |
+| POLISH-01 | Phase 16 | Pending |
+| POLISH-02 | Phase 16 | Pending |
+| POLISH-03 | Phase 16 | Pending |
+| POLISH-04 | Phase 16 | Pending |
+| POLISH-05 | Phase 16 | Pending |
+| POLISH-06 | Phase 16 | Pending |
+| POLISH-07 | Phase 16 | Pending |
+| POLISH-08 | Phase 16 | Pending |
 
 **Coverage:**
-- v1.1 requirements: 33 total
-- Mapped to phases: 33
+- v1.1 requirements: 41 total
+- Mapped to phases: 41
 - Unmapped: 0 ✓
 
 ---
