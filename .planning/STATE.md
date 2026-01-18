@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-01-17)
 
 Milestone: v1.1 Documentation Excellence
 Phase: 10 of 15 (Foundation Fixes)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-01-17 — Roadmap created (6 phases, 33 requirements)
+Plan: 1 of 3 complete
+Status: In progress
+Last activity: 2026-01-18 — Completed 10-01-PLAN.md (i18n routing and root layout)
 
-Progress: ░░░░░░░░░░ 0% (Phase 10-15)
+Progress: █░░░░░░░░░ 3% (1/33 plans complete)
 
 ## Performance Metrics
 
@@ -38,10 +38,11 @@ Progress: ░░░░░░░░░░ 0% (Phase 10-15)
 | 07-api-endpoint-fix | 1 | ~15 min | ~15 min |
 | 08-workflow-docs | 4 | 82 min | 21 min |
 | 09-fumadocs-component-integration | 4 | 46 min | 11.5 min |
+| 10-foundation-fixes | 1 | <1 min | <1 min |
 
 **Recent Trend:**
-- Last 5 plans: 09-01 (7 min), 09-02 (12 min), 09-03 (21 min), 09-04 (6 min)
-- Trend: Component integration highly efficient (6-21 min range)
+- Last 5 plans: 09-02 (12 min), 09-03 (21 min), 09-04 (6 min), 10-01 (<1 min)
+- Trend: Foundation fixes extremely efficient (files already existed)
 
 ## Accumulated Context
 
@@ -123,6 +124,9 @@ Recent decisions affecting current work:
 - Complexity-based tab organization: Basic/Advanced, Simple/Detailed, Quick/Comprehensive (09-03, 2026-01-17)
 - Consistent groupId naming: preview-complexity, search-complexity, workflow-style (09-03, 2026-01-17)
 - Combined Tabs + Steps pattern for workflow examples (Complete vs Step-by-Step) (09-03, 2026-01-17)
+- Use Fumadocs createI18nMiddleware helper instead of custom implementation for edge case handling (10-01, 2026-01-18)
+- Root layout provides base HTML structure, [lang] layout provides locale-specific wrapping (10-01, 2026-01-18)
+- Matcher excludes static assets and Next.js internals from middleware processing (10-01, 2026-01-18)
 
 ### Roadmap Evolution
 
@@ -140,7 +144,7 @@ None - all issues resolved.
 
 ## Session Continuity
 
-Last session: 2026-01-17
-Stopped at: Roadmap created for v1.1 Documentation Excellence milestone
+Last session: 2026-01-18
+Stopped at: Completed 10-01-PLAN.md (i18n routing and root layout)
 Resume file: None
-Next: Plan Phase 10 - Foundation Fixes (/gsd:plan-phase 10)
+Next: Continue Phase 10 with remaining plans (10-02, 10-03)
