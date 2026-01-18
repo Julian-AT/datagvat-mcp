@@ -729,5 +729,9 @@ After applying fixes, verify:
 ---
 
 **Audit Status:** ✅ COMPLETE
-**Next Action:** Proceed to Task 3 - Fix documentation examples
-**Files Identified for Update:** 2 files (search.mdx, search.de.mdx)
+**Fixes Applied:** ✅ COMPLETE
+**Files Updated:**
+- ✅ docs/content/docs/examples/search.mdx (15+ parameter corrections)
+- ✅ docs/content/docs/examples/search.de.mdx (15+ parameter corrections)
+
+**Verification:** All code examples now use correct parameter names matching implementation
