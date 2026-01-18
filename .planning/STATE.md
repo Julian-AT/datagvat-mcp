@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-01-17)
 
 Milestone: v1.1 Documentation Excellence
 Phase: 16 of 17 (Documentation Polish & Release Prep)
-Plan: 1 of 3 complete
+Plan: 2 of 3 complete
 Status: In progress
-Last activity: 2026-01-18 — Completed 16-01-PLAN.md (testing and verification)
+Last activity: 2026-01-18 — Completed 16-02-PLAN.md (German documentation review and improvements)
 
-Progress: █░░░░░░░░░ 6% (3/33 plans complete)
+Progress: █░░░░░░░░░ 9% (4/33 plans complete)
 
 ## Performance Metrics
 
@@ -39,11 +39,11 @@ Progress: █░░░░░░░░░ 6% (3/33 plans complete)
 | 08-workflow-docs | 4 | 82 min | 21 min |
 | 09-fumadocs-component-integration | 4 | 46 min | 11.5 min |
 | 10-foundation-fixes | 2 | 16 min | 8 min |
-| 16-documentation-polish-and-release-prep | 1 | 6 min | 6 min |
+| 16-documentation-polish-and-release-prep | 2 | 14 min | 7 min |
 
 **Recent Trend:**
-- Last 5 plans: 09-04 (6 min), 10-01 (<1 min), 10-02 (16 min), 16-01 (6 min)
-- Trend: Testing and documentation updates fast when issues documented clearly
+- Last 5 plans: 10-01 (<1 min), 10-02 (16 min), 16-01 (6 min), 16-02 (8 min)
+- Trend: Documentation improvements fast, testing/verification very fast when issues documented clearly
 
 ## Accumulated Context
 
@@ -136,6 +136,10 @@ Recent decisions affecting current work:
 - fastmcp dev workflow for local testing before Claude Desktop integration (16-01, 2026-01-18)
 - Claude Desktop log locations documented for all platforms (Windows/macOS/Linux) (16-01, 2026-01-18)
 - Test-driven documentation validation pattern: test workflows then fix documentation (16-01, 2026-01-18)
+- Use conversational du-Form (informal you) throughout German documentation instead of formal Sie-Form (16-02, 2026-01-18)
+- Keep technical terms in English where German would be awkward: Logging, Retry Backoff, Rate Limiting, MCP-specific terms (16-02, 2026-01-18)
+- Simplify German instructions: "Verwende" instead of "Verwenden Sie", direct imperatives over formal constructions (16-02, 2026-01-18)
+- Remove AI-translation artifacts: natural practical language over word-for-word translation (16-02, 2026-01-18)
 
 ### Roadmap Evolution
 
@@ -155,6 +159,6 @@ None - all issues resolved.
 ## Session Continuity
 
 Last session: 2026-01-18
-Stopped at: Completed 16-01-PLAN.md (testing and verification)
+Stopped at: Completed 16-02-PLAN.md (German documentation review and improvements)
 Resume file: None
-Next: Continue Phase 16 with plan 16-02 (documentation quality improvements)
+Next: Continue Phase 16 with final plan (16-03)
