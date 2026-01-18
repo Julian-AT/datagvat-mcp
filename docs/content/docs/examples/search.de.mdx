@@ -248,7 +248,7 @@ Datensatzsuche mit praktischen Beispielen.
     search_datasets(
       query="",
       themes=["ENVI"],
-      modified_since="2024-01-01",
+      min_date="2024-01-01",
       limit=10
     )
     ```
@@ -264,9 +264,9 @@ Datensatzsuche mit praktischen Beispielen.
       themes=["HEAL"],
       formats=["CSV"],
       publishers=["Stadt Wien"],
-      modified_since="2024-01-01",
-      quality_boost=True,
-      sort="modified+desc",
+      min_date="2024-01-01",
+      boost_quality=True,
+      sort_by="modified_desc",
       limit=10
     )
 
@@ -275,8 +275,8 @@ Datensatzsuche mit praktischen Beispielen.
       query="Klima erneuerbar",
       themes=["ENVI", "ENER"],
       formats=["CSV", "JSON"],
-      modified_since="2023-01-01",
-      quality_boost=True,
+      min_date="2023-01-01",
+      boost_quality=True,
       limit=20
     )
     ```
@@ -293,15 +293,15 @@ Datensatzsuche mit praktischen Beispielen.
     # Im Jahr 2024 geänderte Datensätze
     search_datasets(
       query="",
-      modified_since="2024-01-01",
-      modified_until="2024-12-31",
+      min_date="2024-01-01",
+      max_date="2024-12-31",
       limit=10
     )
 
     # Kürzlich aktualisierte Datensätze (letzte 30 Tage)
     search_datasets(
       query="",
-      modified_since="2024-12-15",
+      min_date="2024-12-15",
       limit=10
     )
 
@@ -325,8 +325,8 @@ Datensatzsuche mit praktischen Beispielen.
       query="Gesundheit",
       themes=["HEAL"],
       publishers=["Stadt Wien"],
-      modified_since="2024-01-01",
-      sort="modified+desc",
+      min_date="2024-01-01",
+      sort_by="modified_desc",
       limit=10
     )
 
@@ -335,7 +335,7 @@ Datensatzsuche mit praktischen Beispielen.
       query="",
       issued_since="2023-01-01",
       issued_until="2023-12-31",
-      modified_since="2024-01-01",
+      min_date="2024-01-01",
       limit=10
     )
 
@@ -343,8 +343,8 @@ Datensatzsuche mit praktischen Beispielen.
     search_datasets(
       query="",
       issued_until="2020-01-01",
-      modified_since="2024-01-01",
-      sort="modified+desc",
+      min_date="2024-01-01",
+      sort_by="modified_desc",
       limit=10
     )
     ```
@@ -361,21 +361,21 @@ Datensatzsuche mit praktischen Beispielen.
     # Am relevantesten zuerst (Standard bei Abfrage)
     search_datasets(
       query="Bevölkerung",
-      sort="relevance+desc",
+      sort_by="relevance",
       limit=10
     )
 
     # Zuletzt geändert zuerst
     search_datasets(
       query="",
-      sort="modified+desc",
+      sort_by="modified_desc",
       limit=10
     )
 
     # Alphabetisch nach Titel
     search_datasets(
       query="",
-      sort="title+asc",
+      sort_by="title_asc",
       limit=10
     )
     ```
@@ -395,8 +395,8 @@ Datensatzsuche mit praktischen Beispielen.
     search_datasets(
       query="Gesundheit Statistiken",
       themes=["HEAL"],
-      quality_boost=True,
-      sort="relevance+desc",
+      boost_quality=True,
+      sort_by="relevance",
       limit=10
     )
 
@@ -404,7 +404,7 @@ Datensatzsuche mit praktischen Beispielen.
     search_datasets(
       query="Klima",
       issued_since="2024-01-01",
-      sort="relevance+desc",
+      sort_by="relevance",
       limit=10
     )
 
@@ -412,14 +412,14 @@ Datensatzsuche mit praktischen Beispielen.
     search_datasets(
       query="",
       publishers=["Statistik Austria"],
-      sort="issued+asc",
+      sort_by="issued_asc",
       limit=10
     )
 
     # Kürzlich aktualisierte Datensätze über alle Kategorien
     search_datasets(
       query="",
-      sort="modified+desc",
+      sort_by="modified_desc",
       limit=50
     )
     ```
@@ -437,21 +437,21 @@ Datensatzsuche mit praktischen Beispielen.
     seite1 = search_datasets(
       query="Daten",
       limit=10,
-      offset=0
+      page=0
     )
 
     # Zweite Seite (nächste 10 Ergebnisse)
     seite2 = search_datasets(
       query="Daten",
       limit=10,
-      offset=10
+      page=10
     )
 
     # Dritte Seite
     seite3 = search_datasets(
       query="Daten",
       limit=10,
-      offset=20
+      page=20
     )
     ```
 
@@ -469,23 +469,23 @@ Datensatzsuche mit praktischen Beispielen.
     # Durch alle Ergebnisse paginieren
     alle_ergebnisse = []
     limit = 20
-    offset = 0
+    page = 0
 
     while True:
       seite = search_datasets(
         query="Umwelt",
         themes=["ENVI"],
         limit=limit,
-        offset=offset
+        page=page
       )
 
       alle_ergebnisse.extend(seite['results'])
 
       # Prüfen, ob weitere Seiten existieren
-      if offset + limit >= seite['count']:
+      if (page + 1) * limit >= seite['count']:
         break
 
-      offset += limit
+      page += 1
 
     print(f"{len(alle_ergebnisse)} Datensätze insgesamt abgerufen")
 
@@ -493,14 +493,14 @@ Datensatzsuche mit praktischen Beispielen.
     def hole_alle_datensaetze(query, **filter):
       ergebnisse = []
       limit = 50  # Größere Seitengröße für Effizienz
-      offset = 0
+      page = 0
       gesamt = None
 
       while True:
         seite = search_datasets(
           query=query,
           limit=limit,
-          offset=offset,
+          page=page,
           **filter
         )
 
@@ -512,10 +512,10 @@ Datensatzsuche mit praktischen Beispielen.
 
         print(f"Fortschritt: {fortschritt:.1f}% ({len(ergebnisse)}/{gesamt})")
 
-        if offset + limit >= seite['count']:
+        if (page + 1) * limit >= seite['count']:
           break
 
-        offset += limit
+        page += 1
 
       return ergebnisse
     ```
@@ -532,13 +532,13 @@ Datensatzsuche mit praktischen Beispielen.
     # Vollständige, gut dokumentierte Datensätze priorisieren
     search_datasets(
       query="Gesundheit",
-      quality_boost=True,
+      boost_quality=True,
       limit=10
     )
 
     # Mit und ohne Qualitätsverstärkung vergleichen
     ohne_boost = search_datasets(query="Gesundheit", limit=10)
-    mit_boost = search_datasets(query="Gesundheit", quality_boost=True, limit=10)
+    mit_boost = search_datasets(query="Gesundheit", boost_quality=True, limit=10)
     ```
 
     Qualitätsverstärkung berücksichtigt:
@@ -562,9 +562,9 @@ Datensatzsuche mit praktischen Beispielen.
     search_datasets(
       query="",
       themes=["HEAL"],
-      modified_since="2024-01-01",
-      quality_boost=True,
-      sort="modified+desc",
+      min_date="2024-01-01",
+      boost_quality=True,
+      sort_by="modified_desc",
       limit=20
     )
 
@@ -572,8 +572,8 @@ Datensatzsuche mit praktischen Beispielen.
     search_datasets(
       query="Statistiken",
       formats=["CSV", "JSON"],
-      quality_boost=True,
-      sort="relevance+desc",
+      boost_quality=True,
+      sort_by="relevance",
       limit=10
     )
 
@@ -582,9 +582,9 @@ Datensatzsuche mit praktischen Beispielen.
       query="Umwelt Klima",
       themes=["ENVI", "ENER"],
       formats=["CSV"],
-      modified_since="2023-01-01",
-      quality_boost=True,
-      sort="relevance+desc",
+      min_date="2023-01-01",
+      boost_quality=True,
+      sort_by="relevance",
       limit=20
     )
     ```
@@ -630,8 +630,8 @@ Datensatzsuche mit praktischen Beispielen.
     search_datasets(
       query="nachhaltig erneuerbar grün",
       themes=["ENVI", "ENER", "TRAN"],
-      quality_boost=True,
-      sort="relevance+desc",
+      boost_quality=True,
+      sort_by="relevance",
       limit=20
     )
 
@@ -640,7 +640,7 @@ Datensatzsuche mit praktischen Beispielen.
       query="öffentliche Verwaltung Statistiken",
       themes=["GOVE", "JUST", "SOCI"],
       formats=["CSV"],
-      modified_since="2023-01-01",
+      min_date="2023-01-01",
       limit=20
     )
 
@@ -648,7 +648,7 @@ Datensatzsuche mit praktischen Beispielen.
     search_datasets(
       query="Innovation digital Forschung",
       themes=["ECON", "EDUC", "TECH"],
-      quality_boost=True,
+      boost_quality=True,
       limit=20
     )
     ```
@@ -722,7 +722,7 @@ Datensatzsuche mit praktischen Beispielen.
     search_datasets(
       query="",
       publishers=["Stadt Wien"],
-      sort="modified+desc",
+      sort_by="modified_desc",
       limit=50
     )
     ```
@@ -737,8 +737,8 @@ Datensatzsuche mit praktischen Beispielen.
       query="",
       publishers=["Stadt Wien"],
       themes=["HEAL"],
-      modified_since="2023-01-01",
-      sort="modified+desc",
+      min_date="2023-01-01",
+      sort_by="modified_desc",
       limit=50
     )
 
