@@ -1,0 +1,413 @@
+---
+title: Publication Research Workflow
+description: Find and validate citation-quality datasets for academic publications
+---
+
+# Publication Research Workflow
+
+Identify high-quality, citation-worthy datasets for academic research and publications.
+
+## Use This Workflow When
+
+- Preparing academic papers or theses
+- Need citation-quality data sources
+- Require reproducible research data
+- Publishing in peer-reviewed journals
+
+## Prerequisites
+
+- [ ] Research topic and keywords defined
+- [ ] Citation requirements known (license, provenance)
+- [ ] Required data characteristics specified
+
+## Time Estimate
+
+30-45 minutes per research topic
+
+## Workflow
+
+<Tabs items={['Complete Example', 'Step by Step']} persist groupId="workflow-detail">
+  <Tab value="Complete Example">
+    ### Citation-Quality Dataset Search
+
+    ```python
+    # Search with quality boost
+    results = semantic_search_datasets(
+        natural_query="Vienna public health outcomes and demographics",
+        boost_quality=True,
+        limit=20
+    )
+
+    # Filter for citation quality (≥85)
+    citation_candidates = [
+        d for d in results['results']
+        if d.get('quality_score', 0) >= 85
+    ]
+
+    print(f"Found {len(citation_candidates)}/{results['count']} "
+          "citation-quality datasets")
+
+    # Verify citation requirements
+    validated = []
+    for dataset in citation_candidates:
+        # Get full metadata
+        full_data = get_dataset(dataset['id'])
+
+        # Check citation criteria
+        has_contact = bool(full_data.get('contact'))
+        has_doi = bool(full_data.get('identifier', {}).get('doi'))
+        has_citation = bool(full_data.get('citation'))
+        license_ok = full_data.get('license') in [
+            'CC-BY', 'CC-BY-4.0', 'CC0', 'ODbL'
+        ]
+
+        if has_contact and license_ok:
+            validated.append({
+                'dataset': full_data,
+                'has_doi': has_doi,
+                'has_citation': has_citation,
+                'citation_ready': has_doi or has_citation
+            })
+
+    # Export citation metadata
+    for item in validated:
+        dataset = item['dataset']
+        print(f"\n{dataset['title']}")
+        print(f"  Publisher: {dataset['publisher']['name']}")
+        print(f"  DOI: {dataset.get('identifier', {}).get('doi', 'N/A')}")
+        print(f"  License: {dataset['license']}")
+        print(f"  Citation ready: {item['citation_ready']}")
+    ```
+  </Tab>
+
+  <Tab value="Step by Step">
+    <Steps>
+      <Step>
+        ### Semantic Search with Quality Boost
+
+        Use natural language query to find relevant datasets:
+
+        ```python
+        results = semantic_search_datasets(
+            natural_query="Vienna public health outcomes and social demographics",
+            boost_quality=True,
+            limit=20
+        )
+
+        print(f"Found {results['count']} datasets")
+        print(f"Query expanded to themes: {results.get('expansion_info', {}).get('semantic_themes', [])}")
+        ```
+
+        **Expected output:**
+        ```json
+        {
+          "results": [
+            {
+              "id": "dataset-health-001",
+              "title": "Health Indicators Vienna 2020-2024",
+              "quality_score": 92,
+              "modified": "2024-01-10"
+            },
+            {
+              "id": "dataset-demog-045",
+              "title": "Sociodemographic Statistics Austria",
+              "quality_score": 88,
+              "modified": "2023-12-15"
+            }
+          ],
+          "count": 15,
+          "expansion_info": {
+            "detected_language": "en",
+            "semantic_themes": ["HEAL", "SOCI"],
+            "confidence": 0.89
+          }
+        }
+        ```
+
+        **Verify:**
+        - [ ] Query expansion captured research intent
+        - [ ] Results include high-quality datasets (>85)
+        - [ ] Themes match research domain
+      </Step>
+
+      <Step>
+        ### Filter for Citation Quality (≥85)
+
+        Apply strict quality threshold for academic use:
+
+        ```python
+        citation_threshold = 85
+
+        citation_candidates = [
+            d for d in results['results']
+            if d.get('quality_score', 0) >= citation_threshold
+        ]
+
+        print(f"Citation-quality datasets: {len(citation_candidates)}/{results['count']}")
+
+        for dataset in citation_candidates:
+            print(f"  {dataset['id']}: {dataset['quality_score']}/100")
+        ```
+
+        **Expected output:**
+        ```
+        Citation-quality datasets: 8/15
+
+          dataset-health-001: 92/100
+          dataset-demog-045: 88/100
+          dataset-enviro-023: 87/100
+          ...
+        ```
+
+        **Quality threshold rationale:**
+
+        | Use Case | Min Score | Why |
+        |----------|-----------|-----|
+        | Peer-reviewed publications | ≥85 | High metadata completeness required |
+        | Theses/Dissertations | ≥80 | Good quality acceptable with caveats |
+        | Conference papers | ≥75 | Moderate quality for preliminary work |
+
+        **Verify:**
+        - [ ] At least 3-5 candidates meet threshold
+        - [ ] If < 3 candidates, consider lowering to 80
+      </Step>
+
+      <Step>
+        ### Verify Citation Information
+
+        Check for DOI, citation text, and publisher contact:
+
+        ```python
+        validated = []
+
+        for dataset in citation_candidates:
+            # Get full metadata
+            full_data = get_dataset(dataset['id'])
+
+            # Extract citation fields
+            has_contact = bool(full_data.get('contact'))
+            has_doi = bool(full_data.get('identifier', {}).get('doi'))
+            has_citation = bool(full_data.get('citation'))
+
+            # Compile citation info
+            citation_info = {
+                'id': dataset['id'],
+                'title': full_data['title'],
+                'publisher': full_data['publisher']['name'],
+                'contact': full_data.get('contact', {}),
+                'doi': full_data.get('identifier', {}).get('doi'),
+                'citation': full_data.get('citation'),
+                'license': full_data.get('license'),
+                'modified': full_data['modified']
+            }
+
+            # Check if citation-ready
+            citation_ready = (has_doi or has_citation) and has_contact
+
+            if citation_ready:
+                validated.append(citation_info)
+                print(f"✓ {dataset['id']}: Citation-ready")
+            else:
+                missing = []
+                if not has_contact: missing.append('contact')
+                if not (has_doi or has_citation): missing.append('doi/citation')
+                print(f"✗ {dataset['id']}: Missing {', '.join(missing)}")
+        ```
+
+        **Expected output:**
+        ```
+        ✓ dataset-health-001: Citation-ready
+          DOI: 10.25365/opendata-vh-2024
+          Contact: open@data.wien.gv.at
+          Citation: Stadt Wien (2024). Health Indicators Vienna...
+
+        ✗ dataset-demog-045: Missing doi/citation
+        ✓ dataset-enviro-023: Citation-ready
+        ```
+
+        **Verify:**
+        - [ ] DOI or citation text available
+        - [ ] Publisher contact information present
+        - [ ] At least 2-3 validated datasets
+      </Step>
+
+      <Step>
+        ### Check Research License
+
+        Verify license permits academic use and citation:
+
+        ```python
+        research_licenses = [
+            'CC-BY', 'CC-BY-4.0', 'CC-BY-3.0',
+            'CC0', 'CC0-1.0',
+            'ODbL', 'ODC-BY'
+        ]
+
+        research_approved = []
+
+        for item in validated:
+            license = item['license']
+
+            if license in research_licenses:
+                research_approved.append(item)
+                print(f"✓ {item['id']}: {license} - Academic use approved")
+
+                # Check attribution requirements
+                requires_attribution = 'BY' in license or 'ODbL' in license
+                if requires_attribution:
+                    print(f"  ⚠ Requires attribution in citations")
+            else:
+                print(f"✗ {item['id']}: {license} - Verify restrictions")
+        ```
+
+        **Expected output:**
+        ```
+        ✓ dataset-health-001: CC-BY-4.0 - Academic use approved
+          ⚠ Requires attribution in citations
+        ✓ dataset-enviro-023: CC0-1.0 - Academic use approved
+          (No attribution required, but recommended)
+        ```
+
+        **License guide for research:**
+
+        | License | Academic Use | Attribution Required | Modifications OK |
+        |---------|--------------|----------------------|------------------|
+        | CC-BY | Yes | Yes | Yes |
+        | CC0 | Yes | No (but recommended) | Yes |
+        | ODbL | Yes | Yes (Share-Alike) | Yes |
+        | CC-BY-NC | Depends | Yes | Educational OK |
+
+        **Verify:**
+        - [ ] License allows publication use
+        - [ ] Attribution requirements understood
+        - [ ] No NC (Non-Commercial) restrictions if publishing
+      </Step>
+
+      <Step>
+        ### Export Citation Metadata
+
+        Generate citation bibliography entries:
+
+        ```python
+        for item in research_approved:
+            # Generate APA-style citation
+            publisher = item['publisher']
+            year = item['modified'][:4]
+            title = item['title']['en'] if isinstance(item['title'], dict) else item['title']
+
+            apa_citation = f"{publisher}. ({year}). {title}. "
+
+            if item.get('doi'):
+                apa_citation += f"https://doi.org/{item['doi']}"
+            else:
+                apa_citation += f"Retrieved from data portal"
+
+            # Generate BibTeX entry
+            bibtex_id = item['id'].replace('-', '_')
+            bibtex = f"""@dataset{{{bibtex_id},
+              author = {{{publisher}}},
+              title = {{{title}}},
+              year = {{{year}}},
+              note = {{License: {item['license']}}},
+              url = {{https://doi.org/{item.get('doi', '')}}}
+            }}"""
+
+            print(f"\n{item['id']}:")
+            print(f"  APA: {apa_citation}")
+            print(f"  BibTeX:\n{bibtex}")
+
+            # Save to file
+            with open(f"citations_{item['id']}.txt", 'w') as f:
+                f.write(f"APA:\n{apa_citation}\n\n")
+                f.write(f"BibTeX:\n{bibtex}\n\n")
+                f.write(f"DOI: {item.get('doi', 'N/A')}\n")
+                f.write(f"License: {item['license']}\n")
+                f.write(f"Contact: {item.get('contact', {}).get('email', 'N/A')}\n")
+        ```
+
+        **Expected output:**
+        ```
+        dataset-health-001:
+          APA: Stadt Wien. (2024). Health Indicators Vienna 2020-2024. https://doi.org/10.25365/opendata-vh-2024
+
+          BibTeX:
+          @dataset{dataset_health_001,
+            author = {Stadt Wien},
+            title = {Health Indicators Vienna 2020-2024},
+            year = {2024},
+            note = {License: CC-BY-4.0},
+            url = {https://doi.org/10.25365/opendata-vh-2024}
+          }
+
+        Citations saved to:
+          - citations_dataset-health-001.txt
+          - citations_dataset-enviro-023.txt
+        ```
+
+        **Verify:**
+        - [ ] Citation formats correct
+        - [ ] DOI links functional
+        - [ ] License information included
+        - [ ] Contact info saved for questions
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Success Criteria
+
+At completion, you should have:
+
+- [ ] 2-3 citation-quality datasets identified (score ≥85)
+- [ ] Citation metadata verified (DOI/citation text)
+- [ ] Research licenses approved (CC-BY, CC0, ODbL)
+- [ ] Bibliography entries generated (APA, BibTeX)
+- [ ] Publisher contact information saved
+
+## Troubleshooting
+
+### No Datasets Meet Citation Quality Threshold
+
+**Symptom:** All results < 85 quality score
+
+**Cause:** Domain has sparse metadata or niche topic
+
+**Solutions:**
+- Lower threshold to 80 (document decision)
+- Expand search to related themes
+- Contact publishers to request DOI assignment
+- Consider combining multiple lower-quality sources with caveats
+
+### DOI Missing from High-Quality Dataset
+
+**Symptom:** Quality score ≥85 but no DOI
+
+**Cause:** Publisher hasn't assigned persistent identifier
+
+**Solutions:**
+- Use provided citation text if available
+- Contact publisher to request DOI
+- Cite using stable URL from dataset
+- Document access date in citation
+
+### License Unclear or Restrictive
+
+**Symptom:** License not in standard list or has NC clause
+
+**Cause:** Non-standard licensing or commercial restrictions
+
+**Solutions:**
+- Contact publisher for clarification
+- Check if educational/research exemption exists
+- Seek alternative dataset with clear license
+- Consult with institution's legal counsel if high-value data
+
+## Related Workflows
+
+- **[Dataset Discovery Workflow](/workflows/discovery)** - Finding initial candidates
+- **[Quality Assessment Workflow](/workflows/quality-assessment)** - Detailed quality verification
+
+## Related Guides
+
+- **[Quality Metrics Guide](/guides/quality-metrics)** - Understanding quality scores
+- **[Searching Guide](/guides/searching)** - Semantic search techniques
