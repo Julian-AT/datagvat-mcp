@@ -1,0 +1,11 @@
+{
+  "$schema": "../.source/json-schema/docs.meta.json",
+  "title": "Integration",
+  "description": "Integrate Austria MCP with your tools",
+  "icon": "Plug",
+  "root": true,
+  "pages": [
+    "claude-desktop",
+    "other-clients"
+  ]
+}

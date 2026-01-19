@@ -1,0 +1,8 @@
+{
+  "$schema": "../.source/json-schema/docs.meta.json",
+  "title": "Workflows",
+  "description": "End-to-end workflow examples and scenarios",
+  "icon": "Workflow",
+  "root": true,
+  "pages": []
+}

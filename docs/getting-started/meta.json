@@ -1,0 +1,12 @@
+{
+  "$schema": "../.source/json-schema/docs.meta.json",
+  "title": "Getting Started",
+  "description": "Quick start guide and installation instructions",
+  "icon": "Rocket",
+  "root": true,
+  "pages": [
+    "index",
+    "installation",
+    "first-query"
+  ]
+}

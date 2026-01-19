@@ -1,0 +1,8 @@
+{
+  "$schema": "../.source/json-schema/docs.meta.json",
+  "title": "Best Practices",
+  "description": "Performance optimization tips and production deployment recommendations",
+  "icon": "Lightbulb",
+  "root": true,
+  "pages": ["optimization"]
+}

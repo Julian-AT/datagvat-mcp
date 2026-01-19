@@ -1,0 +1,8 @@
+{
+  "$schema": "../.source/json-schema/docs.meta.json",
+  "title": "Tools Reference",
+  "description": "Complete reference for all 25 MCP tools",
+  "icon": "Wrench",
+  "root": true,
+  "pages": []
+}

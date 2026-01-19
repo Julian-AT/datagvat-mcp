@@ -1,0 +1,12 @@
+{
+  "$schema": ".source/json-schema/docs.meta.json",
+  "pages": [
+    "getting-started",
+    "guides",
+    "tools",
+    "workflows",
+    "api",
+    "integration",
+    "best-practices"
+  ]
+}
