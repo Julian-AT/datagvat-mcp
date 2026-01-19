@@ -11,9 +11,9 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 
 Milestone: v1.2 Documentation Rebuild
 Phase: 20 - Guides & Workflows
-Plan: 20-02 of 3 complete
+Plan: 20-01 of 3 complete
 Status: In progress
-Last activity: 2026-01-20 — Completed 20-02-PLAN.md
+Last activity: 2026-01-20 — Completed 20-01-PLAN.md
 
 Progress: ██░░░░░░░░ 29% (2/7 phases complete)
 
@@ -49,17 +49,17 @@ Progress: ██░░░░░░░░ 29% (2/7 phases complete)
 | 17-fumadocs-workspace-restructuring | 1 | 14 min | 14 min |
 | 18-documentation-foundation | 3 | 127 min | 42.3 min |
 | 19-getting-started-content | 2 | 19 min | 9.5 min |
-| 20-guides-and-workflows | 2 | 6 min | 3 min |
+| 20-guides-and-workflows | 1 | 6 min | 6 min |
 
 **v1.2 Milestone:**
-- Total plans completed: 7
-- Average duration: 23.4 min
-- Total execution time: 164 min
-- Timeline: 1 day (2026-01-19 → 2026-01-20)
+- Total plans completed: 6
+- Average duration: 25.5 min
+- Total execution time: 152 min
+- Timeline: 2 days (2026-01-19 → 2026-01-20)
 
 **Recent Trend:**
-- Last 5 plans: 18-03 (116 min), 19-01 (8 min), 19-02 (11 min), 20-01 (3 min), 20-02 (3 min)
-- Trend: Content-only tasks significantly faster than build verification tasks; guide creation very efficient
+- Last 5 plans: 19-01 (8 min), 19-02 (11 min), 20-01 (6 min)
+- Trend: Content-only tasks significantly faster than build verification tasks
 
 ## Accumulated Context
 
@@ -189,10 +189,11 @@ Recent decisions affecting current work:
 - Natural language query examples in reference instead of code (users interact with Claude) (19-02, 2026-01-19)
 - Symptom-based troubleshooting organization (users describe what they see, not technical cause) (19-02, 2026-01-19)
 - Table-based layout for scannable reference content (Goal | Query | Result format) (19-02, 2026-01-19)
-- Guides ordered by learning progression: searching → data-preview → quality-metrics → workflow-patterns (20-01, 2026-01-20)
-- Configuration guide removed from navigation (incomplete from Phase 18) (20-02, 2026-01-20)
-- Task-oriented description for guides emphasizes workflows over features (20-02, 2026-01-20)
-- Workflow patterns use Overview/Detailed tabs for dual disclosure levels (20-02, 2026-01-20)
+- Task-oriented guide titles (Finding Datasets, not search_datasets Guide) - users think in goals not tools (20-01, 2026-01-20)
+- Progressive disclosure with Basic/Advanced tabs using groupId + persist for serving multiple audiences (20-01, 2026-01-20)
+- TypeTable component for all parameter documentation - consistent formatting and type highlighting (20-01, 2026-01-20)
+- Symptom-based troubleshooting in guides - maps observable behavior to solutions (20-01, 2026-01-20)
+- groupId naming convention: [topic]-complexity for consistent tab organization (20-01, 2026-01-20)
 
 ### Roadmap Evolution
 
@@ -216,15 +217,15 @@ None yet.
 
 ### Blockers/Concerns
 
-None - Phase 20 progressing well, workflow patterns guide complete.
+None - Phase 20 progressing well, task-oriented guides complete.
 
 ## Session Continuity
 
 Last session: 2026-01-20
-Stopped at: Completed 20-02-PLAN.md
+Stopped at: Completed 20-01-PLAN.md
 Resume file: None
-Next: Continue Phase 20 - Plan 20-03
+Next: Continue Phase 20 - Plan 20-02
 
 ---
 *State initialized: 2026-01-19*
-*Last updated: 2026-01-20 after Phase 20-02 completion*
+*Last updated: 2026-01-20 after Phase 20-01 completion*
