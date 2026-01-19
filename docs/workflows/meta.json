@@ -1,8 +1,15 @@
 {
   "$schema": "../.source/json-schema/docs.meta.json",
   "title": "Workflows",
-  "description": "End-to-end workflow examples and scenarios",
+  "description": "Complete end-to-end workflows for common data tasks",
   "icon": "Workflow",
   "root": true,
-  "pages": []
+  "pages": [
+    "discovery",
+    "quality-assessment",
+    "data-export",
+    "comparative-analysis",
+    "publication-research",
+    "semantic-exploration"
+  ]
 }
