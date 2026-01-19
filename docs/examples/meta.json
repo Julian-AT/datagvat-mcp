@@ -1,7 +1,13 @@
 {
+  "$schema": "..\\..\\..\\.source\\json-schema\\docs.meta.json",
   "title": "Examples",
   "description": "Real-world examples showing search patterns, data previews, and complete workflows",
   "icon": "Code",
   "root": true,
-  "pages": ["search", "preview", "workflows", "component-showcase"]
+  "pages": [
+    "search",
+    "preview",
+    "workflows",
+    "component-showcase"
+  ]
 }

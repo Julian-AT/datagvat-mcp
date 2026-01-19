@@ -1,0 +1,871 @@
+---
+title: Preview Examples
+description: Data preview and schema introspection patterns
+---
+
+# Preview Examples
+
+Learn how to inspect dataset contents before downloading.
+
+## Schema Introspection
+
+<Tabs items={['Quick Check', 'Detailed Inspection']} persist groupId="preview-complexity">
+  <Tab value="Quick Check">
+    Check the structure of a dataset without downloading data:
+
+    ```python
+    # Preview CSV schema
+    preview_schema(
+      url="https://www.data.gv.at/katalog/dataset/example.csv",
+      format="CSV"
+    )
+    ```
+
+    **Returns:**
+    - Column names
+    - Inferred data types (string, integer, float, boolean, date)
+    - Type inference based on 10 sample rows
+
+    **Supported formats:** CSV, JSON
+  </Tab>
+
+  <Tab value="Detailed Inspection">
+    Comprehensive schema analysis with validation:
+
+    ```python
+    # Get schema first
+    schema = preview_schema(
+      url="https://www.data.gv.at/katalog/dataset/example.csv",
+      format="CSV"
+    )
+
+    # Validate structure
+    print(f"Found {len(schema['columns'])} columns")
+
+    for column in schema['columns']:
+      print(f"  - {column['name']}: {column['type']}")
+
+    # Check for expected columns
+    expected_cols = ["id", "name", "value"]
+    actual_cols = [c['name'] for c in schema['columns']]
+
+    if all(col in actual_cols for col in expected_cols):
+      print("✓ Schema validated - proceed with data preview")
+    else:
+      missing = set(expected_cols) - set(actual_cols)
+      print(f"✗ Missing columns: {missing}")
+    ```
+
+    **Advanced validation:**
+    - Verify column presence
+    - Check data types match expectations
+    - Identify potential data quality issues
+  </Tab>
+</Tabs>
+
+## Data Preview
+
+<Tabs items={['Quick Sample', 'Detailed Preview']} persist groupId="preview-complexity">
+  <Tab value="Quick Sample">
+    View sample rows from a dataset:
+
+    ```python
+    # Preview first 20 rows
+    preview_data(
+      url="https://www.data.gv.at/katalog/dataset/example.csv",
+      max_rows=20,
+      format="CSV"
+    )
+    ```
+
+    **Configuration:**
+    - `max_rows` - Number of rows to preview (default: 100, max: 1000)
+    - `format` - File format (CSV or JSON, auto-detected from URL if not specified)
+
+    **Returns:**
+    - Sample data rows
+    - Column names and types
+    - Row count in preview
+    - Estimated total rows (if truncated)
+  </Tab>
+
+  <Tab value="Detailed Preview">
+    Complete data inspection workflow:
+
+    ```python
+    # Get detailed preview
+    preview = preview_data(
+      url="https://www.data.gv.at/katalog/dataset/example.csv",
+      max_rows=100,
+      format="CSV"
+    )
+
+    # Analyze preview results
+    print(f"Preview contains {preview['row_count']} rows")
+
+    if 'estimated_total_rows' in preview:
+      print(f"Estimated total: {preview['estimated_total_rows']} rows")
+      print(f"File is truncated - showing sample")
+
+    # Examine data quality
+    for i, row in enumerate(preview['data'][:10], 1):
+      print(f"Row {i}: {row}")
+
+    # Check for null values
+    for row in preview['data']:
+      null_fields = [k for k, v in row.items() if v is None or v == '']
+      if null_fields:
+        print(f"Warning: Null values in {null_fields}")
+    ```
+
+    **Data quality checks:**
+    - Null value detection
+    - Format consistency
+    - Data range validation
+    - Encoding verification
+  </Tab>
+</Tabs>
+
+## CSV Handling
+
+### Different Delimiters
+
+<Tabs items={['Auto-Detection', 'Manual Handling']} persist groupId="preview-complexity">
+  <Tab value="Auto-Detection">
+    The preview tool automatically detects CSV delimiters:
+
+    ```python
+    # Comma-separated (auto-detected)
+    preview_data(
+      url="https://example.com/data.csv",
+      format="CSV"
+    )
+
+    # Semicolon-separated (auto-detected, common in European datasets)
+    preview_data(
+      url="https://example.com/european-data.csv",
+      format="CSV"
+    )
+
+    # Tab-separated (auto-detected)
+    preview_data(
+      url="https://example.com/data.tsv",
+      format="CSV"
+    )
+    ```
+
+    Uses Python's `csv.Sniffer` for automatic delimiter detection.
+  </Tab>
+
+  <Tab value="Manual Handling">
+    Verify delimiter detection and handle edge cases:
+
+    ```python
+    # Preview with delimiter detection
+    preview = preview_data(
+      url="https://example.com/data.csv",
+      format="CSV"
+    )
+
+    # Verify structure looks correct
+    if len(preview['data']) > 0:
+      first_row = preview['data'][0]
+      num_columns = len(first_row.keys())
+
+      print(f"Detected {num_columns} columns")
+
+      # Check if columns look reasonable
+      if num_columns < 2:
+        print("⚠ Warning: Only one column detected")
+        print("   Delimiter might not be detected correctly")
+      else:
+        print("✓ Delimiter detection successful")
+
+    # For problematic files, check raw data
+    # (Would need direct HTTP download for manual parsing)
+    ```
+
+    **Common delimiter issues:**
+    - Mixed delimiters in file
+    - Delimiters inside quoted values
+    - Non-standard delimiters (pipe, etc.)
+  </Tab>
+</Tabs>
+
+### Large CSV Files
+
+<Tabs items={['Efficient Preview', 'Performance Optimization']} persist groupId="preview-complexity">
+  <Tab value="Efficient Preview">
+    Preview handles large files efficiently:
+
+    ```python
+    # Default: 64KB preview (enough for ~1000 rows)
+    preview_data(
+      url="https://example.com/large-dataset.csv",
+      max_rows=100,
+      format="CSV"
+    )
+    ```
+
+    **Performance characteristics:**
+    - Default chunk size: 64KB
+    - Maximum chunk size: 512KB
+    - Only downloads what's needed for preview
+    - Estimated total rows calculated from sample
+  </Tab>
+
+  <Tab value="Performance Optimization">
+    Optimize preview for different file sizes:
+
+    ```python
+    # Small preview for quick check (20 rows)
+    quick_preview = preview_data(
+      url="https://example.com/large-dataset.csv",
+      max_rows=20,
+      format="CSV"
+    )
+
+    # Medium preview for validation (100 rows)
+    medium_preview = preview_data(
+      url="https://example.com/large-dataset.csv",
+      max_rows=100,
+      format="CSV"
+    )
+
+    # Maximum preview for comprehensive analysis (1000 rows)
+    full_preview = preview_data(
+      url="https://example.com/large-dataset.csv",
+      max_rows=1000,
+      format="CSV"
+    )
+
+    # Use estimated total to calculate sampling
+    if 'estimated_total_rows' in quick_preview:
+      total = quick_preview['estimated_total_rows']
+      sample_pct = (20 / total) * 100
+      print(f"Previewing {sample_pct:.2f}% of data")
+    ```
+
+    **Optimization strategy:**
+    - Use 20 rows for quick structure check
+    - Use 100 rows for data quality validation
+    - Use 1000 rows for statistical sampling
+    - Check estimated_total_rows to understand coverage
+  </Tab>
+</Tabs>
+
+## JSON Handling
+
+### Flat JSON Arrays
+
+<Tabs items={['Simple Preview', 'Array Analysis']} persist groupId="preview-complexity">
+  <Tab value="Simple Preview">
+    Preview JSON arrays directly:
+
+    ```python
+    preview_data(
+      url="https://example.com/data.json",
+      format="JSON"
+    )
+    ```
+
+    **Example input:**
+    ```json
+    [
+      {"id": 1, "name": "Vienna", "population": 1900000},
+      {"id": 2, "name": "Graz", "population": 290000}
+    ]
+    ```
+  </Tab>
+
+  <Tab value="Array Analysis">
+    Analyze JSON structure and data:
+
+    ```python
+    # Get preview
+    preview = preview_data(
+      url="https://example.com/data.json",
+      format="JSON"
+    )
+
+    # Analyze array structure
+    if preview['data']:
+      first_obj = preview['data'][0]
+      fields = first_obj.keys()
+
+      print(f"JSON objects have {len(fields)} fields:")
+      for field in fields:
+        print(f"  - {field}")
+
+      # Check field consistency across objects
+      inconsistent = []
+      for i, obj in enumerate(preview['data']):
+        if set(obj.keys()) != set(fields):
+          inconsistent.append(i)
+
+      if inconsistent:
+        print(f"⚠ Objects with different fields: {inconsistent}")
+      else:
+        print("✓ Consistent structure across all objects")
+    ```
+  </Tab>
+</Tabs>
+
+### Nested JSON Objects
+
+<Tabs items={['Auto-Detection', 'Manual Navigation']} persist groupId="preview-complexity">
+  <Tab value="Auto-Detection">
+    Automatically detects nested data arrays:
+
+    ```python
+    preview_data(
+      url="https://example.com/api-response.json",
+      format="JSON"
+    )
+    ```
+
+    **Example input with nested data:**
+    ```json
+    {
+      "status": "success",
+      "data": [
+        {"id": 1, "value": 100},
+        {"id": 2, "value": 200}
+      ]
+    }
+    ```
+
+    Common nested keys automatically detected: `data`, `results`, `items`, `records`
+  </Tab>
+
+  <Tab value="Manual Navigation">
+    Handle complex nested structures:
+
+    ```python
+    # Preview potentially nested JSON
+    preview = preview_data(
+      url="https://example.com/complex-api.json",
+      format="JSON"
+    )
+
+    # Check what was extracted
+    if preview['data']:
+      print(f"Extracted {preview['row_count']} items")
+
+      # Verify extraction worked correctly
+      first_item = preview['data'][0]
+      print(f"Item structure: {list(first_item.keys())}")
+
+      # Check if data looks complete
+      if len(first_item.keys()) < 2:
+        print("⚠ Warning: Items have very few fields")
+        print("   JSON structure might not be correctly detected")
+
+    # For non-standard structures, may need to:
+    # 1. Download full JSON
+    # 2. Manually navigate to data array
+    # 3. Process as needed
+    ```
+  </Tab>
+</Tabs>
+
+### Truncated JSON Recovery
+
+<Tabs items={['Automatic Recovery', 'Recovery Analysis']} persist groupId="preview-complexity">
+  <Tab value="Automatic Recovery">
+    If JSON is truncated, the tool attempts recovery:
+
+    ```python
+    # Handles partially downloaded JSON
+    preview_data(
+      url="https://example.com/large-data.json",
+      max_rows=50,
+      format="JSON"
+    )
+    ```
+
+    Recovery strategy:
+    1. Find last complete object in truncated data
+    2. Parse successfully completed objects
+    3. Return partial but valid results
+  </Tab>
+
+  <Tab value="Recovery Analysis">
+    Understand and verify recovery results:
+
+    ```python
+    # Preview potentially truncated JSON
+    preview = preview_data(
+      url="https://example.com/large-data.json",
+      max_rows=100,
+      format="JSON"
+    )
+
+    # Check if truncation occurred
+    if 'estimated_total_rows' in preview:
+      requested = 100
+      received = preview['row_count']
+
+      if received < requested:
+        print(f"⚠ Truncation detected:")
+        print(f"   Requested: {requested} rows")
+        print(f"   Received: {received} rows")
+        print(f"   Estimated total: {preview['estimated_total_rows']}")
+
+        # Calculate completeness
+        completeness = (received / requested) * 100
+        print(f"   Preview completeness: {completeness:.1f}%")
+      else:
+        print("✓ Full preview retrieved")
+
+    # Verify recovered data is valid
+    if preview['data']:
+      for i, obj in enumerate(preview['data']):
+        if not isinstance(obj, dict):
+          print(f"⚠ Warning: Object {i} is not a valid dict")
+    ```
+  </Tab>
+</Tabs>
+
+## Complete Preview Workflow
+
+<Tabs items={['Quick Workflow', 'Production Workflow']} persist groupId="preview-complexity">
+  <Tab value="Quick Workflow">
+    Fast dataset preview for exploration:
+
+    <Steps>
+      <Step>
+        ### Find Dataset
+        ```python
+        # Search for datasets
+        results = search_datasets(
+          query="population Vienna",
+          formats=["CSV"],
+          limit=5
+        )
+
+        # Pick a dataset
+        dataset_id = results["results"][0]["id"]
+        ```
+      </Step>
+
+      <Step>
+        ### Get Download URL
+        ```python
+        # Get distributions
+        distributions = get_dataset_distributions(dataset_id=dataset_id)
+
+        # Find CSV distribution
+        csv_dist = next(
+          (d for d in distributions if d.get("format", {}).get("id") == "CSV"),
+          None
+        )
+
+        download_url = csv_dist.get("access_url") if csv_dist else None
+        ```
+      </Step>
+
+      <Step>
+        ### Preview Data
+        ```python
+        # Quick preview
+        preview = preview_data(
+          url=download_url,
+          max_rows=20,
+          format="CSV"
+        )
+
+        # Display sample
+        for row in preview["data"][:5]:
+          print(row)
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab value="Production Workflow">
+    Complete validation workflow for production use:
+
+    <Steps>
+      <Step>
+        ### Search and Select
+        ```python
+        results = search_datasets(
+          query="population Vienna",
+          formats=["CSV"],
+          quality_boost=True,
+          limit=5
+        )
+
+        dataset_id = results["results"][0]["id"]
+        dataset = get_dataset(dataset_id=dataset_id)
+
+        print(f"Selected: {dataset['title']['de']}")
+        print(f"Modified: {dataset['modified']}")
+        ```
+      </Step>
+
+      <Step>
+        ### Validate Schema
+        ```python
+        distributions = get_dataset_distributions(dataset_id=dataset_id)
+
+        csv_dist = next(
+          (d for d in distributions if d.get("format", {}).get("id") == "CSV"),
+          None
+        )
+
+        download_url = csv_dist.get("access_url")
+
+        # Check schema first
+        schema = preview_schema(url=download_url, format="CSV")
+
+        print(f"Schema has {len(schema['columns'])} columns:")
+        for col in schema['columns']:
+          print(f"  - {col['name']}: {col['type']}")
+
+        # Validate expected columns
+        expected = ["year", "region", "population"]
+        actual = [c['name'] for c in schema['columns']]
+
+        schema_valid = all(col in actual for col in expected)
+        ```
+      </Step>
+
+      <Step>
+        ### Preview and Verify
+        ```python
+        if schema_valid:
+          # Get data sample
+          preview = preview_data(
+            url=download_url,
+            max_rows=100,
+            format="CSV"
+          )
+
+          print(f"Preview: {preview['row_count']} rows")
+
+          # Data quality checks
+          null_count = 0
+          for row in preview['data']:
+            for value in row.values():
+              if value is None or value == '':
+                null_count += 1
+
+          null_pct = (null_count / (preview['row_count'] * len(schema['columns']))) * 100
+          print(f"Null values: {null_pct:.1f}%")
+
+          if null_pct < 5:
+            print("✓ Data quality acceptable - proceed with download")
+          else:
+            print("⚠ High null percentage - review data quality")
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Error Handling
+
+<Tabs items={['Basic Errors', 'Advanced Error Handling']} persist groupId="preview-complexity">
+  <Tab value="Basic Errors">
+    Handle common preview errors:
+
+    ```python
+    # Invalid URL
+    try:
+      preview_data(url="not-a-valid-url", format="CSV")
+    except ToolError as e:
+      print(f"Error: {e}")
+
+    # Unsupported format
+    try:
+      preview_data(
+        url="https://example.com/data.pdf",
+        format="PDF"
+      )
+    except ToolError as e:
+      print(f"Error: {e}")  # "Unsupported format: PDF"
+
+    # Network issues
+    try:
+      preview_data(
+        url="https://example.com/nonexistent.csv",
+        format="CSV"
+      )
+    except ToolError as e:
+      print(f"Error: {e}")  # Connection error with guidance
+    ```
+  </Tab>
+
+  <Tab value="Advanced Error Handling">
+    Comprehensive error handling and recovery:
+
+    ```python
+    def safe_preview(url, max_rows=20, format=None):
+      """Preview with comprehensive error handling."""
+      try:
+        # Attempt preview
+        preview = preview_data(
+          url=url,
+          max_rows=max_rows,
+          format=format
+        )
+
+        # Verify we got data
+        if not preview.get('data'):
+          return {
+            'success': False,
+            'error': 'No data returned',
+            'suggestion': 'URL may be empty or invalid format'
+          }
+
+        # Check data quality
+        if preview['row_count'] == 0:
+          return {
+            'success': False,
+            'error': 'Empty dataset',
+            'suggestion': 'File contains no data rows'
+          }
+
+        return {
+          'success': True,
+          'preview': preview,
+          'rows': preview['row_count']
+        }
+
+      except ToolError as e:
+        error_msg = str(e).lower()
+
+        # Categorize errors
+        if 'unsupported format' in error_msg:
+          return {
+            'success': False,
+            'error': 'Unsupported format',
+            'suggestion': 'Only CSV and JSON are supported'
+          }
+        elif 'invalid url' in error_msg:
+          return {
+            'success': False,
+            'error': 'Invalid URL',
+            'suggestion': 'URL must start with http:// or https://'
+          }
+        elif 'connection' in error_msg or 'network' in error_msg:
+          return {
+            'success': False,
+            'error': 'Network error',
+            'suggestion': 'Check URL accessibility and network connection'
+          }
+        else:
+          return {
+            'success': False,
+            'error': str(e),
+            'suggestion': 'See error message for details'
+          }
+
+    # Usage
+    result = safe_preview(url="https://example.com/data.csv")
+
+    if result['success']:
+      print(f"✓ Preview successful: {result['rows']} rows")
+    else:
+      print(f"✗ Preview failed: {result['error']}")
+      print(f"   Suggestion: {result['suggestion']}")
+    ```
+  </Tab>
+</Tabs>
+
+## Format Auto-detection
+
+<Tabs items={['Simple Auto-detection', 'Manual Override']} persist groupId="preview-complexity">
+  <Tab value="Simple Auto-detection">
+    Let the tool detect format from URL extension:
+
+    ```python
+    # Format inferred from .csv extension
+    preview_data(url="https://example.com/data.csv")
+
+    # Format inferred from .json extension
+    preview_data(url="https://example.com/data.json")
+    ```
+  </Tab>
+
+  <Tab value="Manual Override">
+    Override auto-detection when needed:
+
+    ```python
+    # File has .txt extension but is actually CSV
+    preview_data(
+      url="https://example.com/data.txt",
+      format="CSV"
+    )
+
+    # API endpoint returns CSV without extension
+    preview_data(
+      url="https://api.example.com/export?format=csv",
+      format="CSV"
+    )
+
+    # Verify auto-detection worked
+    url = "https://example.com/data.unknown"
+
+    try:
+      # Try without format
+      preview = preview_data(url=url)
+    except ToolError:
+      # Auto-detection failed, try explicit formats
+      for fmt in ["CSV", "JSON"]:
+        try:
+          preview = preview_data(url=url, format=fmt)
+          print(f"✓ Detected as {fmt}")
+          break
+        except ToolError:
+          continue
+    ```
+  </Tab>
+</Tabs>
+
+## Best Practices
+
+### 1. Preview Before Download
+
+<Tabs items={['Quick Validation', 'Comprehensive Validation']} persist groupId="preview-complexity">
+  <Tab value="Quick Validation">
+    Always preview schema and sample data before downloading large files:
+
+    ```python
+    # Check schema first
+    schema = preview_schema(url=download_url, format="CSV")
+
+    # Verify structure
+    if "expected_column" in [c["name"] for c in schema["columns"]]:
+      # Structure looks good, get sample data
+      preview_data(url=download_url, max_rows=20)
+    ```
+  </Tab>
+
+  <Tab value="Comprehensive Validation">
+    Complete validation before committing to download:
+
+    ```python
+    def validate_before_download(url, expected_columns, format="CSV"):
+      """Comprehensive pre-download validation."""
+
+      # Step 1: Schema validation
+      schema = preview_schema(url=url, format=format)
+      actual_cols = [c['name'] for c in schema['columns']]
+
+      missing = set(expected_columns) - set(actual_cols)
+      if missing:
+        return {
+          'valid': False,
+          'reason': f'Missing columns: {missing}'
+        }
+
+      # Step 2: Data type validation
+      for col in schema['columns']:
+        if col['name'] in expected_columns:
+          # Check type is appropriate
+          if col['type'] == 'string' and col['name'].endswith('_id'):
+            print(f"⚠ Warning: {col['name']} is string, expected number?")
+
+      # Step 3: Data quality check
+      preview = preview_data(url=url, max_rows=100, format=format)
+
+      if preview['row_count'] == 0:
+        return {
+          'valid': False,
+          'reason': 'No data rows'
+        }
+
+      # Check null percentage
+      total_cells = preview['row_count'] * len(schema['columns'])
+      null_cells = sum(
+        1 for row in preview['data']
+        for value in row.values()
+        if value is None or value == ''
+      )
+      null_pct = (null_cells / total_cells) * 100
+
+      return {
+        'valid': True,
+        'schema': schema,
+        'sample_rows': preview['row_count'],
+        'null_percentage': null_pct,
+        'download_recommended': null_pct < 10
+      }
+
+    # Usage
+    result = validate_before_download(
+      url=download_url,
+      expected_columns=["id", "name", "value"]
+    )
+
+    if result['valid'] and result['download_recommended']:
+      print("✓ Validation passed - safe to download")
+    ```
+  </Tab>
+</Tabs>
+
+### 2. Use Appropriate Sample Size
+
+Balance preview detail with performance:
+
+```python
+# Quick peek (20 rows) - for initial exploration
+preview_data(url=download_url, max_rows=20)
+
+# Detailed inspection (100 rows) - for validation
+preview_data(url=download_url, max_rows=100)
+
+# Maximum sample (1000 rows) - for statistical analysis
+preview_data(url=download_url, max_rows=1000)
+```
+
+### 3. Validate Data Types
+
+Check inferred types match expectations:
+
+```python
+schema = preview_schema(url=download_url, format="CSV")
+
+for column in schema["columns"]:
+  if column["name"] == "population":
+    assert column["type"] == "integer", "Population should be integer"
+  if column["name"] == "date":
+    assert column["type"] == "date", "Date should be date type"
+```
+
+### 4. Handle Multi-language Data
+
+Austrian datasets often contain German text:
+
+```python
+# Preview to check language and encoding
+preview = preview_data(url=download_url, max_rows=10, format="CSV")
+
+# Verify special characters render correctly
+for row in preview["data"]:
+  # Check for Umlauts: ä, ö, ü, ß
+  for value in row.values():
+    if isinstance(value, str) and any(c in value for c in 'äöüßÄÖÜ'):
+      print(f"✓ German characters detected: {value}")
+```
+
+## Performance Tips
+
+**Minimize downloads:**
+- Use `preview_schema` for structure-only checks (faster)
+- Use small `max_rows` for quick verification
+- Preview only when necessary
+
+**Estimated download sizes:**
+- CSV: ~500 bytes per row (varies by columns)
+- JSON: ~200 bytes per object (varies by structure)
+- Default 64KB chunk: ~128 CSV rows or ~320 JSON objects
+
+## Next Steps
+
+- **[Workflows](/examples/workflows)** - Complete end-to-end scenarios
+- **[Search Examples](/examples/search)** - Finding datasets to preview
+- **[API Reference](/api/tools)** - Full preview tool documentation

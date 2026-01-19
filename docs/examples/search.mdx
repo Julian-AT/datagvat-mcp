@@ -1,0 +1,786 @@
+---
+title: Search Examples
+description: Common search patterns and use cases
+---
+
+# Search Examples
+
+Master dataset discovery with these practical search examples.
+
+## Basic Text Search
+
+<Tabs items={['Basic', 'Advanced']} persist groupId="search-complexity">
+  <Tab value="Basic">
+    Simple keyword search across all datasets:
+
+    ```python
+    # Search for population-related datasets
+    search_datasets(query="population", limit=10)
+
+    # Search for environmental data
+    search_datasets(query="environment", limit=10)
+
+    # Search for traffic data
+    search_datasets(query="traffic", limit=10)
+    ```
+
+    **Tips:**
+    - Use German keywords for better results (most datasets are in German)
+    - The API searches titles, descriptions, and keywords
+    - Relevance-based ranking is applied automatically
+  </Tab>
+
+  <Tab value="Advanced">
+    Advanced search with fuzzy matching and wildcards:
+
+    ```python
+    # Fuzzy search (finds similar terms)
+    search_datasets(query="health~", limit=10)
+
+    # Wildcard search
+    search_datasets(query="data*", limit=10)
+
+    # Phrase search with exact matching
+    search_datasets(query='"air quality"', limit=10)
+
+    # Boost specific terms
+    search_datasets(query="environment^2 climate", limit=10)
+    ```
+
+    **Advanced features:**
+    - `~` suffix enables fuzzy matching
+    - `*` matches zero or more characters
+    - `"..."` requires exact phrase
+    - `^N` boosts term importance
+  </Tab>
+</Tabs>
+
+## Filtered Search
+
+### By Category
+
+<Tabs items={['Single Category', 'Multiple Categories']} persist groupId="search-complexity">
+  <Tab value="Single Category">
+    Filter by a single EU DCAT-AP theme:
+
+    ```python
+    # Health datasets only
+    search_datasets(
+      query="statistics",
+      themes=["HEAL"],
+      limit=10
+    )
+
+    # Environment datasets
+    search_datasets(
+      query="climate",
+      themes=["ENVI"],
+      limit=10
+    )
+
+    # Population and society data
+    search_datasets(
+      query="demographics",
+      themes=["SOCI"],
+      limit=10
+    )
+    ```
+  </Tab>
+
+  <Tab value="Multiple Categories">
+    Combine multiple themes (OR logic):
+
+    ```python
+    # Environment OR Energy datasets
+    search_datasets(
+      query="climate",
+      themes=["ENVI", "ENER"],
+      limit=10
+    )
+
+    # Health OR Social datasets
+    search_datasets(
+      query="statistics",
+      themes=["HEAL", "SOCI"],
+      limit=10
+    )
+
+    # Government OR Justice datasets
+    search_datasets(
+      query="public",
+      themes=["GOVE", "JUST"],
+      limit=10
+    )
+    ```
+  </Tab>
+</Tabs>
+
+**All 13 EU theme codes:**
+- `AGRI` - Agriculture, fisheries, forestry and food
+- `ECON` - Economy and finance
+- `EDUC` - Education, culture and sport
+- `ENER` - Energy
+- `ENVI` - Environment
+- `GOVE` - Government and public sector
+- `HEAL` - Health
+- `INTR` - International issues
+- `JUST` - Justice, legal system and public safety
+- `REGI` - Regions and cities
+- `SOCI` - Population and society
+- `TECH` - Science and technology
+- `TRAN` - Transport
+
+### By Format
+
+<Tabs items={['Single Format', 'Multiple Formats']} persist groupId="search-complexity">
+  <Tab value="Single Format">
+    Filter by a specific file format:
+
+    ```python
+    # CSV datasets only
+    search_datasets(
+      query="data",
+      formats=["CSV"],
+      limit=10
+    )
+
+    # Excel files
+    search_datasets(
+      query="statistics",
+      formats=["XLSX"],
+      limit=10
+    )
+    ```
+
+    **Common formats:** CSV, JSON, XML, XLSX, PDF, HTML, RDF, SHP (shapefile)
+  </Tab>
+
+  <Tab value="Multiple Formats">
+    Find datasets available in multiple formats:
+
+    ```python
+    # JSON or XML datasets
+    search_datasets(
+      query="api",
+      formats=["JSON", "XML"],
+      limit=10
+    )
+
+    # CSV or Excel datasets
+    search_datasets(
+      query="statistics",
+      formats=["CSV", "XLSX"],
+      limit=10
+    )
+
+    # API-friendly formats (JSON, XML, RDF)
+    search_datasets(
+      query="data",
+      formats=["JSON", "XML", "RDF"],
+      limit=10
+    )
+    ```
+  </Tab>
+</Tabs>
+
+### By Publisher
+
+<Tabs items={['Simple Filter', 'Advanced Filter']} persist groupId="search-complexity">
+  <Tab value="Simple Filter">
+    Filter by publishing organization:
+
+    ```python
+    # Data from Vienna
+    search_datasets(
+      query="",
+      publishers=["Stadt Wien"],
+      limit=10
+    )
+
+    # Federal government datasets
+    search_datasets(
+      query="",
+      publishers=["Bundesministerium"],
+      limit=10
+    )
+    ```
+  </Tab>
+
+  <Tab value="Advanced Filter">
+    Combine multiple publishers and filters:
+
+    ```python
+    # Vienna or Graz data
+    search_datasets(
+      query="traffic",
+      publishers=["Stadt Wien", "Stadt Graz"],
+      limit=10
+    )
+
+    # Multiple federal sources
+    search_datasets(
+      query="",
+      publishers=["Bundesministerium", "Statistik Austria"],
+      formats=["CSV"],
+      limit=10
+    )
+    ```
+  </Tab>
+</Tabs>
+
+### Combined Filters
+
+<Tabs items={['Basic Combination', 'Complex Combination']} persist groupId="search-complexity">
+  <Tab value="Basic Combination">
+    Combine 2-3 filters for targeted results:
+
+    ```python
+    # CSV health data from Vienna
+    search_datasets(
+      query="health",
+      themes=["HEAL"],
+      formats=["CSV"],
+      publishers=["Stadt Wien"],
+      limit=10
+    )
+
+    # Recent environment data
+    search_datasets(
+      query="",
+      themes=["ENVI"],
+      min_date="2024-01-01",
+      limit=10
+    )
+    ```
+  </Tab>
+
+  <Tab value="Complex Combination">
+    Advanced multi-filter queries:
+
+    ```python
+    # High-quality CSV health data from Vienna, recently updated
+    search_datasets(
+      query="health statistics",
+      themes=["HEAL"],
+      formats=["CSV"],
+      publishers=["Stadt Wien"],
+      min_date="2024-01-01",
+      boost_quality=True,
+      sort_by="modified_desc",
+      limit=10
+    )
+
+    # Multi-theme, multi-format recent datasets
+    search_datasets(
+      query="climate renewable",
+      themes=["ENVI", "ENER"],
+      formats=["CSV", "JSON"],
+      min_date="2023-01-01",
+      boost_quality=True,
+      limit=20
+    )
+    ```
+  </Tab>
+</Tabs>
+
+## Date Range Filtering
+
+<Tabs items={['Simple Date Filters', 'Complex Date Filters']} persist groupId="search-complexity">
+  <Tab value="Simple Date Filters">
+    Filter by modification or publication date:
+
+    ```python
+    # Datasets modified in 2024
+    search_datasets(
+      query="",
+      min_date="2024-01-01",
+      max_date="2024-12-31",
+      limit=10
+    )
+
+    # Recently updated datasets (last 30 days)
+    search_datasets(
+      query="",
+      min_date="2024-12-15",
+      limit=10
+    )
+
+    # Datasets published before 2020
+    search_datasets(
+      query="",
+      max_date="2020-01-01",
+      limit=10
+    )
+    ```
+
+    **Date format:** ISO 8601 (YYYY-MM-DD)
+  </Tab>
+
+  <Tab value="Complex Date Filters">
+    Combine date filters with other criteria:
+
+    ```python
+    # Recent health datasets from Vienna
+    search_datasets(
+      query="health",
+      themes=["HEAL"],
+      publishers=["Stadt Wien"],
+      min_date="2024-01-01",
+      sort_by="modified_desc",
+      limit=10
+    )
+
+    # Datasets modified in 2024
+    search_datasets(
+      query="",
+      min_date="2024-01-01",
+      max_date="2024-12-31",
+      limit=10
+    )
+
+    # Legacy datasets that are still updated
+    search_datasets(
+      query="",
+      max_date="2020-01-01",
+      min_date="2024-01-01",
+      sort_by="modified_desc",
+      limit=10
+    )
+    ```
+  </Tab>
+</Tabs>
+
+## Sorting Options
+
+<Tabs items={['Basic Sorting', 'Advanced Sorting']} persist groupId="search-complexity">
+  <Tab value="Basic Sorting">
+    Control result ordering:
+
+    ```python
+    # Most relevant first (default with query)
+    search_datasets(
+      query="population",
+      sort_by="relevance",
+      limit=10
+    )
+
+    # Most recently modified first
+    search_datasets(
+      query="",
+      sort_by="modified_desc",
+      limit=10
+    )
+
+    # Alphabetical by title
+    search_datasets(
+      query="",
+      sort_by="title_asc",
+      limit=10
+    )
+    ```
+
+    **Available sort options:**
+    - `relevance` - By search relevance (requires query)
+    - `modified_desc` / `modified_asc` - By modification date
+    - `issued_desc` / `issued_asc` - By publication date
+    - `title_asc` / `title_desc` - Alphabetical
+  </Tab>
+
+  <Tab value="Advanced Sorting">
+    Combine sorting with filters for targeted discovery:
+
+    ```python
+    # Most relevant high-quality health data
+    search_datasets(
+      query="health statistics",
+      themes=["HEAL"],
+      boost_quality=True,
+      sort_by="relevance",
+      limit=10
+    )
+
+    # Recently published datasets, sorted by relevance
+    search_datasets(
+      query="climate",
+      min_date="2024-01-01",
+      sort_by="relevance",
+      limit=10
+    )
+
+    # Oldest datasets from a publisher (historical data)
+    search_datasets(
+      query="",
+      publishers=["Statistik Austria"],
+      sort_by="issued_asc",
+      limit=10
+    )
+
+    # Recently updated datasets across all categories
+    search_datasets(
+      query="",
+      sort_by="modified_desc",
+      limit=50
+    )
+    ```
+  </Tab>
+</Tabs>
+
+## Pagination
+
+<Tabs items={['Basic Pagination', 'Advanced Pagination']} persist groupId="search-complexity">
+  <Tab value="Basic Pagination">
+    Work with large result sets:
+
+    ```python
+    # Get first page (10 results)
+    page1 = search_datasets(
+      query="data",
+      limit=10,
+      page=0
+    )
+
+    # Get second page (next 10 results)
+    page2 = search_datasets(
+      query="data",
+      limit=10,
+      page=1
+    )
+
+    # Get third page
+    page3 = search_datasets(
+      query="data",
+      limit=10,
+      page=2
+    )
+    ```
+
+    **Result metadata:**
+    - `count` - Total number of matching datasets
+    - `results` - Array of datasets for current page
+
+    Calculate total pages: `total_pages = ceil(count / limit)`
+  </Tab>
+
+  <Tab value="Advanced Pagination">
+    Implement complete pagination with iteration:
+
+    ```python
+    # Paginate through all results
+    all_results = []
+    limit = 20
+    page = 0
+
+    while True:
+      response = search_datasets(
+        query="environment",
+        themes=["ENVI"],
+        limit=limit,
+        page=page
+      )
+
+      all_results.extend(response['results'])
+
+      # Check if more pages exist
+      if (page + 1) * limit >= response['count']:
+        break
+
+      page += 1
+
+    print(f"Retrieved {len(all_results)} total datasets")
+
+    # Smart pagination with progress tracking
+    def fetch_all_datasets(query, **filters):
+      results = []
+      limit = 50  # Larger page size for efficiency
+      page = 0
+      total = None
+
+      while True:
+        response = search_datasets(
+          query=query,
+          limit=limit,
+          page=page,
+          **filters
+        )
+
+        if total is None:
+          total = response['count']
+
+        results.extend(response['results'])
+        progress = len(results) / total * 100
+
+        print(f"Progress: {progress:.1f}% ({len(results)}/{total})")
+
+        if (page + 1) * limit >= response['count']:
+          break
+
+        page += 1
+
+      return results
+    ```
+  </Tab>
+</Tabs>
+
+## Quality-Aware Search
+
+<Tabs items={['Enable Quality Boost', 'Quality-Driven Search']} persist groupId="search-complexity">
+  <Tab value="Enable Quality Boost">
+    Boost high-quality datasets in results:
+
+    ```python
+    # Prioritize complete, well-documented datasets
+    search_datasets(
+      query="health",
+      boost_quality=True,
+      limit=10
+    )
+
+    # Compare with and without quality boost
+    without_boost = search_datasets(query="health", limit=10)
+    with_boost = search_datasets(query="health", boost_quality=True, limit=10)
+    ```
+
+    Quality boost considers:
+    - Metadata completeness (8 components)
+    - Title and description presence
+    - Keywords and categories
+    - Publisher information
+    - License clarity
+    - Contact information
+    - Temporal and spatial coverage
+    - Documentation quality
+
+    Score range: 0-100
+  </Tab>
+
+  <Tab value="Quality-Driven Search">
+    Build workflows around quality metrics:
+
+    ```python
+    # Find high-quality recent datasets
+    search_datasets(
+      query="",
+      themes=["HEAL"],
+      min_date="2024-01-01",
+      boost_quality=True,
+      sort_by="modified_desc",
+      limit=20
+    )
+
+    # Production-ready datasets (high quality + accessible formats)
+    search_datasets(
+      query="statistics",
+      formats=["CSV", "JSON"],
+      boost_quality=True,
+      sort_by="relevance",
+      limit=10
+    )
+
+    # Comprehensive search for well-documented data
+    search_datasets(
+      query="environment climate",
+      themes=["ENVI", "ENER"],
+      formats=["CSV"],
+      min_date="2023-01-01",
+      boost_quality=True,
+      sort_by="relevance",
+      limit=20
+    )
+    ```
+
+    **Quality boost strategy:**
+    - Use for production workflows
+    - Combine with format filters (CSV, JSON) for API-ready data
+    - Sort by relevance to get best quality AND most relevant
+    - Filter by recent modification for maintained datasets
+  </Tab>
+</Tabs>
+
+## Advanced Search Patterns
+
+### Multi-theme Discovery
+
+<Tabs items={['Basic Multi-theme', 'Strategic Multi-theme']} persist groupId="search-complexity">
+  <Tab value="Basic Multi-theme">
+    Find datasets that span multiple domains:
+
+    ```python
+    # Climate and energy data
+    search_datasets(
+      query="renewable",
+      themes=["ENVI", "ENER"],
+      limit=10
+    )
+
+    # Health and social data
+    search_datasets(
+      query="demographics",
+      themes=["HEAL", "SOCI"],
+      limit=10
+    )
+    ```
+  </Tab>
+
+  <Tab value="Strategic Multi-theme">
+    Advanced cross-domain discovery:
+
+    ```python
+    # Climate, energy, and transport (sustainability focus)
+    search_datasets(
+      query="sustainable renewable green",
+      themes=["ENVI", "ENER", "TRAN"],
+      boost_quality=True,
+      sort_by="relevance",
+      limit=20
+    )
+
+    # Government, justice, and society (public sector analysis)
+    search_datasets(
+      query="public administration statistics",
+      themes=["GOVE", "JUST", "SOCI"],
+      formats=["CSV"],
+      min_date="2023-01-01",
+      limit=20
+    )
+
+    # Economy, education, and technology (innovation research)
+    search_datasets(
+      query="innovation digital research",
+      themes=["ECON", "EDUC", "TECH"],
+      boost_quality=True,
+      limit=20
+    )
+    ```
+  </Tab>
+</Tabs>
+
+### Format Comparison
+
+<Tabs items={['Simple Comparison', 'Comprehensive Comparison']} persist groupId="search-complexity">
+  <Tab value="Simple Comparison">
+    Compare availability across formats:
+
+    ```python
+    # Find if data is available as both CSV and JSON
+    csv_results = search_datasets(query="statistics", formats=["CSV"])
+    json_results = search_datasets(query="statistics", formats=["JSON"])
+
+    print(f"CSV: {csv_results['count']} datasets")
+    print(f"JSON: {json_results['count']} datasets")
+    ```
+  </Tab>
+
+  <Tab value="Comprehensive Comparison">
+    Analyze format distribution for a topic:
+
+    ```python
+    # Compare all format availability for health data
+    formats = ["CSV", "JSON", "XML", "XLSX", "PDF"]
+    format_counts = {}
+
+    for fmt in formats:
+      results = search_datasets(
+        query="health",
+        themes=["HEAL"],
+        formats=[fmt]
+      )
+      format_counts[fmt] = results['count']
+
+    # Display format distribution
+    for fmt, count in sorted(format_counts.items(), key=lambda x: x[1], reverse=True):
+      print(f"{fmt}: {count} datasets")
+
+    # Find datasets available in multiple formats
+    # (requires checking individual dataset distributions)
+    all_results = search_datasets(query="health", themes=["HEAL"], limit=50)
+
+    multi_format_datasets = []
+    for dataset in all_results['results']:
+      # Get distributions to count formats
+      # (Would use get_dataset_distributions in real workflow)
+      pass
+    ```
+  </Tab>
+</Tabs>
+
+### Publisher Exploration
+
+<Tabs items={['Basic Exploration', 'Advanced Exploration']} persist groupId="search-complexity">
+  <Tab value="Basic Exploration">
+    Explore what a publisher offers:
+
+    ```python
+    # All datasets from a specific catalogue
+    search_datasets(
+      query="",
+      catalogues=["l9"],  # Stadt Wien catalogue ID
+      limit=50
+    )
+
+    # Datasets from Vienna
+    search_datasets(
+      query="",
+      publishers=["Stadt Wien"],
+      sort_by="modified_desc",
+      limit=50
+    )
+    ```
+  </Tab>
+
+  <Tab value="Advanced Exploration">
+    Comprehensive publisher analysis:
+
+    ```python
+    # Vienna's recent health datasets
+    search_datasets(
+      query="",
+      publishers=["Stadt Wien"],
+      themes=["HEAL"],
+      min_date="2023-01-01",
+      sort_by="modified_desc",
+      limit=50
+    )
+
+    # Publisher comparison (Vienna vs. Federal data)
+    vienna_data = search_datasets(
+      query="traffic",
+      publishers=["Stadt Wien"],
+      formats=["CSV"]
+    )
+
+    federal_data = search_datasets(
+      query="traffic",
+      publishers=["Bundesministerium"],
+      formats=["CSV"]
+    )
+
+    print(f"Vienna: {vienna_data['count']} traffic datasets")
+    print(f"Federal: {federal_data['count']} traffic datasets")
+
+    # Category distribution for a publisher
+    all_vienna = search_datasets(
+      query="",
+      publishers=["Stadt Wien"],
+      limit=100
+    )
+
+    # Analyze themes
+    theme_counts = {}
+    for dataset in all_vienna['results']:
+      for category in dataset.get('categories', []):
+        theme_id = category.get('id')
+        theme_counts[theme_id] = theme_counts.get(theme_id, 0) + 1
+
+    print("\nVienna theme distribution:")
+    for theme, count in sorted(theme_counts.items(), key=lambda x: x[1], reverse=True):
+      print(f"  {theme}: {count} datasets")
+    ```
+  </Tab>
+</Tabs>
+
+## Next Steps
+
+- **[Semantic Search](/examples/semantic-search)** - Natural language queries
+- **[Preview Examples](/examples/preview)** - Data inspection
+- **[Workflows](/examples/workflows)** - Complete scenarios
+- **[API Reference](/api/tools)** - Full parameter documentation
