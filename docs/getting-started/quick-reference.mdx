@@ -1,0 +1,80 @@
+---
+title: Quick Reference
+description: Common Austria MCP operations cheat sheet
+---
+
+# Quick Reference
+
+Quick lookup for common Austria MCP operations.
+
+## Search Operations
+
+| Goal | Natural Language Query | Expected Result |
+|------|------------------------|-----------------|
+| Find datasets | "Search for Vienna population datasets" | List of matching datasets with titles, IDs, descriptions |
+| Semantic search | "Find data about traffic congestion" | Relevance-ranked results with quality scores |
+| Filter by theme | "Show health datasets from 2024" | Filtered results (HEAL theme + date range) |
+| Recent datasets | "Latest datasets updated in 2024" | Time-filtered results sorted by modification date |
+| Publisher filter | "Datasets from Statistics Austria" | Results filtered by publishing organization |
+
+## Data Preview Operations
+
+| Goal | Natural Language Query | Expected Result |
+|------|------------------------|-----------------|
+| Get dataset details | "Show details for dataset [ID]" | Full metadata, distributions, license, contact info |
+| Preview data | "Show first 10 rows of [URL]" | Sample data with inferred schema and types |
+| Check schema | "What columns does [URL] have?" | Column names, data types, sample values |
+| Check formats | "What formats are available for [ID]?" | List of downloadable formats (CSV, JSON, XML, etc.) |
+
+## Quality Analysis
+
+| Goal | Natural Language Query | Expected Result |
+|------|------------------------|-----------------|
+| Check quality | "Analyze quality of dataset [ID]" | Quality score (0-100) with component breakdown |
+| Find related datasets | "Find datasets similar to [ID]" | Related datasets with similarity scores and reasons |
+| Quality-boosted search | "Find high-quality health data" | Results prioritized by metadata completeness |
+
+## Common Parameters
+
+| Parameter | Values | Example |
+|-----------|--------|---------|
+| `limit` | Number (default: 20) | `limit=10` - Return 10 results |
+| `themes` | EU DCAT-AP codes | `themes=["HEAL", "SOCI"]` - Health or social |
+| `formats` | CSV, JSON, XML, etc. | `formats=["CSV"]` - Only CSV datasets |
+| `quality_boost` | true/false | `quality_boost=true` - Prioritize high quality |
+| `modified_since` | ISO date | `modified_since=2024-01-01` - Recent datasets |
+| `publisher` | Organization name | `publisher="Statistik Austria"` - Specific source |
+
+## EU Theme Codes
+
+| Code | Category | Example Datasets |
+|------|----------|------------------|
+| HEAL | Health | Hospital data, vaccination statistics, health insurance |
+| SOCI | Society & Population | Demographics, census data, education statistics |
+| ENVI | Environment | Air quality, climate data, nature conservation |
+| TRAN | Transport | Traffic counts, public transit schedules, road networks |
+| ECON | Economy | GDP, employment statistics, business registers |
+| GOVE | Government | Budget data, election results, legislation |
+| EDUC | Education | School data, enrollment statistics, exam results |
+| ENER | Energy | Energy consumption, renewable energy, power grids |
+| AGRI | Agriculture | Crop data, farm statistics, land use |
+| JUST | Justice | Crime statistics, court data, legal information |
+
+## Format Types
+
+| Format | Best For | Typical Size |
+|--------|----------|--------------|
+| CSV | Tabular data, spreadsheet analysis | Small-Medium |
+| JSON | Structured data, API consumption | Small-Medium |
+| XML | Complex hierarchical data | Medium-Large |
+| GeoJSON | Geographic/spatial data | Small-Medium |
+| PDF | Documentation, reports | Variable |
+| HTML | Web presentation | Small |
+
+## Next Steps
+
+- **[Search Guide](/guides/searching)** - Advanced search techniques and filters
+- **[Data Preview Guide](/guides/data-preview)** - Working with dataset previews
+- **[Quality Metrics](/guides/quality-metrics)** - Understanding quality scores
+- **[Workflows](/examples/workflows)** - Complete workflow examples
+- **[API Reference](/api/tools)** - Complete tool documentation
