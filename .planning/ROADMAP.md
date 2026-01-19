@@ -69,6 +69,12 @@ Plans:
 4. User copies code example and runs without errors
 5. All code blocks display correct syntax highlighting
 
+**Plans:** 2 plans (Wave 1 - parallel execution)
+
+Plans:
+- [ ] 19-01-PLAN.md — Core Getting Started Content (quickstart, first-query, verify installation)
+- [ ] 19-02-PLAN.md — Reference & Support Content (quick-reference, troubleshooting, navigation)
+
 ---
 
 ### Phase 20: Guides & Workflows
@@ -215,7 +221,7 @@ Plans:
 | Phase | Status | Plans | Progress |
 |-------|--------|-------|----------|
 | 18 - Documentation Foundation | Complete | 3/3 | ██████████ 100% |
-| 19 - Getting Started Content | Pending | 0/0 | ░░░░░░░░░░ 0% |
+| 19 - Getting Started Content | Planned | 2/2 | ░░░░░░░░░░ 0% |
 | 20 - Guides & Workflows | Pending | 0/0 | ░░░░░░░░░░ 0% |
 | 21 - Auto-Generated Tools Reference | Pending | 0/0 | ░░░░░░░░░░ 0% |
 | 22 - API Reference & Integration | Pending | 0/0 | ░░░░░░░░░░ 0% |
@@ -226,4 +232,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-01-19*
-*Last updated: 2026-01-19 after Phase 18 completion*
+*Last updated: 2026-01-19 after Phase 19 planning*
