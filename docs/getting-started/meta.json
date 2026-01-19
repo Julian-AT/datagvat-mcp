@@ -7,6 +7,7 @@
   "pages": [
     "index",
     "installation",
+    "quickstart",
     "first-query"
   ]
 }
