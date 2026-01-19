@@ -2,7 +2,7 @@
 phase: 20-guides-and-workflows
 plan: 03b
 type: execute
-wave: 2
+wave: 3
 depends_on: ["03a"]
 files_modified:
   - docs/workflows/comparative-analysis.mdx
