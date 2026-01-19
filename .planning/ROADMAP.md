@@ -110,6 +110,15 @@ Plans:
 4. User follows end-to-end workflow with Steps component showing progress
 5. User handles errors using provided error handling patterns
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 20-01-PLAN.md — Task-Oriented Guides (searching, data-preview, quality-metrics with Basic/Advanced tabs)
+- [ ] 20-02-PLAN.md — Workflow Patterns & Navigation (workflow-patterns guide + meta.json updates)
+- [ ] 20-03-PLAN.md — End-to-End Workflow Scenarios (6 workflow walkthroughs with Steps component)
+
+**Status:** Planned (ready for execution)
+
 ---
 
 ### Phase 21: Auto-Generated Tools Reference
@@ -224,7 +233,7 @@ Plans:
 |-------|--------|-------|----------|
 | 18 - Documentation Foundation | Complete | 3/3 | ██████████ 100% |
 | 19 - Getting Started Content | Complete | 2/2 | ██████████ 100% |
-| 20 - Guides & Workflows | Pending | 0/0 | ░░░░░░░░░░ 0% |
+| 20 - Guides & Workflows | Planned | 3 plans | ░░░░░░░░░░ 0% |
 | 21 - Auto-Generated Tools Reference | Pending | 0/0 | ░░░░░░░░░░ 0% |
 | 22 - API Reference & Integration | Pending | 0/0 | ░░░░░░░░░░ 0% |
 | 23 - Best Practices & Visual Assets | Pending | 0/0 | ░░░░░░░░░░ 0% |
@@ -234,4 +243,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-01-19*
-*Last updated: 2026-01-19 after Phase 19 completion*
+*Last updated: 2026-01-19 after Phase 20 planning*
