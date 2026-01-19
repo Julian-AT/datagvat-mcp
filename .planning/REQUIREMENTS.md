@@ -138,13 +138,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUND-01 | Phase 18 | Pending |
-| FOUND-02 | Phase 18 | Pending |
-| FOUND-03 | Phase 18 | Pending |
-| FOUND-04 | Phase 18 | Pending |
-| FOUND-05 | Phase 18 | Pending |
-| FOUND-06 | Phase 18 | Pending |
-| FOUND-07 | Phase 18 | Pending |
+| FOUND-01 | Phase 18 | Human Verify |
+| FOUND-02 | Phase 18 | Human Verify |
+| FOUND-03 | Phase 18 | Human Verify |
+| FOUND-04 | Phase 18 | Human Verify |
+| FOUND-05 | Phase 18 | Human Verify |
+| FOUND-06 | Phase 18 | Human Verify |
+| FOUND-07 | Phase 18 | Human Verify |
 | START-01 | Phase 19 | Pending |
 | START-02 | Phase 19 | Pending |
 | START-03 | Phase 19 | Pending |
@@ -190,12 +190,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BEST-03 | Phase 23 | Pending |
 | BEST-04 | Phase 23 | Pending |
 | BEST-05 | Phase 23 | Pending |
-| COMP-01 | Phase 18, Phase 24 | Pending |
+| COMP-01 | Phase 18, Phase 24 | Human Verify |
 | COMP-02 | Phase 20, Phase 24 | Pending |
 | COMP-03 | Phase 21, Phase 24 | Pending |
 | COMP-04 | Phase 21, Phase 24 | Pending |
-| COMP-05 | Phase 18, Phase 24 | Pending |
-| COMP-06 | Phase 18, Phase 24 | Pending |
+| COMP-05 | Phase 18, Phase 24 | Human Verify |
+| COMP-06 | Phase 18, Phase 24 | Human Verify |
 | DX-01 | Phase 21 | Pending |
 | DX-02 | Phase 22 | Pending |
 | DX-03 | Phase 22 | Pending |
