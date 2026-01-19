@@ -1,19 +1,19 @@
 'use client';
-import { cn } from '../../lib/cn';
-import { buttonVariants } from '../ui/button';
+import { cn } from '@/lib/cn';
+import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { MessageSquare, ThumbsDown, ThumbsUp } from 'lucide-react';
 import {
-  type ReactNode,
+  ReactNode,
   type SyntheticEvent,
   useEffect,
   useEffectEvent,
   useState,
   useTransition,
 } from 'react';
-import { Collapsible, CollapsibleContent } from '../ui/collapsible';
+import { Collapsible, CollapsibleContent } from 'fumadocs-ui/components/ui/collapsible';
 import { cva } from 'class-variance-authority';
 import { usePathname } from 'next/navigation';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from 'fumadocs-ui/components/ui/popover';
 import type { FeedbackBlockProps } from 'fumadocs-core/mdx-plugins/remark-feedback-block';
 import {
   actionResponse,
@@ -23,7 +23,7 @@ import {
   type BlockFeedback,
   type PageFeedback,
 } from './schema';
-import { z } from 'zod';
+import { z } from 'zod/mini';
 
 const rateButtonVariants = cva(
   'inline-flex items-center gap-2 px-3 py-2 rounded-full font-medium border text-sm [&_svg]:size-4 disabled:cursor-not-allowed',
@@ -37,13 +37,11 @@ const rateButtonVariants = cva(
   },
 );
 
-const pageFeedbackResult = z.object({
-  ...pageFeedback.shape,
+const pageFeedbackResult = z.extend(pageFeedback, {
   response: actionResponse,
 });
 
-const blockFeedbackResult = z.object({
-  ...blockFeedback.shape,
+const blockFeedbackResult = z.extend(blockFeedback, {
   response: actionResponse,
 });
 
@@ -179,7 +177,7 @@ export function Feedback({
             />
             <button
               type="submit"
-              className={cn(buttonVariants({ color: 'outline' }), 'w-fit px-3')}
+              className={cn(buttonVariants({ variant: 'outline' }), 'w-fit px-3')}
               disabled={isPending}
             >
               Submit
@@ -315,7 +313,7 @@ export function FeedbackBlock({
             />
             <button
               type="submit"
-              className={cn(buttonVariants({ color: 'outline' }), 'w-fit px-3')}
+              className={cn(buttonVariants({ variant: 'outline' }), 'w-fit px-3')}
               disabled={isPending}
             >
               Submit
