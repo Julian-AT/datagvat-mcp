@@ -11,9 +11,9 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 
 Milestone: v1.2 Documentation Rebuild
 Phase: 20 - Guides & Workflows
-Plan: None yet
-Status: Phase 19 complete, ready to plan Phase 20
-Last activity: 2026-01-19 — Phase 19 verified and completed
+Plan: 20-02 of 3 complete
+Status: In progress
+Last activity: 2026-01-20 — Completed 20-02-PLAN.md
 
 Progress: ██░░░░░░░░ 29% (2/7 phases complete)
 
@@ -49,16 +49,17 @@ Progress: ██░░░░░░░░ 29% (2/7 phases complete)
 | 17-fumadocs-workspace-restructuring | 1 | 14 min | 14 min |
 | 18-documentation-foundation | 3 | 127 min | 42.3 min |
 | 19-getting-started-content | 2 | 19 min | 9.5 min |
+| 20-guides-and-workflows | 2 | 6 min | 3 min |
 
 **v1.2 Milestone:**
-- Total plans completed: 5
-- Average duration: 29.2 min
-- Total execution time: 146 min
-- Timeline: 1 day (2026-01-19)
+- Total plans completed: 7
+- Average duration: 23.4 min
+- Total execution time: 164 min
+- Timeline: 1 day (2026-01-19 → 2026-01-20)
 
 **Recent Trend:**
-- Last 5 plans: 18-02 (7 min), 18-03 (116 min), 19-01 (8 min), 19-02 (11 min)
-- Trend: Content-only tasks significantly faster than build verification tasks
+- Last 5 plans: 18-03 (116 min), 19-01 (8 min), 19-02 (11 min), 20-01 (3 min), 20-02 (3 min)
+- Trend: Content-only tasks significantly faster than build verification tasks; guide creation very efficient
 
 ## Accumulated Context
 
@@ -188,6 +189,10 @@ Recent decisions affecting current work:
 - Natural language query examples in reference instead of code (users interact with Claude) (19-02, 2026-01-19)
 - Symptom-based troubleshooting organization (users describe what they see, not technical cause) (19-02, 2026-01-19)
 - Table-based layout for scannable reference content (Goal | Query | Result format) (19-02, 2026-01-19)
+- Guides ordered by learning progression: searching → data-preview → quality-metrics → workflow-patterns (20-01, 2026-01-20)
+- Configuration guide removed from navigation (incomplete from Phase 18) (20-02, 2026-01-20)
+- Task-oriented description for guides emphasizes workflows over features (20-02, 2026-01-20)
+- Workflow patterns use Overview/Detailed tabs for dual disclosure levels (20-02, 2026-01-20)
 
 ### Roadmap Evolution
 
@@ -211,15 +216,15 @@ None yet.
 
 ### Blockers/Concerns
 
-None - Phase 19-01 complete, quickstart and first-query tutorials ready for user testing.
+None - Phase 20 progressing well, workflow patterns guide complete.
 
 ## Session Continuity
 
-Last session: 2026-01-19
-Stopped at: Completed 19-02-PLAN.md
+Last session: 2026-01-20
+Stopped at: Completed 20-02-PLAN.md
 Resume file: None
-Next: Plan 19-03 - First Query Tutorial
+Next: Continue Phase 20 - Plan 20-03
 
 ---
 *State initialized: 2026-01-19*
-*Last updated: 2026-01-19 after Phase 19-02 completion*
+*Last updated: 2026-01-20 after Phase 20-02 completion*
