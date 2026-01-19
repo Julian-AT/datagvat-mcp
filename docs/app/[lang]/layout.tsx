@@ -1,25 +1,18 @@
-import "../globals.css";
-import { RootProvider } from "fumadocs-ui/provider/next";
-import type { ReactNode } from "react";
-import { defineI18nUI } from "fumadocs-ui/i18n";
-import { i18n } from "@/lib/i18n";
-import DefaultSearchDialog from "@/components/search";
-import { redirect } from "next/navigation";
+import { RootProvider } from 'fumadocs-ui/provider/next';
+import { defineI18nUI } from 'fumadocs-ui/i18n';
+import { i18n } from '@/lib/i18n';
+import { source } from '@/lib/source';
+import { TreeContextProvider } from 'fumadocs-ui/contexts/tree';
+import type { ReactNode } from 'react';
+import { SearchDialog } from '@/components/search-dialog-wrapper';
 
 const { provider } = defineI18nUI(i18n, {
   translations: {
     en: {
-      displayName: "English",
+      displayName: 'English',
     },
     de: {
-      displayName: "Deutsch",
-      toc: "Inhaltsverzeichnis",
-      search: "Dokumentation durchsuchen",
-      lastUpdate: "Zuletzt aktualisiert am",
-      searchNoResult: "Keine Ergebnisse",
-      previousPage: "Vorherige Seite",
-      nextPage: "Nächste Seite",
-      chooseLanguage: "Sprache wählen",
+      displayName: 'Deutsch',
     },
   },
 });
@@ -31,18 +24,23 @@ export default async function RootLayout({
   params: Promise<{ lang: string }>;
   children: ReactNode;
 }) {
-  const { lang } = await params;
-
-  if (!i18n.languages.includes(lang as any)) {
-    redirect(`/${i18n.defaultLanguage}`);
-  }
-
-  const validLang = lang as typeof i18n.languages[number];
+  const lang = (await params).lang;
+  const tree = source.getPageTree(lang);
 
   return (
-    <RootProvider i18n={provider(validLang)} search={{
-      enabled: true,
-      SearchDialog: DefaultSearchDialog,
-    }}>{children}</RootProvider>
+    <TreeContextProvider tree={tree}>
+      <RootProvider
+        i18n={provider(lang)}
+        search={{
+          SearchDialog,
+        }}
+      >
+        {children}
+      </RootProvider>
+    </TreeContextProvider>
   );
+}
+
+export async function generateStaticParams() {
+  return i18n.languages.map((lang) => ({ lang }));
 }
