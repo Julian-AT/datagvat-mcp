@@ -1,0 +1,117 @@
+---
+title: Quickstart Guide
+description: Get your first Austria MCP query results in under 5 minutes
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Quickstart Guide
+
+Search for Austrian open datasets and see results in under 5 minutes.
+
+## Prerequisites
+
+Before starting, ensure you have:
+
+- [ ] Claude Desktop installed ([Download](https://claude.ai/download))
+- [ ] Austria MCP server installed ([Installation Guide](/getting-started/installation))
+- [ ] Claude Desktop restarted after configuration
+
+<Callout type="info">
+**First time?** Follow the [Installation Guide](/getting-started/installation) to set up Austria MCP.
+</Callout>
+
+## Step 1: Verify Connection
+
+Open Claude Desktop and look for the MCP server indicator in the bottom toolbar:
+
+- ✅ **Connected:** "datagvat" or "datagvat-local" shows green status
+- ❌ **Not connected:** [Troubleshooting Guide](/getting-started/troubleshooting#server-not-appearing)
+
+## Step 2: Run Your First Search
+
+Ask Claude this exact question:
+
+```
+Find datasets about Vienna population
+```
+
+Claude will use the Austria MCP `semantic_search_datasets` tool.
+
+**What happens behind the scenes:**
+1. Claude analyzes your natural language query
+2. Austria MCP expands query with related terms
+3. Server searches data.gv.at catalog
+4. Results ranked by relevance and quality
+
+**Expected output:**
+
+Claude will respond with dataset information like:
+
+> I found several population datasets for Vienna:
+>
+> 1. **Vienna Population Statistics 2023** (ID: abc-123)
+>    - Description: Demographic data for Vienna districts
+>    - Quality Score: 95/100
+>    - Format: CSV, JSON
+>    - Publisher: Stadt Wien
+>
+> 2. **Vienna Demographics Historical Data** (ID: def-456)
+>    - Description: Population trends 2000-2023
+>    - Quality Score: 87/100
+>    - Format: CSV
+>    - Publisher: Statistik Austria
+
+## Step 3: Get Dataset Details
+
+Pick a dataset from results and ask for details:
+
+```
+Show me details for dataset abc-123
+```
+
+**Expected output:**
+
+Claude provides complete metadata including:
+- Full description (German)
+- All available download formats
+- Publisher information
+- Update frequency
+- License (typically CC-BY-4.0)
+- Keywords and themes
+
+## Verify Success
+
+You've successfully completed the quickstart if:
+
+- [ ] Claude responded with dataset titles and descriptions
+- [ ] Results included dataset IDs
+- [ ] Quality scores appeared (0-100 range)
+- [ ] You retrieved details for a specific dataset
+
+✅ **Congratulations!** You've completed your first Austria MCP workflow.
+
+## What You've Learned
+
+- **Semantic search:** Natural language queries work (no need for exact keywords)
+- **Quality scores:** Austria MCP rates dataset quality automatically
+- **Dataset IDs:** Unique identifiers for accessing specific datasets
+- **Tool execution:** Claude uses MCP tools transparently
+
+## Next Steps
+
+### Learn More
+
+- **[First Query Tutorial](/getting-started/first-query)** - Deeper walkthrough with data preview
+- **[Quick Reference](/getting-started/quick-reference)** - Common commands cheat sheet
+- **[Searching Guide](/guides/searching)** - Advanced search techniques
+
+### Common Workflows
+
+- **[Preview Data](/guides/data-preview)** - Inspect dataset contents before download
+- **[Quality Assessment](/workflows/quality-assessment)** - Evaluate dataset reliability
+- **[Discovery Workflow](/workflows/discovery)** - Complete search-to-download flow
+
+### Troubleshooting
+
+Hit a problem? See [Troubleshooting Guide](/getting-started/troubleshooting) for solutions to common issues.
