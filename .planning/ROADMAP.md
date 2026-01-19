@@ -35,6 +35,13 @@ Transform the Austria MCP documentation from foundation-level content into compr
 4. Documentation loads in under 2 seconds on standard connections
 5. Interactive components (Tabs, Accordion, Mermaid) render correctly in sample pages
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 18-01-PLAN.md — Information Architecture Setup (7-section structure + meta.json)
+- [ ] 18-02-PLAN.md — Component Verification (Tabs, Accordion, Mermaid sample pages)
+- [ ] 18-03-PLAN.md — Performance Validation (static generation, build optimization)
+
 ---
 
 ### Phase 19: Getting Started Content
@@ -205,7 +212,7 @@ Transform the Austria MCP documentation from foundation-level content into compr
 
 | Phase | Status | Plans | Progress |
 |-------|--------|-------|----------|
-| 18 - Documentation Foundation | Pending | 0/0 | ░░░░░░░░░░ 0% |
+| 18 - Documentation Foundation | Planned | 3/3 | ░░░░░░░░░░ 0% |
 | 19 - Getting Started Content | Pending | 0/0 | ░░░░░░░░░░ 0% |
 | 20 - Guides & Workflows | Pending | 0/0 | ░░░░░░░░░░ 0% |
 | 21 - Auto-Generated Tools Reference | Pending | 0/0 | ░░░░░░░░░░ 0% |
@@ -217,4 +224,4 @@ Transform the Austria MCP documentation from foundation-level content into compr
 
 ---
 *Roadmap created: 2026-01-19*
-*Last updated: 2026-01-19 after v1.2 milestone initialization*
+*Last updated: 2026-01-19 after Phase 18 planning*
