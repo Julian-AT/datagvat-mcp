@@ -1,0 +1,327 @@
+---
+title: Previewing Data Structures
+description: Inspect schemas and sample data before downloading full datasets
+---
+
+# Previewing Data Structures
+
+Verify data structure, column types, and content before committing to full dataset download.
+
+## When to Use This Guide
+
+- You need to verify required columns exist
+- You want to check data types before processing
+- You need to estimate data quality from samples
+- You want to avoid downloading incompatible formats
+
+## Prerequisites
+
+- Dataset ID or download URL
+- Understanding of your data requirements (required columns, types)
+
+## Quick Schema Preview
+
+<Tabs items={['Basic', 'Advanced']} groupId="preview-complexity" persist>
+  <Tab value="Basic">
+    ### Ask Claude to Preview
+
+    "Show me the schema for dataset [dataset-id]"
+
+    Claude fetches distributions, selects downloadable format, previews schema automatically.
+
+    **What you'll see:**
+    - Column names
+    - Inferred data types
+    - Sample values
+    - Row count estimate
+  </Tab>
+
+  <Tab value="Advanced">
+    ### Direct Schema Preview
+
+    ```python
+    # First, get download URL
+    distributions = get_dataset_distributions(dataset_id="dataset-123")
+    csv_url = next(d['downloadURL'] for d in distributions
+                   if d.get('format') == 'CSV')
+
+    # Preview schema
+    schema = preview_schema(url=csv_url, format="csv")
+    ```
+
+    **Parameters:**
+
+    <TypeTable type={{
+      url: {
+        type: "string",
+        description: "HTTPS URL to dataset file (from distributions)",
+        required: true
+      },
+      format: {
+        type: "string",
+        description: "File format: csv, json, xml. Auto-detected from URL if omitted",
+        default: "auto-detect"
+      },
+      max_bytes: {
+        type: "integer",
+        description: "Maximum bytes to fetch for preview (default 64KB, max 512KB)",
+        default: 65536
+      }
+    }} />
+
+    **Returns:**
+
+    ```json
+    {
+      "url": "https://data.wien.gv.at/.../data.csv",
+      "format": "csv",
+      "partial_fetch": true,
+      "bytes_fetched": 65536,
+      "columns": [
+        {
+          "name": "year",
+          "type": "integer",
+          "sample_values": [2022, 2023, 2024]
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "sample_values": ["Innere Stadt", "Leopoldstadt"]
+        }
+      ]
+    }
+    ```
+
+    **Error Handling:**
+
+    **NetworkError:**
+    ```json
+    {"error": "NetworkError", "message": "Failed to fetch URL"}
+    ```
+    Solution: URL may be stale, fetch fresh distributions
+
+    **FormatError:**
+    ```json
+    {"error": "FormatError", "message": "Could not detect delimiter"}
+    ```
+    Solution: Specify format explicitly: `format="csv"`
+  </Tab>
+</Tabs>
+
+## Validating Required Columns
+
+<Tabs items={['Basic', 'Advanced']} persist groupId="preview-complexity">
+  <Tab value="Basic">
+    ### Ask Claude to Verify Columns
+
+    "Does dataset [id] have columns X, Y, Z?"
+
+    Claude fetches schema and checks for required columns.
+  </Tab>
+
+  <Tab value="Advanced">
+    ### Programmatic Column Validation
+
+    ```python
+    # Get schema
+    schema = preview_schema(url=csv_url)
+
+    # Define requirements
+    required_columns = ["year", "region", "cases"]
+    actual_columns = [c['name'] for c in schema['columns']]
+
+    # Check presence
+    missing = set(required_columns) - set(actual_columns)
+    if missing:
+        print(f"Missing columns: {missing}")
+    else:
+        print("All required columns present")
+
+    # Verify types
+    year_col = next(c for c in schema['columns'] if c['name'] == 'year')
+    if year_col['type'] != 'integer':
+        print("Warning: Year column not integer type")
+    ```
+
+    **Error Handling:**
+
+    **Column Not Found:**
+    ```python
+    try:
+        year_col = next(c for c in schema['columns'] if c['name'] == 'year')
+    except StopIteration:
+        print("Year column not found in schema")
+    ```
+  </Tab>
+</Tabs>
+
+## Previewing Data Samples
+
+<Tabs items={['Basic', 'Advanced']} persist groupId="preview-complexity">
+  <Tab value="Basic">
+    ### Ask for Sample Rows
+
+    "Show me sample rows from dataset [id]"
+
+    Claude fetches first 10-20 rows to show data structure.
+  </Tab>
+
+  <Tab value="Advanced">
+    ### Direct Data Preview
+
+    ```python
+    data = preview_data(url=csv_url, format="csv", max_rows=10)
+    ```
+
+    **Parameters:**
+
+    <TypeTable type={{
+      url: {
+        type: "string",
+        description: "HTTPS URL to dataset file",
+        required: true
+      },
+      format: {
+        type: "string",
+        description: "File format: csv, json, xml",
+        default: "auto-detect"
+      },
+      max_rows: {
+        type: "integer",
+        description: "Maximum rows to return (1-100)",
+        default: 10
+      }
+    }} />
+
+    **Returns:**
+
+    ```json
+    {
+      "url": "...",
+      "format": "csv",
+      "rows": [
+        {"year": 2024, "region": "Wien", "cases": 150},
+        {"year": 2024, "region": "Graz", "cases": 120}
+      ],
+      "row_count": 10,
+      "estimated_total_rows": 1000
+    }
+    ```
+
+    **Error Handling:**
+
+    **ParseError:**
+    ```json
+    {"error": "ParseError", "message": "Invalid CSV at row 5"}
+    ```
+    Solution: File may be corrupted or malformed
+  </Tab>
+</Tabs>
+
+## Checking Data Quality from Samples
+
+<Tabs items={['Basic', 'Advanced']} persist groupId="preview-complexity">
+  <Tab value="Basic">
+    ### Quality Assessment Questions
+
+    Ask Claude to check data quality:
+    - "Are there null values in the dataset?"
+    - "What's the date range of this data?"
+    - "How many unique regions are in the sample?"
+
+    Claude analyzes preview data to answer.
+  </Tab>
+
+  <Tab value="Advanced">
+    ### Programmatic Quality Checks
+
+    ```python
+    preview = preview_data(url=csv_url, max_rows=50)
+
+    # Check for null values
+    for row in preview['rows']:
+        for key, value in row.items():
+            if value is None or value == "":
+                print(f"Null value in column: {key}")
+
+    # Check date range
+    dates = [row['year'] for row in preview['rows'] if 'year' in row]
+    print(f"Date range: {min(dates)} to {max(dates)}")
+
+    # Check unique values
+    regions = {row['region'] for row in preview['rows'] if 'region' in row}
+    print(f"Unique regions in sample: {len(regions)}")
+    ```
+
+    **Common Issues:**
+
+    **Sparse Data:**
+    ```python
+    null_count = sum(1 for row in preview['rows']
+                     for v in row.values() if v is None)
+    if null_count > len(preview['rows']) * 0.5:
+        print("Warning: >50% null values in sample")
+    ```
+
+    **Inconsistent Types:**
+    ```python
+    # Check if numeric column has non-numeric values
+    cases = [row.get('cases') for row in preview['rows']]
+    non_numeric = [c for c in cases if not isinstance(c, (int, float))]
+    if non_numeric:
+        print(f"Warning: Non-numeric values in cases: {non_numeric}")
+    ```
+  </Tab>
+</Tabs>
+
+## Troubleshooting
+
+### Preview Fails on Valid URL
+
+**Symptom:** URL works in browser but preview fails
+
+**Cause:** Server doesn't support HTTP Range requests
+
+**Solutions:**
+1. Preview falls back to full download (may be slow)
+2. Use smaller max_bytes parameter
+3. Check if different format available
+
+### Type Inference Incorrect
+
+**Symptom:** Column shows "string" but contains numbers
+
+**Cause:** Sample rows have inconsistent types or headers
+
+**Solutions:**
+1. Increase max_bytes to sample more rows
+2. Check if first rows are headers or metadata
+3. Use preview_data to see actual values
+
+### Cannot Detect Format
+
+**Symptom:** FormatError on auto-detection
+
+**Cause:** Unusual file format or delimiter
+
+**Solutions:**
+1. Specify format explicitly: `format="csv"`
+2. Check file extension matches actual content
+3. Download sample manually to inspect
+
+### Partial Fetch Warning
+
+**Symptom:** Response shows partial_fetch: true
+
+**Cause:** File larger than max_bytes limit
+
+**Solutions:**
+1. This is normal - preview uses partial fetch by design
+2. Increase max_bytes if you need more sample data
+3. Schema should still be accurate from partial data
+
+## Next Steps
+
+- **[Quality Metrics Guide](/guides/quality-metrics)** - Assess data quality
+- **[Searching Guide](/guides/searching)** - Find datasets to preview
+- **[Preview Tools Reference](/api/tools/preview)** - Complete API documentation
