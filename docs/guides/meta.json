@@ -1,8 +1,13 @@
 {
   "$schema": "../.source/json-schema/docs.meta.json",
   "title": "Guides",
-  "description": "Comprehensive guides for using Austria MCP",
+  "description": "Task-oriented guides for common Austria MCP workflows",
   "icon": "Book",
   "root": true,
-  "pages": ["configuration", "searching", "quality-metrics", "data-preview"]
+  "pages": [
+    "searching",
+    "data-preview",
+    "quality-metrics",
+    "workflow-patterns"
+  ]
 }
