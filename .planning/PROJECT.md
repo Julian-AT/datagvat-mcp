@@ -27,7 +27,18 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 - Conversational German documentation style
 - ASCII architecture diagrams
 
-**Next milestone:** v1.2 - scope TBD based on user needs
+## Current Milestone: v1.2 Documentation Rebuild
+
+**Goal:** Create comprehensive, production-ready documentation from scratch leveraging Fumadocs' full component library for optimal UX/DX, serving both data analysts and developers.
+
+**Target features:**
+- Complete information architecture with 7 top-level sections (Getting Started, Guides, Tools, Workflows, API Reference, Integration, Best Practices)
+- Auto-generated tool reference documentation (25 tools) from Python docstrings
+- Progressive disclosure patterns (Basic/Advanced tabs throughout)
+- Real Claude Desktop screenshots showing actual MCP tool usage
+- Workflow-first navigation optimized for task completion
+- Interactive components (Tabs, Steps, TypeTable, Files, Accordions, Mermaid)
+- 60-80 comprehensive English documentation pages
 
 ## Requirements
 
@@ -73,14 +84,33 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 
 ### Active
 
-<!-- Next milestone requirements - TBD via /gsd:define-requirements -->
+<!-- Current milestone: v1.2 Documentation Rebuild -->
 
-To be defined for v1.2 milestone. Run `/gsd:discuss-milestone` to explore options.
+**v1.2 Documentation Rebuild (in progress):**
+- [ ] Complete information architecture (7 sections, meta.json navigation)
+- [ ] Auto-generation tooling (TypeScript script: Python docstrings → MDX)
+- [ ] Getting Started section (5 pages: overview, installation, first search, quick reference, troubleshooting)
+- [ ] Guides section (12 pages: searching, data preview, analysis, workflows)
+- [ ] Tools reference (25 auto-generated pages with manual examples)
+- [ ] Workflows section (7 end-to-end use case walkthroughs)
+- [ ] API Reference section (architecture, MCP protocol, resources, prompts, types)
+- [ ] Integration section (6 pages: Claude Desktop, custom clients, FastMCP internals)
+- [ ] Best Practices section (5 pages: optimization, performance, quality interpretation)
+- [ ] Real Claude Desktop screenshots for all workflow examples
+- [ ] Progressive disclosure with Tabs (Basic/Advanced patterns)
+- [ ] Interactive components (Steps, TypeTable, Files, Accordion, Mermaid)
 
 ### Out of Scope
 
 <!-- Explicit boundaries. Includes reasoning to prevent re-adding. -->
 
+**v1.2 Explicit Exclusions:**
+- German translation — focus on complete English docs first, defer to v1.3
+- Interactive MCP playground — future enhancement, not v1.2 scope
+- OpenAPI spec generation — can add later if needed
+- Video tutorials — screenshots sufficient for v1.2
+
+**General Exclusions:**
 - Publishing workflow optimizations — primary users are consumers (analysts, developers), not publishers
 - Custom data transformations — out of scope for MCP server; users handle post-download
 - Data storage/caching layer — stateless server design, no persistent storage
@@ -130,4 +160,4 @@ To be defined for v1.2 milestone. Run `/gsd:discuss-milestone` to explore option
 | German/English bilingual | Austrian data users speak both languages | ✓ Good — v1.0 |
 
 ---
-*Last updated: 2026-01-18 after v1.1 milestone completion*
+*Last updated: 2026-01-19 after v1.2 milestone initialization*
