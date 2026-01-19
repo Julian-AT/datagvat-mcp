@@ -1,36 +1,39 @@
 import defaultMdxComponents from 'fumadocs-ui/mdx';
+import * as FilesComponents from 'fumadocs-ui/components/files';
+import * as TabsComponents from 'fumadocs-ui/components/tabs';
+import type { MDXComponents } from 'mdx/types';
 import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
-import { TypeTable } from 'fumadocs-ui/components/type-table';
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Card, Cards } from 'fumadocs-ui/components/card';
-import { File, Files, Folder } from 'fumadocs-ui/components/files';
-import { ImageZoom } from 'fumadocs-ui/components/image-zoom';
-import { FeedbackBlock } from '@/components/feedback/client';
-import { onBlockFeedbackAction } from '@/lib/github';
-import { ImageProps } from 'next/image';
+import { Mermaid } from '@/components/mdx/mermaid';
 
-export function useMDXComponents(components: any): any {
+import * as icons from 'lucide-react';
+
+export function getMDXComponents(components?: MDXComponents) {
   return {
+    ...(icons as unknown as MDXComponents),
     ...defaultMdxComponents,
-    ...components,
-    img: (props: ImageProps) => <ImageZoom {...props} />,
+    ...TabsComponents,
+    ...FilesComponents,
     Accordion,
     Accordions,
-    Tab,
-    Tabs,
     Step,
     Steps,
-    TypeTable,
-    Callout,
-    Card,
-    Cards,
-    File,
-    Files,
-    Folder,
-    FeedbackBlock: (props: any) => (
-      <FeedbackBlock {...props} onSendAction={onBlockFeedbackAction} />
-    ),
-  };
+    Mermaid,
+    ...components,
+  } satisfies MDXComponents;
+}
+
+declare module 'mdx/types.js' {
+  // Augment the MDX types to make it understand React.
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace JSX {
+    type Element = React.JSX.Element;
+    type ElementClass = React.JSX.ElementClass;
+    type ElementType = React.JSX.ElementType;
+    type IntrinsicElements = React.JSX.IntrinsicElements;
+  }
+}
+
+declare global {
+  type MDXProvidedComponents = ReturnType<typeof getMDXComponents>;
 }
