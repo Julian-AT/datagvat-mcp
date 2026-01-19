@@ -2,20 +2,20 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-01-17)
+See: .planning/PROJECT.md (updated 2026-01-19)
 
 **Core value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
-**Current focus:** Planning next milestone (v1.2)
+**Current focus:** v1.2 Documentation Rebuild
 
 ## Current Position
 
-Milestone: v1.1 Documentation Excellence — COMPLETE (2026-01-18)
-Phase: Ready for next milestone
-Plan: N/A
-Status: v1.1 shipped - planning v1.2
-Last activity: 2026-01-18 — v1.1 milestone complete
+Milestone: v1.2 Documentation Rebuild
+Phase: 18 - Documentation Foundation
+Plan: None yet
+Status: Roadmap created, ready to plan Phase 18
+Last activity: 2026-01-19 — v1.2 roadmap initialized
 
-Progress: Archive complete (9/9 plans shipped in v1.1)
+Progress: ░░░░░░░░░░ 0% (0/7 phases complete)
 
 ## Performance Metrics
 
@@ -24,6 +24,12 @@ Progress: Archive complete (9/9 plans shipped in v1.1)
 - Average duration: 10.9 min
 - Total execution time: 3.6 hours
 - Timeline: 144 days (Aug 2025 → Jan 2026)
+
+**v1.1 Milestone:**
+- Total plans completed: 9
+- Average duration: 7.2 min
+- Total execution time: 65 min
+- Timeline: 1 day (2026-01-18)
 
 **By Phase:**
 
@@ -44,7 +50,7 @@ Progress: Archive complete (9/9 plans shipped in v1.1)
 
 **Recent Trend:**
 - Last 5 plans: 16-03 (4 min), 16-05 (1 min), 16-06 (4 min), 17-01 (14 min)
-- Trend: Workspace restructuring took longer due to configuration debugging, but completed successfully
+- Trend: Consistent execution times, workspace restructuring required debugging
 
 ## Accumulated Context
 
@@ -54,7 +60,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
 - FastMCP as framework → MCP protocol compliance (established)
-- Consumers over publishers → Primary audience is analysts/developers (pending)
+- Consumers over publishers → Primary audience is analysts/developers (established)
+- Fumadocs for documentation → Modern framework, i18n support, interactive components (v1.0+)
+- Two-workspace architecture → Manual content + auto-generated API reference (v1.1)
 - Middleware order: Logging → Error → Retry → RateLimit → Audit → Auth (01-01, 2026-01-16)
 - Rate limit: 10 req/s with burst 20 for API protection (01-01, 2026-01-16)
 - Retry: 3 attempts, 1-60s exponential backoff for transient failures (01-01, 2026-01-16)
@@ -158,11 +166,19 @@ Recent decisions affecting current work:
 
 ### Roadmap Evolution
 
+**v1.0 Milestone:**
 - Phase 7 added: API Endpoint Fix - Discovered during user testing that search API was using wrong base URL
 - Phase 8 added: Workflow Optimization & Fumadocs Documentation - Create comprehensive bilingual documentation site
-- Phase 9 added: Fumadocs Component Integration - Enhance documentation with interactive Fumadocs UI components (Tabs, Accordions, Files, Steps, TypeTable, ImageZoom, etc.)
-- Phase 16 added: Documentation Polish & Release Prep - Test MCP server end-to-end, polish documentation quality, add visual resources, prepare for production release
-- Phase 17 added: Fumadocs Workspace Restructuring - Separate API reference into its own workspace for cleaner content organization
+- Phase 9 added: Fumadocs Component Integration - Enhance documentation with interactive Fumadocs UI components
+- Phase 10 added: Foundation Fixes - Fix i18n middleware and Tailwind configuration issues
+
+**v1.1 Milestone:**
+- Phase 16 added: Documentation Polish & Release Prep - Test MCP server end-to-end, polish documentation quality
+- Phase 17 added: Fumadocs Workspace Restructuring - Separate API reference into its own workspace
+
+**v1.2 Milestone:**
+- 7 phases planned (18-24): Complete documentation rebuild from foundation to production quality
+- Focus: Auto-generated tool reference, progressive disclosure, real screenshots, comprehensive guides
 
 ### Pending Todos
 
@@ -170,11 +186,15 @@ None yet.
 
 ### Blockers/Concerns
 
-None - all issues resolved.
+None - roadmap complete, ready to plan Phase 18.
 
 ## Session Continuity
 
-Last session: 2026-01-18
-Stopped at: Completed 17-01-PLAN.md (Fumadocs workspace restructuring - Phase 17 complete)
+Last session: 2026-01-19
+Stopped at: v1.2 roadmap created
 Resume file: None
-Next: Additional phases as planned
+Next: Plan Phase 18 - Documentation Foundation
+
+---
+*State initialized: 2026-01-19*
+*Last updated: 2026-01-19 after v1.2 roadmap creation*

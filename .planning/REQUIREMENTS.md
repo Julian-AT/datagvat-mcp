@@ -138,13 +138,77 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (To be filled by roadmapper) | | |
+| FOUND-01 | Phase 18 | Pending |
+| FOUND-02 | Phase 18 | Pending |
+| FOUND-03 | Phase 18 | Pending |
+| FOUND-04 | Phase 18 | Pending |
+| FOUND-05 | Phase 18 | Pending |
+| FOUND-06 | Phase 18 | Pending |
+| FOUND-07 | Phase 18 | Pending |
+| START-01 | Phase 19 | Pending |
+| START-02 | Phase 19 | Pending |
+| START-03 | Phase 19 | Pending |
+| START-04 | Phase 19 | Pending |
+| START-05 | Phase 19 | Pending |
+| QUAL-01 | Phase 19, Phase 24 | Pending |
+| QUAL-02 | Phase 19, Phase 24 | Pending |
+| QUAL-03 | Phase 20, Phase 24 | Pending |
+| QUAL-04 | Phase 20, Phase 24 | Pending |
+| QUAL-05 | Phase 19, Phase 24 | Pending |
+| API-01 | Phase 21 | Pending |
+| API-02 | Phase 21 | Pending |
+| API-03 | Phase 21 | Pending |
+| API-04 | Phase 21 | Pending |
+| API-05 | Phase 21 | Pending |
+| API-06 | Phase 21 | Pending |
+| GUIDE-01 | Phase 20 | Pending |
+| GUIDE-02 | Phase 20 | Pending |
+| GUIDE-03 | Phase 20 | Pending |
+| GUIDE-04 | Phase 20 | Pending |
+| GUIDE-05 | Phase 20 | Pending |
+| GUIDE-06 | Phase 20 | Pending |
+| WORK-01 | Phase 20 | Pending |
+| WORK-02 | Phase 20 | Pending |
+| WORK-03 | Phase 20 | Pending |
+| WORK-04 | Phase 20 | Pending |
+| WORK-05 | Phase 20 | Pending |
+| WORK-06 | Phase 20 | Pending |
+| WORK-07 | Phase 20 | Pending |
+| VIS-01 | Phase 23 | Pending |
+| VIS-02 | Phase 23 | Pending |
+| VIS-03 | Phase 23 | Pending |
+| VIS-04 | Phase 23 | Pending |
+| VIS-05 | Phase 23 | Pending |
+| INTEG-01 | Phase 22 | Pending |
+| INTEG-02 | Phase 22 | Pending |
+| INTEG-03 | Phase 22 | Pending |
+| INTEG-04 | Phase 22 | Pending |
+| INTEG-05 | Phase 22 | Pending |
+| INTEG-06 | Phase 22 | Pending |
+| BEST-01 | Phase 23 | Pending |
+| BEST-02 | Phase 23 | Pending |
+| BEST-03 | Phase 23 | Pending |
+| BEST-04 | Phase 23 | Pending |
+| BEST-05 | Phase 23 | Pending |
+| COMP-01 | Phase 18, Phase 24 | Pending |
+| COMP-02 | Phase 20, Phase 24 | Pending |
+| COMP-03 | Phase 21, Phase 24 | Pending |
+| COMP-04 | Phase 21, Phase 24 | Pending |
+| COMP-05 | Phase 18, Phase 24 | Pending |
+| COMP-06 | Phase 18, Phase 24 | Pending |
+| DX-01 | Phase 21 | Pending |
+| DX-02 | Phase 22 | Pending |
+| DX-03 | Phase 22 | Pending |
+| DX-04 | Phase 22 | Pending |
+| DX-05 | Phase 23 | Pending |
 
 **Coverage:**
 - v1.2 requirements: 60 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 60 ⚠️
+- Mapped to phases: 60 (100% coverage)
+- Unmapped: 0
+
+**Note:** Some requirements (QUAL-*, COMP-*) appear in multiple phases - initial implementation in earlier phase, comprehensive verification in Phase 24.
 
 ---
 *Requirements defined: 2026-01-19*
-*Last updated: 2026-01-19 after initial definition*
+*Last updated: 2026-01-19 after roadmap creation*
