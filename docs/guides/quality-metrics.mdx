@@ -1,0 +1,351 @@
+---
+title: Assessing Dataset Quality
+description: Evaluate dataset quality and discover related datasets
+---
+
+# Assessing Dataset Quality
+
+Determine dataset reliability through quality scores and discover related datasets for comparison.
+
+## When to Use This Guide
+
+- You need to verify data quality before using in research/production
+- You want to understand what DQV quality scores mean
+- You need to find similar or related datasets
+- You want to compare quality across dataset options
+
+## Prerequisites
+
+- Dataset ID from search results
+- Understanding of your quality requirements (research vs exploration)
+
+## Understanding Quality Scores
+
+Quality scores (0-100) measure metadata completeness, update frequency, standards compliance.
+
+**Score ranges:**
+- 85-100: Excellent (research, citations)
+- 70-84: Good (production applications)
+- 50-69: Acceptable (exploratory analysis)
+- <50: Poor (verify carefully)
+
+**Score components:**
+- Completeness (40 points): Title, description, license, contact, keywords, themes, spatial, temporal coverage
+- Timeliness (20 points): Recent updates, modification date
+- Compliance (20 points): DCAT-AP standard compliance
+- Accessibility (20 points): Valid download links, open formats
+
+## Quick Quality Check
+
+<Tabs items={['Basic', 'Advanced']} groupId="quality-complexity" persist>
+  <Tab value="Basic">
+    ### Ask Claude for Quality Assessment
+
+    "What's the quality score for dataset [dataset-id]?"
+
+    Claude runs analyze_dataset_quality and explains results.
+
+    **What you'll learn:**
+    - Overall quality score (0-100)
+    - What metadata is present/missing
+    - Whether quality meets your needs
+  </Tab>
+
+  <Tab value="Advanced">
+    ### Direct Quality Analysis
+
+    ```python
+    quality = analyze_dataset_quality(dataset_id="dataset-123")
+    ```
+
+    **Parameters:**
+
+    <TypeTable type={{
+      dataset_id: {
+        type: "string",
+        description: "Dataset identifier from search results",
+        required: true
+      }
+    }} />
+
+    **Returns:**
+
+    ```json
+    {
+      "dataset_id": "dataset-123",
+      "metadata": {
+        "has_title": true,
+        "has_description": true,
+        "has_license": true,
+        "has_contact": false,
+        "has_keywords": true,
+        "has_themes": true,
+        "has_spatial": true,
+        "has_temporal": false,
+        "completeness_score": 75
+      },
+      "metrics": {
+        "overall_score": 82,
+        "completeness": 75,
+        "timeliness": 12,
+        "compliance": 18,
+        "accessibility": 18
+      },
+      "degraded": false
+    }
+    ```
+
+    **Quality decision matrix:**
+
+    | Score | Use For | Verification |
+    |-------|---------|--------------|
+    | 85-100 | Research, citations | Proceed with confidence |
+    | 70-84 | Production apps | Verify critical fields present |
+    | 50-69 | Exploration | Check schema, preview data |
+    | <50 | Caution | Manual verification required |
+
+    **Error Handling:**
+
+    **Degraded Service:**
+    ```python
+    if quality.get('degraded'):
+        print("Quality service degraded - using cached metrics")
+        # Verify critical fields manually
+    ```
+
+    **Dataset Not Found:**
+    ```json
+    {"error": "NotFoundError", "message": "Dataset not found"}
+    ```
+    Solution: Dataset ID may be incorrect or stale
+  </Tab>
+</Tabs>
+
+## Quality-Aware Search
+
+<Tabs items={['Basic', 'Advanced']} persist groupId="quality-complexity">
+  <Tab value="Basic">
+    ### Search with Quality Preference
+
+    "Find high-quality datasets about health"
+
+    Claude enables boost_quality automatically when quality is mentioned.
+  </Tab>
+
+  <Tab value="Advanced">
+    ### Quality Boost in Search
+
+    ```python
+    search_datasets(
+        query="health",
+        boost_quality=True
+    )
+    ```
+
+    **What happens:**
+    - Datasets with score >80 get 2x relevance boost
+    - Datasets with score 60-80 get 1.5x relevance boost
+    - Results sorted by boosted relevance
+
+    **Note:** Quality boost only active when query is provided (not on facet-only searches)
+
+    **Error Handling:**
+
+    ```python
+    try:
+        results = search_datasets(query="health", boost_quality=True)
+    except ToolError as e:
+        print(f"Search with quality boost failed: {e}")
+        # Try without boost
+        results = search_datasets(query="health")
+    ```
+  </Tab>
+</Tabs>
+
+## Finding Related Datasets
+
+<Tabs items={['Basic', 'Advanced']} persist groupId="quality-complexity">
+  <Tab value="Basic">
+    ### Ask for Related Datasets
+
+    "Find datasets related to [dataset-id]"
+
+    Claude finds datasets with similar themes, keywords, or same publisher.
+  </Tab>
+
+  <Tab value="Advanced">
+    ### Direct Related Dataset Search
+
+    ```python
+    related = find_related_datasets(
+        dataset_id="dataset-123",
+        min_score=20
+    )
+    ```
+
+    **Parameters:**
+
+    <TypeTable type={{
+      dataset_id: {
+        type: "string",
+        description: "Reference dataset ID",
+        required: true
+      },
+      min_score: {
+        type: "integer",
+        description: "Minimum similarity score (0-100, default 20)",
+        default: 20
+      },
+      limit: {
+        type: "integer",
+        description: "Maximum results to return",
+        default: 10
+      }
+    }} />
+
+    **Scoring algorithm:**
+    - Theme match: 30 points per shared theme (max 60)
+    - Keyword match: 10 points per shared keyword (max 30)
+    - Same publisher: 15 points bonus
+
+    **Returns:**
+
+    ```json
+    {
+      "reference_dataset_id": "dataset-123",
+      "related_datasets": [
+        {
+          "id": "dataset-456",
+          "title": "Related Dataset",
+          "similarity_score": 75,
+          "match_reasons": {
+            "theme_matches": ["HEAL", "SOCI"],
+            "keyword_matches": ["health", "statistics"],
+            "same_publisher": true
+          }
+        }
+      ]
+    }
+    ```
+
+    **Error Handling:**
+
+    ```python
+    try:
+        related = find_related_datasets(dataset_id="dataset-123")
+    except ToolError as e:
+        print(f"Related search failed: {e}")
+    ```
+
+    **Empty Results:**
+    ```python
+    if len(related['related_datasets']) == 0:
+        print("No related datasets found")
+        # Try lowering min_score threshold
+        related = find_related_datasets(
+            dataset_id="dataset-123",
+            min_score=10
+        )
+    ```
+  </Tab>
+</Tabs>
+
+## Interpreting Metadata Completeness
+
+<Tabs items={['Basic', 'Advanced']} persist groupId="quality-complexity">
+  <Tab value="Basic">
+    ### Understanding What's Missing
+
+    Ask Claude: "What metadata is missing from dataset [id]?"
+
+    Claude explains which fields are absent and why they matter.
+  </Tab>
+
+  <Tab value="Advanced">
+    ### Programmatic Completeness Check
+
+    ```python
+    quality = analyze_dataset_quality(dataset_id="dataset-123")
+    metadata = quality['metadata']
+
+    # Critical fields for research
+    critical_fields = ['has_title', 'has_description', 'has_license', 'has_contact']
+    missing_critical = [f for f in critical_fields if not metadata.get(f)]
+
+    if missing_critical:
+        print(f"Missing critical fields: {missing_critical}")
+        print("Not recommended for research use")
+
+    # Check completeness score
+    if metadata['completeness_score'] < 70:
+        print("Warning: Completeness below 70%")
+        print("Missing fields may limit usability")
+    ```
+
+    **Field importance:**
+
+    | Field | Importance | Impact if Missing |
+    |-------|-----------|------------------|
+    | Title | Critical | Cannot identify dataset |
+    | Description | Critical | Cannot assess relevance |
+    | License | Critical | Cannot determine usage rights |
+    | Contact | High | Cannot report issues |
+    | Keywords | Medium | Reduced discoverability |
+    | Themes | Medium | Cannot filter by topic |
+    | Temporal | Low | Unknown time period |
+    | Spatial | Low | Unknown geographic coverage |
+  </Tab>
+</Tabs>
+
+## Troubleshooting
+
+### All Datasets Have Low Quality Scores
+
+**Symptom:** No results with score >70
+
+**Cause:** Domain has sparse metadata
+
+**Solutions:**
+1. Lower threshold to 60 for acceptable quality
+2. Check what metadata is missing (use analyze_dataset_quality)
+3. Verify critical fields (license, description) present even if score low
+
+### Quality Analysis Returns Degraded
+
+**Symptom:** degraded: true in response
+
+**Cause:** Quality service temporarily unavailable
+
+**Solutions:**
+1. Response includes cached metrics (may be stale)
+2. Verify critical fields manually from dataset metadata
+3. Retry after few minutes if current metrics needed
+
+### Find Related Returns No Results
+
+**Symptom:** Empty related_datasets array
+
+**Cause:** min_score too high or dataset very unique
+
+**Solutions:**
+1. Lower min_score parameter (try 10-15)
+2. Check reference dataset has themes and keywords
+3. Search by same publisher or themes instead
+
+### Quality Score Doesn't Match Expectations
+
+**Symptom:** High-quality dataset shows low score
+
+**Cause:** Missing optional metadata fields
+
+**Solutions:**
+1. Review metadata breakdown in quality analysis
+2. Check if critical fields present (title, description, license)
+3. Consider metadata richness vs actual data quality
+4. Contact publisher to improve metadata
+
+## Next Steps
+
+- **[Searching Guide](/guides/searching)** - Find datasets with quality filtering
+- **[Data Preview Guide](/guides/data-preview)** - Verify data structure
+- **[Analysis Tools Reference](/api/tools/analysis)** - Complete API documentation
