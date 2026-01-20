@@ -1,0 +1,532 @@
+---
+title: Quality Interpretation
+description: Understanding DQV quality metrics and metadata completeness scoring
+---
+
+# Quality Interpretation
+
+Learn how to interpret metadata quality scores and improve dataset discoverability.
+
+## Understanding Quality Scores
+
+Austria MCP uses the W3C Data Quality Vocabulary (DQV) to measure metadata completeness. Quality scores range from **0-100** and reflect how complete and well-documented a dataset is.
+
+Higher quality scores indicate:
+- Better discoverability in search results
+- More complete documentation for users
+- Higher likelihood of reuse
+- Eligibility for EU data portals
+
+## The 8-Component Quality Model
+
+Quality scores are calculated across **8 metadata components** organized into 4 dimensions:
+
+### Core Metadata (40 points)
+
+Essential fields that identify and describe the dataset:
+
+#### Title (10 points)
+- **Required:** Every dataset must have a title
+- **Multilingual preferred:** German + English titles score higher
+- **Clear and descriptive:** "Vienna Health Statistics 2024" beats "Data Export"
+
+**Impact:** Missing title = dataset unsearchable
+
+#### Description (15 points)
+- **Detailed content:** Explain what the dataset contains
+- **Use cases:** Describe who should use it and why
+- **Multilingual preferred:** German + English descriptions
+- **Minimum 50 characters:** Short descriptions score lower
+
+**Impact:** Good descriptions increase search relevance by 3-5x
+
+#### Publisher (15 points)
+- **Organization name:** Ministry, department, or agency
+- **Contact information:** Email or website
+- **Multilingual:** Publisher name in German + English
+
+**Impact:** Publisher info builds trust and enables user questions
+
+### Discovery Metadata (30 points)
+
+Fields that help users find datasets through search and filtering:
+
+#### Keywords (10 points)
+- **Minimum 3 keywords:** Cover key concepts
+- **Specific terms:** "cardiovascular disease" beats "health"
+- **Multilingual:** German + English keywords
+
+**Example:** Dataset with 5+ keywords appears in 40% more searches
+
+#### Themes (10 points)
+- **EU vocabularies:** Map to standard DCAT-AP themes
+- **Multiple themes:** Datasets often span categories
+- **13 available themes:** HEAL, TECH, ECON, ENVI, SOCI, etc.
+
+**Impact:** Theme filtering accounts for 60% of browse traffic
+
+#### Spatial Coverage (10 points)
+- **Geographic scope:** City, region, or national level
+- **Coordinates or names:** Vienna, Austria, EU
+- **Precision matters:** "Vienna" beats "Central Europe"
+
+**Impact:** Location-aware searches require spatial coverage
+
+### Access Metadata (20 points)
+
+Information about how to access and use the dataset:
+
+#### Distributions (15 points)
+- **At least one format:** CSV, JSON, XML, etc.
+- **Download URL required:** Must be accessible
+- **Multiple formats bonus:** CSV + JSON scores higher
+- **Format metadata:** File size, media type
+
+**Impact:** No distribution = no data access = low quality
+
+#### License (5 points)
+- **Clear usage rights:** CC-BY, CC0, ODbL, proprietary
+- **Machine-readable:** Use standard license URIs
+- **Explicit better than implied:** State the license
+
+**Impact:** Research users filter by open licenses (CC-BY, CC0)
+
+### Temporal Metadata (10 points)
+
+Dates that indicate dataset currency and maintenance:
+
+#### Issued Date (5 points)
+- **Publication date:** When dataset first became available
+- **ISO 8601 format:** YYYY-MM-DD
+- **Required for DOI eligibility**
+
+**Impact:** Recent datasets rank higher in default sort
+
+#### Modified Date (5 points)
+- **Last update timestamp:** When data was refreshed
+- **Indicates maintenance:** Updated datasets signal active curation
+- **ISO 8601 format:** YYYY-MM-DD or YYYY-MM-DDTHH:MM:SSZ
+
+**Impact:** Modified date shows data freshness
+
+## Quality Interpretation Thresholds
+
+Use these ranges to evaluate and communicate quality:
+
+### 90-100: Excellent
+**Status:** Complete metadata, publication-ready
+
+**Characteristics:**
+- All 8 components present
+- Multilingual documentation (German + English)
+- Multiple formats available
+- Mapped to EU vocabularies
+
+**Use cases:**
+- EU data portal submission
+- Cross-border data sharing
+- Research publications
+- Production integrations
+
+**Action:** No improvements needed. Consider DOI assignment.
+
+### 70-89: Good
+**Status:** Minor gaps, acceptable for most use cases
+
+**Characteristics:**
+- 6-7 components present
+- Core metadata complete (title, description, publisher)
+- Some multilingual content
+- At least one distribution
+
+**Use cases:**
+- Public data portals
+- Internal catalogs
+- Exploratory research
+- Tool development
+
+**Action:** Review missing components. Add keywords/themes for better discovery.
+
+### 50-69: Fair
+**Status:** Missing key metadata components
+
+**Characteristics:**
+- 4-5 components present
+- Basic identification (title, publisher)
+- Limited discovery metadata
+- May lack distributions or license
+
+**Use cases:**
+- Internal use only
+- Work in progress
+- Data validation
+
+**Common issues:**
+- No keywords → poor search visibility
+- No themes → excluded from browse filters
+- No license → unclear usage rights
+- Missing temporal data → unknown freshness
+
+**Action:** High-priority improvements needed for public use.
+
+### 0-49: Poor
+**Status:** Insufficient for discovery
+
+**Characteristics:**
+- 0-3 components present
+- Often missing title or description
+- No discovery metadata
+- Limited or no access information
+
+**Use cases:**
+- Draft datasets
+- Placeholder records
+- Data quality testing
+
+**Critical issues:**
+- Unsearchable (no keywords/themes)
+- Inaccessible (no distributions)
+- Unusable (no documentation)
+
+**Action:** Major metadata additions required before publication.
+
+## Taking Action: Improving Quality
+
+### Step 1: Get Current Quality Score
+
+Use the `get_dataset_metrics` tool to see detailed component breakdown:
+
+```python
+# Fetch quality metrics
+metrics = get_dataset_metrics(dataset_id="vienna-health-2024")
+
+# Example response
+{
+  "scoring": {
+    "score": 68,  # Overall quality score
+    "date": "2024-11-15"
+  },
+  "dimensions": {
+    "completeness": {
+      "score": 68,
+      "components": {
+        "title": {"score": 10, "max": 10},
+        "description": {"score": 12, "max": 15},
+        "publisher": {"score": 15, "max": 15},
+        "keywords": {"score": 0, "max": 10},  # Missing!
+        "themes": {"score": 4, "max": 10},    # Incomplete
+        "spatial": {"score": 10, "max": 10},
+        "distributions": {"score": 15, "max": 15},
+        "license": {"score": 0, "max": 5},    # Missing!
+        "issued": {"score": 5, "max": 5},
+        "modified": {"score": 5, "max": 5}
+      }
+    }
+  }
+}
+```
+
+### Step 2: Analyze the Gap
+
+This dataset scores **68/100 (Fair)** with these issues:
+
+| Component | Current | Max | Missing Points |
+|-----------|---------|-----|----------------|
+| Keywords | 0 | 10 | 10 |
+| Themes | 4 | 10 | 6 |
+| License | 0 | 5 | 5 |
+| Description | 12 | 15 | 3 |
+
+**Total gap:** 24 points (would reach 92 if addressed)
+
+### Step 3: Prioritize Improvements
+
+**Quick wins (reach 70+ "Good"):**
+1. Add 3+ keywords → +10 points (68 → 78)
+2. Add license → +5 points (78 → 83)
+
+**High impact (reach 90+ "Excellent"):**
+3. Map to additional EU themes → +6 points (83 → 89)
+4. Enhance description → +3 points (89 → 92)
+
+### Step 4: Apply Improvements
+
+Use the dataset management tools to update metadata:
+
+```python
+# Add keywords
+update_draft(
+  dataset_id="vienna-health-2024",
+  metadata={
+    "keywords": [
+      "health statistics",
+      "Vienna",
+      "cardiovascular disease",
+      "public health",
+      "mortality data"
+    ]
+  }
+)
+
+# Add license
+update_draft(
+  dataset_id="vienna-health-2024",
+  metadata={
+    "license": "http://creativecommons.org/licenses/by/4.0/"
+  }
+)
+
+# Add themes
+update_draft(
+  dataset_id="vienna-health-2024",
+  metadata={
+    "themes": ["HEAL", "SOCI"]  # Health + Social
+  }
+)
+
+# Enhance description (add use cases)
+update_draft(
+  dataset_id="vienna-health-2024",
+  metadata={
+    "description": {
+      "en": "Comprehensive health statistics for Vienna, Austria covering cardiovascular disease prevalence, mortality rates, and demographic breakdowns. Suitable for public health research, policy analysis, and epidemiological studies. Updated quarterly with data from Vienna Health Authority.",
+      "de": "Umfassende Gesundheitsstatistiken für Wien, Österreich, einschließlich Prävalenz von Herz-Kreislauf-Erkrankungen, Sterblichkeitsraten und demografischen Aufschlüsselungen. Geeignet für Public-Health-Forschung, Politikanalysen und epidemiologische Studien. Vierteljährlich aktualisiert mit Daten der Wiener Gesundheitsbehörde."
+    }
+  }
+)
+
+# Publish updated dataset
+publish_draft(dataset_id="vienna-health-2024")
+
+# Verify new score
+new_metrics = get_dataset_metrics(dataset_id="vienna-health-2024")
+# Expected: 92/100 (Excellent)
+```
+
+## Component-Level Improvement Guidance
+
+### Improving Keywords (0 → 10 points)
+
+**Goal:** Add 3-5 relevant keywords
+
+**Strategies:**
+- Extract key terms from description
+- Include domain-specific vocabulary
+- Add geographic terms (Vienna, Austria)
+- Use both general and specific terms
+
+**Example transformation:**
+```python
+# Before: No keywords
+metadata = {}
+
+# After: Strategic keywords
+metadata = {
+  "keywords": [
+    "health statistics",      # General domain
+    "cardiovascular disease", # Specific topic
+    "Vienna",                 # Location
+    "mortality rates",        # Key metric
+    "public health"           # Use case
+  ]
+}
+```
+
+### Improving Themes (4 → 10 points)
+
+**Goal:** Map to appropriate EU DCAT-AP themes
+
+**Available themes:** AGRI, ECON, EDUC, ENER, ENVI, GOVE, HEAL, INTR, JUST, REGI, SOCI, TECH, TRAN
+
+**Strategies:**
+- Choose 1-3 relevant themes
+- Primary theme = main subject
+- Secondary themes = related aspects
+
+**Example:**
+```python
+# Dataset: Vienna Health Statistics
+
+# Single theme (4 points)
+metadata = {"themes": ["HEAL"]}
+
+# Multiple themes (10 points)
+metadata = {"themes": ["HEAL", "SOCI", "REGI"]}
+# HEAL: Health data
+# SOCI: Social statistics
+# REGI: Regional/city data
+```
+
+### Improving Description (12 → 15 points)
+
+**Goal:** Comprehensive, multilingual description
+
+**Scoring factors:**
+- Length: 200+ characters preferred
+- Multilingual: German + English
+- Structure: What, why, who, when
+
+**Template:**
+```
+[What] This dataset contains...
+[Coverage] Covering [time period] for [geographic area]...
+[Use cases] Suitable for [research/policy/analysis]...
+[Maintenance] Updated [frequency] by [organization]...
+```
+
+**Example:**
+```python
+metadata = {
+  "description": {
+    "en": "Comprehensive health statistics for Vienna, Austria covering cardiovascular disease prevalence, mortality rates, and demographic breakdowns. Suitable for public health research, policy analysis, and epidemiological studies. Updated quarterly with data from Vienna Health Authority.",
+    "de": "Umfassende Gesundheitsstatistiken für Wien, Österreich, einschließlich Prävalenz von Herz-Kreislauf-Erkrankungen, Sterblichkeitsraten und demografischen Aufschlüsselungen. Geeignet für Public-Health-Forschung, Politikanalysen und epidemiologische Studien. Vierteljährlich aktualisiert mit Daten der Wiener Gesundheitsbehörde."
+  }
+}
+```
+
+### Improving Distributions (0 → 15 points)
+
+**Goal:** Add downloadable distribution with metadata
+
+**Required fields:**
+- `access_url`: Download link
+- `format`: CSV, JSON, XML, etc.
+- `media_type`: MIME type
+
+**Optional fields (increase score):**
+- `title`: Distribution name
+- `description`: Format-specific notes
+- `byte_size`: File size
+
+**Example:**
+```python
+metadata = {
+  "distributions": [
+    {
+      "title": "Vienna Health Statistics (CSV)",
+      "description": "Comma-separated values format, UTF-8 encoding",
+      "access_url": "https://data.gv.at/download/vienna-health-2024.csv",
+      "format": "CSV",
+      "media_type": "text/csv",
+      "byte_size": 1024000
+    },
+    {
+      "title": "Vienna Health Statistics (JSON)",
+      "description": "JSON format with metadata",
+      "access_url": "https://data.gv.at/download/vienna-health-2024.json",
+      "format": "JSON",
+      "media_type": "application/json",
+      "byte_size": 2048000
+    }
+  ]
+}
+```
+
+### Improving License (0 → 5 points)
+
+**Goal:** Specify clear usage rights
+
+**Recommended open licenses:**
+- `CC-BY-4.0`: Attribution required, commercial use allowed
+- `CC0-1.0`: Public domain, no restrictions
+- `ODbL-1.0`: Open Database License, share-alike
+
+**Example:**
+```python
+# Use standard license URI
+metadata = {
+  "license": "http://creativecommons.org/licenses/by/4.0/",
+  "rights": "CC-BY-4.0"  # Optional human-readable
+}
+
+# Or custom license with description
+metadata = {
+  "license": "https://data.gv.at/licenses/austria-open-data",
+  "rights": "Open Data Austria License - Free use with attribution"
+}
+```
+
+## Quality-Aware Search Strategies
+
+### Filtering by Quality Score
+
+Find high-quality datasets for production use:
+
+```python
+# Search with quality boost enabled
+results = search_datasets(
+  query="health",
+  quality_boost=True,  # Prioritizes high-quality metadata
+  limit=20
+)
+
+# Filter results by quality threshold
+high_quality = [
+  dataset for dataset in results['results']
+  if dataset.get('quality_score', 0) >= 85
+]
+```
+
+### Quality Thresholds by Use Case
+
+Choose appropriate quality requirements:
+
+| Use Case | Minimum Score | Rationale |
+|----------|---------------|-----------|
+| Research publications | 85+ | Complete metadata required for citations |
+| Production integrations | 75+ | Need reliable documentation |
+| Exploratory analysis | 60+ | Basic metadata sufficient |
+| Internal testing | 50+ | Work-in-progress acceptable |
+
+### Progressive Quality Enhancement
+
+Iterative improvement workflow:
+
+```python
+def improve_dataset_quality(dataset_id, target_score=85):
+  """Iteratively improve dataset quality to target score."""
+
+  # Get current metrics
+  metrics = get_dataset_metrics(dataset_id=dataset_id)
+  current_score = metrics['scoring']['score']
+
+  print(f"Current score: {current_score}")
+
+  if current_score >= target_score:
+    print("Target score already achieved!")
+    return
+
+  # Identify missing components
+  components = metrics['dimensions']['completeness']['components']
+  missing = [
+    (name, comp['max'] - comp['score'])
+    for name, comp in components.items()
+    if comp['score'] < comp['max']
+  ]
+
+  # Sort by point value (highest impact first)
+  missing.sort(key=lambda x: x[1], reverse=True)
+
+  print("\nMissing points (prioritized):")
+  for name, points in missing:
+    print(f"  - {name}: +{points} points")
+
+  print(f"\nAdd these to reach {target_score}+:")
+  cumulative = current_score
+  for name, points in missing:
+    cumulative += points
+    print(f"  {name} → {cumulative}/100")
+    if cumulative >= target_score:
+      break
+
+# Usage
+improve_dataset_quality("vienna-health-2024", target_score=90)
+```
+
+## Cross-References
+
+- **[analyze_dataset_quality](/api/tools#analyze_dataset_quality)** - Get complete quality analysis
+- **[get_dataset_metrics](/api/tools#get_dataset_metrics)** - Get DQV metrics breakdown
+- **[Quality Assessment Workflow](/workflows/quality-assessment)** - Step-by-step quality improvement
+- **[Publication Research Workflow](/workflows/publication-research)** - Using quality thresholds
+- **[Performance Optimization](/best-practices/optimization)** - Quality boost performance impact
