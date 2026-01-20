@@ -56,6 +56,23 @@ graph TD
 
 The flowchart shows three entry points (keywords, natural language, example dataset) converging into a common evaluation process.
 
+### Discovery in Action
+
+The following screenshot shows the complete discovery workflow in Claude Desktop, from initial search through quality assessment:
+
+![Claude Desktop showing a dataset discovery workflow sequence. First, semantic_search_datasets tool with natural_query parameter climate data Austria executes and returns results array with five datasets including titles, quality scores, and theme tags. User selects top result with ID climate-austria-2024 and quality score 89. Next, get_dataset tool retrieves complete metadata showing title in German and English, description, publisher information, keywords array, themes ENVI and REGI, and distributions array with CSV and JSON formats. Then, analyze_dataset_quality tool displays comprehensive quality analysis with overall score 89 out of 100, component breakdown showing title 10 out of 10, description 15 out of 15, publisher 15 out of 15, keywords 9 out of 10, themes 10 out of 10, distributions 15 out of 15, and license 5 out of 5, plus DOI eligibility status showing eligible. Finally, preview_schema tool shows CSV structure with columns array containing column names date, region, temperature, precipitation with inferred types date, string, float, float. The complete sequence demonstrates search to selection to metadata review to quality verification to data structure validation workflow pattern.](/optimized/screenshots/placeholder.webp)
+
+<Callout type="info" title="Screenshot Placeholder">
+This is a placeholder image. Real Claude Desktop screenshots showing the Austria MCP discovery workflow will be added soon. The screenshot will demonstrate the actual tool sequence from search through schema validation.
+</Callout>
+
+This workflow demonstrates:
+- **Search:** Natural language query finds relevant datasets
+- **Selection:** Choose dataset by ID based on quality and relevance
+- **Metadata review:** Get complete dataset information
+- **Quality verification:** Check metadata completeness score
+- **Schema validation:** Preview data structure before download
+
 ## Workflow
 
 <Tabs items={['Complete Example', 'Step by Step']} persist groupId="workflow-detail">
