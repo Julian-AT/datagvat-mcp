@@ -23,17 +23,17 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       limit: {
         type: "integer",
-        description: "",
+        description: "Maximum number of catalogues to return (1-5000)",
         default: 100
       },
       offset: {
         type: "integer",
-        description: "",
+        description: "Number of catalogues to skip for pagination",
         default: 0
       },
       value_type: {
         type: "string",
-        description: "",
+        description: "Type of value to return: 'id' for IDs only, 'metadata' for full metadata",
         default: "metadata"
       }
     {"}"}} />
@@ -61,7 +61,7 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       catalogue_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the catalogue to retrieve"
       }
     {"}"}} />
 
@@ -122,17 +122,17 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
       },
       limit: {
         type: "integer",
-        description: "",
+        description: "Maximum number of datasets to return per page (1-100)",
         default: 20
       },
       page: {
         type: "integer",
-        description: "",
+        description: "Page number for pagination (0-indexed)",
         default: 0
       },
       catalogue_id: {
         type: "string",
-        description: ""
+        description: "Filter datasets to a specific catalogue ID"
       }
     {"}"}} />
 
@@ -159,7 +159,7 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       dataset_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the dataset to retrieve"
       }
     {"}"}} />
 
@@ -186,11 +186,11 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       dataset_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the dataset whose distributions to retrieve"
       },
       limit: {
         type: "integer",
-        description: "",
+        description: "Maximum number of distributions to return (1-100)",
         default: 50
       }
     {"}"}} />
@@ -218,7 +218,7 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       dataset_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the dataset whose catalogue record to retrieve"
       }
     {"}"}} />
 
@@ -245,7 +245,7 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       dataset_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the source dataset to find related datasets for"
       },
       limit: {
         type: "integer",
@@ -316,12 +316,12 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
       },
       limit: {
         type: "integer",
-        description: "",
+        description: "Maximum number of datasets to return per page (1-100)",
         default: 20
       },
       page: {
         type: "integer",
-        description: "",
+        description: "Page number for pagination (0-indexed)",
         default: 0
       }
     {"}"}} />
@@ -356,11 +356,11 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       dataset_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the dataset to retrieve quality metrics for"
       },
       include_history: {
         type: "boolean",
-        description: "",
+        description: "Whether to include historical quality metrics. Default: False",
         default: false
       }
     {"}"}} />
@@ -388,11 +388,11 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       dataset_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the dataset to check DOI eligibility for"
       },
       identifier_type: {
         type: "string",
-        description: "",
+        description: "Type of identifier to check eligibility for (default: 'eu-ra-doi')",
         default: "eu-ra-doi"
       }
     {"}"}} />
@@ -420,7 +420,7 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       dataset_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the dataset to perform quality analysis on"
       }
     {"}"}} />
 
@@ -528,7 +528,7 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       filter_by_provider: {
         type: "boolean",
-        description: "",
+        description: "Whether to filter drafts by the current provider. Default: False",
         default: false
       }
     {"}"}} />
@@ -556,11 +556,11 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       draft_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the draft to retrieve"
       },
       catalogue_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the catalogue containing the draft"
       }
     {"}"}} />
 
@@ -587,24 +587,24 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       catalogue_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the catalogue to create the draft in"
       },
       title: {
         type: "string",
-        description: ""
+        description: "Title of the dataset (1-500 characters)"
       },
       description: {
         type: "string",
-        description: ""
+        description: "Description of the dataset (1-5000 characters)"
       },
       language: {
         type: "string",
-        description: "",
+        description: "Language code (ISO 639-1): 'de' for German, 'en' for English",
         default: "de"
       },
       keywords: {
         type: "string[]",
-        description: ""
+        description: "List of keyword tags for categorizing the dataset"
       }
     {"}"}} />
 
@@ -631,28 +631,28 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       draft_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the draft to update"
       },
       catalogue_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the catalogue containing the draft"
       },
       title: {
         type: "string",
-        description: ""
+        description: "New title for the dataset (1-500 characters). Optional"
       },
       description: {
         type: "string",
-        description: ""
+        description: "New description for the dataset (1-5000 characters). Optional"
       },
       language: {
         type: "string",
-        description: "",
+        description: "Language code (ISO 639-1): 'de' for German, 'en' for English",
         default: "de"
       },
       keywords: {
         type: "string[]",
-        description: ""
+        description: "New list of keyword tags. Optional"
       }
     {"}"}} />
 
@@ -679,11 +679,11 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       draft_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the draft to delete"
       },
       catalogue_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the catalogue containing the draft"
       }
     {"}"}} />
 
@@ -710,11 +710,11 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       draft_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the draft to publish"
       },
       catalogue_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the catalogue containing the draft"
       }
     {"}"}} />
 
@@ -741,11 +741,11 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       dataset_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the published dataset to withdraw"
       },
       catalogue_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the catalogue containing the dataset"
       }
     {"}"}} />
 
@@ -779,12 +779,12 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       limit: {
         type: "integer",
-        description: "",
+        description: "Maximum number of vocabularies to return (1-5000)",
         default: 100
       },
       offset: {
         type: "integer",
-        description: "",
+        description: "Number of vocabularies to skip for pagination",
         default: 0
       }
     {"}"}} />
@@ -812,7 +812,7 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       vocabulary_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the vocabulary to retrieve"
       }
     {"}"}} />
 
@@ -839,15 +839,15 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
     <TypeTable type={
       vocabulary_id: {
         type: "string",
-        description: ""
+        description: "Unique identifier of the vocabulary to search within"
       },
       query: {
         type: "string",
-        description: ""
+        description: "Search query to match against vocabulary term labels"
       },
       language: {
         type: "string",
-        description: "",
+        description: "Language code (ISO 639-1): 'de' for German, 'en' for English",
         default: "de"
       }
     {"}"}} />
@@ -879,12 +879,12 @@ The Austria MCP server provides comprehensive tools for discovering, analyzing, 
       },
       limit: {
         type: "integer",
-        description: "",
+        description: "Maximum number of suggestions to return (1-20)",
         default: 10
       },
       language: {
         type: "string",
-        description: "",
+        description: "Language code (ISO 639-1): 'de' for German, 'en' for English",
         default: "de"
       }
     {"}"}} />
