@@ -5,12 +5,19 @@ type: execute
 wave: 2
 depends_on: [24-05a]
 files_modified:
-  - docs/content/docs/best-practices/comparison-tables.mdx
-  - docs/content/docs/best-practices/quality-interpretation.mdx
-  - docs/content/docs/best-practices/rate-limiting.mdx
-  - docs/content/docs/getting-started/first-query.mdx
-  - docs/content/docs/getting-started/installation.mdx
-  - docs/content/docs/getting-started/installation.de.mdx
+  - docs/content/docs/guides/configuration.mdx
+  - docs/content/docs/guides/configuration.de.mdx
+  - docs/content/docs/guides/searching.mdx
+  - docs/content/docs/guides/setup.mdx
+  - docs/content/docs/guides/setup.de.mdx
+  - docs/content/docs/guides/workflow-patterns.mdx
+  - docs/content/docs/integration/claude-desktop.mdx
+  - docs/content/docs/integration/other-clients.mdx
+  - docs/content/docs/workflows/comparative-analysis.mdx
+  - docs/content/docs/workflows/data-export.mdx
+  - docs/content/docs/workflows/publication-research.mdx
+  - docs/content/docs/workflows/quality-assessment.mdx
+  - docs/content/docs/workflows/semantic-exploration.mdx
 autonomous: true
 gap_closure: true
 
@@ -20,11 +27,14 @@ must_haves:
     - "Syntax highlighting verification reports zero invalid blocks"
     - "Documentation renders with proper code highlighting"
   artifacts:
-    - path: "docs/content/docs/getting-started/*.mdx"
-      provides: "Getting started docs with valid code blocks"
+    - path: "docs/content/docs/guides/*.mdx"
+      provides: "Guides docs with valid code blocks"
       min_lines: 50
-    - path: "docs/content/docs/best-practices/*.mdx"
-      provides: "Best practices docs with valid code blocks"
+    - path: "docs/content/docs/integration/*.mdx"
+      provides: "Integration docs with valid code blocks"
+      min_lines: 50
+    - path: "docs/content/docs/workflows/*.mdx"
+      provides: "Workflows docs with valid code blocks"
       min_lines: 50
   key_links:
     - from: "docs/content/docs/**/*.mdx"
@@ -33,9 +43,9 @@ must_haves:
 ---
 
 <objective>
-Fix remaining 8 empty code blocks in second batch (6 files).
+Fix remaining 34 empty code blocks in second batch (13 files across guides/, integration/, workflows/).
 
-**Purpose:** Complete syntax highlighting gap closure by fixing remaining empty code blocks after 24-05a completed first batch.
+**Purpose:** Complete syntax highlighting gap closure by fixing remaining empty code blocks after 24-05a completed first batch (30 blocks).
 
 **Output:** All 766 code blocks have valid language declarations and render with correct syntax highlighting.
 </objective>
@@ -56,60 +66,61 @@ Fix remaining 8 empty code blocks in second batch (6 files).
 <tasks>
 
 <task type="auto">
-  <name>Fix remaining empty language declarations (8 blocks, 6 files)</name>
+  <name>Fix remaining empty language declarations (34 blocks, 13 files)</name>
   <files>
-docs/content/docs/best-practices/comparison-tables.mdx
-docs/content/docs/best-practices/quality-interpretation.mdx
-docs/content/docs/best-practices/rate-limiting.mdx
-docs/content/docs/getting-started/first-query.mdx
-docs/content/docs/getting-started/installation.mdx
-docs/content/docs/getting-started/installation.de.mdx
+docs/content/docs/guides/configuration.mdx
+docs/content/docs/guides/configuration.de.mdx
+docs/content/docs/guides/searching.mdx
+docs/content/docs/guides/setup.mdx
+docs/content/docs/guides/setup.de.mdx
+docs/content/docs/guides/workflow-patterns.mdx
+docs/content/docs/integration/claude-desktop.mdx
+docs/content/docs/integration/other-clients.mdx
+docs/content/docs/workflows/comparative-analysis.mdx
+docs/content/docs/workflows/data-export.mdx
+docs/content/docs/workflows/publication-research.mdx
+docs/content/docs/workflows/quality-assessment.mdx
+docs/content/docs/workflows/semantic-exploration.mdx
   </files>
   <action>
-Fix remaining 8 code blocks with empty language declarations by adding appropriate language identifiers.
+Fix remaining 34 code blocks with empty language declarations by adding appropriate language identifiers.
 
-**Language mapping (file:line:language):**
+**Language mapping by directory (actual script output):**
 
-```
-best-practices/comparison-tables.mdx:
-  - Line 142: → typescript
-  - Line 293: → json
+**guides/ (12 blocks):**
+- configuration.mdx: 1 block
+- configuration.de.mdx: 1 block
+- searching.mdx: 4 blocks
+- setup.mdx: 4 blocks
+- setup.de.mdx: 4 blocks
+- workflow-patterns.mdx: 1 block
 
-best-practices/quality-interpretation.mdx:
-  - Line 415: → bash
+**integration/ (7 blocks):**
+- claude-desktop.mdx: 5 blocks
+- other-clients.mdx: 2 blocks
 
-best-practices/rate-limiting.mdx:
-  - Line 26: → typescript
-  - Line 89: → json
+**workflows/ (21 blocks):**
+- comparative-analysis.mdx: 2 blocks
+- data-export.mdx: 4 blocks (5 total minus 1 powershell already valid)
+- publication-research.mdx: 4 blocks
+- quality-assessment.mdx: 2 blocks
+- semantic-exploration.mdx: 2 blocks
 
-getting-started/first-query.mdx:
-  - Line 28: → bash
-  - Line 81: → typescript
-  - Line 140: → json
-  - Line 179: → bash
-
-getting-started/installation.mdx:
-  - Line 47: → bash
-  - Line 375: → typescript
-  - Line 475: → yaml
-  - Line 502: → bash
-
-getting-started/installation.de.mdx:
-  - Line 22: → bash
-  - Line 375: → typescript
-  - Line 396: → yaml
-  - Line 426: → bash
-```
-
-**Note:** Mapping shows 16 blocks, but some may already be fixed or detection needs verification. Focus on blocks that verify-syntax-highlighting.ts reports as empty.
+**Note:** data-export.mdx has 5 blocks reported by script: 4 empty + 1 powershell (now valid after 24-05a).
 
 **Implementation approach:**
-1. Run verify-syntax-highlighting.ts to get current empty block locations
+1. Run verify-syntax-highlighting.ts to get current empty block locations after 24-05a
 2. For each empty block, read context to confirm language inference
-3. Update ``` to ```<language> based on content
-4. Verify language matches content (bash for shell commands, typescript for code, json for data, yaml for config)
+3. Infer language from content:
+   - Shell commands, npm/pip commands → bash
+   - Code with types/interfaces/functions → typescript
+   - JSON objects/arrays → json
+   - YAML config with key:value → yaml
+   - Windows commands (if any) → powershell (now supported)
+4. Update ``` to ```<language> based on content
+5. Verify language matches content
 
-**Wiring:** These updates connect code fence markers to language identifiers, enabling syntax highlighters to properly parse and style code blocks throughout the getting-started and best-practices documentation sections.
+**Wiring:** These updates connect code fence markers to language identifiers, enabling syntax highlighters to properly parse and style code blocks throughout the guides, integration, and workflows documentation sections.
   </action>
   <verify>
 ```bash
@@ -124,13 +135,13 @@ Expected output:
 
 Also verify no empty fences in modified files:
 ```bash
-cd docs && grep -n '```$' content/docs/best-practices/*.mdx content/docs/getting-started/*.mdx
+cd docs && grep -n '```$' content/docs/guides/*.mdx content/docs/integration/*.mdx content/docs/workflows/*.mdx
 ```
 
 Expected: No matches (all code fences have languages).
   </verify>
   <done>
-- All 8+ remaining empty code blocks fixed with appropriate language declarations
+- All 34 remaining empty code blocks fixed with appropriate language declarations
 - verify-syntax-highlighting.ts reports 766/766 valid blocks (100%)
 - No "(empty)" language warnings in validation output
 - All language assignments match content type
@@ -204,7 +215,7 @@ Expected: Success with no code block warnings
 **Gap closure verification:**
 - Gap truth "All code blocks have valid syntax highlighting" now achieved
 - QUAL-02 requirement (syntax highlighting for all languages) fully satisfied
-- 19 invalid blocks reduced to 0
+- 64 invalid blocks reduced to 0 (30 in 24-05a + 34 in 24-05b)
 </verification>
 
 <success_criteria>
@@ -212,21 +223,21 @@ Expected: Success with no code block warnings
 
 1. verify-syntax-highlighting.ts reports 766/766 valid blocks (100%)
 2. Zero "(empty)" language declarations remain
-3. All 8+ remaining empty blocks updated with correct language declarations
+3. All 34 remaining empty blocks updated with correct language declarations
 4. Language assignments validated to match content
 5. Production build completes without code block warnings
 
 **Measurable outcomes:**
 - `npx tsx scripts/verify-syntax-highlighting.ts` shows 0 invalid blocks
-- Git diff shows ~8+ lines changed (empty code fences)
+- Git diff shows ~34 lines changed (empty code fences)
 - Build completes with exit code 0
 - QUAL-02 gap fully closed
 </success_criteria>
 
 <output>
 After completion, create `.planning/phases/24-final-polish-a-quality/24-05b-SUMMARY.md` with:
-- Language mapping table with file:line:language for second batch
+- Language mapping table with file:block-count:languages for second batch
 - Final validation statistics (766/766 valid)
 - Complete gap closure confirmation for QUAL-02
-- Combined summary of 24-05a + 24-05b efforts
+- Combined summary of 24-05a (30 blocks) + 24-05b (34 blocks) = 64 total fixed
 </output>

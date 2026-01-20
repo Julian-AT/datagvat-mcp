@@ -6,11 +6,17 @@ wave: 1
 depends_on: []
 files_modified:
   - docs/scripts/verify-syntax-highlighting.ts
-  - docs/content/docs/workflows/data-export.mdx
   - docs/content/docs/advanced/architecture.mdx
   - docs/content/docs/advanced/error-handling.mdx
   - docs/content/docs/advanced/fastmcp-internals.mdx
   - docs/content/docs/advanced/testing.mdx
+  - docs/content/docs/best-practices/comparison-tables.mdx
+  - docs/content/docs/best-practices/quality-interpretation.mdx
+  - docs/content/docs/best-practices/rate-limiting.mdx
+  - docs/content/docs/getting-started/first-query.mdx
+  - docs/content/docs/getting-started/installation.mdx
+  - docs/content/docs/getting-started/installation.de.mdx
+  - docs/content/docs/getting-started/quickstart.mdx
 autonomous: true
 gap_closure: true
 
@@ -26,6 +32,12 @@ must_haves:
     - path: "docs/content/docs/advanced/*.mdx"
       provides: "Advanced docs with valid code blocks"
       min_lines: 100
+    - path: "docs/content/docs/best-practices/*.mdx"
+      provides: "Best practices docs with valid code blocks"
+      min_lines: 50
+    - path: "docs/content/docs/getting-started/*.mdx"
+      provides: "Getting started docs with valid code blocks"
+      min_lines: 50
   key_links:
     - from: "docs/content/docs/**/*.mdx"
       to: "syntax highlighting"
@@ -33,11 +45,11 @@ must_haves:
 ---
 
 <objective>
-Fix powershell validation and empty code blocks in first batch (6 files, 10 blocks).
+Fix powershell validation and empty code blocks in first batch (30 blocks across 11 files).
 
-**Purpose:** Phase 24 verification found 19 code blocks with invalid/empty language declarations. This plan addresses powershell + first 10 empty blocks across 6 files.
+**Purpose:** Phase 24 verification found 64 code blocks with invalid/empty language declarations. This plan addresses powershell support + first ~30 blocks across advanced/, best-practices/, and getting-started/ directories.
 
-**Output:** First batch of files have valid language declarations, powershell recognized.
+**Output:** First batch of files have valid language declarations, powershell recognized, ~47% of invalid blocks resolved.
 </objective>
 
 <execution_context>
@@ -87,67 +99,74 @@ Expected: Line showing 'powershell' in VALID_LANGUAGES array.
 </task>
 
 <task type="auto">
-  <name>Fix empty language declarations in first batch (10 blocks, 6 files)</name>
+  <name>Fix empty language declarations in first batch (30 blocks, 11 files)</name>
   <files>
-docs/content/docs/workflows/data-export.mdx
 docs/content/docs/advanced/architecture.mdx
 docs/content/docs/advanced/error-handling.mdx
 docs/content/docs/advanced/fastmcp-internals.mdx
 docs/content/docs/advanced/testing.mdx
+docs/content/docs/best-practices/comparison-tables.mdx
+docs/content/docs/best-practices/quality-interpretation.mdx
+docs/content/docs/best-practices/rate-limiting.mdx
+docs/content/docs/getting-started/first-query.mdx
+docs/content/docs/getting-started/installation.mdx
+docs/content/docs/getting-started/installation.de.mdx
+docs/content/docs/getting-started/quickstart.mdx
   </files>
   <action>
-Fix 10 code blocks with empty language declarations by adding appropriate language identifiers.
+Fix 30 code blocks with empty language declarations by adding appropriate language identifiers.
 
-**Language mapping (file:line:language):**
+**Language mapping by directory (actual script output):**
 
-```
-workflows/data-export.mdx:
-  - Line [inspect]: → powershell (already has language, verify only)
+**advanced/ (8 blocks):**
+- architecture.mdx: 3 blocks
+- error-handling.mdx: 3 blocks
+- fastmcp-internals.mdx: 1 block
+- testing.mdx: 1 block
 
-advanced/architecture.mdx:
-  - Line 12: → bash
-  - Line 232: → typescript
-  - Line 385: → yaml
+**best-practices/ (5 blocks):**
+- comparison-tables.mdx: 2 blocks
+- quality-interpretation.mdx: 1 block
+- rate-limiting.mdx: 2 blocks
 
-advanced/error-handling.mdx:
-  - Line 15: → typescript
-  - Line 214: → json
-  - Line 455: → bash
-
-advanced/fastmcp-internals.mdx:
-  - Line 482: → typescript
-
-advanced/testing.mdx:
-  - Line 29: → typescript
-```
+**getting-started/ (11 blocks):**
+- first-query.mdx: 4 blocks
+- installation.mdx: 5 blocks
+- installation.de.mdx: 4 blocks
+- quickstart.mdx: 2 blocks
 
 **Implementation approach:**
-1. Run verify-syntax-highlighting.ts to confirm exact line numbers
-2. For each file, read around the target lines to verify language inference
-3. Use Read + Write tools to update each ``` to ```<language>
-4. Verify language matches content (bash for commands, typescript for code, json for objects, yaml for config)
+1. Run verify-syntax-highlighting.ts to confirm exact line numbers for all 30 blocks
+2. For each file, read the empty code block locations
+3. Infer language from surrounding context:
+   - Shell commands → bash
+   - Code with types/interfaces → typescript
+   - JSON objects/arrays → json
+   - YAML config with key:value → yaml
+4. Use Read + Write tools to update each ``` to ```<language>
+5. Verify language matches content
 
 **Wiring:** These updates connect code fence opening markers (```) to language identifiers that enable Shiki/Prism syntax highlighters to parse and render the code blocks correctly in the documentation site.
   </action>
   <verify>
 ```bash
-cd docs && npx tsx scripts/verify-syntax-highlighting.ts | grep -E "(Invalid|empty)" | grep -E "(data-export|architecture|error-handling|fastmcp-internals|testing)"
+cd docs && npx tsx scripts/verify-syntax-highlighting.ts | grep -E "(Invalid|empty)" | grep -E "(advanced/|best-practices/|getting-started/)"
 ```
 
-Expected: Zero matches for these 6 files (no empty/invalid warnings).
+Expected: Significantly reduced matches for these directories.
 
 Also verify total invalid count reduced:
 ```bash
 cd docs && npx tsx scripts/verify-syntax-highlighting.ts | grep "Invalid blocks:"
 ```
 
-Expected: Invalid blocks reduced by 10 (from 19 to 9 remaining).
+Expected: Invalid blocks reduced from 64 to ~34 (approximately 30 fixed).
   </verify>
   <done>
-- 10 empty code blocks fixed with appropriate language declarations
-- All language assignments match content type
+- 30 empty code blocks fixed with appropriate language declarations
+- All language assignments match content type (bash/typescript/json/yaml)
 - No "(empty)" warnings for first batch files
-- verify-syntax-highlighting.ts shows reduced invalid count
+- verify-syntax-highlighting.ts shows ~50% reduction in invalid count (64 → ~34)
   </done>
 </task>
 
@@ -166,37 +185,37 @@ Expected: Found in VALID_LANGUAGES array
 ```bash
 cd docs && npx tsx scripts/verify-syntax-highlighting.ts
 ```
-Expected: Invalid blocks reduced from 19 to ~9
+Expected: Invalid blocks reduced from 64 to ~34
 
 3. No empty blocks in first batch files:
 ```bash
-cd docs && grep -n '```$' content/docs/advanced/architecture.mdx content/docs/advanced/error-handling.mdx content/docs/advanced/fastmcp-internals.mdx content/docs/advanced/testing.mdx
+cd docs && grep -n '```$' content/docs/advanced/*.mdx content/docs/best-practices/*.mdx content/docs/getting-started/*.mdx
 ```
-Expected: No matches (all code fences have languages)
+Expected: Significantly reduced or zero matches
 
 **Gap closure verification:**
 - Partial closure of QUAL-02 (syntax highlighting for all languages)
-- 10 of 19 invalid blocks resolved
+- 30 of 64 invalid blocks resolved (~47%)
 </verification>
 
 <success_criteria>
 **This gap closure plan succeeds when:**
 
 1. VALID_LANGUAGES array includes 'powershell'
-2. 10 empty code blocks updated with language declarations
-3. Invalid block count reduced by 10 (from 19 to 9)
+2. 30 empty code blocks updated with language declarations
+3. Invalid block count reduced from 64 to ~34
 4. All language assignments validated against content
 5. No new invalid blocks introduced
 
 **Measurable outcomes:**
 - `grep "powershell" scripts/verify-syntax-highlighting.ts` shows match
-- `npx tsx scripts/verify-syntax-highlighting.ts` shows 9 invalid blocks remaining
-- Git diff shows ~11 lines changed (1 VALID_LANGUAGES + 10 code fences)
+- `npx tsx scripts/verify-syntax-highlighting.ts` shows ~34 invalid blocks remaining
+- Git diff shows ~31 lines changed (1 VALID_LANGUAGES + 30 code fences)
 </success_criteria>
 
 <output>
 After completion, create `.planning/phases/24-final-polish-a-quality/24-05a-SUMMARY.md` with:
-- Language mapping table with file:line:language
-- Before/after invalid counts (19 → 9)
-- Partial gap closure progress for QUAL-02
+- Language mapping table with file:block-count:languages
+- Before/after invalid counts (64 → ~34)
+- Partial gap closure progress for QUAL-02 (~47% complete)
 </output>
