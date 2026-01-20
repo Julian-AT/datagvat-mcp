@@ -33,15 +33,20 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 - FastMCP internals documentation with middleware stack, error handling, testing patterns
 - Best practices for optimization, quality interpretation, rate limiting, caching
 
-## Current Milestone: v1.3 Planning
+## Current Milestone: v2.0 Professional Documentation System
 
-**Status:** Awaiting requirements definition. v1.2 shipped 2026-01-20.
+**Goal:** Transform documentation infrastructure to enterprise-grade standards with modern tooling, automated API generation, streamlined navigation, and professional content following Microsoft/Google style guides.
 
-**Potential directions:**
-- German translation of English documentation
-- Real Claude Desktop screenshots (infrastructure present, placeholder images in place)
-- Advanced interactive features (live code examples, playground)
-- Additional workflow guides based on user feedback
+**Target features:**
+- Modern build infrastructure (Bun, Biome, professional scripts)
+- Streamlined navigation (7 tabs → 3-4 with advanced meta.json features)
+- Comprehensive link validation and fixes
+- Manual documentation rewrite following MS/Google style guides
+- Code quality improvements (remove emojis, clean comments)
+- Enhanced CI/CD with GitHub Actions and pre-commit hooks
+- Auto-generated OpenAPI docs from data.gv.at
+- shadcn-like CLI installer for AI tools
+- Live AI assistant testing with Vercel AI SDK
 
 ## Requirements
 
@@ -101,13 +106,23 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 
 ### Active
 
-<!-- Future milestones -->
+<!-- v2.0 scope -->
 
-**Future enhancements (v1.3+):**
+**v2.0 Professional Documentation System:**
+- [ ] Modern build infrastructure (Bun, Biome, professional scripts)
+- [ ] Streamlined navigation system (3-4 tabs with advanced meta.json)
+- [ ] Comprehensive link validation and fixes
+- [ ] Manual documentation rewrite (MS/Google style guides)
+- [ ] Code quality improvements (remove emojis, clean comments)
+- [ ] Enhanced CI/CD (GitHub Actions, pre-commit hooks)
+- [ ] Auto-generated OpenAPI documentation from data.gv.at
+- [ ] shadcn-like CLI installer for AI tools
+- [ ] Live AI assistant testing with Vercel AI SDK
+
+**Future enhancements (v2.1+):**
 - [ ] German translation of all documentation
-- [ ] Interactive MCP playground or live code examples
+- [ ] Real Claude Desktop screenshots (infrastructure present, placeholders in place)
 - [ ] Video tutorials
-- [ ] Real Claude Desktop screenshots (placeholders present in v1.2)
 
 ### Out of Scope
 
@@ -184,4 +199,4 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 | German/English bilingual | Austrian data users speak both languages | ✓ Good — v1.0 |
 
 ---
-*Last updated: 2026-01-20 after v1.2 milestone completion*
+*Last updated: 2026-01-20 after v2.0 milestone initialization*
