@@ -180,6 +180,14 @@ Plans:
 4. Developer writes tests for MCP tools following testing guide
 5. Developer accesses type definitions for IDE autocomplete
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 22-01-PLAN.md — FastMCP Internals & Integration Enhancement (fastmcp-internals.mdx + enhance other-clients.mdx)
+- [ ] 22-02-PLAN.md — Error Handling & Testing Patterns (error-handling.mdx + testing.mdx)
+
+**Status:** Ready for execution
+
 ---
 
 ### Phase 23: Best Practices & Visual Assets
@@ -244,7 +252,7 @@ Plans:
 | 19 - Getting Started Content | Complete | 2/2 | ██████████ 100% |
 | 20 - Guides & Workflows | Complete | 4/4 | ██████████ 100% |
 | 21 - Auto-Generated Tools Reference | Complete | 2/2 | ██████████ 100% |
-| 22 - API Reference & Integration | Pending | 0/0 | ░░░░░░░░░░ 0% |
+| 22 - API Reference & Integration | Planned | 2 plans | ░░░░░░░░░░ 0% |
 | 23 - Best Practices & Visual Assets | Pending | 0/0 | ░░░░░░░░░░ 0% |
 | 24 - Final Polish & Quality | Pending | 0/0 | ░░░░░░░░░░ 0% |
 
@@ -252,4 +260,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-01-19*
-*Last updated: 2026-01-20 after Phase 21 completion*
+*Last updated: 2026-01-20 after Phase 22 planning*
