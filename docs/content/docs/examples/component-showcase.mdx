@@ -1,0 +1,252 @@
+---
+title: Component Showcase
+description: Demonstration of Fumadocs interactive components for Austria MCP documentation
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+import { Mermaid } from '@/components/mdx/mermaid';
+
+# Component Showcase
+
+This page demonstrates all interactive components used throughout Austria MCP documentation.
+
+## Progressive Disclosure with Tabs
+
+<Tabs items={['Basic', 'Advanced']} groupId="search-complexity" persist>
+  <Tab value="Basic">
+    ### Basic Dataset Search
+
+    Simple text search for datasets:
+
+    ```typescript
+    const results = await mcp.callTool('search_datasets', {
+      query: 'gesundheit wien'
+    });
+
+    console.log(`Found ${results.count} datasets`);
+    ```
+
+    This returns up to 20 datasets matching "gesundheit wien".
+  </Tab>
+
+  <Tab value="Advanced">
+    ### Advanced Search with Filters
+
+    Search with faceted filtering and quality boost:
+
+    ```typescript
+    const results = await mcp.callTool('search_datasets', {
+      query: 'gesundheit wien',
+      filters: {
+        organization: 'Stadt Wien',
+        tags: ['Gesundheit', 'COVID-19'],
+        license: 'cc-by'
+      },
+      limit: 50,
+      quality_boost: true
+    });
+
+    // Access facets for filter UI
+    console.log('Available orgs:', results.facets.organization);
+    ```
+
+    Quality boost re-ranks results by metadata completeness.
+  </Tab>
+</Tabs>
+
+**Tab behavior verification:**
+- Switch tabs → selection persists across page reload (localStorage)
+- `groupId="search-complexity"` → same selection on other pages with same groupId
+- Mobile responsive → tabs stack vertically on narrow screens
+
+---
+
+## Scannable Reference with Accordion
+
+<Accordions type="single" collapsible>
+  <Accordion title="search_datasets" id="search-datasets">
+    Full-text search across the Data.gv.at catalog with faceted filtering.
+
+    ### Parameters
+
+    <TypeTable type={{
+      query: {
+        type: "string",
+        description: "Search query for titles, descriptions, keywords"
+      },
+      limit: {
+        type: "number",
+        default: 20,
+        description: "Maximum number of results (1-100)"
+      },
+      filters: {
+        type: "object",
+        description: "Faceted filters (organization, tags, license, format)",
+        default: {}
+      },
+      quality_boost: {
+        type: "boolean",
+        default: false,
+        description: "Re-rank by metadata quality (DQV score)"
+      }
+    }} />
+
+    ### Returns
+
+    ```json
+    {
+      "count": 42,
+      "results": [
+        {
+          "id": "dataset-id",
+          "title": "Gesundheitsdaten Wien",
+          "description": "...",
+          "tags": ["Gesundheit"],
+          "organization": "Stadt Wien"
+        }
+      ],
+      "facets": {
+        "organization": ["Stadt Wien", "..."],
+        "tags": ["Gesundheit", "COVID-19"]
+      }
+    }
+    ```
+
+    ### Example
+
+    ```typescript
+    const results = await mcp.callTool('search_datasets', {
+      query: 'health',
+      limit: 10
+    });
+    ```
+  </Accordion>
+
+  <Accordion title="get_dataset" id="get-dataset">
+    Retrieve detailed metadata for a specific dataset by ID.
+
+    ### Parameters
+
+    <TypeTable type={{
+      id: {
+        type: "string",
+        description: "Dataset identifier from search results"
+      }
+    }} />
+
+    ### Returns
+
+    Full dataset metadata including distributions, quality metrics, and temporal coverage.
+
+    ### Example
+
+    ```typescript
+    const dataset = await mcp.callTool('get_dataset', {
+      id: 'some-dataset-id'
+    });
+
+    console.log('Quality score:', dataset.quality.score);
+    ```
+  </Accordion>
+
+  <Accordion title="preview_dataset" id="preview-dataset">
+    Preview dataset contents (first 64KB) with schema inference.
+
+    ### Parameters
+
+    <TypeTable type={{
+      url: {
+        type: "string",
+        description: "Distribution URL (CSV, JSON, XML)"
+      },
+      format: {
+        type: "string",
+        description: "Data format (auto-detected if omitted)"
+      }
+    }} />
+
+    ### Example
+
+    ```typescript
+    const preview = await mcp.callTool('preview_dataset', {
+      url: 'https://data.gv.at/.../file.csv'
+    });
+
+    console.log('Columns:', preview.schema.columns);
+    console.log('Sample:', preview.sample_data);
+    ```
+  </Accordion>
+</Accordions>
+
+**Accordion behavior verification:**
+- Only one accordion open at a time (`type="single"`)
+- URL hash `#search-datasets` auto-expands correct accordion
+- Keyboard navigation: Tab/Enter to expand, Escape to collapse
+- Mobile responsive → full-width on narrow screens
+
+---
+
+## Workflow Visualization with Mermaid
+
+<Mermaid chart={`
+graph TD
+    A[User Query: 'health datasets Vienna'] --> B{Search Strategy}
+    B -->|Simple| C[search_datasets]
+    B -->|Semantic| D[semantic_search_datasets]
+
+    C --> E[Results: 15 datasets]
+    D --> E
+
+    E --> F{User Action}
+    F -->|Inspect Dataset| G[get_dataset]
+    F -->|Preview Data| H[preview_dataset]
+    F -->|Find Similar| I[find_related_datasets]
+
+    G --> J[Full Metadata]
+    H --> K[Sample Data + Schema]
+    I --> L[Related Datasets]
+
+    J --> M{Quality Check}
+    M -->|High Quality| N[Download]
+    M -->|Low Quality| E
+
+    style A fill:#e1f5ff
+    style E fill:#fff4e1
+    style N fill:#e8f5e9
+`} />
+
+**Mermaid diagram verification:**
+- Renders correctly in light/dark mode (theme-aware)
+- Syntax highlighting for node labels
+- No hydration errors (client-side rendering)
+- Mobile responsive → diagram scales to fit viewport
+
+---
+
+## Component Integration Test Results
+
+After loading this page:
+
+1. **Tabs Component (COMP-01)**
+   - [ ] Switches between Basic/Advanced
+   - [ ] Selection persists after page reload
+   - [ ] Mobile responsive (stacks on 768px)
+
+2. **Accordion Component (COMP-05)**
+   - [ ] Only one accordion open at a time
+   - [ ] URL hash navigation works (#search-datasets)
+   - [ ] Keyboard accessible (Tab/Enter/Escape)
+
+3. **Mermaid Component (COMP-06)**
+   - [ ] Diagram renders without errors
+   - [ ] Theme switches (light/dark) correctly
+   - [ ] Mobile responsive (scales to viewport)
+
+4. **TypeTable Component (COMP-03)**
+   - [ ] Parameter tables render with types
+   - [ ] Default values shown
+   - [ ] Descriptions formatted correctly
+
+All components should work without JavaScript errors in browser console.
