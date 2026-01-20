@@ -216,6 +216,15 @@ Plans:
 4. User understands architecture through Mermaid diagram
 5. All images load quickly and include accessibility alt text
 
+**Plans:** 5 plans
+
+Plans:
+- [ ] 23-01-PLAN.md — Best Practices Content (quality-interpretation, rate-limiting, caching-strategies, comparison-tables)
+- [ ] 23-02-PLAN.md — Screenshot Infrastructure (Sharp install, optimization script, directory structure)
+- [ ] 23-03-PLAN.md — Capture Screenshots (checkpoint: human captures 5-7 Claude Desktop screenshots)
+- [ ] 23-04-PLAN.md — Optimize & Embed Screenshots (Sharp conversion, embed in docs with alt text)
+- [ ] 23-05-PLAN.md — Create Architecture Diagrams (Mermaid diagrams for quality scoring, middleware stack, architecture)
+
 ---
 
 ### Phase 24: Final Polish & Quality
@@ -253,11 +262,11 @@ Plans:
 | 20 - Guides & Workflows | Complete | 4/4 | ██████████ 100% |
 | 21 - Auto-Generated Tools Reference | Complete | 2/2 | ██████████ 100% |
 | 22 - API Reference & Integration | Complete | 2/2 | ██████████ 100% |
-| 23 - Best Practices & Visual Assets | Pending | 0/0 | ░░░░░░░░░░ 0% |
+| 23 - Best Practices & Visual Assets | Planned | 5 | ░░░░░░░░░░ 0% |
 | 24 - Final Polish & Quality | Pending | 0/0 | ░░░░░░░░░░ 0% |
 
 **Overall:** 5/7 phases complete (71%)
 
 ---
 *Roadmap created: 2026-01-19*
-*Last updated: 2026-01-20 after Phase 22 execution*
+*Last updated: 2026-01-20 after Phase 23 planning*
