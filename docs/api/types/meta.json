@@ -1,0 +1,6 @@
+{
+  "title": "Type Definitions",
+  "description": "Data types and schemas",
+  "icon": "Type",
+  "pages": ["index", "datasets", "distributions"]
+}

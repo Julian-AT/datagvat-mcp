@@ -1,6 +1,10 @@
-@import "tailwindcss";
-@import "fumadocs-ui/css/neutral.css";
-@import "fumadocs-ui/css/preset.css";
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+@import 'fumadocs-twoslash/twoslash.css';
+@import 'fumadocs-openapi/css/preset.css';
+@import '@fumadocs/story/css/preset.css';
+@plugin 'tailwindcss-animate';
 
 @theme {
   /* Austria MCP Brand Color - Red accent */
@@ -44,4 +48,41 @@
   --color-fd-accent: hsla(0, 0%, 40.9%, 30%);
   --color-fd-accent-foreground: hsl(0, 0%, 90%);
   --color-fd-ring: hsl(0, 0%, 54.9%);
+}
+
+
+.ui {
+  --color-fd-primary: var(--ui-color);
+}
+
+.headless {
+  --color-fd-primary: var(--headless-color);
+}
+
+.framework {
+  --color-fd-primary: var(--framework-color);
+}
+
+:root {
+  --headless-color: hsl(250, 80%, 54%);
+  --framework-color: hsl(41, 100%, 40%);
+  --ui-color: hsl(217, 100%, 58%);
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+html:has(body[data-scroll-locked]) {
+  scrollbar-gutter: auto;
+}
+
+body {
+  background-color: var(--color-fd-background);
+}
+
+.dark {
+  --headless-color: hsl(250 100% 80%);
+  --framework-color: #fff383;
+  --ui-color: #a9ceff;
 }

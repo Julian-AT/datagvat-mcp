@@ -1,0 +1,495 @@
+---
+title: MCP Prompts
+description: Workflow automation templates for common tasks
+---
+
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+
+# MCP Prompts
+
+MCP Prompts are reusable workflow templates that help you accomplish common tasks quickly. They combine multiple tool calls into guided workflows with clear instructions.
+
+## What are Prompts?
+
+Prompts are pre-defined conversation starters that guide Claude through multi-step workflows. Instead of manually orchestrating multiple tool calls, you can use a prompt to automate common patterns.
+
+**Benefits:**
+
+- **Faster workflows** - Pre-configured multi-step processes
+- **Consistent results** - Standardized approach to common tasks
+- **Learning tool** - See how to combine tools effectively
+- **Time-saving** - Skip repetitive instructions
+
+## Available Prompts
+
+<Accordions type="single" collapsible>
+  <Accordion title="dataset_search" id="dataset-search-prompt">
+    Find datasets about a specific topic with guided exploration.
+
+    **Parameters:**
+
+    <TypeTable type={{
+      topic: {
+        type: "string",
+        description: "Search topic (e.g., 'health', 'environment', 'population')"
+      },
+      catalogue_id: {
+        type: "string",
+        description: "Restrict search to specific catalogue",
+        default: "None"
+      }
+    }} />
+
+    **What it does:**
+
+    1. Searches for datasets matching the topic
+    2. Displays title, description, and available formats for each result
+    3. Highlights key metadata for quick assessment
+
+    **Example usage:**
+
+    ```
+    Use the dataset_search prompt with topic="health"
+    ```
+
+    **Result:**
+
+    Claude will search for health-related datasets and present them in an organized format with key details highlighted.
+
+    **With catalogue filter:**
+
+    ```
+    Use dataset_search prompt with topic="population" and catalogue_id="stadt-wien"
+    ```
+  </Accordion>
+
+  <Accordion title="quality_audit" id="quality-audit-prompt">
+    Perform a comprehensive quality audit on a dataset.
+
+    **Parameters:**
+
+    <TypeTable type={{
+      dataset_id: {
+        type: "string",
+        description: "Unique dataset identifier to audit"
+      }
+    }} />
+
+    **What it does:**
+
+    1. Fetches complete dataset metadata
+    2. Retrieves all available distributions
+    3. Analyzes quality metrics (DQV scores)
+    4. Checks DOI eligibility
+    5. Summarizes findings and suggests improvements
+
+    **Example usage:**
+
+    ```
+    Run quality_audit prompt for dataset_id="dataset-123"
+    ```
+
+    **Audit includes:**
+
+    - **Metadata completeness** - Title, description, publisher, contact
+    - **Distribution analysis** - File formats, sizes, accessibility
+    - **Quality scores** - Completeness, accuracy, consistency metrics
+    - **DOI readiness** - Missing fields, recommendations
+    - **Improvement suggestions** - Actionable steps to enhance quality
+
+    **Output format:**
+
+    ```markdown
+    ## Quality Audit: [Dataset Title]
+
+    ### Metadata Quality
+    ✓ Title: Present
+    ✓ Description: Present and detailed
+    ✗ Contact point: Missing
+
+    ### Distributions
+    - CSV format: 2.4 MB, accessible
+    - JSON format: 1.8 MB, accessible
+
+    ### Quality Metrics
+    - Completeness: 85%
+    - Accuracy: 92%
+    - Consistency: 88%
+    - Overall: 88%
+
+    ### DOI Eligibility
+    Status: Not eligible
+    Missing fields: creator, version
+
+    ### Recommendations
+    1. Add contact point information
+    2. Include creator/author metadata
+    3. Add version information for DOI eligibility
+    ```
+  </Accordion>
+
+  <Accordion title="publication_checklist" id="publication-checklist-prompt">
+    Pre-publication checklist for a dataset draft to ensure it's ready to publish.
+
+    **Parameters:**
+
+    <TypeTable type={{
+      draft_id: {
+        type: "string",
+        description: "Draft identifier to review"
+      },
+      catalogue_id: {
+        type: "string",
+        description: "Catalogue containing the draft"
+      }
+    }} />
+
+    **What it does:**
+
+    1. Fetches draft metadata
+    2. Verifies required fields (title, description, publisher)
+    3. Checks for attached distributions
+    4. Reviews keywords and themes
+    5. Confirms license information
+    6. Provides go/no-go recommendation
+
+    **Example usage:**
+
+    ```
+    Use publication_checklist prompt for draft_id="draft-456" in catalogue_id="stadt-wien"
+    ```
+
+    **Checklist items:**
+
+    - **Required metadata** - Title, description, publisher
+    - **Optional metadata** - Keywords, themes, contact point
+    - **Distributions** - At least one file attached
+    - **Licensing** - License specified and valid
+    - **Quality** - Metadata completeness score
+
+    **Output format:**
+
+    ```markdown
+    ## Publication Checklist: [Draft Title]
+
+    ### Required Fields
+    ✓ Title: Present
+    ✓ Description: Present (250 characters)
+    ✓ Publisher: Stadt Wien
+
+    ### Optional Fields
+    ✓ Keywords: 5 keywords present
+    ✓ Themes: SOCI, HEAL
+    ✗ Contact point: Missing
+
+    ### Distributions
+    ✓ 2 distributions attached
+      - CSV (population.csv)
+      - JSON (population.json)
+
+    ### License
+    ✓ CC BY 4.0
+
+    ### Recommendation
+    ⚠️ Ready with recommendations
+    - Add contact point before publishing
+    - Consider adding more keywords for discoverability
+
+    ### Action
+    To publish: Use publish_dataset(draft_id="draft-456", catalogue_id="stadt-wien")
+    ```
+  </Accordion>
+
+  <Accordion title="compare_datasets" id="compare-datasets-prompt">
+    Compare multiple datasets side-by-side to help choose the best option.
+
+    **Parameters:**
+
+    <TypeTable type={{
+      dataset_ids: {
+        type: "string[]",
+        description: "List of dataset IDs to compare (2-5 datasets)"
+      }
+    }} />
+
+    **What it does:**
+
+    1. Fetches metadata for each dataset
+    2. Retrieves quality metrics
+    3. Lists available formats
+    4. Creates comparison table
+    5. Recommends which to use based on quality and completeness
+
+    **Example usage:**
+
+    ```
+    Use compare_datasets prompt with dataset_ids=["dataset-1", "dataset-2", "dataset-3"]
+    ```
+
+    **Comparison includes:**
+
+    - **Metadata** - Title, description, publisher
+    - **Formats** - Available file formats
+    - **Quality scores** - Overall quality metrics
+    - **Freshness** - Last modified date
+    - **Completeness** - Metadata completeness percentage
+
+    **Output format:**
+
+    ```markdown
+    ## Dataset Comparison
+
+    | Dataset | Title | Publisher | Formats | Quality | Modified |
+    |---------|-------|-----------|---------|---------|----------|
+    | dataset-1 | Population 2024 | Stadt Wien | CSV, JSON, XML | 92% | 2024-01-15 |
+    | dataset-2 | Population 2023 | Statistik Austria | CSV | 78% | 2023-12-01 |
+    | dataset-3 | Population Data | BEV | CSV, PDF | 65% | 2022-06-15 |
+
+    ### Recommendation
+
+    **Best choice: dataset-1 (Population 2024)**
+
+    Reasons:
+    - Highest quality score (92%)
+    - Most recent data (2024-01-15)
+    - Multiple formats available
+    - Complete metadata
+    - Active maintenance
+
+    Alternative: dataset-2 for historical comparison (2023 data)
+    ```
+  </Accordion>
+
+  <Accordion title="catalogue_overview" id="catalogue-overview-prompt">
+    Get a comprehensive overview of a catalogue's contents and focus areas.
+
+    **Parameters:**
+
+    <TypeTable type={{
+      catalogue_id: {
+        type: "string",
+        description: "Catalogue identifier to analyze"
+      }
+    }} />
+
+    **What it does:**
+
+    1. Fetches catalogue metadata
+    2. Lists first 20 datasets
+    3. Identifies common themes and topics
+    4. Analyzes data quality trends
+    5. Summarizes catalogue's focus areas
+
+    **Example usage:**
+
+    ```
+    Use catalogue_overview prompt for catalogue_id="stadt-wien"
+    ```
+
+    **Overview includes:**
+
+    - **Catalogue information** - Title, description, publisher
+    - **Dataset count** - Total available datasets
+    - **Theme distribution** - Most common data themes
+    - **Format distribution** - Available file formats
+    - **Quality trends** - Average quality scores
+    - **Focus areas** - Primary topics covered
+
+    **Output format:**
+
+    ```markdown
+    ## Catalogue Overview: Stadt Wien Open Data
+
+    ### Information
+    - Publisher: City of Vienna
+    - Datasets: 500+
+    - Last updated: 2024-01-15
+
+    ### Dataset Sample (20 of 500)
+    1. Population Statistics 2024 (SOCI)
+    2. Traffic Flow Data (TRAN)
+    3. Air Quality Monitoring (ENVI)
+    ...
+
+    ### Theme Distribution
+    - Society (SOCI): 35%
+    - Transport (TRAN): 20%
+    - Environment (ENVI): 15%
+    - Government (GOVE): 12%
+    - Other: 18%
+
+    ### Format Distribution
+    - CSV: 65%
+    - JSON: 45%
+    - XML: 30%
+    - PDF: 20%
+    - GeoJSON: 15%
+
+    ### Quality Trends
+    - Average quality score: 82%
+    - Datasets with high quality (>80%): 70%
+    - Datasets with distributions: 95%
+
+    ### Focus Areas
+
+    The Stadt Wien catalogue focuses on:
+    1. **Urban planning and society** - Population, housing, social services
+    2. **Transportation** - Traffic, public transit, parking
+    3. **Environment** - Air quality, green spaces, waste management
+    4. **Government transparency** - Budget, contracts, decisions
+
+    ### Highlights
+    - Strong metadata quality across datasets
+    - Regular updates (most within last 6 months)
+    - Multiple format availability
+    - Comprehensive distribution coverage
+    ```
+  </Accordion>
+</Accordions>
+
+## Using Prompts
+
+### Basic Usage
+
+To use a prompt in Claude Desktop:
+
+```
+Use the [prompt_name] prompt with [parameters]
+```
+
+For example:
+
+```
+Use the dataset_search prompt with topic="environment"
+```
+
+### Combining Prompts
+
+Chain prompts together for complex workflows:
+
+```
+1. Use catalogue_overview for catalogue_id="stadt-wien"
+2. Use dataset_search with topic="health" and catalogue_id="stadt-wien"
+3. For the top result, use quality_audit
+```
+
+### Customizing Prompts
+
+While prompts provide a starting point, you can customize the workflow:
+
+```
+Use the quality_audit prompt for dataset_id="dataset-123",
+but also check for related datasets and compare their quality
+```
+
+Claude will follow the base prompt and add your custom requirements.
+
+## Prompt vs Tool - When to Use Each
+
+### Use Prompts When:
+
+- **Learning the system** - See how tools work together
+- **Common workflows** - Repeated tasks like audits, searches
+- **Quick starts** - Get results fast without detailed instructions
+- **Consistency** - Want standardized output format
+
+### Use Tools Directly When:
+
+- **Custom workflows** - Unique combination of operations
+- **Specific parameters** - Need fine-grained control
+- **One-off tasks** - Single tool call is sufficient
+- **Integration** - Building automated systems
+
+## Best Practices
+
+### 1. Start with Prompts
+
+When learning the system, use prompts to see how tools combine:
+
+```
+Use quality_audit to learn how to assess dataset quality
+```
+
+Then replicate the pattern with direct tool calls for customization.
+
+### 2. Modify for Your Needs
+
+Prompts are templates, not rigid scripts:
+
+```
+Use dataset_search with topic="health", but only show datasets
+with CSV format and quality score above 80%
+```
+
+### 3. Chain Prompts Strategically
+
+Build complex workflows by chaining prompts:
+
+```
+1. catalogue_overview to understand available data
+2. dataset_search to find specific datasets
+3. compare_datasets to choose the best option
+4. quality_audit on the selected dataset
+```
+
+### 4. Combine with Direct Tool Calls
+
+Mix prompts and tools for flexibility:
+
+```
+Use dataset_search with topic="population",
+then for each result, call preview_data on the CSV distribution
+```
+
+## Creating Custom Workflows
+
+While you can't add custom prompts (they're defined server-side), you can create reusable workflow instructions:
+
+```
+My workflow for evaluating datasets:
+1. Use dataset_search to find candidates
+2. Use compare_datasets to shortlist
+3. Use quality_audit on top 3
+4. Use preview_data on the best option
+5. Use find_related_datasets to discover alternatives
+
+Please run this workflow for topic="transportation"
+```
+
+Save these workflow instructions for repeated use across sessions.
+
+## Performance Notes
+
+Prompts execute multiple tool calls sequentially:
+
+- **dataset_search**: ~1 second
+- **quality_audit**: ~2-3 seconds (4 tool calls)
+- **publication_checklist**: ~1-2 seconds (3 tool calls)
+- **compare_datasets**: ~1 second per dataset
+- **catalogue_overview**: ~2-3 seconds
+
+For faster results, use direct tool calls when you know exactly what you need.
+
+## Error Handling
+
+If a prompt encounters an error, Claude will:
+
+1. Report the specific step that failed
+2. Show the error message
+3. Suggest alternative approaches
+4. Continue with remaining steps if possible
+
+Example:
+
+```
+Running quality_audit for dataset-123...
+
+✓ Step 1: Fetch metadata - Success
+✓ Step 2: Get distributions - Success
+✗ Step 3: Get quality metrics - Failed (metrics not available)
+! Step 4: Check DOI eligibility - Skipped
+
+Audit completed with degraded results. Metrics service unavailable.
+Recommendation based on available data...
+```

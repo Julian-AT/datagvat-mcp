@@ -1,0 +1,560 @@
+---
+title: Installation & Einrichtung
+description: Erste Schritte mit dem Austria MCP Server
+---
+
+# Installation & Einrichtung
+
+Richte den Austria MCP Server in wenigen Minuten ein.
+
+## Voraussetzungen
+
+Was du brauchst:
+
+- **Python 3.11 oder höher** - [Python herunterladen](https://www.python.org/downloads/)
+- **pip oder uv Paketmanager** - uv wird für schnellere Installationen empfohlen
+- **Claude Desktop** oder kompatibler MCP-Client - [Claude Desktop herunterladen](https://claude.ai/download)
+
+## So funktioniert Austria MCP
+
+Der Datenfluss hilft dir, Probleme zu beheben und deine Abfragen zu optimieren:
+
+```
+   User: "Finde Bevölkerungsdatensätze von 2023"
+      │
+      ▼
+┌─────────────────────────────────────────────┐
+│         Claude Desktop                      │
+│  Interpretiert → Ruft search_datasets auf  │
+└──────────────────┬──────────────────────────┘
+                   │ MCP Protocol (stdio)
+                   ▼
+┌─────────────────────────────────────────────┐
+│      Austria MCP Server empfängt Anfrage   │
+│                                             │
+│  1. Middleware-Verarbeitung:               │
+│     • Logging (Anfrage protokollieren)     │
+│     • Auth-Validierung                     │
+│     • Rate Limiting Check                  │
+│                                             │
+│  2. Tool-Ausführung:                       │
+│     • Parameter parsen                     │
+│     • Semantische Query-Erweiterung (LLM)  │
+│     • API-Anfrage erstellen                │
+└──────────────────┬──────────────────────────┘
+                   │ HTTPS GET
+                   ▼
+┌─────────────────────────────────────────────┐
+│   Piveau API durchsucht Katalog            │
+│   (data.gv.at)                             │
+└──────────────────┬──────────────────────────┘
+                   │ JSON response
+                   ▼
+┌─────────────────────────────────────────────┐
+│  Server verarbeitet und verbessert:        │
+│     • Quality Scoring (Metadatenanalyse)   │
+│     • Theme Enrichment (EU-Vokabulare)     │
+│     • Semantisches Ranking (Relevanz)      │
+│     • Strukturierte Antwort formatieren    │
+└──────────────────┬──────────────────────────┘
+                   │ MCP response
+                   ▼
+┌─────────────────────────────────────────────┐
+│   Claude Desktop empfängt strukturierte    │
+│   Daten und zeigt natürliche Zusammenfassung│
+└─────────────────────────────────────────────┘
+      │
+      ▼
+   User: "Bevölkerung 2023 Datensätze:
+          • Wiener Bevölkerungsstatistik (quality: 95)
+          • Bundesweite Demografie 2023 (quality: 87)
+          ..."
+```
+
+**Warum den MCP Server verwenden?**
+
+Der Server bietet Mehrwert über direkten API-Zugriff hinaus:
+- **Semantisches Verständnis** - Erweitert Abfragen mit verwandten Begriffen
+- **Quality Scoring** - Rankt Datensätze nach Metadaten-Vollständigkeit
+- **Datenvorschau** - Prüft CSV/JSON-Inhalte vor dem Download
+- **Error Handling** - Wiederholt fehlgeschlagene Anfragen mit Exponential Backoff
+- **Rate Limiting** - Schützt vor API-Throttling
+
+## Projektstruktur
+
+Nach der Installation sieht dein Projektverzeichnis so aus:
+
+<Files>
+  <Folder name=".mcp" defaultOpen>
+    <File name="config.json" />
+    <File name="settings.json" />
+  </Folder>
+  <Folder name="claude_desktop_config">
+    <File name="claude_desktop_config.json" />
+  </Folder>
+  <File name=".env" />
+  <File name="README.md" />
+</Files>
+
+Wichtige Dateien:
+- `.mcp/config.json` - MCP-Server-Konfiguration
+- `.env` - Umgebungsvariablen (API-Schlüssel, URLs)
+- `claude_desktop_config.json` - Claude Desktop MCP-Konfiguration
+
+## Installation
+
+### Mit uv (Empfohlen)
+
+[uv](https://github.com/astral-sh/uv) ist ein schneller Python-Paketmanager, der bessere Abhängigkeitsauflösung und schnellere Installationen bietet.
+
+```bash
+# uv installieren, falls noch nicht vorhanden
+pip install uv
+
+# Repository klonen
+git clone https://github.com/yourusername/datagvat-mcp.git
+cd datagvat-mcp/mcp
+
+# Abhängigkeiten installieren
+uv pip install -e .
+```
+
+### Mit pip
+
+```bash
+# Repository klonen
+git clone https://github.com/yourusername/datagvat-mcp.git
+cd datagvat-mcp/mcp
+
+# Abhängigkeiten installieren
+pip install -e .
+```
+
+### Von PyPI (Zukünftig)
+
+```bash
+# Sobald auf PyPI veröffentlicht
+pip install datagvat-mcp
+```
+
+## Server-Verzeichnisstruktur
+
+Der Austria MCP Server hat eine gut organisierte Struktur:
+
+<Files>
+  <Folder name="app" defaultOpen>
+    <File name="__init__.py" />
+    <File name="server.py" />
+    <File name="client.py" />
+    <File name="models.py" />
+    <File name="middleware.py" />
+    <File name="config.py" />
+    <File name="dependencies.py" />
+    <File name="preview.py" />
+    <File name="prompts.py" />
+    <File name="resources.py" />
+    <File name="semantic.py" />
+    <File name="similarity.py" />
+    <Folder name="tools">
+      <File name="__init__.py" />
+      <File name="analysis.py" />
+      <File name="discovery.py" />
+      <File name="management.py" />
+      <File name="preview.py" />
+      <File name="vocabularies.py" />
+    </Folder>
+  </Folder>
+  <Folder name="tests">
+    <File name="test_client.py" />
+    <File name="test_models.py" />
+    <File name="test_tools.py" />
+  </Folder>
+  <File name="pyproject.toml" />
+  <File name=".env.example" />
+  <File name="README.md" />
+</Files>
+
+Wichtige Verzeichnisse:
+- `app/` - Haupt-Server-Code und FastMCP-Instanz
+- `app/tools/` - Tool-Implementierungen nach Kategorie organisiert
+- `tests/` - Umfassende Test-Suite
+
+## Konfiguration
+
+### Claude Desktop Einrichtung
+
+Füge den Austria MCP Server zu deiner Claude Desktop Konfiguration hinzu:
+
+**Speicherort:** `~/.claude/claude_desktop_config.json` (macOS/Linux) oder `%APPDATA%\Claude\claude_desktop_config.json` (Windows)
+
+**Konfiguration:**
+
+```json
+{
+  "mcpServers": {
+    "datagvat-local": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "/absoluter/pfad/zu/datagvat-mcp/mcp",
+        "python",
+        "-m",
+        "app.server"
+      ]
+    }
+  }
+}
+```
+
+**Wichtig:** Ersetze `/absoluter/pfad/zu/datagvat-mcp/mcp` mit dem tatsächlichen Pfad zum Server-Verzeichnis in deinem geklonten Repository.
+
+<Callout type="warn">
+**Pfad-Anforderungen:**
+- Verwende nur absolute Pfade (kein `~` oder relative Pfade)
+- Windows: Verwende doppelte Backslashes (`C:\\Users\\...`)
+- Der Pfad muss auf das `mcp/` Verzeichnis zeigen, das den `app/` Ordner enthält
+</Callout>
+
+**Windows Beispiel:**
+```json
+{
+  "mcpServers": {
+    "datagvat-local": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "C:\\Users\\IhrName\\datagvat-mcp\\mcp",
+        "python",
+        "-m",
+        "app.server"
+      ]
+    }
+  }
+}
+```
+
+**macOS/Linux Beispiel:**
+```json
+{
+  "mcpServers": {
+    "datagvat-local": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "/Users/ihrname/datagvat-mcp/mcp",
+        "python",
+        "-m",
+        "app.server"
+      ]
+    }
+  }
+}
+```
+
+### pip anstelle von uv verwenden
+
+Falls du pip gegenüber uv bevorzugst:
+
+```json
+{
+  "mcpServers": {
+    "datagvat-pip": {
+      "command": "python",
+      "args": [
+        "-m",
+        "app.server"
+      ],
+      "cwd": "/absoluter/pfad/zu/datagvat-mcp/mcp"
+    }
+  }
+}
+```
+
+## Umgebungsvariablen
+
+Optionale Konfiguration über `.env` Datei im Projektstammverzeichnis:
+
+```bash
+# API-Konfiguration
+AUSTRIA_MCP_PIVEAU_API_BASE=https://www.data.gv.at/api/hub/search
+AUSTRIA_MCP_REQUEST_TIMEOUT=30
+
+# Protokollierung
+AUSTRIA_MCP_LOG_LEVEL=INFO
+AUSTRIA_MCP_LOG_FORMAT=json
+
+# Entwicklung
+AUSTRIA_MCP_DEV_MODE=false
+```
+
+### Verfügbare Umgebungsvariablen
+
+| Variable | Standard | Beschreibung |
+|----------|----------|--------------|
+| `AUSTRIA_MCP_PIVEAU_API_BASE` | `https://www.data.gv.at/api/hub/search` | Piveau API Basis-URL |
+| `AUSTRIA_MCP_REQUEST_TIMEOUT` | `30` | Request-Timeout in Sekunden |
+| `AUSTRIA_MCP_LOG_LEVEL` | `INFO` | Protokollierungsstufe (DEBUG, INFO, WARNING, ERROR) |
+| `AUSTRIA_MCP_LOG_FORMAT` | `json` | Protokollformat (json, text) |
+| `AUSTRIA_MCP_DEV_MODE` | `false` | Entwicklungsfunktionen aktivieren |
+
+## Server lokal testen
+
+Bevor du Claude Desktop konfigurierst, überprüfe, ob der Server korrekt funktioniert:
+
+### 1. Server-Import testen
+
+```bash
+python -c "from app.server import mcp; print('✅ Server lädt erfolgreich')"
+```
+
+Dies bestätigt, dass alle Abhängigkeiten installiert sind und der Server-Code gültig ist.
+
+### 2. Entwicklungsmodus ausführen
+
+```bash
+fastmcp dev app.server:mcp
+```
+
+Dies startet FastMCPs Entwicklungsserver mit einer Web-Oberfläche unter `http://localhost:8000`, wo du:
+
+- Alle verfügbaren Tools durchsuchen kannst
+- Tool-Ausführung mit Beispielparametern testen kannst
+- Server-Logs in Echtzeit einsehen kannst
+- Antworten vor der Claude Desktop Integration überprüfen kannst
+
+### 3. Erwartete Tools
+
+Die Entwicklungs-UI sollte diese Tool-Kategorien zeigen:
+
+**Discovery Tools:**
+- `list_catalogues` - Verfügbare Datenkataloge durchsuchen
+- `search_datasets` - Nach Datensätzen suchen
+- `get_dataset` - Datensatz-Details abrufen
+- `list_dataset_distributions` - Datensatz-Download-Links abrufen
+
+**Management Tools:**
+- `create_dataset_draft` - Neue Datensatz-Entwürfe erstellen
+- `update_dataset` - Vorhandene Datensätze aktualisieren
+- `delete_dataset` - Datensätze entfernen
+
+**Analysis Tools:**
+- `analyze_dataset_quality` - Metadaten-Qualitätswert berechnen
+- `find_related_datasets` - Ähnliche Datensätze entdecken
+
+**Vocabulary Tools:**
+- `list_vocabularies` - EU DCAT-AP Vokabulare durchsuchen
+- `search_vocabulary_terms` - Vokabularbegriffe suchen
+
+**Preview Tools:**
+- `preview_dataset_file` - Daten aus CSV/JSON-Dateien abtasten
+
+### 4. Grundlegende Funktionalität testen
+
+Probiere in der Entwicklungs-UI `list_catalogues` mit `limit=3`:
+
+**Erwartete Antwort:**
+```json
+[
+  {"id": "data-gv-at", "title": "data.gv.at"},
+  {"id": "stadt-wien", "title": "Stadt Wien Open Data"},
+  {"id": "land-karnten", "title": "Land Kärnten"}
+]
+```
+
+Wenn du diese Antwort siehst, funktioniert der Server korrekt und ist bereit für Claude Desktop.
+
+## Installation überprüfen
+
+1. **Starte Claude Desktop neu**, damit die neue MCP Server Konfiguration geladen wird
+
+2. **Teste die Verbindung** mit einem einfachen Befehl in Claude Desktop:
+
+```
+list_catalogues(limit=5)
+```
+
+Du solltest eine Liste österreichischer Datenkataloge sehen:
+
+```json
+[
+  {
+    "id": "stadt-wien",
+    "title": "Stadt Wien Open Data"
+  },
+  {
+    "id": "data-gv-at",
+    "title": "data.gv.at"
+  }
+]
+```
+
+3. **Probiere eine Suche aus**, um die volle Funktionalität zu überprüfen:
+
+```
+search_datasets(query="bevölkerung", limit=5)
+```
+
+## Fehlerbehebung
+
+### Server erscheint nicht in Claude Desktop
+
+1. **Prüfe die Syntax der Konfigurationsdatei** - Stelle sicher, dass das JSON gültig ist (keine nachgestellten Kommata, korrekte Anführungszeichen)
+2. **Überprüfe die Pfade** - Verwende absolute Pfade, nicht relative Pfade oder `~`
+3. **Starte Claude Desktop neu** - Konfiguration wird nur beim Start geladen (vollständig beenden, nicht nur Fenster schließen)
+4. **Prüfe die Logs** - Suche in Claude Desktop Logs nach MCP Server Fehlern
+
+<Callout type="info">
+**Log-Speicherorte:**
+- **Windows:** `%APPDATA%\Claude\logs\`
+- **macOS:** `~/Library/Logs/Claude/`
+- **Linux:** `~/.config/Claude/logs/`
+</Callout>
+
+### Falsches Arbeitsverzeichnis
+
+**Symptom:** `ModuleNotFoundError: No module named 'app'`
+
+**Ursache:** Der `cwd` Pfad zeigt nicht auf das `mcp/` Verzeichnis.
+
+**Lösung:** Stelle sicher, dass deine Konfiguration auf das Verzeichnis zeigt, das den `app/` Ordner enthält.
+
+Die korrekte Verzeichnisstruktur sieht so aus:
+
+```
+datagvat-mcp/                    ❌ cwd="..." (zu hoch - Repo-Root)
+  ├── docs/
+  ├── .planning/
+  └── mcp/                       ✅ cwd=".../mcp" (KORREKT - enthält app/)
+      ├── app/                   ❌ cwd=".../app" (zu tief - in app/ drin)
+      │   ├── server.py
+      │   ├── client.py
+      │   ├── tools/
+      │   └── ...
+      ├── tests/
+      ├── pyproject.toml
+      ├── .env
+      └── README.md
+```
+
+Deine Konfiguration muss auf das `mcp/` Verzeichnis zeigen:
+
+```json
+{
+  "cwd": "/absoluter/pfad/zu/datagvat-mcp/mcp"
+}
+```
+
+**Häufige Fehler:**
+- ❌ `/datagvat-mcp` - Zu hoch (Repo-Root, kein `app/` Ordner hier)
+- ❌ `/datagvat-mcp/mcp/app` - Zu tief (Python kann nicht aus `app/` importieren)
+- ✅ `/datagvat-mcp/mcp` - Korrekt (enthält `app/` als Python-Package)
+
+### Befehl nicht gefunden
+
+**Symptom:** Fehlermeldung erwähnt "datagvat-mcp" Befehl nicht gefunden
+
+**Ursache:** Verwendung veralteter Konfiguration aus früheren Dokumentationsversionen.
+
+**Lösung:** Verwende die korrigierten Konfigurationen wie oben gezeigt. Der Server läuft als Python-Modul (`python -m app.server`), nicht als eigenständiger Befehl.
+
+### Server erscheint, aber Tools funktionieren nicht
+
+**Symptome:**
+- Claude Desktop zeigt Server als verbunden an
+- Tool-Ausführung führt zu Fehlern
+
+**Debug-Schritte:**
+
+1. **Prüfe Python-Version:**
+```bash
+python --version  # Muss 3.11 oder höher sein
+```
+
+2. **Teste Server lokal:**
+```bash
+python -m app.server  # Sollte ohne Fehler starten
+```
+
+3. **Probiere Entwicklungsmodus:**
+```bash
+fastmcp dev app.server:mcp  # Teste Tools in Web-UI
+```
+
+4. **Prüfe Claude Desktop Logs** auf spezifische Fehlermeldungen
+
+### Server trennt ständig die Verbindung
+
+**Symptome:**
+- Server verbindet sich zunächst
+- Trennt nach erster Verwendung oder zufällig
+
+**Mögliche Ursachen:**
+- Server-Absturz durch unbehandelte Ausnahme
+- Netzwerk/Firewall blockiert API-Anfragen
+- Python-Umgebung stimmt nicht überein
+
+**Debug-Schritte:**
+
+1. **Prüfe Logs auf Absturzmeldungen** im Claude Desktop Logs-Verzeichnis
+2. **Teste API-Zugriff direkt:**
+```bash
+curl https://www.data.gv.at/api/hub/search/catalogues
+```
+
+3. **Führe Server direkt aus, um Fehler zu sehen:**
+```bash
+python -m app.server
+```
+
+### Verbindungsfehler
+
+Bei Verbindungsfehlern während der Tool-Ausführung:
+
+1. **Teste API-Zugriff** direkt:
+```bash
+curl https://www.data.gv.at/api/hub/search/catalogues
+```
+
+2. **Prüfe Firewall-Einstellungen** - Stelle sicher, dass ausgehende HTTPS-Verbindungen erlaubt sind
+3. **Überprüfe dein Netzwerk** - Versuche es von einem anderen Netzwerk, falls du hinter einer Unternehmens-Firewall bist
+
+### Import-Fehler
+
+Falls Python-Import-Fehler auftreten:
+
+1. **Überprüfe die Python-Version:**
+```bash
+python --version  # Sollte 3.11 oder höher sein
+```
+
+2. **Installiere Abhängigkeiten neu:**
+```bash
+uv pip install -e . --force-reinstall
+# oder mit pip:
+pip install -e . --force-reinstall
+```
+
+3. **Prüfe die virtuelle Umgebung** - Stelle sicher, dass du die richtige Python-Umgebung verwendest
+
+4. **Versuche absoluten Python-Pfad** in der Konfiguration, um Versions-Unterschiede zu vermeiden:
+```json
+{
+  "command": "C:\\Python311\\python.exe",  // Windows
+  "args": ["-m", "app.server"],
+  "cwd": "C:\\pfad\\zu\\datagvat-mcp\\mcp"
+}
+```
+
+## Nächste Schritte
+
+- **[Konfigurationsleitfaden](/de/guides/configuration)** - Erweiterte Konfigurationsoptionen
+- **[API-Referenz](/de/api/tools)** - Erkunden Sie alle verfügbaren Tools
+- **[Ressourcen](/de/api/resources)** - Direkter Datenzugriff über MCP-Ressourcen
+
+## Hilfe erhalten
+
+- **GitHub Issues** - [Fehler melden oder Funktionen anfragen](https://github.com/yourusername/datagvat-mcp/issues)
+- **Diskussionen** - [Fragen stellen und Tipps teilen](https://github.com/yourusername/datagvat-mcp/discussions)

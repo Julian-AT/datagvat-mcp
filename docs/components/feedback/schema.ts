@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/mini';
 
 export const blockFeedback = z.object({
   url: z.string(),

@@ -1,0 +1,12 @@
+{
+  "$schema": "..\\..\\..\\.source\\json-schema\\docs.meta.json",
+  "title": "Deployment",
+  "description": "Production deployment and operations guide",
+  "icon": "Cloud",
+  "root": true,
+  "pages": [
+    "production",
+    "monitoring",
+    "performance"
+  ]
+}

@@ -1,0 +1,376 @@
+---
+title: MCP Ressourcen
+description: Direkter Datenzugriff über MCP-Ressourcen
+---
+
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+
+# MCP Ressourcen
+
+MCP-Ressourcen bieten direkten Datenzugriff ohne Tool-Aufrufe. Sie verwenden ein URI-basiertes System für sofortigen Datenabruf.
+
+## Was sind Ressourcen?
+
+Ressourcen sind schreibgeschützte Datenendpunkte, auf die Claude direkt zugreifen kann. Anders als Tools, die Funktionsaufrufe brauchen, werden Ressourcen direkt über URIs abgerufen wie `piveau://catalogues` oder `piveau://datasets/dataset-123`.
+
+**Vorteile:**
+
+- **Schnellerer Zugriff** - Kein Tool-Aufruf-Overhead
+- **Vereinfachte Syntax** - Nur URI referenzieren
+- **Kontextdaten** - Ideal zum Laden von Referenzdaten in den Kontext
+- **Effizient** - Claude kann Ressourcendaten zwischenspeichern
+
+## Verfügbare Ressourcen
+
+### Kataloge
+
+<Accordions type="single" collapsible>
+  <Accordion title="Alle Kataloge auflisten" id="list-catalogues-resource">
+    **URI:** `piveau://catalogues`
+
+    **Rückgabewert:** Array aller verfügbaren Datenkataloge (bis zu 1000)
+
+    **Beispielnutzung in Claude:**
+    ```
+    Lade die Katalog-Ressource, um zu sehen, was verfügbar ist
+    ```
+
+    **Antwortformat:**
+    ```json
+    [
+      {
+        "id": "stadt-wien",
+        "title": "Stadt Wien Open Data",
+        "description": "Open Data der Stadt Wien"
+      },
+      {
+        "id": "data-gv-at",
+        "title": "data.gv.at"
+      }
+    ]
+    ```
+  </Accordion>
+
+  <Accordion title="Bestimmten Katalog abrufen" id="get-catalogue-resource">
+    **URI:** `piveau://catalogues/{catalogue_id}`
+
+    **Parameter:**
+    - `catalogue_id` - Eindeutige Katalog-ID
+
+    **Rückgabewert:** Vollständige Metadaten für den Katalog
+
+    **Beispielnutzung:**
+    ```
+    Zeige mir Details aus Ressource piveau://catalogues/stadt-wien
+    ```
+
+    **Antwortformat:**
+    ```json
+    {
+      "id": "stadt-wien",
+      "title": "Stadt Wien Open Data",
+      "description": "Umfassendes Open Data Portal...",
+      "publisher": {
+        "name": "Stadt Wien",
+        "type": "Municipality"
+      },
+      "datasets_count": 500
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Katalog-Datensätze auflisten" id="list-catalogue-datasets-resource">
+    **URI:** `piveau://catalogues/{catalogue_id}/datasets`
+
+    **Parameter:**
+    - `catalogue_id` - Eindeutige Katalog-ID
+
+    **Rückgabewert:** Array von Datensätzen innerhalb des Katalogs (bis zu 100)
+
+    **Beispielnutzung:**
+    ```
+    Lade Datensätze aus Ressource piveau://catalogues/stadt-wien/datasets
+    ```
+  </Accordion>
+</Accordions>
+
+### Datensätze
+
+<Accordions type="single" collapsible>
+  <Accordion title="Datensatz-Metadaten abrufen" id="get-dataset-resource">
+    **URI:** `piveau://datasets/{dataset_id}`
+
+    **Parameter:**
+    - `dataset_id` - Eindeutige Datensatz-ID
+
+    **Rückgabewert:** Vollständige Datensatz-Metadaten einschließlich Titel, Beschreibung, Herausgeber, Kategorien, Schlagwörter und mehr
+
+    **Beispielnutzung:**
+    ```
+    Hole Datensatz-Details aus Ressource piveau://datasets/dataset-123
+    ```
+
+    **Antwortformat:**
+    ```json
+    {
+      "id": "dataset-123",
+      "title": "Bevölkerungsstatistik 2024",
+      "description": "Jährliche Bevölkerungsdaten für österreichische Gemeinden",
+      "publisher": {...},
+      "themes": ["SOCI"],
+      "keywords": ["bevölkerung", "statistik", "demografie"],
+      "distributions": [...]
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Datensatz-Distributionen abrufen" id="get-dataset-distributions-resource">
+    **URI:** `piveau://datasets/{dataset_id}/distributions`
+
+    **Parameter:**
+    - `dataset_id` - Eindeutige Datensatz-ID
+
+    **Rückgabewert:** Array herunterladbarer Dateidistributionen (bis zu 100)
+
+    **Beispielnutzung:**
+    ```
+    Zeige mir Distributionen aus Ressource piveau://datasets/dataset-123/distributions
+    ```
+
+    **Antwortformat:**
+    ```json
+    [
+      {
+        "id": "dist-1",
+        "title": "Bevölkerung CSV",
+        "format": "CSV",
+        "downloadURL": "https://example.com/bevoelkerung.csv",
+        "byteSize": 1048576,
+        "mediaType": "text/csv"
+      },
+      {
+        "id": "dist-2",
+        "title": "Bevölkerung JSON",
+        "format": "JSON",
+        "downloadURL": "https://example.com/bevoelkerung.json",
+        "byteSize": 524288,
+        "mediaType": "application/json"
+      }
+    ]
+    ```
+  </Accordion>
+
+  <Accordion title="Datensatz-Qualitätsmetriken abrufen" id="get-dataset-metrics-resource">
+    **URI:** `piveau://datasets/{dataset_id}/metrics`
+
+    **Parameter:**
+    - `dataset_id` - Eindeutige Datensatz-ID
+
+    **Rückgabewert:** Data Quality Vocabulary (DQV) Metriken
+
+    **Beispielnutzung:**
+    ```
+    Prüfe Qualitätsmetriken aus Ressource piveau://datasets/dataset-123/metrics
+    ```
+
+    **Antwortformat:**
+    ```json
+    {
+      "completeness": 0.95,
+      "accuracy": 0.88,
+      "consistency": 0.92,
+      "availability": 1.0,
+      "overall_score": 0.91
+    }
+    ```
+  </Accordion>
+</Accordions>
+
+### Vokabulare
+
+<Accordions type="single" collapsible>
+  <Accordion title="Alle Vokabulare auflisten" id="list-vocabularies-resource">
+    **URI:** `piveau://vocabularies`
+
+    **Rückgabewert:** Array aller kontrollierten Vokabulare (bis zu 1000)
+
+    **Beispielnutzung:**
+    ```
+    Lade Vokabulare aus Ressource piveau://vocabularies
+    ```
+
+    **Antwortformat:**
+    ```json
+    [
+      {
+        "id": "eu-themes",
+        "title": "EU Datenkategorien",
+        "type": "ConceptScheme"
+      },
+      {
+        "id": "file-formats",
+        "title": "Dateiformat-Vokabular",
+        "type": "ConceptScheme"
+      }
+    ]
+    ```
+  </Accordion>
+
+  <Accordion title="Bestimmtes Vokabular abrufen" id="get-vocabulary-resource">
+    **URI:** `piveau://vocabularies/{vocabulary_id}`
+
+    **Parameter:**
+    - `vocabulary_id` - Eindeutige Vokabular-ID
+
+    **Rückgabewert:** Vollständiges Vokabular mit allen Begriffen und Labels
+
+    **Beispielnutzung:**
+    ```
+    Zeige mir Ressource piveau://vocabularies/eu-themes
+    ```
+
+    **Antwortformat:**
+    ```json
+    {
+      "id": "eu-themes",
+      "title": "EU Datenkategorien",
+      "@graph": [
+        {
+          "@id": "http://publications.europa.eu/resource/authority/data-theme/HEAL",
+          "prefLabel": {
+            "en": "Health",
+            "de": "Gesundheit"
+          }
+        }
+      ]
+    }
+    ```
+  </Accordion>
+</Accordions>
+
+
+
+## Nutzungsmuster
+
+### Referenzdaten laden
+
+Ressourcen sind ideal zum Laden von Referenzdaten in Claudes Kontext:
+
+```
+Lade die Katalog-Ressource und das EU-Kategorien-Vokabular,
+dann hilf mir, Gesundheitsdatensätze zu finden
+```
+
+Claude kann die Ressourcendaten nutzen, um:
+1. Zu wissen, welche Kataloge existieren
+2. Kategorie-Codes zu verstehen
+3. Bessere Suchempfehlungen zu geben
+
+### Ressourcen mit Tools kombinieren
+
+Nutzen Sie Ressourcen, um Tool-Aufrufe zu informieren:
+
+```
+1. Lade Ressource piveau://catalogues
+2. Für jeden Katalog verwende search_datasets, um CSV-Datensätze zu finden
+3. Erstelle eine Zusammenfassungstabelle
+```
+
+### Effizienter Datenzugriff
+
+Ressourcen vermeiden wiederholte Tool-Aufrufe:
+
+```
+# Anstatt get_dataset mehrmals aufzurufen:
+Lade Ressourcen:
+  - piveau://datasets/dataset-1
+  - piveau://datasets/dataset-2
+  - piveau://datasets/dataset-3
+
+Dann vergleiche ihre Qualitätsmetriken
+```
+
+## Ressource vs. Tool - Wann was verwenden
+
+### Verwenden Sie Ressourcen wenn:
+
+- **Referenzdaten laden** - Kataloge, Vokabulare
+- **Einzelne Elemente abrufen** - Bestimmter Datensatz, Katalog
+- **Kontext aufbauen** - Mehrere Elemente zum Vergleich laden
+- **Statische Daten** - Daten, die sich während der Konversation nicht ändern
+
+### Verwenden Sie Tools wenn:
+
+- **Suchen** - Filterung, Sortierung, Paginierung erforderlich
+- **Komplexe Operationen** - Qualitätsanalyse, semantische Suche
+- **Schreiboperationen** - Entwürfe erstellen, veröffentlichen
+- **Dynamische Parameter** - Vom Benutzer angegebene Filter, Datumsbereiche
+
+## Best Practices
+
+### 1. Batch-Ressourcen-Laden
+
+Laden Sie mehrere Ressourcen auf einmal:
+
+```
+Lade diese Ressourcen:
+  - piveau://catalogues
+  - piveau://vocabularies/eu-themes
+  - piveau://datasets/dataset-123
+```
+
+### 2. Für Kontext verwenden
+
+Laden Sie Ressourcen vor Tool-Aufrufen für bessere Ergebnisse:
+
+```
+1. Lade Ressource piveau://catalogues
+2. Verwende search_datasets mit catalogue_id aus Schritt 1
+```
+
+### 3. Cache-Bewusstsein
+
+Ressourcen werden von Claude gecached, daher ist wiederholter Zugriff schnell:
+
+```
+# Erster Zugriff - holt Daten
+Lade piveau://catalogues
+
+# Später im Gespräch - nutzt Cache
+Referenziere die Katalog-Ressource erneut
+```
+
+### 4. Mit Tools kombinieren
+
+Nutzen Sie Ressourcen für Daten, Tools für Operationen:
+
+```
+1. Lade piveau://datasets/dataset-123 (Ressource)
+2. Verwende preview_data auf Distributions-URL (Tool)
+3. Verwende analyze_dataset_quality (Tool)
+```
+
+## Fehlerbehandlung
+
+Ressourcen können fehlschlagen, wenn:
+
+- **Ungültige URI** - Tippfehler im Ressourcenpfad
+- **Nicht existierende ID** - Datensatz oder Katalog existiert nicht
+- **API nicht verfügbar** - Piveau API ist offline
+
+Claude meldet Ressourcenfehler und schlägt Alternativen vor:
+
+```
+Ressource piveau://datasets/invalid-id nicht gefunden.
+Versuchen Sie, search_datasets zu verwenden, um die korrekte ID zu finden.
+```
+
+## Performance-Hinweise
+
+- **Katalog-Liste:** ~100ms (bis zu 1000 Kataloge)
+- **Einzelner Datensatz:** ~50ms
+- **Distributionen:** ~100ms (bis zu 100 Dateien)
+- **Vokabulare:** ~200ms (mit allen Begriffen)
+
+Ressourcen sind für schnellen Zugriff optimiert mit vernünftigen Limits, um überwältigende Antworten zu verhindern.

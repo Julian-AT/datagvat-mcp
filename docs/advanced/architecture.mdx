@@ -1,0 +1,588 @@
+---
+title: System Architecture
+description: Deep dive into Austria MCP server architecture
+---
+
+# System Architecture
+
+Understanding Austria MCP's architecture helps you extend, debug, and optimize the server.
+
+## High-Level Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    MCP Client Layer                         │
+│          (Claude Desktop, Continue, Cline, etc.)            │
+└────────────────────┬────────────────────────────────────────┘
+                     │ MCP Protocol (stdio/SSE)
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                 FastMCP Framework Layer                     │
+│   • Protocol handling (MCP 1.0 spec)                        │
+│   • Tool/resource/prompt registration                       │
+│   • Lifecycle management                                    │
+│   • Type validation                                         │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  Middleware Stack                           │
+│   ┌───────────────────────────────────────────────────┐    │
+│   │  Request Pipeline (inbound)                       │    │
+│   │  ─────────────────────────────                    │    │
+│   │  1. StructuredLoggingMiddleware                   │    │
+│   │     ↓ (logs request, assigns correlation ID)      │    │
+│   │  2. AuthMiddleware                                │    │
+│   │     ↓ (validates API keys for management tools)   │    │
+│   │  3. RateLimitingMiddleware                        │    │
+│   │     ↓ (enforces per-tool rate limits)             │    │
+│   │  4. ErrorHandlingMiddleware                       │    │
+│   │     ↓ (catches exceptions, formats errors)        │    │
+│   │  5. RetryMiddleware                               │    │
+│   │     ↓ (retries failed API calls)                  │    │
+│   │  6. AuditMiddleware                               │    │
+│   │     ↓ (logs all actions for compliance)           │    │
+│   └───────────────────────────────────────────────────┘    │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Tool Layer                               │
+│   ┌──────────────┬──────────────┬──────────────┐           │
+│   │  Discovery   │  Management  │  Analysis    │           │
+│   │  Tools       │  Tools       │  Tools       │           │
+│   ├──────────────┼──────────────┼──────────────┤           │
+│   │  Preview     │  Vocabulary  │  Resource    │           │
+│   │  Tools       │  Tools       │  Handlers    │           │
+│   └──────────────┴──────────────┴──────────────┘           │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                 Service Layer                               │
+│   • PiveauClient (HTTP client with pooling)                 │
+│   • SemanticQueryExpander (AI-powered query expansion)      │
+│   • DataPreviewService (CSV/JSON parsing)                   │
+│   • QualityAnalyzer (DQV scoring)                           │
+│   • SimilarityCalculator (dataset matching)                 │
+└────────────────────┬────────────────────────────────────────┘
+                     │ HTTPS
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│              External APIs                                  │
+│   • Piveau API (data.gv.at)                                 │
+│   • OpenAI API (semantic expansion)                         │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Core Components
+
+### 1. FastMCP Framework
+
+**Role:** MCP protocol implementation
+
+**Responsibilities:**
+- Handle stdio/SSE communication with clients
+- Parse and validate MCP messages
+- Route requests to appropriate handlers
+- Manage server lifecycle (startup/shutdown)
+- Type validation with Pydantic models
+
+**Key Features:**
+- Decoratorsbased tool registration (`@mcp.tool()`)
+- Automatic JSON Schema generation
+- Built-in error handling
+- Context management for dependencies
+
+**Example:**
+```python
+from fastmcp import FastMCP
+
+mcp = FastMCP(
+    name="austria-data",
+    instructions="MCP server for Austrian Open Data",
+    lifespan=lifespan,
+    middleware=[...]
+)
+
+@mcp.tool()
+async def search_datasets(query: str) -> dict:
+    """Search for datasets"""
+    ...
+```
+
+### 2. Middleware Stack
+
+Middleware processes requests in order (inbound) and responses in reverse (outbound).
+
+#### StructuredLoggingMiddleware
+
+**Purpose:** Comprehensive request/response logging
+
+**Features:**
+- JSON-structured logs
+- Correlation IDs for request tracking
+- Performance timing
+- Parameter sanitization (removes sensitive data)
+
+**Log Format:**
+```json
+{
+  "timestamp": "2024-01-18T10:30:45.123Z",
+  "correlation_id": "abc-123-def",
+  "tool": "search_datasets",
+  "parameters": {"query": "population", "limit": 20},
+  "duration_ms": 245,
+  "status": "success"
+}
+```
+
+#### AuthMiddleware
+
+**Purpose:** API key validation for management tools
+
+**Protected Tools:**
+- `create_dataset_draft`
+- `update_dataset_draft`
+- `delete_dataset_draft`
+- `publish_dataset`
+
+**Auth Flow:**
+1. Check if tool requires auth
+2. Extract API key from environment
+3. Validate key with Piveau API
+4. Cache validation result (5 min TTL)
+5. Allow/deny request
+
+#### RateLimitingMiddleware
+
+**Purpose:** Prevent API abuse and respect upstream limits
+
+**Strategy:** Token bucket per tool category
+
+**Limits:**
+- Discovery tools: 60 requests/minute
+- Management tools: 10 requests/minute
+- Preview tools: 30 requests/minute
+- Analysis tools: 30 requests/minute
+
+**Response on limit:**
+```json
+{
+  "error": "RateLimitExceeded",
+  "message": "Rate limit exceeded: 60 requests/min",
+  "retry_after": 42.5
+}
+```
+
+#### ErrorHandlingMiddleware
+
+**Purpose:** Consistent error formatting
+
+**Error Types:**
+- `ToolError` - Tool execution failures
+- `ValidationError` - Invalid parameters
+- `NetworkError` - API communication failures
+- `AuthError` - Authentication failures
+
+**Error Response:**
+```json
+{
+  "error": "ToolError",
+  "message": "Dataset not found: dataset-123",
+  "tool": "get_dataset",
+  "correlation_id": "abc-123"
+}
+```
+
+#### RetryMiddleware
+
+**Purpose:** Automatic retry for transient failures
+
+**Strategy:** Exponential backoff with jitter
+
+**Retry Logic:**
+- Max retries: 3
+- Initial delay: 1 second
+- Backoff factor: 2.0
+- Jitter: ±25%
+- Retryable: 500, 502, 503, 504, network errors
+- Non-retryable: 400, 401, 403, 404
+
+#### AuditMiddleware
+
+**Purpose:** Compliance and security auditing
+
+**Logged Events:**
+- All tool invocations
+- Parameter values (sanitized)
+- User identification (when available)
+- Timestamps and outcomes
+
+**Use Cases:**
+- Security investigations
+- Usage analytics
+- Compliance reporting
+- Debugging
+
+### 3. Tool Layer
+
+Tools are organized by functional category in `app/tools/`:
+
+```
+app/tools/
+├── __init__.py
+├── discovery.py      # Search, list, get datasets
+├── management.py     # Create, update, delete datasets
+├── analysis.py       # Quality analysis, similarity
+├── preview.py        # Data preview, schema inspection
+└── vocabularies.py   # EU themes, formats, autocomplete
+```
+
+**Tool Registration:**
+```python
+@mcp.tool()
+async def search_datasets(
+    ctx: Context,
+    query: str | None = None,
+    themes: list[str] | None = None,
+    limit: int = 20
+) -> dict:
+    """
+    Search for datasets.
+
+    Args:
+        ctx: FastMCP context (provides state)
+        query: Search keywords
+        themes: Filter by EU themes
+        limit: Results per page
+
+    Returns:
+        Search results with facets
+    """
+    state = ctx.state
+    client = state.piveau_client
+
+    results = await client.search(query, themes, limit)
+    return results
+```
+
+### 4. Service Layer
+
+#### PiveauClient
+
+**Purpose:** Optimized HTTP client for Piveau API
+
+**Features:**
+- Connection pooling (10 connections)
+- Request timeout handling (30s default)
+- Automatic retries (handled by middleware)
+- Response caching (for vocabularies)
+
+**Implementation:**
+```python
+class PiveauClient:
+    def __init__(self, base_url: str, timeout: int = 30):
+        self.session = httpx.AsyncClient(
+            base_url=base_url,
+            timeout=timeout,
+            limits=httpx.Limits(max_connections=10)
+        )
+
+    async def search(self, query, themes, limit):
+        response = await self.session.get(
+            "/datasets",
+            params={"q": query, "categories": themes, "limit": limit}
+        )
+        return response.json()
+```
+
+#### SemanticQueryExpander
+
+**Purpose:** Natural language query understanding
+
+**Features:**
+- Language detection (German/English)
+- Theme extraction from text
+- Keyword expansion
+- Confidence scoring
+
+**Example:**
+```python
+query = "Gesundheitsdaten aus Wien"
+expansion = await expander.expand(query)
+
+{
+  "detected_language": "de",
+  "semantic_themes": ["HEAL"],
+  "expanded_keywords": ["gesundheit", "medizin", "gesundheitswesen"],
+  "confidence": "high"
+}
+```
+
+#### DataPreviewService
+
+**Purpose:** Efficient data sampling
+
+**Features:**
+- Partial HTTP range requests
+- CSV delimiter detection
+- JSON structure inference
+- Type detection
+
+**Optimization:**
+- Fetches only first 64KB by default
+- Streams data to avoid loading entire file
+- Cancels request after getting needed rows
+
+#### QualityAnalyzer
+
+**Purpose:** DQV-compliant quality scoring
+
+**Scoring Algorithm:**
+```python
+def calculate_quality_score(dataset: dict) -> int:
+    score = 0
+
+    # Completeness (40 points)
+    required_fields = ['title', 'description', 'publisher', ...]
+    score += sum(5 for field in required_fields if field in dataset)
+
+    # Timeliness (15 points)
+    modified = dataset.get('modified')
+    if modified:
+        age_days = (now() - parse_date(modified)).days
+        if age_days < 365:
+            score += 15
+        elif age_days < 730:
+            score += 10
+        else:
+            score += 5
+
+    # Accuracy (20 points)
+    if all_urls_accessible(dataset):
+        score += 10
+    if valid_format_declarations(dataset):
+        score += 10
+
+    # Consistency (15 points)
+    if consistent_language(dataset):
+        score += 10
+    if proper_theme_assignment(dataset):
+        score += 5
+
+    # Compliance (10 points)
+    if dcat_ap_compliant(dataset):
+        score += 10
+
+    return min(score, 100)
+```
+
+## Data Flow Examples
+
+### Discovery Flow (Search)
+
+```
+1. User → Claude Desktop
+   "Find population datasets"
+
+2. Claude → MCP Server
+   {
+     "method": "tools/call",
+     "params": {
+       "name": "semantic_search_datasets",
+       "arguments": {
+         "natural_query": "population datasets"
+       }
+     }
+   }
+
+3. MCP Server → Middleware Pipeline
+   StructuredLogging → Auth (skip) → RateLimiting → Error → Retry → Audit
+
+4. Tool → SemanticQueryExpander
+   "population datasets" → {themes: ["SOCI"], keywords: ["population", "demographics"]}
+
+5. Tool → PiveauClient
+   GET /datasets?q=population&categories=SOCI&boost_quality=true
+
+6. Piveau API → Response
+   {results: [...], count: 42, facets: {...}}
+
+7. Tool → QualityAnalyzer (optional boost)
+   Rerank results by quality score
+
+8. Response → Middleware Pipeline (reverse)
+   Audit ← Retry ← Error ← RateLimiting ← Auth ← StructuredLogging
+
+9. MCP Server → Claude
+   {result: {results: [...], expansion_info: {...}}}
+
+10. Claude → User
+    "I found 42 population datasets. Here are the top results:
+     1. Vienna Population Statistics (quality: 95)
+     2. National Demographics 2023 (quality: 87)
+     ..."
+```
+
+## Lifecycle Management
+
+### Startup
+
+```python
+@asynccontextmanager
+async def lifespan(mcp: FastMCP):
+    # Initialize dependencies
+    settings = get_settings()
+    client = PiveauClient(
+        base_url=settings.piveau_api_base,
+        timeout=settings.request_timeout
+    )
+    semantic_expander = SemanticQueryExpander()
+
+    # Yield application state
+    state = AppState(
+        settings=settings,
+        piveau_client=client,
+        semantic_expander=semantic_expander
+    )
+
+    try:
+        yield state
+    finally:
+        # Cleanup
+        await client.close()
+        await semantic_expander.close()
+```
+
+### Shutdown
+
+1. Receive shutdown signal (SIGTERM/SIGINT)
+2. Stop accepting new requests
+3. Wait for in-flight requests (max 30s)
+4. Close HTTP clients
+5. Flush logs
+6. Exit gracefully
+
+## Configuration
+
+### Settings Management
+
+```python
+class Settings(BaseSettings):
+    piveau_api_base: str = "https://www.data.gv.at/api/hub/search"
+    request_timeout: int = 30
+    log_level: str = "INFO"
+    log_format: str = "json"
+    dev_mode: bool = False
+
+    class Config:
+        env_prefix = "AUSTRIA_MCP_"
+        env_file = ".env"
+```
+
+### Environment Variables
+
+All settings can be configured via environment:
+
+```bash
+AUSTRIA_MCP_PIVEAU_API_BASE=https://api.example.com
+AUSTRIA_MCP_REQUEST_TIMEOUT=60
+AUSTRIA_MCP_LOG_LEVEL=DEBUG
+```
+
+## Performance Characteristics
+
+### Response Times
+
+- **Search:** 200-500ms (cached vocabularies)
+- **Get dataset:** 100-200ms
+- **Preview:** 500-2000ms (depends on file size)
+- **Quality analysis:** 300-800ms (multiple API calls)
+
+### Throughput
+
+- **Max concurrent requests:** 10 (connection pool limit)
+- **Rate limits:** Tool-specific (see RateLimitingMiddleware)
+- **Memory usage:** ~50-100MB baseline, +10MB per concurrent preview
+
+### Caching
+
+- **Vocabulary data:** 1 hour TTL
+- **Auth tokens:** 5 minutes TTL
+- **No caching:** Dataset content (always fresh)
+
+## Extension Points
+
+### Adding New Tools
+
+```python
+# app/tools/custom.py
+@mcp.tool()
+async def my_custom_tool(ctx: Context, param: str) -> dict:
+    """My custom tool"""
+    state = ctx.state
+    # Use state.piveau_client, etc.
+    return {"result": "..."}
+```
+
+### Adding New Middleware
+
+```python
+# app/middleware.py
+class CustomMiddleware:
+    async def __call__(self, ctx, next_handler):
+        # Pre-processing
+        print(f"Before: {ctx.tool_name}")
+
+        # Call next middleware/tool
+        result = await next_handler(ctx)
+
+        # Post-processing
+        print(f"After: {ctx.tool_name}")
+
+        return result
+
+# Add to stack
+mcp = FastMCP(
+    middleware=[
+        CustomMiddleware(),
+        ...
+    ]
+)
+```
+
+### Custom API Clients
+
+```python
+class CustomAPIClient:
+    def __init__(self):
+        self.session = httpx.AsyncClient()
+
+    async def fetch_data(self):
+        ...
+
+    async def close(self):
+        await self.session.aclose()
+
+# Add to lifespan
+@asynccontextmanager
+async def lifespan(mcp: FastMCP):
+    custom_client = CustomAPIClient()
+
+    state = AppState(
+        custom_client=custom_client,
+        ...
+    )
+
+    try:
+        yield state
+    finally:
+        await custom_client.close()
+```
+
+## Next Steps
+
+- **[Middleware Deep Dive](/advanced/middleware)** - Detailed middleware guide
+- **[Semantic Search Internals](/advanced/semantic-search)** - How query expansion works
+- **[Performance Tuning](/deployment/performance)** - Optimization techniques

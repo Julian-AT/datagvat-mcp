@@ -1,92 +1,125 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __esm = (fn, res) => function __init() {
-  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
-};
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-
-// content/api/source.config.ts
-var source_config_exports = {};
-__export(source_config_exports, {
-  default: () => source_config_default,
-  docs: () => docs
-});
-import { defineConfig, defineDocs, frontmatterSchema, metaSchema } from "fumadocs-mdx/config";
-import lastModified from "fumadocs-mdx/plugins/last-modified";
-var docs, source_config_default;
-var init_source_config = __esm({
-  "content/api/source.config.ts"() {
-    "use strict";
-    docs = defineDocs({
-      dir: ".",
-      // cwd is already docs/content/api/
-      docs: {
-        schema: frontmatterSchema,
-        postprocess: {
-          includeProcessedMarkdown: true
-        }
-      },
-      meta: {
-        schema: metaSchema
-      }
-    });
-    source_config_default = defineConfig({
-      plugins: [lastModified()]
-    });
-  }
-});
-
 // source.config.ts
 import {
-  defineConfig as defineConfig2,
-  defineDocs as defineDocs2,
-  frontmatterSchema as frontmatterSchema2,
-  metaSchema as metaSchema2
+  applyMdxPreset,
+  defineConfig,
+  defineDocs,
+  frontmatterSchema,
+  metaSchema
 } from "fumadocs-mdx/config";
-import { rehypeCodeDefaultOptions } from "fumadocs-core/mdx-plugins";
-import { remarkFeedbackBlock } from "fumadocs-core/mdx-plugins/remark-feedback-block";
-import { transformerNotationDiff, transformerNotationHighlight } from "@shikijs/transformers";
-import lastModified2 from "fumadocs-mdx/plugins/last-modified";
-var docs2 = defineDocs2({
-  dir: "content/docs",
+import { z } from "zod";
+import jsonSchema from "fumadocs-mdx/plugins/json-schema";
+import lastModified from "fumadocs-mdx/plugins/last-modified";
+var docs = defineDocs({
   docs: {
-    schema: frontmatterSchema2,
+    schema: frontmatterSchema.extend({
+      preview: z.string().optional(),
+      index: z.boolean().default(false),
+      /**
+       * API routes only
+       */
+      method: z.string().optional()
+    }),
     postprocess: {
-      includeProcessedMarkdown: true
+      includeProcessedMarkdown: true,
+      extractLinkReferences: true
+    },
+    async: true,
+    async mdxOptions(environment) {
+      const { rehypeCodeDefaultOptions } = await import("fumadocs-core/mdx-plugins/rehype-code");
+      const { remarkStructureDefaultOptions } = await import("fumadocs-core/mdx-plugins/remark-structure");
+      const { remarkSteps } = await import("fumadocs-core/mdx-plugins/remark-steps");
+      const { remarkFeedbackBlock } = await import("fumadocs-core/mdx-plugins/remark-feedback-block");
+      const { transformerTwoslash } = await import("fumadocs-twoslash");
+      const { createFileSystemTypesCache } = await import("fumadocs-twoslash/cache-fs");
+      const { default: remarkMath } = await import("remark-math");
+      const { remarkTypeScriptToJavaScript } = await import("fumadocs-docgen/remark-ts2js");
+      const { default: rehypeKatex } = await import("rehype-katex");
+      const { remarkAutoTypeTable, createGenerator, createFileSystemGeneratorCache } = await import("fumadocs-typescript");
+      const generator = createGenerator({
+        cache: createFileSystemGeneratorCache(".next/fumadocs-typescript")
+      });
+      const feedbackOptions = {
+        resolve(node) {
+          if (node.type === "mdxJsxFlowElement") return "skip";
+          return node.type === "paragraph" || node.type === "image" || node.type === "list";
+        }
+      };
+      return applyMdxPreset({
+        remarkStructureOptions: {
+          types: [...remarkStructureDefaultOptions.types, "code"]
+        },
+        rehypeCodeOptions: {
+          langs: ["ts", "js", "html", "tsx", "mdx"],
+          inline: "tailing-curly-colon",
+          themes: {
+            light: "catppuccin-latte",
+            dark: "catppuccin-mocha"
+          },
+          transformers: [
+            ...rehypeCodeDefaultOptions.transformers ?? [],
+            transformerTwoslash({
+              typesCache: createFileSystemTypesCache()
+            }),
+            transformerEscape()
+          ]
+        },
+        remarkCodeTabOptions: {
+          parseMdx: true
+        },
+        remarkNpmOptions: {
+          persist: {
+            id: "package-manager"
+          }
+        },
+        remarkPlugins: [
+          remarkSteps,
+          remarkMath,
+          [remarkFeedbackBlock, feedbackOptions],
+          [
+            remarkAutoTypeTable,
+            {
+              generator
+            }
+          ],
+          remarkTypeScriptToJavaScript
+        ],
+        rehypePlugins: (v) => [rehypeKatex, ...v]
+      })(environment);
     }
   },
   meta: {
-    schema: metaSchema2
+    schema: metaSchema.extend({
+      description: z.string().optional()
+    })
   }
 });
-var source_config_default2 = defineConfig2({
-  plugins: [lastModified2()],
-  workspaces: {
-    "api": {
-      dir: "content/api",
-      config: await Promise.resolve().then(() => (init_source_config(), source_config_exports))
+function transformerEscape() {
+  return {
+    name: "@shikijs/transformers:remove-notation-escape",
+    code(hast) {
+      function replace(node) {
+        if (node.type === "text") {
+          node.value = node.value.replace("[\\!code", "[!code");
+        } else if ("children" in node) {
+          for (const child of node.children) {
+            replace(child);
+          }
+        }
+      }
+      replace(hast);
+      return hast;
     }
-  },
-  mdxOptions: {
-    remarkPlugins: [remarkFeedbackBlock],
-    rehypeCodeOptions: {
-      inline: "tailing-curly-colon",
-      themes: {
-        light: "github-light",
-        dark: "github-dark"
-      },
-      transformers: [
-        transformerNotationDiff(),
-        transformerNotationHighlight(),
-        ...rehypeCodeDefaultOptions.transformers ?? []
-      ]
-    }
-  }
+  };
+}
+var source_config_default = defineConfig({
+  plugins: [
+    jsonSchema({
+      insert: true
+    }),
+    lastModified()
+  ]
 });
 export {
-  source_config_default2 as default,
-  docs2 as docs
+  source_config_default as default,
+  docs
 };

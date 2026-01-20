@@ -1,0 +1,6 @@
+{
+  "title": "Prompts",
+  "description": "MCP prompts reference",
+  "icon": "MessageSquare",
+  "pages": ["index", "search-assistance"]
+}

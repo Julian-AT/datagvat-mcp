@@ -1,6 +1,0 @@
-{
-  "title": "Examples",
-  "description": "Real-world examples showing search patterns, data previews, and complete workflows",
-  "icon": "Code",
-  "pages": ["search", "preview", "workflows"]
-}

@@ -1,0 +1,11 @@
+{
+  "$schema": "..\\..\\..\\.source\\json-schema\\docs.meta.json",
+  "title": "OpenAPI Example",
+  "description": "A demo for Fumadocs OpenAPI",
+  "root": true,
+  "icon": "Shapes",
+  "pages": [
+    "index",
+    "...(generated)"
+  ]
+}

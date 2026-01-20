@@ -1,0 +1,7 @@
+{
+  "title": "Tutorials",
+  "description": "Interactive tutorials to learn Austria MCP from the ground up",
+  "icon": "GraduationCap",
+  "root": true,
+  "pages": ["getting-started"]
+}

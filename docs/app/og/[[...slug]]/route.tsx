@@ -1,27 +1,26 @@
-import { getPageImage, source } from '@/lib/source';
+import { source } from '@/lib/source';
 import { notFound } from 'next/navigation';
-import { ImageResponse } from 'next/og';
-import { generate as DefaultImage } from 'fumadocs-ui/og';
+import { generate as MetadataImage, getImageResponseOptions } from './generate';
+import { ImageResponse } from '@takumi-rs/image-response';
+import { getPageImage } from '@/lib/metadata';
 
 export const revalidate = false;
 
-export async function GET(_req: Request, { params }: { params: Promise<{ slug?: string[] }> }) {
+export async function GET(_req: Request, { params }: RouteContext<'/og/[[...slug]]'>) {
   const { slug } = await params;
   const page = source.getPage(slug?.slice(0, -1) || []);
   if (!page) notFound();
 
   return new ImageResponse(
-    <DefaultImage title={page.data.title} description={page.data.description} site="data.gv.at MCP" />,
-    {
-      width: 1200,
-      height: 630,
-    },
+    <MetadataImage title={page.data.title} description={page.data.description} />,
+    await getImageResponseOptions(),
   );
 }
 
-export function generateStaticParams() {
+export function generateStaticParams(): {
+  slug: string[];
+}[] {
   return source.getPages().map((page) => ({
-    lang: page.locale,
     slug: getPageImage(page).segments,
   }));
 }

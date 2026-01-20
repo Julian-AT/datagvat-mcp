@@ -1,0 +1,1130 @@
+---
+title: MCP Tools Referenz
+description: Vollständige Referenz für alle Austria MCP Server Tools
+---
+
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+
+# MCP Tools
+
+Der Austria MCP Server bietet umfassende Tools zum Entdecken, Analysieren und Verwalten von österreichischen Open Data Datensätzen.
+
+## Discovery Tools
+
+<Accordions type="single" collapsible>
+  <Accordion title="list_catalogues" id="list-catalogues">
+    Listet verfügbare Datenkataloge im österreichischen Open Data Portal auf.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      limit: {
+        type: "integer",
+        description: "Maximale Anzahl zurückzugebender Kataloge (1-5000)",
+        default: 100
+      },
+      offset: {
+        type: "integer",
+        description: "Anzahl zu überspringender Kataloge für Paginierung",
+        default: 0
+      },
+      value_type: {
+        type: "string",
+        description: "Rückgabeformat: 'metadata', 'id' oder 'uri'",
+        default: "metadata"
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    ```json
+    [
+      {
+        "id": "stadt-wien",
+        "title": "Stadt Wien Open Data",
+        "description": "Open Data der Stadt Wien"
+      }
+    ]
+    ```
+
+    **Beispiel:**
+
+    ```python
+    # In Claude Desktop
+    list_catalogues(limit=10)
+    ```
+  </Accordion>
+
+  <Accordion title="get_catalogue" id="get-catalogue">
+    Ruft detaillierte Informationen über einen bestimmten Katalog ab.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      catalogue_id: {
+        type: "string",
+        description: "Eindeutige Katalog-ID"
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    ```json
+    {
+      "id": "stadt-wien",
+      "title": "Stadt Wien Open Data",
+      "description": "Umfassende Open Data aus Wien",
+      "publisher": {...}
+    }
+    ```
+
+    **Beispiel:**
+
+    ```python
+    get_catalogue(catalogue_id="stadt-wien")
+    ```
+  </Accordion>
+
+  <Accordion title="search_datasets" id="search-datasets">
+    Durchsucht Datensätze mit Textsuche und Filtern. Unterstützt Volltextsuche mit Fuzzy-Matching, Theme/Format/Publisher-Filtern, Datumsbereichsfilterung und mehreren Sortieroptionen.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      query: {
+        type: "string",
+        description: "Suchanfrage für Titel, Beschreibungen, Schlagwörter. Unterstützt Fuzzy-Suche (z.B. 'gesundheit~'), Wildcards (z.B. 'europ*'), Phrasen (z.B. '\"open data\"') und boolesche Operatoren (AND, OR, NOT)",
+        default: "None"
+      },
+      themes: {
+        type: "string[]",
+        description: "Filtern nach EU-Datenkategorie-Codes: AGRI, ECON, EDUC, ENER, ENVI, GOVE, HEAL, INTR, JUST, REGI, SOCI, TECH, TRAN",
+        default: "None"
+      },
+      formats: {
+        type: "string[]",
+        description: "Filtern nach Dateiformat (CSV, JSON, XML, PDF, GeoJSON, etc.)",
+        default: "None"
+      },
+      publishers: {
+        type: "string[]",
+        description: "Filtern nach Herausgeber/Organisations-ID",
+        default: "None"
+      },
+      min_date: {
+        type: "string",
+        description: "Filtert Datensätze, die nach diesem Datum geändert/veröffentlicht wurden (YYYY-MM-DD oder ISO 8601)",
+        default: "None"
+      },
+      max_date: {
+        type: "string",
+        description: "Filtert Datensätze, die vor diesem Datum geändert/veröffentlicht wurden (YYYY-MM-DD oder ISO 8601)",
+        default: "None"
+      },
+      sort_by: {
+        type: "string",
+        description: "Sortierreihenfolge: relevance, modified_desc, modified_asc, title_asc, title_desc, issued_desc, issued_asc",
+        default: "relevance"
+      },
+      boost_quality: {
+        type: "boolean",
+        description: "Bevorzugt hochwertige Datensätze in Suchergebnissen (nutzt Vollständigkeits-, Aktualitäts- und Compliance-Metriken)",
+        default: false
+      },
+      limit: {
+        type: "integer",
+        description: "Ergebnisse pro Seite (1-100)",
+        default: 20
+      },
+      page: {
+        type: "integer",
+        description: "Seitenzahl für Paginierung (0-basiert)",
+        default: 0
+      },
+      catalogue_id: {
+        type: "string",
+        description: "Beschränkt Suche auf bestimmten Katalog",
+        default: "None"
+      }
+    }} />
+
+    **Erweiterte Suchmuster:**
+
+    - **Fuzzy-Matching:** `query="gesundheit~"` findet gesundheit, gesundeit, gesundhet (1 Editierdistanz)
+    - **Wildcards:** `query="europ*"` findet europe, european, europa
+    - **Phrasen:** `query='"open data"'` sucht exakte Phrase
+    - **Boolesche Operatoren:** `query="gesundheit AND (daten OR dataset)"` für explizite Logik
+    - **Filterlogik:** Mehrere Themes nutzen OR innerhalb der Facette, AND zwischen verschiedenen Facetten
+
+    **Rückgabewert:**
+
+    ```json
+    {
+      "results": [
+        {
+          "id": "dataset-123",
+          "title": "Bevölkerungsstatistik 2024",
+          "description": "Jährliche Bevölkerungsdaten...",
+          "themes": ["SOCI"],
+          "formats": ["CSV", "JSON"]
+        }
+      ],
+      "count": 1234,
+      "facets": {
+        "categories": {...},
+        "format": {...}
+      }
+    }
+    ```
+
+    **Beispiel:**
+
+    ```python
+    # Einfache Suche
+    search_datasets(query="bevölkerung", limit=10)
+
+    # Erweiterte Filterung
+    search_datasets(
+        query="gesundheit",
+        themes=["HEAL", "SOCI"],
+        formats=["CSV"],
+        min_date="2024-01-01",
+        boost_quality=True,
+        limit=20
+    )
+    ```
+  </Accordion>
+
+  <Accordion title="get_dataset" id="get-dataset">
+    Ruft detaillierte Metadaten für einen bestimmten Datensatz ab.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      dataset_id: {
+        type: "string",
+        description: "Eindeutige Datensatz-ID"
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    Vollständige Datensatz-Metadaten einschließlich Titel, Beschreibung, Herausgeber, Kategorien, Schlagwörter, Distributionen und mehr.
+
+    **Beispiel:**
+
+    ```python
+    get_dataset(dataset_id="dataset-123")
+    ```
+  </Accordion>
+
+  <Accordion title="get_dataset_distributions" id="get-dataset-distributions">
+    Ruft alle Distributionen (herunterladbare Dateien) für einen Datensatz ab.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      dataset_id: {
+        type: "string",
+        description: "Eindeutige Datensatz-ID"
+      },
+      limit: {
+        type: "integer",
+        description: "Maximale Anzahl zurückzugebender Distributionen (1-100)",
+        default: 50
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    ```json
+    [
+      {
+        "id": "dist-1",
+        "format": "CSV",
+        "downloadURL": "https://example.com/data.csv",
+        "byteSize": 1048576,
+        "title": "Bevölkerungsdaten CSV"
+      }
+    ]
+    ```
+
+    **Beispiel:**
+
+    ```python
+    get_dataset_distributions(dataset_id="dataset-123")
+    ```
+  </Accordion>
+
+  <Accordion title="get_catalogue_record" id="get-catalogue-record">
+    Ruft den Katalogeintrag (Provenienzinformationen) für einen Datensatz ab.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      dataset_id: {
+        type: "string",
+        description: "Eindeutige Datensatz-ID"
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    Katalogeintrag-Metadaten einschließlich Quelle, Änderungsdatum und Provenienzinformationen.
+
+    **Beispiel:**
+
+    ```python
+    get_catalogue_record(dataset_id="dataset-123")
+    ```
+  </Accordion>
+
+  <Accordion title="find_related_datasets" id="find-related-datasets">
+    Findet Datensätze, die mit einem Quelldatensatz verwandt sind, basierend auf gemeinsamen Kategorien und Schlagwörtern. Gibt ähnliche Datensätze mit einem Ähnlichkeitswert (0-100) zurück.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      dataset_id: {
+        type: "string",
+        description: "Quelldatensatz-ID"
+      },
+      limit: {
+        type: "integer",
+        description: "Maximale Anzahl verwandter Datensätze (1-50)",
+        default: 10
+      },
+      min_score: {
+        type: "number",
+        description: "Mindest-Ähnlichkeitswert (0-100)",
+        default: 20.0
+      }
+    }} />
+
+    **Ähnlichkeitsbewertung:**
+
+    - Kategorieübereinstimmungen: 30 Punkte pro gemeinsamer Kategorie (max 60)
+    - Schlagwortübereinstimmungen: 10 Punkte pro gemeinsamem Schlagwort (max 30)
+    - Gleicher Herausgeber-Bonus: 15 Punkte
+    - Gesamtwert auf 100 begrenzt
+
+    **Rückgabewert:**
+
+    ```json
+    {
+      "source": {
+        "id": "dataset-123",
+        "title": "Bevölkerungsstatistik"
+      },
+      "related": [
+        {
+          "dataset": {...},
+          "score": 85.0,
+          "shared_themes": ["SOCI"],
+          "shared_keywords": ["bevölkerung", "statistik"]
+        }
+      ]
+    }
+    ```
+
+    **Beispiel:**
+
+    ```python
+    find_related_datasets(
+        dataset_id="dataset-123",
+        limit=10,
+        min_score=30.0
+    )
+    ```
+  </Accordion>
+
+  <Accordion title="semantic_search_datasets" id="semantic-search-datasets">
+    Sucht nach Datensätzen mit natürlichsprachlichen Abfragen auf Deutsch oder Englisch. Das System nutzt KI, um Ihre Absicht zu verstehen und relevante Datensätze zu finden.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      natural_query: {
+        type: "string",
+        description: "Natürlichsprachliche Abfrage (z.B. 'Gesundheitsdaten aus Wien', 'environmental data for research')"
+      },
+      themes: {
+        type: "string[]",
+        description: "Zusätzliche Kategoriefilter (kombiniert mit KI-erkannten Kategorien)",
+        default: "None"
+      },
+      formats: {
+        type: "string[]",
+        description: "Zusätzliche Formatfilter",
+        default: "None"
+      },
+      publishers: {
+        type: "string[]",
+        description: "Zusätzliche Herausgeberfilter",
+        default: "None"
+      },
+      min_date: {
+        type: "string",
+        description: "Filtern nach Änderungs-/Veröffentlichungsdatum (YYYY-MM-DD)",
+        default: "None"
+      },
+      max_date: {
+        type: "string",
+        description: "Filtern nach Änderungs-/Veröffentlichungsdatum (YYYY-MM-DD)",
+        default: "None"
+      },
+      sort_by: {
+        type: "string",
+        description: "Sortierreihenfolge",
+        default: "relevance"
+      },
+      boost_quality: {
+        type: "boolean",
+        description: "Bevorzugt hochwertige Datensätze (Standard true für semantische Suche)",
+        default: true
+      },
+      limit: {
+        type: "integer",
+        description: "Ergebnisse pro Seite (1-100)",
+        default: 20
+      },
+      page: {
+        type: "integer",
+        description: "Seitenzahl",
+        default: 0
+      }
+    }} />
+
+    **Funktionsweise:**
+
+    1. KI erkennt Sprache (Deutsch/Englisch) mittels linguistischer Heuristiken
+    2. Erweitert Abfrage in Kategorien, Schlagwörter und Filter
+    3. Kombiniert mit Ihren expliziten Filtern
+    4. Gibt Ergebnisse mit Erweiterungsinformationen zurück
+
+    **Rückgabewert:**
+
+    ```json
+    {
+      "results": [...],
+      "count": 42,
+      "facets": {...},
+      "expansion_info": {
+        "detected_language": "de",
+        "semantic_themes": ["HEAL"],
+        "expanded_keywords": ["gesundheit", "medizin"],
+        "confidence": "high"
+      }
+    }
+    ```
+
+    **Beispiel:**
+
+    ```python
+    # Deutsche Abfrage
+    semantic_search_datasets(
+        natural_query="Gesundheitsdaten aus Wien für Forschung"
+    )
+
+    # Englische Abfrage
+    semantic_search_datasets(
+        natural_query="environmental data from Vienna",
+        formats=["CSV", "JSON"]
+    )
+
+    # Tourismus-Anwendungsfall
+    semantic_search_datasets(
+        natural_query="Verkehrsinformationen für Touristen",
+        limit=15
+    )
+    ```
+  </Accordion>
+</Accordions>
+
+## Analysis Tools
+
+<Accordions type="single" collapsible>
+  <Accordion title="get_dataset_metrics" id="get-dataset-metrics">
+    Ruft Metadatenqualitätsmetriken (DQV - Data Quality Vocabulary) für einen Datensatz ab.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      dataset_id: {
+        type: "string",
+        description: "Eindeutige Datensatz-ID"
+      },
+      include_history: {
+        type: "boolean",
+        description: "Historische Qualitätsmetriken einbeziehen",
+        default: false
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    Qualitätswerte basierend auf Vollständigkeit, Genauigkeit, Konsistenz und anderen DQV-Dimensionen.
+
+    **Beispiel:**
+
+    ```python
+    get_dataset_metrics(
+        dataset_id="dataset-123",
+        include_history=True
+    )
+    ```
+  </Accordion>
+
+  <Accordion title="check_doi_eligibility" id="check-doi-eligibility">
+    Prüft, ob ein Datensatz für einen DOI (Digital Object Identifier) berechtigt ist.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      dataset_id: {
+        type: "string",
+        description: "Eindeutige Datensatz-ID"
+      },
+      identifier_type: {
+        type: "string",
+        description: "Zu prüfender Identifier-Typ",
+        default: "eu-ra-doi"
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    ```json
+    {
+      "eligible": true,
+      "missing_fields": [],
+      "recommendations": ["Versionsinformationen hinzufügen"]
+    }
+    ```
+
+    **Beispiel:**
+
+    ```python
+    check_doi_eligibility(dataset_id="dataset-123")
+    ```
+  </Accordion>
+
+  <Accordion title="analyze_dataset_quality" id="analyze-dataset-quality">
+    Führt eine umfassende Qualitätsanalyse eines Datensatzes durch. Kombiniert Metadaten, Distributionen, Qualitätsmetriken und DOI-Berechtigung in einem einzigen Bericht.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      dataset_id: {
+        type: "string",
+        description: "Eindeutige Datensatz-ID"
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    ```json
+    {
+      "dataset_id": "dataset-123",
+      "metadata": {
+        "has_title": true,
+        "has_description": true,
+        "has_publisher": true
+      },
+      "distributions": {
+        "count": 3,
+        "formats": ["CSV", "JSON", "XML"]
+      },
+      "metrics": {...},
+      "doi_eligibility": {...},
+      "degraded": false
+    }
+    ```
+
+    **Graceful Degradation:**
+
+    Wenn einige Datenquellen nicht verfügbar sind, läuft das Tool weiter und gibt Teilergebnisse mit Degradations-Tracking zurück.
+
+    **Beispiel:**
+
+    ```python
+    analyze_dataset_quality(dataset_id="dataset-123")
+    ```
+  </Accordion>
+</Accordions>
+
+## Preview Tools
+
+<Accordions type="single" collapsible>
+  <Accordion title="preview_schema" id="preview-schema">
+    Ruft das Schema (Spaltennamen und Typen) eines CSV- oder JSON-Datensatzes ab. Lädt nur den ersten Teil der Datei, um die Struktur effizient abzuleiten.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      url: {
+        type: "string",
+        description: "Direkte Download-URL (aus get_dataset_distributions)"
+      },
+      format: {
+        type: "string",
+        description: "Dateiformat: 'csv' oder 'json' (automatisch erkannt, falls nicht angegeben)",
+        default: "Automatisch erkannt"
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    ```json
+    {
+      "url": "https://example.com/data.csv",
+      "format": "csv",
+      "partial_fetch": true,
+      "columns": [
+        {
+          "name": "bevölkerung",
+          "type": "integer",
+          "sample_values": [100000, 150000, 200000]
+        },
+        {
+          "name": "stadt",
+          "type": "string",
+          "sample_values": ["Wien", "Graz", "Linz"]
+        }
+      ]
+    }
+    ```
+
+    **Typerkennung:**
+
+    - Leitet Typen aus ersten 10 Beispielzeilen ab
+    - Unterstützt Ganzzahlen, Fließkommazahlen, Booleans, Daten, Zeichenketten
+    - CSV: Verarbeitet mehrere Trennzeichen via csv.Sniffer
+    - JSON: Erkennt verschachtelte Datenarrays
+
+    **Beispiel:**
+
+    ```python
+    preview_schema(
+        url="https://example.com/bevoelkerung.csv",
+        format="csv"
+    )
+    ```
+  </Accordion>
+
+  <Accordion title="preview_data" id="preview-data">
+    Zeigt die ersten Zeilen eines CSV- oder JSON-Datensatzes an. Lädt nur genug Daten, um die angeforderte Anzahl von Zeilen zurückzugeben.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      url: {
+        type: "string",
+        description: "Direkte Download-URL"
+      },
+      max_rows: {
+        type: "integer",
+        description: "Maximale Anzahl zurückzugebender Zeilen (1-100)",
+        default: 20
+      },
+      format: {
+        type: "string",
+        description: "Dateiformat: 'csv' oder 'json'",
+        default: "Automatisch erkannt"
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    ```json
+    {
+      "url": "https://example.com/data.csv",
+      "format": "csv",
+      "partial_fetch": true,
+      "rows": [
+        {"stadt": "Wien", "bevölkerung": 1900000},
+        {"stadt": "Graz", "bevölkerung": 291000}
+      ],
+      "row_count": 2,
+      "estimated_total_rows": 100
+    }
+    ```
+
+    **Abruf-Optimierung:**
+
+    - Standard: 64KB Vorschau (ausreichend für ~1000 CSV-Zeilen)
+    - Maximum: 512KB zur Vermeidung von Speicherproblemen
+    - Schätzt benötigte Bytes basierend auf Format und max_rows
+
+    **Beispiel:**
+
+    ```python
+    preview_data(
+        url="https://example.com/bevoelkerung.csv",
+        max_rows=50
+    )
+    ```
+  </Accordion>
+</Accordions>
+
+## Management Tools
+
+<Accordions type="single" collapsible>
+  <Accordion title="list_dataset_drafts" id="list-dataset-drafts">
+    Listet Datensatz-Entwürfe auf, auf die Sie Zugriff haben. Erfordert API-Schlüssel für Authentifizierung.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      filter_by_provider: {
+        type: "boolean",
+        description: "Filtert Entwürfe nach Ihrem Anbieter/Organisation",
+        default: false
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    ```json
+    ["draft-1", "draft-2", "draft-3"]
+    ```
+
+    **Beispiel:**
+
+    ```python
+    list_dataset_drafts(filter_by_provider=True)
+    ```
+  </Accordion>
+
+  <Accordion title="get_dataset_draft" id="get-dataset-draft">
+    Ruft die Metadaten eines bestimmten Datensatz-Entwurfs ab.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      draft_id: {
+        type: "string",
+        description: "Eindeutige Entwurfs-ID"
+      },
+      catalogue_id: {
+        type: "string",
+        description: "Katalog, der den Entwurf enthält"
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    Vollständige Entwurfs-Metadaten.
+
+    **Beispiel:**
+
+    ```python
+    get_dataset_draft(
+        draft_id="draft-123",
+        catalogue_id="stadt-wien"
+    )
+    ```
+  </Accordion>
+
+  <Accordion title="create_dataset_draft" id="create-dataset-draft">
+    Erstellt einen neuen Datensatz-Entwurf. Erfordert API-Schlüssel.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      catalogue_id: {
+        type: "string",
+        description: "Katalog zum Erstellen des Entwurfs"
+      },
+      title: {
+        type: "string",
+        description: "Datensatz-Titel (max 500 Zeichen)"
+      },
+      description: {
+        type: "string",
+        description: "Datensatz-Beschreibung (max 5000 Zeichen)"
+      },
+      language: {
+        type: "string",
+        description: "Sprachcode (2-3 Zeichen)",
+        default: "de"
+      },
+      keywords: {
+        type: "string[]",
+        description: "Datensatz-Schlagwörter",
+        default: "None"
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    ```json
+    {
+      "draft_id": "draft-456",
+      "catalogue_id": "stadt-wien"
+    }
+    ```
+
+    **Beispiel:**
+
+    ```python
+    create_dataset_draft(
+        catalogue_id="stadt-wien",
+        title="Bevölkerungsstatistik 2024",
+        description="Jährliche Bevölkerungsdaten für Wien",
+        language="de",
+        keywords=["bevölkerung", "statistik", "wien"]
+    )
+    ```
+  </Accordion>
+
+  <Accordion title="update_dataset_draft" id="update-dataset-draft">
+    Aktualisiert einen bestehenden Datensatz-Entwurf. Erfordert API-Schlüssel.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      draft_id: {
+        type: "string",
+        description: "Entwurfs-ID"
+      },
+      catalogue_id: {
+        type: "string",
+        description: "Katalog, der den Entwurf enthält"
+      },
+      title: {
+        type: "string",
+        description: "Aktualisierter Titel",
+        default: "None"
+      },
+      description: {
+        type: "string",
+        description: "Aktualisierte Beschreibung",
+        default: "None"
+      },
+      language: {
+        type: "string",
+        description: "Sprachcode",
+        default: "de"
+      },
+      keywords: {
+        type: "string[]",
+        description: "Aktualisierte Schlagwörter",
+        default: "None"
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    ```json
+    {
+      "draft_id": "draft-456",
+      "status": "updated"
+    }
+    ```
+
+    **Beispiel:**
+
+    ```python
+    update_dataset_draft(
+        draft_id="draft-456",
+        catalogue_id="stadt-wien",
+        title="Bevölkerungsstatistik Wien 2024",
+        keywords=["bevölkerung", "statistik", "wien", "2024"]
+    )
+    ```
+  </Accordion>
+
+  <Accordion title="delete_dataset_draft" id="delete-dataset-draft">
+    Löscht einen Datensatz-Entwurf dauerhaft. Erfordert API-Schlüssel. Diese Aktion kann nicht rückgängig gemacht werden.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      draft_id: {
+        type: "string",
+        description: "Entwurfs-ID"
+      },
+      catalogue_id: {
+        type: "string",
+        description: "Katalog, der den Entwurf enthält"
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    ```json
+    {
+      "draft_id": "draft-456",
+      "status": "deleted"
+    }
+    ```
+
+    **Beispiel:**
+
+    ```python
+    delete_dataset_draft(
+        draft_id="draft-456",
+        catalogue_id="stadt-wien"
+    )
+    ```
+  </Accordion>
+
+  <Accordion title="publish_dataset" id="publish-dataset">
+    Veröffentlicht einen Datensatz-Entwurf, um ihn öffentlich zugänglich zu machen. Erfordert API-Schlüssel.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      draft_id: {
+        type: "string",
+        description: "Entwurfs-ID"
+      },
+      catalogue_id: {
+        type: "string",
+        description: "Katalog, der den Entwurf enthält"
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    ```json
+    {
+      "draft_id": "draft-456",
+      "status": "published"
+    }
+    ```
+
+    **Beispiel:**
+
+    ```python
+    publish_dataset(
+        draft_id="draft-456",
+        catalogue_id="stadt-wien"
+    )
+    ```
+  </Accordion>
+
+  <Accordion title="hide_dataset" id="hide-dataset">
+    Zieht einen veröffentlichten Datensatz zurück in den Entwurfsstatus. Erfordert API-Schlüssel.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      dataset_id: {
+        type: "string",
+        description: "Datensatz-ID"
+      },
+      catalogue_id: {
+        type: "string",
+        description: "Katalog, der den Datensatz enthält"
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    ```json
+    {
+      "dataset_id": "dataset-789",
+      "status": "hidden"
+    }
+    ```
+
+    **Beispiel:**
+
+    ```python
+    hide_dataset(
+        dataset_id="dataset-789",
+        catalogue_id="stadt-wien"
+    )
+    ```
+  </Accordion>
+</Accordions>
+
+## Vocabulary Tools
+
+<Accordions type="single" collapsible>
+  <Accordion title="list_vocabularies" id="list-vocabularies">
+    Listet verfügbare kontrollierte Vokabulare auf.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      limit: {
+        type: "integer",
+        description: "Maximale Anzahl zurückzugebender Vokabulare (1-5000)",
+        default: 100
+      },
+      offset: {
+        type: "integer",
+        description: "Anzahl zu überspringender Einträge für Paginierung",
+        default: 0
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    ```json
+    [
+      {
+        "id": "eu-themes",
+        "title": "EU Datenkategorien"
+      }
+    ]
+    ```
+
+    **Beispiel:**
+
+    ```python
+    list_vocabularies(limit=20)
+    ```
+  </Accordion>
+
+  <Accordion title="get_vocabulary" id="get-vocabulary">
+    Ruft den Inhalt eines bestimmten Vokabulars ab.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      vocabulary_id: {
+        type: "string",
+        description: "Vokabular-ID"
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    Vollständiges Vokabular mit allen Begriffen, Labels und Hierarchien.
+
+    **Beispiel:**
+
+    ```python
+    get_vocabulary(vocabulary_id="eu-themes")
+    ```
+  </Accordion>
+
+  <Accordion title="search_vocabulary_terms" id="search-vocabulary-terms">
+    Sucht nach Begriffen innerhalb eines Vokabulars.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      vocabulary_id: {
+        type: "string",
+        description: "Vokabular-ID"
+      },
+      query: {
+        type: "string",
+        description: "Suchanfrage für Begriff-Labels"
+      },
+      language: {
+        type: "string",
+        description: "Sprachcode (de, en)",
+        default: "de"
+      }
+    }} />
+
+    **Rückgabewert:**
+
+    ```json
+    [
+      {
+        "uri": "http://example.org/HEAL",
+        "label": "Gesundheit"
+      }
+    ]
+    ```
+
+    **Beispiel:**
+
+    ```python
+    search_vocabulary_terms(
+        vocabulary_id="eu-themes",
+        query="gesund",
+        language="de"
+    )
+    ```
+  </Accordion>
+
+  <Accordion title="get_autocomplete_suggestions" id="get-autocomplete-suggestions">
+    Liefert Autocomplete-Vorschläge für Suchabfragen. Gibt Vokabularbegriffe und gängige Muster zurück, die dem Abfrage-Präfix entsprechen. Nützlich für Search-as-you-type Funktionalität.
+
+    **Parameter:**
+
+    <TypeTable type={{
+      query: {
+        type: "string",
+        description: "Abfrage-Präfix (mindestens 1 Zeichen)"
+      },
+      limit: {
+        type: "integer",
+        description: "Maximale Vorschläge (1-20)",
+        default: 10
+      },
+      language: {
+        type: "string",
+        description: "Sprachcode (de, en)",
+        default: "de"
+      }
+    }} />
+
+    **Vorschlagsquellen:**
+
+    1. **EU Datenkategorien** (13 Kategorien): AGRI, ECON, EDUC, ENER, ENVI, GOVE, HEAL, INTR, JUST, REGI, SOCI, TECH, TRAN
+    2. **Dateiformate**: CSV, JSON, XML, PDF, GeoJSON, RDF, XLSX, ZIP, HTML, TXT
+    3. **Gängige Begriffe**: open data, statistik, geodaten, verkehr, umwelt, gesundheit, etc.
+
+    **Bewertung:**
+
+    - Präfix-Übereinstimmungen: 100 Punkte
+    - Teilstring-Übereinstimmungen: 50 Punkte
+    - Ergebnisse sortiert nach Punktzahl, dann alphabetisch
+
+    **Rückgabewert:**
+
+    ```json
+    {
+      "suggestions": [
+        {
+          "text": "Umwelt",
+          "category": "theme",
+          "code": "ENVI",
+          "score": 100
+        },
+        {
+          "text": "umwelt",
+          "category": "common",
+          "score": 100
+        }
+      ],
+      "count": 2,
+      "query": "umw"
+    }
+    ```
+
+    **Beispiel:**
+
+    ```python
+    get_autocomplete_suggestions(
+        query="umw",
+        limit=10,
+        language="de"
+    )
+    ```
+  </Accordion>
+
+  <Accordion title="get_resource_types" id="get-resource-types">
+    Listet verfügbare Ressourcentypen im Vokabularsystem auf.
+
+    **Rückgabewert:**
+
+    Liste der Ressourcentyp-Definitionen.
+
+    **Beispiel:**
+
+    ```python
+    get_resource_types()
+    ```
+  </Accordion>
+</Accordions>
