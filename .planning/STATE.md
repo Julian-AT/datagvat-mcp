@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 
 Milestone: v1.2 Documentation Rebuild
 Phase: 22 - API Reference & Integration
-Plan: None yet
-Status: Phase 21 complete, ready to plan Phase 22
-Last activity: 2026-01-20 — Phase 21 verified and completed
+Plan: 01 of 02 complete (FastMCP Internals & Client Integration)
+Status: In progress
+Last activity: 2026-01-20 — Completed 22-01-PLAN.md
 
-Progress: ████░░░░░░ 57% (4/7 phases complete)
+Progress: ████░░░░░░ 57% (4/7 phases complete, 22-01 complete)
 
 ## Performance Metrics
 
@@ -51,16 +51,17 @@ Progress: ████░░░░░░ 57% (4/7 phases complete)
 | 19-getting-started-content | 2 | 19 min | 9.5 min |
 | 20-guides-and-workflows | 3 | 15 min | 5 min |
 | 21-auto-generated-tools-reference | 2 | 38 min | 19 min |
+| 22-api-reference-&-integration | 1 | 15 min | 15 min |
 
 **v1.2 Milestone:**
-- Total plans completed: 10
-- Average duration: 19.9 min
-- Total execution time: 199 min
+- Total plans completed: 11
+- Average duration: 19.5 min
+- Total execution time: 214 min
 - Timeline: 2 days (2026-01-19 → 2026-01-20)
 
 **Recent Trend:**
-- Last 5 plans: 20-03a (4 min), 20-03b (5 min), 21-01 (21 min), 21-02 (17 min)
-- Trend: Auto-generation infrastructure setup complete, documentation coverage at 100%
+- Last 5 plans: 20-03b (5 min), 21-01 (21 min), 21-02 (17 min), 22-01 (15 min)
+- Trend: FastMCP framework patterns documented, client integration patterns established
 
 ## Accumulated Context
 
@@ -212,6 +213,11 @@ Recent decisions affecting current work:
 - Field descriptions follow pattern: purpose + constraints + value ranges for all parameters (21-02, 2026-01-20)
 - Parameter description length: concise 5-15 words explaining parameter purpose (21-02, 2026-01-20)
 - Consistent terminology in descriptions: 'catalogue' not 'catalog', 'dataset' not 'data set' (21-02, 2026-01-20)
+- FastMCP internals guide covers 7 consolidated sections (reduced from 10 via focused consolidation) (22-01, 2026-01-20)
+- Code examples extracted from actual Austria MCP codebase (mcp/app/server.py, middleware.py, tools/discovery.py) (22-01, 2026-01-20)
+- Middleware order documentation emphasizes why order matters with failure scenarios (22-01, 2026-01-20)
+- Three FastMCP client patterns documented: in-memory (testing), subprocess (production), HTTP (web) (22-01, 2026-01-20)
+- Common pitfalls section includes diagnostic steps for troubleshooting (22-01, 2026-01-20)
 
 ### Roadmap Evolution
 
@@ -235,15 +241,15 @@ None yet.
 
 ### Blockers/Concerns
 
-None - Phase 21 complete with 100% parameter documentation coverage. All 71 tool parameters have complete descriptions in both Python source and generated MDX documentation.
+None - Phase 22-01 complete with comprehensive FastMCP internals documentation (1112 lines) and client integration patterns. Framework patterns established for extending Austria MCP.
 
 ## Session Continuity
 
 Last session: 2026-01-20
-Stopped at: Completed 21-02-PLAN.md
+Stopped at: Completed 22-01-PLAN.md
 Resume file: None
-Next: Begin Phase 22 - Progressive Disclosure Examples
+Next: Plan 22-02 - Application patterns (error handling, testing, configuration management)
 
 ---
 *State initialized: 2026-01-19*
-*Last updated: 2026-01-20 after Phase 21-02 completion*
+*Last updated: 2026-01-20 after Phase 22-01 completion*
