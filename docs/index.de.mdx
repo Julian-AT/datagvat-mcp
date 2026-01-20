@@ -1,19 +1,19 @@
 ---
-title: Austria MCP Dokumentation
-description: Umfassender Leitfaden zur Verwendung des Austria MCP-Servers für österreichische Open Government Data
+title: data.gv.at MCP Server Dokumentation
+description: Umfassender Leitfaden zur Verwendung des data.gv.at MCP Server-Servers für österreichische Open Government Data
 ---
 
-# Austria MCP Dokumentation
+# data.gv.at MCP Server Dokumentation
 
 Der maßgebliche MCP Server für österreichische Open Government Data – Entdecken, Analysieren und Zugriff auf Tausende Datensätze über KI-Assistenten.
 
 <Callout title="Schnellstart">
-  Neu bei Austria MCP? Schau dir die [Installationsanleitung](/guides/setup) an und starte in wenigen Minuten.
+  Neu bei data.gv.at MCP Server? Schau dir die [Installationsanleitung](/guides/setup) an und starte in wenigen Minuten.
 </Callout>
 
-## Was ist Austria MCP?
+## Was ist data.gv.at MCP Server?
 
-Austria MCP ist ein Model Context Protocol Server, der KI-Assistenten nahtlosen Zugriff auf Tausende österreichische Regierungsdatensätze bietet. Er ermöglicht Abfragen in natürlicher Sprache, qualitätsbewusstes Ranking und Datenvorschauen.
+data.gv.at MCP Server ist ein Model Context Protocol Server, der KI-Assistenten nahtlosen Zugriff auf Tausende österreichische Regierungsdatensätze bietet. Er ermöglicht Abfragen in natürlicher Sprache, qualitätsbewusstes Ranking und Datenvorschauen.
 
 ## Hauptfunktionen
 
@@ -35,7 +35,7 @@ Austria MCP ist ein Model Context Protocol Server, der KI-Assistenten nahtlosen 
 ## Was ist MCP?
 
 <Callout>
-  Das Model Context Protocol (MCP) ist ein offenes Protokoll, das standardisiert, wie Anwendungen Kontext für LLMs bereitstellen. Austria MCP implementiert dieses Protokoll und gibt KI-Assistenten nahtlosen Zugriff auf österreichische Regierungsdatensätze.
+  Das Model Context Protocol (MCP) ist ein offenes Protokoll, das standardisiert, wie Anwendungen Kontext für LLMs bereitstellen. data.gv.at MCP Server implementiert dieses Protokoll und gibt KI-Assistenten nahtlosen Zugriff auf österreichische Regierungsdatensätze.
 </Callout>
 
 MCP ermöglicht:
@@ -47,7 +47,7 @@ MCP ermöglicht:
 
 ## Architektur-Überblick
 
-Der Austria MCP Server verbindet Claude Desktop mit österreichischen Regierungsdatensätzen durch eine robuste, geschichtete Architektur:
+Der data.gv.at MCP Server Server verbindet Claude Desktop mit österreichischen Regierungsdatensätzen durch eine robuste, geschichtete Architektur:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -57,7 +57,7 @@ Der Austria MCP Server verbindet Claude Desktop mit österreichischen Regierungs
                      │ MCP Protocol (stdio)
                      ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                  Austria MCP Server                         │
+│                  data.gv.at MCP Server Server                         │
 │                                                             │
 │  ┌─────────────────────────────────────────────────────┐  │
 │  │              FastMCP Framework                       │  │
@@ -105,7 +105,7 @@ Diese Architektur bietet:
 
 <Steps>
   <Step>
-    ### Austria MCP installieren
+    ### data.gv.at MCP Server installieren
 
     Folge der [Installationsanleitung](/guides/setup), um den Server einzurichten.
   </Step>
@@ -130,7 +130,7 @@ Diese Architektur bietet:
     Vervollständige deine erste Datensatzsuche in unter 5 Minuten
   </Card>
   <Card title="Setup Guide" href="/guides/setup" icon="Book">
-    Installiere und konfiguriere Austria MCP für deine Umgebung
+    Installiere und konfiguriere data.gv.at MCP Server für deine Umgebung
   </Card>
   <Card title="Suchbeispiele" href="/examples/search" icon="Code">
     Sieh dir echte Suchmuster und Abfragetechniken an

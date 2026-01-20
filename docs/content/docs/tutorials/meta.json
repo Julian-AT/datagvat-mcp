@@ -1,0 +1,7 @@
+{
+  "title": "Tutorials",
+  "description": "Interactive tutorials to learn data.gv.at MCP Server from the ground up",
+  "icon": "GraduationCap",
+  "root": true,
+  "pages": ["getting-started"]
+}

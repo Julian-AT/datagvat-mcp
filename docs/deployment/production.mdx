@@ -1,17 +1,17 @@
 ---
 title: Production Deployment
-description: Deploy Austria MCP server in production environments
+description: Deploy data.gv.at MCP Server server in production environments
 ---
 
 # Production Deployment
 
-Best practices for deploying Austria MCP server in production environments.
+Best practices for deploying data.gv.at MCP Server server in production environments.
 
 ## Deployment Options
 
 ### Option 1: Local Deployment
 
-Run Austria MCP on each client machine:
+Run data.gv.at MCP Server on each client machine:
 
 **Pros:**
 - Simple setup
@@ -27,7 +27,7 @@ Run Austria MCP on each client machine:
 
 ### Option 2: Centralized Server
 
-Run Austria MCP as a service with SSE transport:
+Run data.gv.at MCP Server as a service with SSE transport:
 
 **Pros:**
 - Centralized management
@@ -43,7 +43,7 @@ Run Austria MCP as a service with SSE transport:
 
 ### Option 3: Container Deployment
 
-Deploy Austria MCP in Docker containers:
+Deploy data.gv.at MCP Server in Docker containers:
 
 **Pros:**
 - Reproducible builds
@@ -113,7 +113,7 @@ Create `/etc/systemd/system/austria-mcp.service`:
 
 ```ini
 [Unit]
-Description=Austria MCP Server
+Description=data.gv.at MCP Server Server
 After=network.target
 
 [Service]

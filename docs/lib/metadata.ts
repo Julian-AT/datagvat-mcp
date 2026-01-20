@@ -7,28 +7,20 @@ export function createMetadata(override: Metadata): Metadata {
     openGraph: {
       title: override.title ?? undefined,
       description: override.description ?? undefined,
-      url: 'https://fumadocs.dev',
+      url: 'https://data.gv.at',
       images: '/banner.png',
-      siteName: 'Fumadocs',
+      siteName: 'data.gv.at MCP Server Documentation',
       ...override.openGraph,
     },
     twitter: {
       card: 'summary_large_image',
-      creator: '@fuma_nama',
+      creator: '@datagvat',
       title: override.title ?? undefined,
       description: override.description ?? undefined,
       images: '/banner.png',
       ...override.twitter,
     },
     alternates: {
-      types: {
-        'application/rss+xml': [
-          {
-            title: 'Fumadocs Blog',
-            url: 'https://fumadocs.dev/blog/rss.xml',
-          },
-        ],
-      },
       ...override.alternates,
     },
   };

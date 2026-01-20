@@ -1,7 +1,0 @@
-{
-  "$schema": "..\\..\\..\\.source\\json-schema\\docs.meta.json",
-  "root": true,
-  "title": "Fumadocs CLI",
-  "description": "The CLI tool for docs automation",
-  "icon": "Terminal"
-}

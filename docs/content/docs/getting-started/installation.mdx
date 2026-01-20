@@ -1,0 +1,671 @@
+---
+title: Installation & Setup
+description: Get started with data.gv.at MCP Server server
+---
+
+import { Tabs } from 'fumadocs-ui/components/tabs';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Installation & Setup
+
+Get the data.gv.at MCP Server server running in your Claude Desktop environment in minutes.
+
+## Prerequisites
+
+Before installing, ensure you have:
+
+- **Python 3.11 or higher** - [Download Python](https://www.python.org/downloads/)
+- **pip or uv package manager** - uv recommended for faster installs
+- **Claude Desktop** or compatible MCP client - [Download Claude Desktop](https://claude.ai/download)
+
+<Tabs items={['macOS/Linux', 'Windows']} groupId="os" persist>
+  <Tabs.Tab value="macOS/Linux">
+    **Verify Python version:**
+    ```bash
+    python3 --version
+    ```
+    Should show 3.11 or higher.
+  </Tabs.Tab>
+
+  <Tabs.Tab value="Windows">
+    **Verify Python version:**
+    ```bash
+    python --version
+    ```
+    Should show 3.11 or higher.
+
+    <Callout type="warn">
+    **Important:** During Python installation, check "Add Python to PATH".
+    </Callout>
+  </Tabs.Tab>
+</Tabs>
+
+## How data.gv.at MCP Server Works
+
+Understanding the data flow helps you troubleshoot issues and optimize your queries:
+
+```
+   User: "Find population datasets from 2023"
+      │
+      ▼
+┌─────────────────────────────────────────────┐
+│         Claude Desktop                      │
+│  Interprets → Calls search_datasets tool   │
+└──────────────────┬──────────────────────────┘
+                   │ MCP Protocol (stdio)
+                   ▼
+┌─────────────────────────────────────────────┐
+│      data.gv.at MCP Server Server receives request   │
+│                                             │
+│  1. Middleware processing:                 │
+│     • Logging (record request)             │
+│     • Auth validation                      │
+│     • Rate limiting check                  │
+│                                             │
+│  2. Tool execution:                        │
+│     • Parse parameters                     │
+│     • Semantic query expansion (LLM)       │
+│     • Build API request                    │
+└──────────────────┬──────────────────────────┘
+                   │ HTTPS GET
+                   ▼
+┌─────────────────────────────────────────────┐
+│   Piveau API searches catalog              │
+│   (data.gv.at)                             │
+└──────────────────┬──────────────────────────┘
+                   │ JSON response
+                   ▼
+┌─────────────────────────────────────────────┐
+│  Server processes and enhances results:    │
+│     • Quality scoring (metadata analysis)  │
+│     • Theme enrichment (EU vocabularies)   │
+│     • Semantic ranking (relevance boost)   │
+│     • Format structured response           │
+└──────────────────┬──────────────────────────┘
+                   │ MCP response
+                   ▼
+┌─────────────────────────────────────────────┐
+│   Claude Desktop receives structured data  │
+│   Presents natural language summary        │
+└─────────────────────────────────────────────┘
+      │
+      ▼
+   User: "Population 2023 datasets:
+          • Vienna Population Statistics (quality: 95)
+          • National Demographics 2023 (quality: 87)
+          ..."
+```
+
+**Why use the MCP server?**
+
+The server adds value beyond direct API access:
+- **Semantic understanding** - Expands queries with related terms
+- **Quality scoring** - Ranks datasets by metadata completeness
+- **Data previews** - Inspects CSV/JSON contents before download
+- **Error handling** - Retries failed requests with exponential backoff
+- **Rate limiting** - Protects against API throttling
+
+## Project Structure
+
+After installation, your project directory looks like this:
+
+<Files>
+  <Folder name=".mcp" defaultOpen>
+    <File name="config.json" />
+    <File name="settings.json" />
+  </Folder>
+  <Folder name="claude_desktop_config">
+    <File name="claude_desktop_config.json" />
+  </Folder>
+  <File name=".env" />
+  <File name="README.md" />
+</Files>
+
+Key files:
+- `.mcp/config.json` - MCP server configuration
+- `.env` - Environment variables (API keys, URLs)
+- `claude_desktop_config.json` - Claude Desktop MCP configuration
+
+## Installation
+
+### Step 1: Clone Repository
+
+<Tabs items={['macOS/Linux', 'Windows']} groupId="os" persist>
+  <Tabs.Tab value="macOS/Linux">
+    ```bash
+    git clone https://github.com/yourusername/datagvat-mcp.git
+    cd datagvat-mcp/mcp
+    ```
+  </Tabs.Tab>
+
+  <Tabs.Tab value="Windows">
+    ```bash
+    git clone https://github.com/yourusername/datagvat-mcp.git
+    cd datagvat-mcp\mcp
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+### Step 2: Install Dependencies
+
+<Tabs items={['uv (Recommended)', 'pip']} groupId="package-manager" persist>
+  <Tabs.Tab value="uv (Recommended)">
+    [uv](https://github.com/astral-sh/uv) is a fast Python package manager with better dependency resolution.
+
+    ```bash
+    # Install uv if needed
+    pip install uv
+
+    # Install dependencies
+    uv pip install -e .
+    ```
+
+    <Callout type="info">
+    **Why uv?** Faster dependency resolution and installs compared to pip.
+    </Callout>
+  </Tabs.Tab>
+
+  <Tabs.Tab value="pip">
+    ```bash
+    pip install -e .
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+### From PyPI (Future)
+
+```bash
+# Once published to PyPI
+pip install datagvat-mcp
+```
+
+## Server Directory Layout
+
+The data.gv.at MCP Server server has a well-organized structure:
+
+<Files>
+  <Folder name="app" defaultOpen>
+    <File name="__init__.py" />
+    <File name="server.py" />
+    <File name="client.py" />
+    <File name="models.py" />
+    <File name="middleware.py" />
+    <File name="config.py" />
+    <File name="dependencies.py" />
+    <File name="preview.py" />
+    <File name="prompts.py" />
+    <File name="resources.py" />
+    <File name="semantic.py" />
+    <File name="similarity.py" />
+    <Folder name="tools">
+      <File name="__init__.py" />
+      <File name="analysis.py" />
+      <File name="discovery.py" />
+      <File name="management.py" />
+      <File name="preview.py" />
+      <File name="vocabularies.py" />
+    </Folder>
+  </Folder>
+  <Folder name="tests">
+    <File name="test_client.py" />
+    <File name="test_models.py" />
+    <File name="test_tools.py" />
+  </Folder>
+  <File name="pyproject.toml" />
+  <File name=".env.example" />
+  <File name="README.md" />
+</Files>
+
+Key directories:
+- `app/` - Main server code and FastMCP instance
+- `app/tools/` - Tool implementations organized by category
+- `tests/` - Comprehensive test suite
+
+## Configuration
+
+### Claude Desktop Setup
+
+Add the data.gv.at MCP Server server to your Claude Desktop configuration:
+
+<Tabs items={['macOS', 'Linux', 'Windows']} groupId="os" persist>
+  <Tabs.Tab value="macOS">
+    **Location:** `~/.claude/claude_desktop_config.json`
+
+    **Configuration:**
+    ```json
+    {
+      "mcpServers": {
+        "datagvat-local": {
+          "command": "uv",
+          "args": [
+            "run",
+            "--directory",
+            "/Users/yourname/datagvat-mcp/mcp",
+            "python",
+            "-m",
+            "app.server"
+          ]
+        }
+      }
+    }
+    ```
+
+    <Callout type="warn">
+    **Important:** Replace `/Users/yourname/datagvat-mcp/mcp` with your actual path (use absolute paths only).
+    </Callout>
+  </Tabs.Tab>
+
+  <Tabs.Tab value="Linux">
+    **Location:** `~/.config/Claude/claude_desktop_config.json`
+
+    **Configuration:**
+    ```json
+    {
+      "mcpServers": {
+        "datagvat-local": {
+          "command": "uv",
+          "args": [
+            "run",
+            "--directory",
+            "/home/yourname/datagvat-mcp/mcp",
+            "python",
+            "-m",
+            "app.server"
+          ]
+        }
+      }
+    }
+    ```
+
+    <Callout type="warn">
+    **Important:** Replace `/home/yourname/datagvat-mcp/mcp` with your actual path (use absolute paths only).
+    </Callout>
+  </Tabs.Tab>
+
+  <Tabs.Tab value="Windows">
+    **Location:** `%APPDATA%\Claude\claude_desktop_config.json`
+
+    **Configuration:**
+    ```json
+    {
+      "mcpServers": {
+        "datagvat-local": {
+          "command": "uv",
+          "args": [
+            "run",
+            "--directory",
+            "C:\\Users\\YourName\\datagvat-mcp\\mcp",
+            "python",
+            "-m",
+            "app.server"
+          ]
+        }
+      }
+    }
+    ```
+
+    <Callout type="warn">
+    **Windows paths:** Use double backslashes (`\\`) in JSON paths.
+    </Callout>
+
+    <Callout type="warn">
+    **Important:** Replace `C:\\Users\\YourName\\datagvat-mcp\\mcp` with your actual path.
+    </Callout>
+  </Tabs.Tab>
+</Tabs>
+
+### Using pip instead of uv
+
+If you prefer pip over uv:
+
+```json
+{
+  "mcpServers": {
+    "datagvat-pip": {
+      "command": "python",
+      "args": [
+        "-m",
+        "app.server"
+      ],
+      "cwd": "/absolute/path/to/datagvat-mcp/mcp"
+    }
+  }
+}
+```
+
+## Environment Variables
+
+Optional configuration via `.env` file in the project root:
+
+```bash
+# API Configuration
+AUSTRIA_MCP_PIVEAU_API_BASE=https://www.data.gv.at/api/hub/search
+AUSTRIA_MCP_REQUEST_TIMEOUT=30
+
+# Logging
+AUSTRIA_MCP_LOG_LEVEL=INFO
+AUSTRIA_MCP_LOG_FORMAT=json
+
+# Development
+AUSTRIA_MCP_DEV_MODE=false
+```
+
+### Available Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `AUSTRIA_MCP_PIVEAU_API_BASE` | `https://www.data.gv.at/api/hub/search` | Piveau API base URL |
+| `AUSTRIA_MCP_REQUEST_TIMEOUT` | `30` | Request timeout in seconds |
+| `AUSTRIA_MCP_LOG_LEVEL` | `INFO` | Logging level (DEBUG, INFO, WARNING, ERROR) |
+| `AUSTRIA_MCP_LOG_FORMAT` | `json` | Log format (json, text) |
+| `AUSTRIA_MCP_DEV_MODE` | `false` | Enable development features |
+
+## Test Server Locally
+
+Before configuring Claude Desktop, verify the server works correctly:
+
+### 1. Test Server Import
+
+```bash
+python -c "from app.server import mcp; print('✅ Server loads successfully')"
+```
+
+**Expected output:**
+
+```
+✅ Server loads successfully
+```
+
+**If you see errors:**
+- `ModuleNotFoundError: No module named 'app'` → [Wrong directory](/getting-started/troubleshooting#wrong-working-directory)
+- `ModuleNotFoundError: No module named 'fastmcp'` → Rerun dependency installation
+
+<Callout type="info">
+This test confirms all dependencies are installed and the server code is valid.
+</Callout>
+
+### 2. Run Development Mode
+
+```bash
+fastmcp dev app.server:mcp
+```
+
+This starts FastMCP's development server with a web interface at `http://localhost:8000` where you can:
+
+- Browse all available tools
+- Test tool execution with sample parameters
+- View server logs in real-time
+- Verify responses before Claude Desktop integration
+
+### 3. Expected Tools
+
+The development UI should show these tool categories:
+
+**Discovery Tools:**
+- `list_catalogues` - Browse available data catalogues
+- `search_datasets` - Search for datasets
+- `get_dataset` - Retrieve dataset details
+- `list_dataset_distributions` - Get dataset download links
+
+**Management Tools:**
+- `create_dataset_draft` - Create new dataset drafts
+- `update_dataset` - Update existing datasets
+- `delete_dataset` - Remove datasets
+
+**Analysis Tools:**
+- `analyze_dataset_quality` - Calculate metadata quality score
+- `find_related_datasets` - Discover similar datasets
+
+**Vocabulary Tools:**
+- `list_vocabularies` - Browse EU DCAT-AP vocabularies
+- `search_vocabulary_terms` - Search vocabulary terms
+
+**Preview Tools:**
+- `preview_dataset_file` - Sample data from CSV/JSON files
+
+### 4. Test Basic Functionality
+
+In the dev UI, try `list_catalogues` with `limit=3`:
+
+**Expected response:**
+```json
+[
+  {"id": "data-gv-at", "title": "data.gv.at"},
+  {"id": "stadt-wien", "title": "Stadt Wien Open Data"},
+  {"id": "land-karnten", "title": "Land Kärnten"}
+]
+```
+
+If you see this response, the server is working correctly and ready for Claude Desktop.
+
+## Verify Installation
+
+### Step 1: Restart Claude Desktop
+
+Configuration is only loaded on startup. Restart properly:
+
+<Tabs items={['macOS', 'Linux', 'Windows']} groupId="os" persist>
+  <Tabs.Tab value="macOS">
+    1. Press `Cmd+Q` to quit Claude Desktop (not just close window)
+    2. Wait 5 seconds
+    3. Relaunch from Applications
+  </Tabs.Tab>
+
+  <Tabs.Tab value="Linux">
+    1. Quit Claude Desktop completely:
+       ```bash
+       killall claude-desktop
+       ```
+    2. Wait 5 seconds
+    3. Relaunch from application menu
+  </Tabs.Tab>
+
+  <Tabs.Tab value="Windows">
+    1. Right-click Claude Desktop in system tray
+    2. Select "Exit"
+    3. Wait 5 seconds
+    4. Relaunch from Start menu
+  </Tabs.Tab>
+</Tabs>
+
+### Step 2: Test Connection
+
+Run a simple command in Claude Desktop to verify the server is connected:
+
+```
+list_catalogues(limit=5)
+```
+
+**Expected output:**
+
+```json
+[
+  {
+    "id": "stadt-wien",
+    "title": "Stadt Wien Open Data"
+  },
+  {
+    "id": "data-gv-at",
+    "title": "data.gv.at"
+  }
+]
+```
+
+<Callout type="info">
+**Success!** If you see catalogue results, data.gv.at MCP Server is connected and working.
+</Callout>
+
+### Step 3: Try a Search
+
+Verify full functionality with a search query:
+
+```
+search_datasets(query="population", limit=5)
+```
+
+You should see dataset results with titles, descriptions, and quality scores.
+
+## Troubleshooting
+
+### Server not appearing in Claude Desktop
+
+1. **Check config file syntax** - Ensure JSON is valid (no trailing commas, proper quotes)
+2. **Verify paths** - Use absolute paths, not relative paths or `~`
+3. **Restart Claude Desktop** - Configuration is only loaded on startup (fully quit, not just close window)
+4. **Check logs** - Look in Claude Desktop logs for MCP server errors
+
+<Callout type="info">
+**Log Locations:**
+- **Windows:** `%APPDATA%\Claude\logs\`
+- **macOS:** `~/Library/Logs/Claude/`
+- **Linux:** `~/.config/Claude/logs/`
+</Callout>
+
+### Wrong working directory
+
+**Symptom:** `ModuleNotFoundError: No module named 'app'`
+
+**Cause:** The `cwd` path doesn't point to the `mcp/` directory.
+
+**Fix:** Ensure your config points to the directory containing the `app/` folder.
+
+The correct directory structure looks like this:
+
+```
+datagvat-mcp/                    ❌ cwd="..." (too high - repo root)
+  ├── docs/
+  ├── .planning/
+  └── mcp/                       ✅ cwd=".../mcp" (CORRECT - contains app/)
+      ├── app/                   ❌ cwd=".../app" (too low - inside app/)
+      │   ├── server.py
+      │   ├── client.py
+      │   ├── tools/
+      │   └── ...
+      ├── tests/
+      ├── pyproject.toml
+      ├── .env
+      └── README.md
+```
+
+Your configuration must point to the `mcp/` directory:
+
+```json
+{
+  "cwd": "/absolute/path/to/datagvat-mcp/mcp"
+}
+```
+
+**Common mistakes:**
+- ❌ `/datagvat-mcp` - Too high (repo root, no `app/` folder here)
+- ❌ `/datagvat-mcp/mcp/app` - Too low (Python can't import from inside `app/`)
+- ✅ `/datagvat-mcp/mcp` - Correct (contains `app/` as a Python package)
+
+### Command not found
+
+**Symptom:** Error mentions "datagvat-mcp" command not found
+
+**Cause:** Using outdated configuration from earlier documentation versions.
+
+**Fix:** Use the corrected configurations shown above. The server runs as a Python module (`python -m app.server`), not as a standalone command.
+
+### Server appears but tools don't work
+
+**Symptoms:**
+- Claude Desktop shows server connected
+- Tool execution results in errors
+
+**Debug steps:**
+
+1. **Check Python version:**
+```bash
+python --version  # Must be 3.11 or higher
+```
+
+2. **Test server locally:**
+```bash
+python -m app.server  # Should start without errors
+```
+
+3. **Try development mode:**
+```bash
+fastmcp dev app.server:mcp  # Test tools in web UI
+```
+
+4. **Check Claude Desktop logs** for specific error messages
+
+### Server keeps disconnecting
+
+**Symptoms:**
+- Server connects initially
+- Disconnects after first use or randomly
+
+**Possible causes:**
+- Server crash due to unhandled exception
+- Network/firewall blocking API requests
+- Python environment mismatch
+
+**Debug steps:**
+
+1. **Check logs for crash messages** in Claude Desktop logs directory
+2. **Test API access directly:**
+```bash
+curl https://www.data.gv.at/api/hub/search/catalogues
+```
+
+3. **Run server directly to see errors:**
+```bash
+python -m app.server
+```
+
+### Connection errors
+
+If you see connection errors when tools execute:
+
+1. **Test API access** directly:
+```bash
+curl https://www.data.gv.at/api/hub/search/catalogues
+```
+
+2. **Check firewall settings** - Ensure outbound HTTPS is allowed
+3. **Verify network** - Try from a different network if behind corporate firewall
+
+### Import errors
+
+If you see Python import errors:
+
+1. **Verify Python version:**
+```bash
+python --version  # Should be 3.11 or higher
+```
+
+2. **Reinstall dependencies:**
+```bash
+uv pip install -e . --force-reinstall
+# or with pip:
+pip install -e . --force-reinstall
+```
+
+3. **Check virtual environment** - Ensure you're using the correct Python environment
+
+4. **Try absolute Python path** in config to avoid version mismatches:
+```json
+{
+  "command": "C:\\Python311\\python.exe",  // Windows
+  "args": ["-m", "app.server"],
+  "cwd": "C:\\path\\to\\datagvat-mcp\\mcp"
+}
+```
+
+## Next Steps
+
+Now that data.gv.at MCP Server is installed:
+
+- **[Quickstart Guide](/getting-started/quickstart)** - Run your first query in 5 minutes
+- **[First Query Tutorial](/getting-started/first-query)** - Complete workflow walkthrough
+- **[Configuration Guide](/guides/configuration)** - Advanced configuration options
+- **[API Reference](/api/tools)** - Explore all available tools
+
+## Getting Help
+
+- **GitHub Issues** - [Report bugs or request features](https://github.com/yourusername/datagvat-mcp/issues)
+- **Discussions** - [Ask questions and share tips](https://github.com/yourusername/datagvat-mcp/discussions)

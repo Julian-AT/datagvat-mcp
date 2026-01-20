@@ -31,7 +31,7 @@ export async function getImageResponseOptions(): Promise<ImageResponseOptions> {
 }
 
 export function generate({ title, description }: GenerateProps) {
-  const siteName = 'Fumadocs';
+  const siteName = 'data.gv.at MCP Server';
   const primaryTextColor = 'rgb(240,240,240)';
   const logo = (
     <svg width="60" height="60" viewBox="0 0 180 180" filter="url(#logo-shadow)">

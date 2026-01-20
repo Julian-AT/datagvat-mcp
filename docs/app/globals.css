@@ -7,7 +7,7 @@
 @plugin 'tailwindcss-animate';
 
 @theme {
-  /* Austria MCP Brand Color - Red accent */
+  /* data.gv.at MCP Server Brand Color - Red accent */
   --color-austria-red: #b91e23;
   --color-austria-red-hover: #a01a1f;
 }

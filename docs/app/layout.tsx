@@ -9,10 +9,10 @@ import { NextProvider } from 'fumadocs-core/framework/next';
 
 export const metadata = createMetadata({
     title: {
-        template: '%s | Fumadocs',
-        default: 'Fumadocs',
+        template: '%s | data.gv.at MCP Server',
+        default: 'data.gv.at MCP Server Documentation',
     },
-    description: 'The React.js documentation framework.',
+    description: 'MCP server for accessing Austrian Open Government Data from data.gv.at through Claude and other MCP clients.',
     metadataBase: baseUrl,
 });
 

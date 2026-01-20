@@ -1,0 +1,15 @@
+{
+  "$schema": "..\\..\\..\\.source\\json-schema\\docs.meta.json",
+  "title": "Advanced Topics",
+  "description": "Deep dive into data.gv.at MCP Server internals",
+  "icon": "Settings",
+  "root": true,
+  "pages": [
+    "architecture",
+    "fastmcp-internals",
+    "middleware",
+    "semantic-search",
+    "error-handling",
+    "testing"
+  ]
+}

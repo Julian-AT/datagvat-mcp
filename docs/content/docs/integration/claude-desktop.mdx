@@ -1,0 +1,330 @@
+---
+title: Claude Desktop Integration
+description: Configure data.gv.at MCP Server with Claude Desktop
+---
+
+# Claude Desktop Integration
+
+data.gv.at MCP Server integrates seamlessly with Claude Desktop through the Model Context Protocol.
+
+## Prerequisites
+
+- **Claude Desktop** installed ([Download](https://claude.ai/download))
+- **data.gv.at MCP Server server** installed (see [Installation Guide](/getting-started/installation))
+- **Python 3.11+** available in PATH
+
+## Configuration Steps
+
+### 1. Locate Configuration File
+
+Claude Desktop stores MCP server configurations in:
+
+**macOS/Linux:**
+```
+~/.claude/claude_desktop_config.json
+```
+
+**Windows:**
+```
+%APPDATA%\Claude\claude_desktop_config.json
+```
+
+### 2. Edit Configuration
+
+Open the file in your preferred text editor and add data.gv.at MCP Server:
+
+```json
+{
+  "mcpServers": {
+    "datagvat-local": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "/absolute/path/to/datagvat-mcp/mcp",
+        "python",
+        "-m",
+        "app.server"
+      ]
+    }
+  }
+}
+```
+
+<Callout type="warn">
+**Important:**
+- Use absolute paths (no `~` or relative paths)
+- Windows users: Use double backslashes (`C:\\Users\\...`)
+- Point to the `mcp/` directory containing `app/`
+</Callout>
+
+### 3. Platform-Specific Examples
+
+**macOS:**
+```json
+{
+  "mcpServers": {
+    "datagvat-local": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "/Users/yourname/projects/datagvat-mcp/mcp",
+        "python",
+        "-m",
+        "app.server"
+      ]
+    }
+  }
+}
+```
+
+**Windows:**
+```json
+{
+  "mcpServers": {
+    "datagvat-local": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "C:\\Users\\YourName\\Projects\\datagvat-mcp\\mcp",
+        "python",
+        "-m",
+        "app.server"
+      ]
+    }
+  }
+}
+```
+
+**Linux:**
+```json
+{
+  "mcpServers": {
+    "datagvat-local": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "/home/yourname/projects/datagvat-mcp/mcp",
+        "python",
+        "-m",
+        "app.server"
+      ]
+    }
+  }
+}
+```
+
+### 4. Using pip Instead of uv
+
+If you installed with pip:
+
+```json
+{
+  "mcpServers": {
+    "datagvat-pip": {
+      "command": "python",
+      "args": ["-m", "app.server"],
+      "cwd": "/absolute/path/to/datagvat-mcp/mcp"
+    }
+  }
+}
+```
+
+### 5. Restart Claude Desktop
+
+Completely quit and relaunch Claude Desktop:
+
+**macOS:** Cmd+Q, then reopen
+**Windows:** Right-click system tray icon → Exit, then reopen
+**Linux:** Quit application, then reopen
+
+## Verification
+
+### Check Server Status
+
+In Claude Desktop, look for the MCP server indicator showing "datagvat-local" as connected.
+
+### Test Basic Functionality
+
+Try a simple query:
+
+```
+list_catalogues(limit=5)
+```
+
+Expected response:
+```json
+[
+  {"id": "stadt-wien", "title": "Stadt Wien Open Data"},
+  {"id": "data-gv-at", "title": "data.gv.at"},
+  ...
+]
+```
+
+### Test Search
+
+```
+Search for population datasets
+```
+
+Claude should use `semantic_search_datasets` and return relevant results.
+
+## Troubleshooting
+
+### Server Not Appearing
+
+**Symptom:** MCP server doesn't show as connected
+
+**Solutions:**
+1. Check JSON syntax (no trailing commas, proper quotes)
+2. Verify absolute paths (no `~` or relative paths)
+3. Ensure file saved properly
+4. Restart Claude Desktop (fully quit first)
+
+### ModuleNotFoundError
+
+**Symptom:** Error: `No module named 'app'`
+
+**Cause:** Wrong working directory
+
+**Solution:** Ensure `cwd` or `--directory` points to `mcp/` folder:
+
+```
+datagvat-mcp/
+  └── mcp/          ← Point here
+      ├── app/
+      ├── tests/
+      └── pyproject.toml
+```
+
+### Command Not Found
+
+**Symptom:** `uv` or `python` command not found
+
+**Solutions:**
+
+1. **Use full Python path:**
+```json
+{
+  "command": "/usr/local/bin/python3.11",
+  "args": ["-m", "app.server"],
+  "cwd": "/absolute/path/to/mcp"
+}
+```
+
+2. **Install uv:**
+```bash
+pip install uv
+```
+
+3. **Check Python in PATH:**
+```bash
+which python  # macOS/Linux
+where python  # Windows
+```
+
+### Server Disconnects
+
+**Symptom:** Server connects then immediately disconnects
+
+**Common Causes:**
+- Python version too old (need 3.11+)
+- Missing dependencies
+- API access blocked by firewall
+
+**Debug Steps:**
+
+1. Test server directly:
+```bash
+cd datagvat-mcp/mcp
+python -m app.server
+```
+
+2. Check Python version:
+```bash
+python --version  # Should be 3.11+
+```
+
+3. Test API access:
+```bash
+curl https://www.data.gv.at/api/hub/search/catalogues
+```
+
+4. Check logs in Claude Desktop logs directory
+
+### Tools Don't Work
+
+**Symptom:** Server connected but tool calls fail
+
+**Solutions:**
+
+1. **Verify dependencies:**
+```bash
+cd mcp
+uv pip install -e .
+```
+
+2. **Test in dev mode:**
+```bash
+fastmcp dev app.server:mcp
+```
+Visit http://localhost:8000 to test tools
+
+3. **Check Claude Desktop logs** for specific errors
+
+## Multiple Servers
+
+You can configure multiple MCP servers:
+
+```json
+{
+  "mcpServers": {
+    "datagvat-local": {
+      "command": "uv",
+      "args": ["run", "--directory", "...", "python", "-m", "app.server"]
+    },
+    "other-server": {
+      "command": "...",
+      "args": [...]
+    }
+  }
+}
+```
+
+## Environment Variables
+
+Configure via environment in command:
+
+```json
+{
+  "mcpServers": {
+    "datagvat-local": {
+      "command": "uv",
+      "args": ["run", "--directory", "...", "python", "-m", "app.server"],
+      "env": {
+        "AUSTRIA_MCP_LOG_LEVEL": "DEBUG",
+        "AUSTRIA_MCP_REQUEST_TIMEOUT": "60"
+      }
+    }
+  }
+}
+```
+
+## Log Locations
+
+**Claude Desktop logs:**
+
+- **macOS:** `~/Library/Logs/Claude/`
+- **Windows:** `%APPDATA%\Claude\logs\`
+- **Linux:** `~/.config/Claude/logs/`
+
+Look for MCP-related errors in recent log files.
+
+## Next Steps
+
+- **[Your First Query](/getting-started/first-query)** - Start using data.gv.at MCP Server
+- **[Configuration Guide](/guides/configuration)** - Advanced configuration options
+- **[Other Clients](/integration/other-clients)** - Use with other MCP clients

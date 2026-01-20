@@ -1,0 +1,332 @@
+---
+title: Finding Datasets
+description: Locate datasets matching your search criteria using text queries and filters
+---
+
+# Finding Datasets
+
+Discover datasets by searching with natural language, keywords, or structured filters.
+
+## When to Use This Guide
+
+- You need to locate datasets about a specific topic
+- You want to filter by theme, format, or publisher
+- You need to refine broad search results
+
+## Prerequisites
+
+- data.gv.at MCP Server connected in Claude Desktop
+- Understanding of your search requirements (topic, format preferences)
+
+## Quick Search
+
+Ask Claude in natural language:
+
+```
+Find datasets about Vienna population
+```
+
+Claude uses semantic search automatically and shows relevant datasets.
+
+**Good for:**
+- Exploratory searches
+- Natural language queries
+- Quick discovery
+
+## Filtered Search
+
+<Tabs items={['Basic', 'Advanced']} groupId="search-complexity" persist>
+  <Tab value="Basic">
+    ### Ask Claude with Requirements
+
+    Tell Claude your filters in natural language:
+
+    ```
+    Find CSV datasets about health from Vienna
+    ```
+
+    Claude uses `semantic_search_datasets` or `search_datasets` automatically.
+
+    **Try it:**
+    - "Show me environment datasets"
+    - "Find recent population data in JSON format"
+    - "Search for social datasets from Austrian government"
+  </Tab>
+
+  <Tab value="Advanced">
+    ### Direct API Call with Faceted Filters
+
+    ```python
+    search_datasets(
+        query="population",
+        themes=["SOCI"],
+        formats=["CSV", "JSON"],
+        publishers=["stadt-wien"],
+        min_date="2024-01-01",
+        boost_quality=True,
+        sort_by="modified_desc",
+        limit=50
+    )
+    ```
+
+    **Parameters:**
+
+    <TypeTable type={{
+      query: {
+        type: "string",
+        description: "Search query for titles, descriptions, keywords. Supports fuzzy matching (~), wildcards (*), phrases (quotes)",
+        default: "None"
+      },
+      themes: {
+        type: "string[]",
+        description: "Filter by EU DCAT-AP theme codes: AGRI, ECON, EDUC, ENER, ENVI, GOVE, HEAL, INTR, JUST, REGI, SOCI, TECH, TRAN",
+        default: "None"
+      },
+      formats: {
+        type: "string[]",
+        description: "Filter by format: CSV, JSON, XML, PDF, XLS, etc.",
+        default: "None"
+      },
+      publishers: {
+        type: "string[]",
+        description: "Filter by publisher ID (use autocomplete_suggestions to find IDs)",
+        default: "None"
+      },
+      boost_quality: {
+        type: "boolean",
+        description: "Prioritize datasets with quality score >80 (2x boost), 60-80 (1.5x boost)",
+        default: false
+      },
+      sort_by: {
+        type: "string",
+        description: "Sort order: relevance_desc, modified_desc, title_asc, title_desc",
+        default: "relevance_desc"
+      },
+      limit: {
+        type: "integer",
+        description: "Maximum results per page (1-100)",
+        default: 20
+      }
+    }} />
+
+    **Returns:**
+
+    ```json
+    {
+      "results": [
+        {
+          "id": "dataset-123",
+          "title": "Population Statistics 2024",
+          "description": "Annual population data...",
+          "quality_score": 87
+        }
+      ],
+      "count": 42,
+      "facets": {
+        "themes": {"SOCI": 30, "HEAL": 12},
+        "formats": {"CSV": 25, "JSON": 17}
+      }
+    }
+    ```
+
+    **Error Handling:**
+
+    ```python
+    try:
+        results = search_datasets(query="population")
+    except ToolError as e:
+        print(f"Search failed: {e}")
+        # API may be temporarily unavailable
+    ```
+  </Tab>
+</Tabs>
+
+## Semantic Search for Natural Queries
+
+Semantic search understands the meaning behind your query, not just keywords. It finds conceptually related datasets even when they don't contain exact search terms.
+
+### Visual Example: Semantic Search in Action
+
+The following screenshot demonstrates how semantic search expands natural language queries to find relevant datasets:
+
+![Claude Desktop showing semantic_search_datasets tool with natural_query parameter set to datasets about public health in Austrian cities. The tool performs language detection identifying English, then expands the query with semantic understanding to include related EU DCAT-AP themes HEAL for health data, SOCI for social statistics, and REGI for regional city data. Results display five datasets: Vienna Health Services with quality score 85, Urban Health Indicators Austria at 82, Public Health Monitoring Salzburg at 79, Healthcare Access Vienna at 76, and Disease Prevention Programs at 74. Each result shows title, description, theme tags, and quality score, demonstrating how semantic expansion discovers datasets relevant to the query concept even without exact keyword matches in titles.](/optimized/screenshots/placeholder.webp)
+
+<Callout type="info" title="Screenshot Placeholder">
+This is a placeholder image. Real Claude Desktop screenshots showing data.gv.at MCP Server semantic search with query expansion will be added soon. The screenshot will demonstrate actual language detection, theme expansion, and conceptually relevant results.
+</Callout>
+
+Key features of semantic search shown:
+- **Language detection:** Automatically identifies query language (English/German)
+- **Theme expansion:** Maps natural query to EU themes (HEAL, SOCI, REGI)
+- **Conceptual matching:** Finds datasets about the topic even without exact keyword matches
+- **Quality indicators:** Shows metadata completeness scores for each result
+
+<Tabs items={['Basic', 'Advanced']} groupId="search-complexity" persist>
+  <Tab value="Basic">
+    ### Natural Language Queries
+
+    Use complete questions or descriptions:
+
+    ```
+    Find datasets about Vienna's air quality monitoring stations
+    ```
+
+    Claude automatically expands query with synonyms and related themes.
+
+    **When to use semantic search:**
+    - You have a question in natural language
+    - You want related datasets (not exact keyword matches)
+    - You need multi-language support (German/English)
+  </Tab>
+
+  <Tab value="Advanced">
+    ### Direct Semantic Search Call
+
+    ```python
+    semantic_search_datasets(
+        natural_query="climate data for Vienna",
+        formats=["CSV"],
+        boost_quality=True
+    )
+    ```
+
+    **What happens:**
+    1. Language detection (German vs English)
+    2. Query expansion via LLM (adds synonyms, related themes)
+    3. Standard search with expanded terms
+    4. Quality boost applied if enabled
+
+    **Response includes expansion info:**
+
+    ```json
+    {
+      "results": [...],
+      "count": 15,
+      "expansion_info": {
+        "detected_language": "en",
+        "semantic_themes": ["ENVI"],
+        "confidence": 0.85
+      }
+    }
+    ```
+
+    **Error Handling:**
+
+    If semantic expansion fails, falls back to original query:
+
+    ```json
+    {
+      "results": [...],
+      "expansion_info": {
+        "fallback": true,
+        "reason": "Low confidence expansion"
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Theme-Based Filtering
+
+<Tabs items={['Basic', 'Advanced']} groupId="search-complexity" persist>
+  <Tab value="Basic">
+    ### Filter by Topic Area
+
+    Tell Claude which themes you need:
+
+    ```
+    Find datasets about health and social topics
+    ```
+
+    Claude maps topics to EU DCAT-AP theme codes automatically.
+  </Tab>
+
+  <Tab value="Advanced">
+    ### Direct Theme Filtering
+
+    Use EU DCAT-AP theme codes:
+
+    ```python
+    search_datasets(
+        themes=["HEAL", "SOCI"],
+        limit=50
+    )
+    ```
+
+    **Available themes:**
+    - AGRI: Agriculture, fisheries, forestry
+    - ECON: Economy and finance
+    - EDUC: Education, culture, sport
+    - ENER: Energy
+    - ENVI: Environment
+    - GOVE: Government and public sector
+    - HEAL: Health
+    - INTR: International issues
+    - JUST: Justice, legal system, public safety
+    - REGI: Regions and cities
+    - SOCI: Population and society
+    - TECH: Science and technology
+    - TRAN: Transport
+
+    **Filtering logic:**
+    - Multiple themes: OR within same facet (HEAL OR SOCI)
+    - Combine with other filters: AND between facets (themes AND formats)
+  </Tab>
+</Tabs>
+
+## Troubleshooting
+
+### Search Returns No Results
+
+**Symptom:** Count is 0, no datasets found
+
+**Causes:**
+- Query too specific
+- Filters too restrictive
+- Spelling errors in query
+
+**Solutions:**
+1. Try broader query terms
+2. Remove format/publisher filters
+3. Check theme codes (must be uppercase: SOCI not soci)
+4. Use `semantic_search_datasets` for query expansion
+
+### Semantic Search Returns Irrelevant Results
+
+**Symptom:** Results don't match query intent
+
+**Cause:** Language detection incorrect or semantic expansion too broad
+
+**Solutions:**
+1. Check `expansion_info.detected_language` in response
+2. If wrong language, use direct `search_datasets()` instead
+3. Add explicit theme filters to constrain expansion
+4. Use more specific query terms
+
+### Quality Boost Returns No Results
+
+**Symptom:** Search with boost_quality=True returns empty
+
+**Cause:** Quality filter too strict for domain
+
+**Solutions:**
+1. Try search without `boost_quality` first
+2. Review quality scores of all results
+3. Lower quality threshold expectations for niche domains
+
+### Facets Show Unexpected Counts
+
+**Symptom:** Facet counts don't match expected distribution
+
+**Cause:** Multiple filters applied, counts reflect intersections
+
+**Solutions:**
+1. Remove filters to see full facet distribution
+2. Check if datasets have multiple themes (counted in each)
+3. Review filtered vs unfiltered search results
+
+## Next Steps
+
+- **[Quality Metrics Guide](/guides/quality-metrics)** - Understand quality scoring
+- **[Data Preview Guide](/guides/data-preview)** - Inspect data before downloading
+- **[Search Tools Reference](/api/tools/discovery)** - Complete API documentation

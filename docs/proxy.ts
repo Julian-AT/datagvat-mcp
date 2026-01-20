@@ -14,7 +14,6 @@ export default function proxy(request: NextRequest, event?: any) {
     }
   }
   
-  
   return i18nMiddleware(request, event);
 }
 

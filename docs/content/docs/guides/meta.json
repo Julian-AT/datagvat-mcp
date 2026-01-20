@@ -1,0 +1,13 @@
+{
+  "$schema": "../.source/json-schema/docs.meta.json",
+  "title": "Guides",
+  "description": "Task-oriented guides for common data.gv.at MCP Server workflows",
+  "icon": "Book",
+  "root": true,
+  "pages": [
+    "searching",
+    "data-preview",
+    "quality-metrics",
+    "workflow-patterns"
+  ]
+}
