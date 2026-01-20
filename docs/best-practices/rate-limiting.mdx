@@ -100,6 +100,32 @@ As a user, you typically don't see rate limit errors unless:
 
 The middleware handles temporary spikes automatically.
 
+## Middleware Stack
+
+FastMCP middleware processes requests in strict order. Rate limiting occurs late in the stack, after logging and error handling:
+
+<Mermaid chart={`
+graph LR
+    A[MCP Request] --> B[Logging Middleware]
+    B --> C[Error Handler]
+    C --> D[Retry Middleware]
+    D --> E[Rate Limit Middleware]
+    E --> F[Tool Execution]
+    F --> G[MCP Response]
+
+    D -.->|Max 3 attempts| D
+    E -.->|429 Rate Limited| D
+
+    style E fill:#f99,stroke:#333,stroke-width:2px
+    style D fill:#9f9,stroke:#333,stroke-width:2px
+    style F fill:#99f,stroke:#333,stroke-width:2px
+`} />
+
+Notice how:
+1. Rate limiting happens **after** retry middleware
+2. Rate limit errors (429) trigger retry attempts automatically
+3. Maximum 3 retry attempts with exponential backoff (1-60s)
+
 ## Avoiding Rate Limits
 
 ### Strategy 1: Batch Operations Efficiently
