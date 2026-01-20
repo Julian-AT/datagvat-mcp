@@ -8,6 +8,8 @@
     "architecture",
     "fastmcp-internals",
     "middleware",
-    "semantic-search"
+    "semantic-search",
+    "error-handling",
+    "testing"
   ]
 }
