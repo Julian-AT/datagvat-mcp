@@ -71,12 +71,12 @@ Requirements for documentation rebuild milestone. Each maps to roadmap phases.
 
 ### Integration
 
-- [ ] **INTEG-01**: Claude Desktop setup documentation
-- [ ] **INTEG-02**: Custom MCP client integration examples
-- [ ] **INTEG-03**: FastMCP internals documentation
-- [ ] **INTEG-04**: Middleware stack documentation
-- [ ] **INTEG-05**: Error handling patterns
-- [ ] **INTEG-06**: Testing patterns for MCP tools
+- [x] **INTEG-01**: Claude Desktop setup documentation
+- [x] **INTEG-02**: Custom MCP client integration examples
+- [x] **INTEG-03**: FastMCP internals documentation
+- [x] **INTEG-04**: Middleware stack documentation
+- [x] **INTEG-05**: Error handling patterns
+- [x] **INTEG-06**: Testing patterns for MCP tools
 
 ### Best Practices
 
@@ -98,9 +98,9 @@ Requirements for documentation rebuild milestone. Each maps to roadmap phases.
 ### Developer Experience
 
 - [ ] **DX-01**: Auto-generation script (Python docstrings → MDX)
-- [ ] **DX-02**: Type definitions for IDE integration
-- [ ] **DX-03**: Integration examples (FastMCP patterns)
-- [ ] **DX-04**: Architecture deep-dive documentation
+- [x] **DX-02**: Type definitions for IDE integration
+- [x] **DX-03**: Integration examples (FastMCP patterns)
+- [x] **DX-04**: Architecture deep-dive documentation
 - [ ] **DX-05**: Comparison tables (when to use X vs Y)
 
 ## v1.3 Requirements
