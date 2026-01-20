@@ -23,6 +23,39 @@ Find, evaluate, and download datasets matching your requirements through a syste
 
 10-15 minutes per dataset
 
+## Workflow Overview
+
+Choose your search approach based on what you know:
+
+<Mermaid chart={`
+graph TD
+    A{What do you have?} -->|Keywords| B[search_datasets]
+    A -->|Natural question| C[semantic_search_datasets]
+    A -->|Example dataset ID| D[find_similar_datasets]
+
+    B --> E{Need quality focus?}
+    E -->|Yes| F[Enable quality_boost]
+    E -->|No| G[Default relevance ranking]
+
+    F --> H[Get dataset details]
+    G --> H
+    C --> H
+    D --> H
+
+    H --> I[Preview data]
+    I --> J{Suitable?}
+    J -->|Yes| K[Use dataset]
+    J -->|No| A
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#9f9,stroke:#333,stroke-width:2px
+    style C fill:#9f9,stroke:#333,stroke-width:2px
+    style D fill:#9f9,stroke:#333,stroke-width:2px
+    style K fill:#99f,stroke:#333,stroke-width:2px
+`} />
+
+The flowchart shows three entry points (keywords, natural language, example dataset) converging into a common evaluation process.
+
 ## Workflow
 
 <Tabs items={['Complete Example', 'Step by Step']} persist groupId="workflow-detail">
