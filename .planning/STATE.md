@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-01-20)
 
 **Core value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
-**Current focus:** Planning next milestone (v1.3)
+**Current focus:** v2.0 Professional Documentation System
 
 ## Current Position
 
-Milestone: v1.3 Planning
-Phase: Not started
+Milestone: v2.0 Professional Documentation System
+Phase: 25 - Infrastructure Modernization
 Plan: Not started
-Status: Ready to define requirements
-Last activity: 2026-01-20 — v1.2 milestone complete
+Status: Ready to plan Phase 25
+Last activity: 2026-01-20 — v2.0 roadmap created
 
-Progress: ████████████ 100% (21/21 plans in v1.2 complete)
+Progress: ░░░░░░░░░░░░ 0% (0/9 phases complete)
 
 ## Performance Metrics
 
@@ -64,6 +64,10 @@ Progress: ████████████ 100% (21/21 plans in v1.2 complet
 **Recent Trend:**
 - Last 5 plans: 23-05 (8 min), 24-01 (28 min), 24-02 (18 min), 24-03 (16 min), milestone complete
 - Trend: v1.2 milestone complete - comprehensive documentation rebuild achieved
+
+**v2.0 Milestone:**
+- Total plans completed: 0
+- Status: Roadmap created, ready for Phase 25 planning
 
 ## Accumulated Context
 
@@ -253,6 +257,11 @@ Recent decisions affecting current work:
 - Automated verification provides sufficient confidence for production readiness - manual verification is additional quality assurance (24-03, 2026-01-20)
 - 60/60 v1.2 requirements verified complete through combination of automated checks and artifact verification (24-03, 2026-01-20)
 
+**v2.0 Decisions:**
+- Phase numbering starts at 25 (continuing from v1.2)
+- 9-phase structure derived from 6 requirement categories with natural delivery boundaries (2026-01-20)
+- INFRA-04/INFRA-05 split across Phase 25 (foundation) and Phase 30 (enhancement) (2026-01-20)
+
 ### Roadmap Evolution
 
 **v1.0 Milestone:**
@@ -268,6 +277,10 @@ Recent decisions affecting current work:
 **v1.2 Milestone:**
 - 7 phases planned (18-24): Complete documentation rebuild from foundation to production quality
 - Focus: Auto-generated tool reference, progressive disclosure, real screenshots, comprehensive guides
+
+**v2.0 Milestone:**
+- 9 phases planned (25-33): Enterprise-grade documentation infrastructure with modern tooling
+- Focus: Bun, Biome, navigation consolidation, style guide compliance, OpenAPI, CLI installer, AI testing
 
 ### Pending Todos
 
@@ -291,15 +304,15 @@ Recent decisions affecting current work:
 
 ### Blockers/Concerns
 
-None - v1.2 milestone complete and shipped. Documentation production ready.
+None - v2.0 roadmap created successfully. Ready to plan Phase 25.
 
 ## Session Continuity
 
 Last session: 2026-01-20
-Stopped at: Completed v1.2 milestone (all 60 requirements verified, documentation shipped)
+Stopped at: Created v2.0 roadmap (9 phases, 24 requirements, 100% coverage)
 Resume file: None
-Next: v1.3 milestone planning - use `/gsd:new-milestone` to define requirements and create roadmap
+Next: `/gsd:plan-phase 25` to begin Infrastructure Modernization
 
 ---
 *State initialized: 2026-01-19*
-*Last updated: 2026-01-20 after v1.2 milestone completion*
+*Last updated: 2026-01-20 after v2.0 roadmap creation*
