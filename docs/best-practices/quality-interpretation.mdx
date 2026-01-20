@@ -47,6 +47,21 @@ graph TD
 
 The diagram shows how the 100-point quality score breaks down into 4 dimensions and 10 individual components.
 
+### Quality Metrics in Action
+
+The following screenshot demonstrates the `get_dataset_metrics` tool in Claude Desktop, showing a detailed quality breakdown for a real dataset:
+
+![Claude Desktop showing get_dataset_metrics tool with dataset_id parameter. The response displays an overall quality score with component breakdown including title score 10 out of 10, description score 12 out of 15, publisher score 15 out of 15, keywords score showing missing points, themes with partial coverage, spatial coverage status, distributions completeness at 14 out of 15, license score, and temporal metadata with issued and modified dates. The display highlights which metadata components are complete with full points versus which components need improvement with partial or zero scores, providing actionable insights for dataset quality enhancement.](/optimized/screenshots/placeholder.webp)
+
+<Callout type="info" title="Screenshot Placeholder">
+This is a placeholder image. Real Claude Desktop screenshots showing the Austria MCP quality metrics tool will be added soon. The screenshot will demonstrate the complete quality score breakdown with actual dataset metrics.
+</Callout>
+
+From a quality metrics response, you can identify:
+- **Strong components:** Core metadata (title, description, publisher) with high scores
+- **Weak components:** Missing keywords, incomplete themes, absent spatial coverage
+- **Actionable improvements:** Add keywords (+10 points), complete themes (+6 points), specify license (+5 points)
+
 ## The 8-Component Quality Model
 
 Quality scores are calculated across **8 metadata components** organized into 4 dimensions:
