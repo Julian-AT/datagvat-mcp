@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 
 Milestone: v1.2 Documentation Rebuild
 Phase: 22 - API Reference & Integration
-Plan: 01 of 02 complete (FastMCP Internals & Client Integration)
-Status: In progress
-Last activity: 2026-01-20 — Completed 22-01-PLAN.md
+Plan: 02 of 02 complete (Error Handling & Testing Patterns)
+Status: Phase complete
+Last activity: 2026-01-20 — Completed 22-02-PLAN.md
 
-Progress: ████░░░░░░ 57% (4/7 phases complete, 22-01 complete)
+Progress: █████░░░░░ 64% (5/7 phases complete)
 
 ## Performance Metrics
 
@@ -51,17 +51,17 @@ Progress: ████░░░░░░ 57% (4/7 phases complete, 22-01 complet
 | 19-getting-started-content | 2 | 19 min | 9.5 min |
 | 20-guides-and-workflows | 3 | 15 min | 5 min |
 | 21-auto-generated-tools-reference | 2 | 38 min | 19 min |
-| 22-api-reference-&-integration | 1 | 15 min | 15 min |
+| 22-api-reference-&-integration | 2 | 33 min | 16.5 min |
 
 **v1.2 Milestone:**
-- Total plans completed: 11
-- Average duration: 19.5 min
-- Total execution time: 214 min
+- Total plans completed: 12
+- Average duration: 19.1 min
+- Total execution time: 232 min
 - Timeline: 2 days (2026-01-19 → 2026-01-20)
 
 **Recent Trend:**
-- Last 5 plans: 20-03b (5 min), 21-01 (21 min), 21-02 (17 min), 22-01 (15 min)
-- Trend: FastMCP framework patterns documented, client integration patterns established
+- Last 5 plans: 21-01 (21 min), 21-02 (17 min), 22-01 (15 min), 22-02 (18 min)
+- Trend: Advanced documentation complete - framework, error handling, testing patterns all documented
 
 ## Accumulated Context
 
@@ -218,6 +218,11 @@ Recent decisions affecting current work:
 - Middleware order documentation emphasizes why order matters with failure scenarios (22-01, 2026-01-20)
 - Three FastMCP client patterns documented: in-memory (testing), subprocess (production), HTTP (web) (22-01, 2026-01-20)
 - Common pitfalls section includes diagnostic steps for troubleshooting (22-01, 2026-01-20)
+- Three-level error hierarchy: ToolError (user-facing) → PiveauApiError (internal) → specific errors (22-02, 2026-01-20)
+- ToolError for all user-facing errors with actionable, contextual messages (22-02, 2026-01-20)
+- Middleware distinguishes transient (retry) vs permanent (fail-fast) errors (22-02, 2026-01-20)
+- Mock Context pattern with create_mock_context() fixture for standardized tool testing (22-02, 2026-01-20)
+- In-memory FastMCP Client for integration tests (10-100x faster than subprocess) (22-02, 2026-01-20)
 
 ### Roadmap Evolution
 
@@ -241,15 +246,15 @@ None yet.
 
 ### Blockers/Concerns
 
-None - Phase 22-01 complete with comprehensive FastMCP internals documentation (1112 lines) and client integration patterns. Framework patterns established for extending Austria MCP.
+None - Phase 22 complete with comprehensive advanced documentation (2418 total lines). Error handling patterns, testing strategies, and FastMCP framework internals all documented with production-ready examples.
 
 ## Session Continuity
 
 Last session: 2026-01-20
-Stopped at: Completed 22-01-PLAN.md
+Stopped at: Completed 22-02-PLAN.md
 Resume file: None
-Next: Plan 22-02 - Application patterns (error handling, testing, configuration management)
+Next: Begin Phase 23 - API schema validation and type generation
 
 ---
 *State initialized: 2026-01-19*
-*Last updated: 2026-01-20 after Phase 22-01 completion*
+*Last updated: 2026-01-20 after Phase 22-02 completion*
