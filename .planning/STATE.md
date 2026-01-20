@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 ## Current Position
 
 Milestone: v1.2 Documentation Rebuild
-Phase: 23 - Best Practices & Visual Assets
-Plan: None yet
-Status: Phase 23 complete, ready to plan Phase 24
-Last activity: 2026-01-20 — Phase 23 verified and completed
+Phase: 24 - Final Polish & Quality
+Plan: 01 of 2
+Status: In progress - content organization and validation complete
+Last activity: 2026-01-20 — Completed 24-01-PLAN.md
 
-Progress: ███████░░░ 86% (6/7 phases complete)
+Progress: ██████████░ 93% (18/19 plans in v1.2 complete)
 
 ## Performance Metrics
 
@@ -53,16 +53,17 @@ Progress: ███████░░░ 86% (6/7 phases complete)
 | 21-auto-generated-tools-reference | 2 | 38 min | 19 min |
 | 22-api-reference-&-integration | 2 | 33 min | 16.5 min |
 | 23-best-practices-a-visual-assets | 5 | 32 min | 6.4 min |
+| 24-final-polish-a-quality | 1 | 28 min | 28 min |
 
 **v1.2 Milestone:**
-- Total plans completed: 17
-- Average duration: 15.4 min
-- Total execution time: 255 min
+- Total plans completed: 18
+- Average duration: 15.7 min
+- Total execution time: 283 min
 - Timeline: 2 days (2026-01-19 → 2026-01-20)
 
 **Recent Trend:**
-- Last 5 plans: 22-02 (18 min), 23-01 (11 min), 23-02 (2 min), 23-04 (9 min), 23-05 (8 min)
-- Trend: Phase 23 complete - best practices documentation and visual assets integrated with placeholder strategy
+- Last 5 plans: 23-01 (11 min), 23-02 (2 min), 23-04 (9 min), 23-05 (8 min), 24-01 (28 min)
+- Trend: Phase 24 started - content organization and quality validation infrastructure complete
 
 ## Accumulated Context
 
@@ -240,6 +241,11 @@ Recent decisions affecting current work:
 - Mermaid diagrams with graph TD for hierarchical structures, graph LR for sequential flows (23-05, 2026-01-20)
 - Architecture diagrams placed in FastMCP internals for contextual fit with existing content (23-05, 2026-01-20)
 - Decision tree visualization with styled nodes for decision points, actions, and outcomes (23-05, 2026-01-20)
+- Documentation content must be in docs/content/docs/* for Fumadocs rendering, not docs/* (24-01, 2026-01-20)
+- Rename "Austria MCP" to "data.gv.at MCP Server" for brand consistency and professionalism (24-01, 2026-01-20)
+- Filesystem scanning (readdirSync) instead of source.getPages() for quality scripts to avoid top-level await issues (24-01, 2026-01-20)
+- Escape < characters before numbers in MDX with &lt; to prevent JSX parsing errors (24-01, 2026-01-20)
+- Use npx tsx for cross-platform TypeScript script execution (24-01, 2026-01-20)
 
 ### Roadmap Evolution
 
@@ -260,24 +266,30 @@ Recent decisions affecting current work:
 ### Pending Todos
 
 **User Screenshot Capture (from 23-03):**
-- Task: Capture 5-7 Claude Desktop screenshots showing Austria MCP workflows
+- Task: Capture 5-7 Claude Desktop screenshots showing data.gv.at MCP Server workflows
 - Location: docs/public/screenshots/
 - Files needed: search-workflow.png, quality-metrics.png, data-preview.png, semantic-search.png, related-datasets.png (+ 2 optional)
 - Current: Placeholder image present (16KB) - unblocks Wave 3 execution
 - Instructions: See 23-03-SUMMARY.md "User Setup Required" section
-- Timeline: User will complete when convenient, not blocking Phase 23 progress
+- Timeline: User will complete when convenient, not blocking Phase 24 progress
+
+**Quality Fixes (from 24-01):**
+- Fix 64 code blocks with empty language declarations (detected by verify-syntax-highlighting.ts)
+- Add persist prop to 12 Tabs components for cross-page state (detected by component-audit.ts)
+- Add powershell to VALID_LANGUAGES array (1 code block uses it)
+- Refine QUAL-03/QUAL-04 detection patterns (currently undercounting)
 
 ### Blockers/Concerns
 
-None - Phase 23 complete with comprehensive best practices documentation (2623 lines) and visual assets (4 Mermaid diagrams, screenshot infrastructure). Placeholder strategy enables completion despite deferred screenshot capture (on user's todo list). Ready for Phase 24 (final polish & quality).
+None - Phase 24 plan 1 complete with content organization and automated quality validation infrastructure. Documentation now in correct location and visible. Quality issues identified and ready for fixing in 24-02. Build succeeds with 481 static pages.
 
 ## Session Continuity
 
 Last session: 2026-01-20
-Stopped at: Phase 23 verified and completed
+Stopped at: Completed 24-01-PLAN.md
 Resume file: None
-Next: Begin Phase 24 - Final Polish & Quality
+Next: Execute 24-02 (quality fixes and final verification)
 
 ---
 *State initialized: 2026-01-19*
-*Last updated: 2026-01-20 after Phase 23 execution*
+*Last updated: 2026-01-20 after 24-01 execution*
