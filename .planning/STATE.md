@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 
 Milestone: v1.2 Documentation Rebuild
 Phase: 21 - Auto-Generated Tools Reference
-Plan: None yet
-Status: Phase 20 complete, ready to plan Phase 21
-Last activity: 2026-01-20 — Phase 20 verified and completed
+Plan: 21-01 of 1 complete
+Status: Phase 21 complete, ready for Phase 22
+Last activity: 2026-01-20 — Completed 21-01-PLAN.md
 
-Progress: ███░░░░░░░ 43% (3/7 phases complete)
+Progress: ████░░░░░░ 57% (4/7 phases complete)
 
 ## Performance Metrics
 
@@ -50,16 +50,17 @@ Progress: ███░░░░░░░ 43% (3/7 phases complete)
 | 18-documentation-foundation | 3 | 127 min | 42.3 min |
 | 19-getting-started-content | 2 | 19 min | 9.5 min |
 | 20-guides-and-workflows | 3 | 15 min | 5 min |
+| 21-auto-generated-tools-reference | 1 | 21 min | 21 min |
 
 **v1.2 Milestone:**
-- Total plans completed: 8
-- Average duration: 20.1 min
-- Total execution time: 161 min
+- Total plans completed: 9
+- Average duration: 20.2 min
+- Total execution time: 182 min
 - Timeline: 2 days (2026-01-19 → 2026-01-20)
 
 **Recent Trend:**
-- Last 5 plans: 19-02 (11 min), 20-01 (6 min), 20-03a (4 min), 20-03b (5 min)
-- Trend: Workflow content significantly faster than build verification tasks
+- Last 5 plans: 20-01 (6 min), 20-03a (4 min), 20-03b (5 min), 21-01 (21 min)
+- Trend: Auto-generation infrastructure more complex than content writing
 
 ## Accumulated Context
 
@@ -203,6 +204,11 @@ Recent decisions affecting current work:
 - Research license whitelist (CC-BY, CC0, ODbL) - clear academic use approval with attribution requirements (20-03b, 2026-01-20)
 - Iterative 3-round exploration (broad → theme analysis → refinement) - mirrors natural research discovery process (20-03b, 2026-01-20)
 - Workflow navigation order: basic → intermediate → advanced → specialized for complexity progression (20-03b, 2026-01-20)
+- FastMCP Tool object JSON Schema extraction instead of function introspection - more reliable with pre-computed parameter schemas (21-01, 2026-01-20)
+- Access tool registry via _tool_manager._tools (synchronous) instead of get_tools() (async) for simpler extraction scripts (21-01, 2026-01-20)
+- Handle anyOf JSON Schema patterns for optional parameters (str | None, list[str] | None) (21-01, 2026-01-20)
+- Escape Jinja2 braces using {\"{\"}}/{\"}\"}  for TypeTable MDX syntax compatibility in templates (21-01, 2026-01-20)
+- Generate tools.mdx and commit to git (not build artifact) for version control and review (21-01, 2026-01-20)
 
 ### Roadmap Evolution
 
@@ -226,15 +232,15 @@ None yet.
 
 ### Blockers/Concerns
 
-None - Phase 20 complete with all 6 workflows delivered (discovery, quality assessment, data export, comparative analysis, publication research, semantic exploration).
+None - Phase 21 complete with auto-generation infrastructure in place. All 25 tools documented with complete parameter schemas.
 
 ## Session Continuity
 
 Last session: 2026-01-20
-Stopped at: Completed 20-03b-PLAN.md
+Stopped at: Completed 21-01-PLAN.md
 Resume file: None
-Next: Begin Phase 21 - Best Practices Content
+Next: Begin Phase 22 - Progressive Disclosure Examples
 
 ---
 *State initialized: 2026-01-19*
-*Last updated: 2026-01-20 after Phase 20-03b completion*
+*Last updated: 2026-01-20 after Phase 21-01 completion*
