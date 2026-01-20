@@ -48,6 +48,38 @@ Austria MCP demonstrates production-ready FastMCP patterns:
 
 All code examples in this guide are extracted from the Austria MCP codebase.
 
+### System Architecture
+
+Austria MCP connects Claude Desktop to the Austrian Open Data Portal through a layered architecture:
+
+<Mermaid chart={`
+graph TD
+    A[Claude Desktop] -->|MCP Protocol| B[FastMCP Server]
+    B --> C[Tool Registry]
+    B --> D[Middleware Stack]
+    D --> E[Piveau API Client]
+    E -->|HTTPS| F[data.gv.at API]
+
+    C -->|60+ Tools| D
+    D -->|Rate Limit<br/>Retry<br/>Auth| E
+    F -->|JSON Response| E
+    E --> D
+    D --> B
+    B -->|MCP Response| A
+
+    style B fill:#9f9,stroke:#333,stroke-width:2px
+    style E fill:#99f,stroke:#333,stroke-width:2px
+    style F fill:#f9f,stroke:#333,stroke-width:2px
+`} />
+
+**Components:**
+- **Claude Desktop**: MCP client that users interact with
+- **FastMCP Server**: Tool registry and middleware orchestration
+- **Piveau API Client**: HTTP client with retry and rate limiting
+- **data.gv.at API**: Austrian Open Data Portal backend
+
+This architecture separates concerns cleanly: MCP protocol handling (FastMCP), business logic (tools), and external API communication (Piveau client).
+
 ## Decorator-Based Tool Registration
 
 FastMCP uses Python decorators to register tools, automatically generating JSON Schemas from type hints and docstrings.
