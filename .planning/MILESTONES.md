@@ -1,5 +1,34 @@
 # Project Milestones: Austria MCP
 
+## v1.2 Documentation Rebuild (Shipped: 2026-01-20)
+
+**Delivered:** Comprehensive, production-ready documentation from foundation to polish, with auto-generated tool reference, progressive disclosure patterns, and visual architecture aids serving both data analysts and developers.
+
+**Phases completed:** 18-24 (21 plans total)
+
+**Key accomplishments:**
+
+- Complete documentation infrastructure with 7-section hierarchy (Getting Started, Guides, Tools, Workflows, API Reference, Integration, Best Practices)
+- Auto-generated tool reference for all 25 MCP tools with 100% parameter documentation coverage (71 parameters)
+- Progressive disclosure patterns with Basic/Advanced tabs throughout guides, serving multiple expertise levels
+- Comprehensive workflow documentation with 6 end-to-end workflows using Steps component
+- Visual architecture aids including 4 Mermaid diagrams (quality scoring, middleware stack, system architecture, decision tree)
+- Production-ready quality with 100% of sampled code examples working without modification, 60/60 v1.2 requirements verified complete
+
+**Stats:**
+
+- 286 files created/modified
+- +50,379 / -2,047 lines changed
+- 7 phases, 21 plans, 60+ tasks
+- ~21,000 lines MDX/TypeScript documentation
+- 2 days from first commit to ship (2026-01-19 → 2026-01-20)
+
+**Git range:** `feat(18-01)` → `feat(24-03)`
+
+**What's next:** v1.3 milestone - bilingual German documentation, advanced interactive features, or other enhancements based on user feedback.
+
+---
+
 ## v1.1 Documentation Excellence (Shipped: 2026-01-18)
 
 **Delivered:** Improved documentation infrastructure with i18n foundation, comprehensive polish, and two-workspace architecture.

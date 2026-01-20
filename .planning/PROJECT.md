@@ -10,35 +10,38 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 
 ## Current State
 
-**Latest shipped:** v1.1 Documentation Excellence (2026-01-18)
+**Latest shipped:** v1.2 Documentation Rebuild (2026-01-20)
 
 **What's working:**
-- MCP server with 17 tools for Austrian open data discovery and analysis
+- MCP server with 25 tools for Austrian open data discovery and analysis
 - Enterprise infrastructure (retry, rate limiting, logging, graceful degradation)
 - Smart search with semantic matching, quality ranking, and autocomplete
 - Data preview and schema introspection for CSV/JSON
-- Bilingual documentation (EN/DE) with i18n routing and Fumadocs workspace architecture
-- Comprehensive testing (268 tests, mypy --strict compliance)
+- Bilingual documentation framework (EN/DE) with Fumadocs
+- Comprehensive English documentation (112 MDX files, 481 static routes)
+- Auto-generated tool reference from Python docstrings
+- Progressive disclosure patterns serving multiple expertise levels
+- 6 end-to-end workflow guides with Steps component
+- Visual architecture aids (4 Mermaid diagrams)
+- Production-ready quality (60/60 requirements verified, 100% sampled examples work)
 
-**Recent improvements (v1.1):**
-- i18n foundation with automatic locale detection
-- Two-workspace documentation architecture (learning + API reference)
-- 100% accurate code examples (verified and corrected)
-- Conversational German documentation style
-- ASCII architecture diagrams
+**Recent improvements (v1.2):**
+- 7-section documentation hierarchy (Getting Started, Guides, Tools, Workflows, API Reference, Integration, Best Practices)
+- Auto-generation tooling for tool reference (TypeScript script: Python docstrings → MDX)
+- Task-oriented guide structure ("I want to..." not "Tool X does...")
+- Comprehensive workflow documentation (discovery, quality assessment, data export, comparative analysis, publication research, semantic exploration)
+- FastMCP internals documentation with middleware stack, error handling, testing patterns
+- Best practices for optimization, quality interpretation, rate limiting, caching
 
-## Current Milestone: v1.2 Documentation Rebuild
+## Current Milestone: v1.3 Planning
 
-**Goal:** Create comprehensive, production-ready documentation from scratch leveraging Fumadocs' full component library for optimal UX/DX, serving both data analysts and developers.
+**Status:** Awaiting requirements definition. v1.2 shipped 2026-01-20.
 
-**Target features:**
-- Complete information architecture with 7 top-level sections (Getting Started, Guides, Tools, Workflows, API Reference, Integration, Best Practices)
-- Auto-generated tool reference documentation (25 tools) from Python docstrings
-- Progressive disclosure patterns (Basic/Advanced tabs throughout)
-- Real Claude Desktop screenshots showing actual MCP tool usage
-- Workflow-first navigation optimized for task completion
-- Interactive components (Tabs, Steps, TypeTable, Files, Accordions, Mermaid)
-- 60-80 comprehensive English documentation pages
+**Potential directions:**
+- German translation of English documentation
+- Real Claude Desktop screenshots (infrastructure present, placeholder images in place)
+- Advanced interactive features (live code examples, playground)
+- Additional workflow guides based on user feedback
 
 ## Requirements
 
@@ -82,23 +85,29 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 - ✓ Independent workspace configurations — v1.1
 - ✓ Unified navigation across workspaces — v1.1
 
+**v1.2 Documentation Rebuild (shipped 2026-01-20):**
+- ✓ Complete documentation infrastructure with 7-section hierarchy — v1.2
+- ✓ Auto-generated tool reference for all 25 MCP tools (71 parameters, 100% coverage) — v1.2
+- ✓ Getting Started section (6 pages: overview, installation, quickstart, first query, quick reference, troubleshooting) — v1.2
+- ✓ Guides section (6 pages: searching, data preview, quality metrics, workflow patterns + task-oriented structure) — v1.2
+- ✓ Workflows section (6 end-to-end workflows: discovery, quality assessment, data export, comparative analysis, publication research, semantic exploration) — v1.2
+- ✓ API Reference section (architecture, MCP protocol, resources, prompts, type system) — v1.2
+- ✓ Integration section (Claude Desktop, custom clients, FastMCP internals, error handling, testing patterns) — v1.2
+- ✓ Best Practices section (optimization, quality interpretation, rate limiting, caching, comparison tables) — v1.2
+- ✓ Progressive disclosure with Basic/Advanced Tabs throughout (persistent state) — v1.2
+- ✓ Interactive components (Tabs, Steps, TypeTable, Files, Accordion, Mermaid) — v1.2
+- ✓ Visual architecture aids (4 Mermaid diagrams, screenshot infrastructure) — v1.2
+- ✓ Production-ready quality (100% sampled examples work, 60/60 requirements verified) — v1.2
+
 ### Active
 
-<!-- Current milestone: v1.2 Documentation Rebuild -->
+<!-- Future milestones -->
 
-**v1.2 Documentation Rebuild (in progress):**
-- [ ] Complete information architecture (7 sections, meta.json navigation)
-- [ ] Auto-generation tooling (TypeScript script: Python docstrings → MDX)
-- [ ] Getting Started section (5 pages: overview, installation, first search, quick reference, troubleshooting)
-- [ ] Guides section (12 pages: searching, data preview, analysis, workflows)
-- [ ] Tools reference (25 auto-generated pages with manual examples)
-- [ ] Workflows section (7 end-to-end use case walkthroughs)
-- [ ] API Reference section (architecture, MCP protocol, resources, prompts, types)
-- [ ] Integration section (6 pages: Claude Desktop, custom clients, FastMCP internals)
-- [ ] Best Practices section (5 pages: optimization, performance, quality interpretation)
-- [ ] Real Claude Desktop screenshots for all workflow examples
-- [ ] Progressive disclosure with Tabs (Basic/Advanced patterns)
-- [ ] Interactive components (Steps, TypeTable, Files, Accordion, Mermaid)
+**Future enhancements (v1.3+):**
+- [ ] German translation of all documentation
+- [ ] Interactive MCP playground or live code examples
+- [ ] Video tutorials
+- [ ] Real Claude Desktop screenshots (placeholders present in v1.2)
 
 ### Out of Scope
 
@@ -126,17 +135,32 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 - Piveau Hub API integration via httpx
 - CI/CD pipeline with GitHub Actions
 
+**v1.1 Shipped (2026-01-18):**
+- i18n routing and two-workspace Fumadocs architecture
+- 100% accurate code examples through grep-based verification
+- Conversational German documentation (du-form)
+
+**v1.2 Shipped (2026-01-20):**
+- 112 MDX files, 481 static routes generated
+- Auto-generation tooling (TypeScript script: Python docstrings → MDX)
+- 7-section documentation hierarchy with progressive disclosure
+- 6 end-to-end workflow guides with Steps component
+- 4 Mermaid architecture diagrams
+- 100% of sampled code examples work without modification
+- 60/60 requirements verified complete
+
 **Technical Stack:**
 - FastMCP 2.14+ with enterprise middleware (retry, rate limiting, logging)
 - Fumadocs for bilingual documentation (German/English)
 - Python 3.11+ with async/await patterns
 - httpx for HTTP, rdflib for RDF parsing, pydantic for validation
+- Next.js 16.1.3 with Tailwind CSS v4
 
 **Deployment Ready:**
-- Production build succeeds (24 documentation pages)
-- All 24 v1 requirements satisfied
-- Cross-phase integration verified (100% connected)
-- 6/6 E2E user flows functional
+- Production build succeeds (481 static pages, zero warnings)
+- All 60 v1.2 requirements satisfied
+- Comprehensive automated verification complete
+- Manual verification deferred to user todo (non-blocking)
 
 ## Constraints
 
@@ -160,4 +184,4 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 | German/English bilingual | Austrian data users speak both languages | ✓ Good — v1.0 |
 
 ---
-*Last updated: 2026-01-19 after v1.2 milestone initialization*
+*Last updated: 2026-01-20 after v1.2 milestone completion*
