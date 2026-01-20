@@ -5,7 +5,7 @@ from typing import Annotated, Any
 
 from fastmcp import Context, FastMCP
 from fastmcp.exceptions import ToolError
-from pydantic import StringConstraints
+from pydantic import Field, StringConstraints
 
 from app.dependencies import get_piveau_client
 from app.models import IdentifierType
@@ -26,8 +26,8 @@ def register_analysis_tools(mcp: FastMCP) -> None:
     )
     async def get_dataset_metrics(
         ctx: Context,
-        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
-        include_history: bool = False,
+        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the dataset to retrieve quality metrics for")],
+        include_history: Annotated[bool, Field(description="Whether to include historical quality metrics. Default: False")] = False,
     ) -> dict[str, Any]:
         client = get_piveau_client(ctx)
         try:
@@ -42,8 +42,8 @@ def register_analysis_tools(mcp: FastMCP) -> None:
     )
     async def check_doi_eligibility(
         ctx: Context,
-        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
-        identifier_type: str = "eu-ra-doi",
+        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the dataset to check DOI eligibility for")],
+        identifier_type: Annotated[str, Field(description="Type of identifier to check eligibility for (default: 'eu-ra-doi')")] = "eu-ra-doi",
     ) -> dict[str, Any]:
         client = get_piveau_client(ctx)
         valid_types = [t.value for t in IdentifierType]
@@ -61,7 +61,7 @@ def register_analysis_tools(mcp: FastMCP) -> None:
     )
     async def analyze_dataset_quality(
         ctx: Context,
-        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
+        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the dataset to perform quality analysis on")],
     ) -> dict[str, Any]:
         client = get_piveau_client(ctx)
         analysis: dict[str, Any] = {"dataset_id": dataset_id}

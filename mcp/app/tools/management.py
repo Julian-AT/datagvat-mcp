@@ -4,7 +4,7 @@ from typing import Annotated, Any
 
 from fastmcp import Context, FastMCP
 from fastmcp.exceptions import ToolError
-from pydantic import StringConstraints
+from pydantic import Field, StringConstraints
 
 from app.dependencies import get_piveau_client
 
@@ -22,7 +22,7 @@ def register_management_tools(mcp: FastMCP) -> None:
     )
     async def list_dataset_drafts(
         ctx: Context,
-        filter_by_provider: bool = False,
+        filter_by_provider: Annotated[bool, Field(description="Whether to filter drafts by the current provider. Default: False")] = False,
     ) -> list[str]:
         client = get_piveau_client(ctx)
         try:
@@ -42,8 +42,8 @@ def register_management_tools(mcp: FastMCP) -> None:
     )
     async def get_dataset_draft(
         ctx: Context,
-        draft_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
-        catalogue_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
+        draft_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the draft to retrieve")],
+        catalogue_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the catalogue containing the draft")],
     ) -> dict[str, Any]:
         client = get_piveau_client(ctx)
         try:
@@ -58,11 +58,11 @@ def register_management_tools(mcp: FastMCP) -> None:
     )
     async def create_dataset_draft(
         ctx: Context,
-        catalogue_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
-        title: Annotated[str, StringConstraints(min_length=1, max_length=500)],
-        description: Annotated[str, StringConstraints(min_length=1, max_length=5000)],
-        language: Annotated[str, StringConstraints(min_length=2, max_length=3)] = "de",
-        keywords: list[str] | None = None,
+        catalogue_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the catalogue to create the draft in")],
+        title: Annotated[str, StringConstraints(min_length=1, max_length=500), Field(description="Title of the dataset (1-500 characters)")],
+        description: Annotated[str, StringConstraints(min_length=1, max_length=5000), Field(description="Description of the dataset (1-5000 characters)")],
+        language: Annotated[str, StringConstraints(min_length=2, max_length=3), Field(description="Language code (ISO 639-1): 'de' for German, 'en' for English")] = "de",
+        keywords: Annotated[list[str] | None, Field(description="List of keyword tags for categorizing the dataset")] = None,
     ) -> dict[str, Any]:
         client = get_piveau_client(ctx)
         try:
@@ -86,12 +86,12 @@ def register_management_tools(mcp: FastMCP) -> None:
     )
     async def update_dataset_draft(
         ctx: Context,
-        draft_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
-        catalogue_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
-        title: Annotated[str | None, StringConstraints(min_length=1, max_length=500)] = None,
-        description: Annotated[str | None, StringConstraints(min_length=1, max_length=5000)] = None,
-        language: Annotated[str, StringConstraints(min_length=2, max_length=3)] = "de",
-        keywords: list[str] | None = None,
+        draft_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the draft to update")],
+        catalogue_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the catalogue containing the draft")],
+        title: Annotated[str | None, StringConstraints(min_length=1, max_length=500), Field(description="New title for the dataset (1-500 characters). Optional")] = None,
+        description: Annotated[str | None, StringConstraints(min_length=1, max_length=5000), Field(description="New description for the dataset (1-5000 characters). Optional")] = None,
+        language: Annotated[str, StringConstraints(min_length=2, max_length=3), Field(description="Language code (ISO 639-1): 'de' for German, 'en' for English")] = "de",
+        keywords: Annotated[list[str] | None, Field(description="New list of keyword tags. Optional")] = None,
     ) -> dict[str, str]:
         client = get_piveau_client(ctx)
         try:
@@ -115,8 +115,8 @@ def register_management_tools(mcp: FastMCP) -> None:
     )
     async def delete_dataset_draft(
         ctx: Context,
-        draft_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
-        catalogue_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
+        draft_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the draft to delete")],
+        catalogue_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the catalogue containing the draft")],
     ) -> dict[str, str]:
         client = get_piveau_client(ctx)
         try:
@@ -132,8 +132,8 @@ def register_management_tools(mcp: FastMCP) -> None:
     )
     async def publish_dataset(
         ctx: Context,
-        draft_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
-        catalogue_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
+        draft_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the draft to publish")],
+        catalogue_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the catalogue containing the draft")],
     ) -> dict[str, str]:
         client = get_piveau_client(ctx)
         try:
@@ -149,8 +149,8 @@ def register_management_tools(mcp: FastMCP) -> None:
     )
     async def hide_dataset(
         ctx: Context,
-        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
-        catalogue_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
+        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the published dataset to withdraw")],
+        catalogue_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the catalogue containing the dataset")],
     ) -> dict[str, str]:
         client = get_piveau_client(ctx)
         try:

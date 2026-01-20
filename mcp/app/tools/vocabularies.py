@@ -22,8 +22,8 @@ def register_vocabulary_tools(mcp: FastMCP) -> None:
     )
     async def list_vocabularies(
         ctx: Context,
-        limit: Annotated[int, Field(ge=1, le=5000)] = 100,
-        offset: Annotated[int, Field(ge=0)] = 0,
+        limit: Annotated[int, Field(ge=1, le=5000, description="Maximum number of vocabularies to return (1-5000)")] = 100,
+        offset: Annotated[int, Field(ge=0, description="Number of vocabularies to skip for pagination")] = 0,
     ) -> list[dict[str, Any]]:
         client = get_piveau_client(ctx)
         try:
@@ -43,7 +43,7 @@ def register_vocabulary_tools(mcp: FastMCP) -> None:
     )
     async def get_vocabulary(
         ctx: Context,
-        vocabulary_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
+        vocabulary_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the vocabulary to retrieve")],
     ) -> dict[str, Any]:
         client = get_piveau_client(ctx)
         try:
@@ -58,9 +58,9 @@ def register_vocabulary_tools(mcp: FastMCP) -> None:
     )
     async def search_vocabulary_terms(
         ctx: Context,
-        vocabulary_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
-        query: Annotated[str, StringConstraints(min_length=1, max_length=200)],
-        language: Annotated[str, StringConstraints(min_length=2, max_length=3)] = "de",
+        vocabulary_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the vocabulary to search within")],
+        query: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Search query to match against vocabulary term labels")],
+        language: Annotated[str, StringConstraints(min_length=2, max_length=3), Field(description="Language code (ISO 639-1): 'de' for German, 'en' for English")] = "de",
     ) -> list[dict[str, Any]]:
         client = get_piveau_client(ctx)
         try:
@@ -117,8 +117,8 @@ def register_vocabulary_tools(mcp: FastMCP) -> None:
             StringConstraints(min_length=1, max_length=100),
             Field(description="Query prefix to get suggestions for (minimum 1 character)"),
         ],
-        limit: Annotated[int, Field(ge=1, le=20, default=10)] = 10,
-        language: Annotated[str, StringConstraints(min_length=2, max_length=3)] = "de",
+        limit: Annotated[int, Field(ge=1, le=20, default=10, description="Maximum number of suggestions to return (1-20)")] = 10,
+        language: Annotated[str, StringConstraints(min_length=2, max_length=3), Field(description="Language code (ISO 639-1): 'de' for German, 'en' for English")] = "de",
     ) -> dict[str, Any]:
         """Get autocomplete suggestions for search queries.
 
