@@ -1,10 +1,13 @@
 {
-  "$schema": "..\\..\\.source\\json-schema\\docs.meta.json",
+  "$schema": "..\\..\\..\\docs\\.source\\json-schema\\docs.meta.json",
   "pages": [
-    "(framework)",
-    "ui",
-    "headless",
-    "mdx",
-    "cli"
+    "getting-started",
+    "guides",
+    "workflows",
+    "tools",
+    "examples",
+    "advanced",
+    "integration",
+    "best-practices"
   ]
 }
