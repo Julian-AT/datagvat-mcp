@@ -1,0 +1,8 @@
+[install]
+cache = "~/.bun/install/cache"
+
+[test]
+coverage = true
+
+[run]
+shell = "bash"

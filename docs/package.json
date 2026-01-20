@@ -9,8 +9,8 @@
     "clean": "rimraf .next",
     "dev": "next dev",
     "lint": "fumadocs-mdx && bun ./scripts/lint.ts && eslint .",
-    "optimize-images": "node scripts/optimize-screenshots.mjs",
-    "quality:full": "npx tsx ./scripts/quality-check.ts",
+    "optimize-images": "bun scripts/optimize-screenshots.mjs",
+    "quality:full": "bun scripts/quality-check.ts",
     "start": "next start"
   },
   "dependencies": {
