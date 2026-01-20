@@ -9,6 +9,7 @@
     "clean": "rimraf .next",
     "dev": "next dev",
     "lint": "fumadocs-mdx && bun ./scripts/lint.ts && eslint .",
+    "optimize-images": "node scripts/optimize-screenshots.mjs",
     "start": "next start"
   },
   "dependencies": {
