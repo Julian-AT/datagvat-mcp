@@ -1,0 +1,540 @@
+---
+title: Error Handling
+description: Production-ready error handling patterns for robust MCP servers
+icon: AlertTriangle
+---
+
+# Error Handling
+
+Learn how to build robust MCP servers with comprehensive error handling, graceful failure modes, and user-friendly error messages.
+
+## Introduction
+
+Error handling in MCP servers is critical because errors must traverse multiple layers:
+
+```
+User asks Claude
+  ↓
+Claude calls MCP tool via JSON-RPC
+  ↓
+Tool calls external API (Piveau)
+  ↓
+API returns data or error
+  ↓
+Tool converts to ToolError
+  ↓
+Middleware logs and formats
+  ↓
+Claude receives formatted error
+  ↓
+User sees helpful message
+```
+
+Austria MCP's error handling philosophy:
+- **Actionable**: Errors tell users what to check or try next
+- **Contextual**: Include relevant details (IDs, status codes, constraints)
+- **Friendly**: Avoid stack traces and technical jargon in user-facing messages
+
+## Error Hierarchy
+
+Austria MCP uses a layered error hierarchy for different failure scenarios:
+
+### ToolError (User-Facing)
+
+`ToolError` is the primary error type for all tool-level errors. FastMCP displays these directly to the user (Claude).
+
+**When to use:**
+- Invalid input parameters
+- Resource not found (404)
+- Expected failures (validation, business logic)
+- API unavailable (network errors)
+
+**Example:**
+```python
+from fastmcp.exceptions import ToolError
+
+# Good - actionable and specific
+raise ToolError(
+    "Dataset 'population-2023' not found. "
+    "Check ID spelling or use search_datasets to find available datasets."
+)
+
+# Bad - generic and unhelpful
+raise Exception("Not found")
+```
+
+### PiveauApiError (Internal)
+
+Internal error type for unexpected API responses. These are logged but converted to `ToolError` at the tool boundary.
+
+```python
+class PiveauApiError(Exception):
+    def __init__(self, message: str, status_code: int | None = None, details: Any = None):
+        super().__init__(message)
+        self.status_code = status_code
+        self.details = details
+```
+
+### PiveauNotFoundError (404)
+
+Specific error for resource not found cases.
+
+```python
+class PiveauNotFoundError(PiveauApiError):
+    pass
+```
+
+### PiveauAuthError (401/403)
+
+Authentication and authorization failures.
+
+```python
+class PiveauAuthError(PiveauApiError):
+    pass
+```
+
+### Transient Errors
+
+Network errors and timeouts that `RetryMiddleware` can retry:
+- `httpx.ConnectError` - Connection refused
+- `httpx.TimeoutException` - Request timeout
+- HTTP 500/502/503/504 - Server errors
+
+## ToolError Best Practices
+
+### Always Use ToolError
+
+From Austria MCP's established pattern (see `mcp/app/client.py`):
+
+```python
+from fastmcp.exceptions import ToolError
+
+async def get_dataset(ctx: Context, dataset_id: str) -> dict[str, Any]:
+    """Get dataset by ID."""
+    try:
+        return await client.get_dataset(dataset_id)
+    except PiveauNotFoundError:
+        raise ToolError(
+            f"Dataset '{dataset_id}' not found. "
+            "Check ID spelling or use search_datasets to find available datasets."
+        )
+    except PiveauApiError as e:
+        raise ToolError(f"Failed to fetch dataset: {e}") from e
+```
+
+### Error Message Guidelines
+
+**Be specific:** Include IDs, values, and context
+
+```python
+# Good
+raise ToolError(
+    f"Invalid limit: {limit}. Must be between 1 and 1000."
+)
+
+# Bad
+raise ToolError("Invalid parameter")
+```
+
+**Be actionable:** Tell user what to check or try
+
+```python
+# Good
+raise ToolError(
+    "API key required for 'create_dataset_draft'. "
+    "Set AUSTRIA_MCP_PIVEAU_API_KEY environment variable."
+)
+
+# Bad
+raise ToolError("Unauthorized")
+```
+
+**Be friendly:** Avoid stack traces and technical jargon
+
+```python
+# Good
+raise ToolError(
+    "Piveau API unavailable. Check network connection "
+    "and API status at https://www.data.gv.at"
+)
+
+# Bad
+raise ToolError(
+    "httpx.ConnectError: [Errno 111] Connection refused at 10.0.0.1:8080"
+)
+```
+
+### Code Examples from Austria MCP
+
+From `mcp/app/client.py`:
+
+```python
+async def _request(
+    self,
+    method: str,
+    path: str,
+    params: dict[str, Any] | None = None,
+    json_body: dict[str, Any] | None = None,
+    require_auth: bool = False,
+) -> dict[str, Any] | list[Any]:
+    """Make HTTP request with comprehensive error handling."""
+    try:
+        response = await self._client.request(
+            method=method,
+            url=path,
+            params=params,
+            json=json_body,
+            headers=headers,
+        )
+        response.raise_for_status()
+        return await self._parse_response(response)
+    except (httpx.ConnectError, httpx.TimeoutException) as e:
+        # Transient network errors → RetryMiddleware handles
+        logger.warning(f"Piveau API unavailable at {self.base_url}: {e}")
+        raise ToolError(
+            f"Piveau API unavailable at {self.base_url}: {e}. "
+            "Check network connection and API status at https://www.data.gv.at"
+        ) from e
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code >= 500:
+            # Server errors → RetryMiddleware retries
+            logger.error(f"Piveau API server error ({e.response.status_code})")
+            raise ToolError(
+                f"Piveau API server error ({e.response.status_code}). "
+                "The API is experiencing issues. Please try again later."
+            ) from e
+        # Client errors (4xx) → No retry
+        self._handle_http_error(e)
+```
+
+## Middleware Error Flow
+
+Errors propagate through the middleware stack in order:
+
+```
+Tool raises ToolError
+  ↓
+StructuredLoggingMiddleware: Logs error with correlation ID
+  ↓
+ErrorHandlingMiddleware: Catches and formats error
+  ↓
+RetryMiddleware: Checks if retryable (NO for ToolError)
+  ↓
+RateLimitingMiddleware: N/A (error already raised)
+  ↓
+AuditMiddleware: Logs timing and failure
+  ↓
+AuthMiddleware: N/A (error already raised)
+  ↓
+Client receives formatted error message
+```
+
+### When RetryMiddleware Retries
+
+From Austria MCP's middleware configuration:
+
+**Retries these errors:**
+- `httpx.ConnectError` - Connection refused
+- `httpx.TimeoutException` - Request timeout
+- HTTP 500/502/503/504 - Server errors
+
+**Does NOT retry:**
+- HTTP 4xx errors (client errors)
+- `ToolError` (expected failures)
+- Validation errors
+
+```python
+# From mcp/app/middleware.py
+RetryMiddleware(
+    max_retries=3,
+    base_delay=1.0,
+    max_delay=60.0,
+    backoff_multiplier=2.0,
+    retry_exceptions=(ConnectionError, TimeoutError),
+)
+```
+
+## Error Handling Patterns
+
+### Pattern 1: Transient vs Permanent Errors
+
+Distinguish between errors that can be retried and those that cannot:
+
+```python
+try:
+    response = await client.request(...)
+except httpx.ConnectError as e:
+    # Transient - RetryMiddleware will retry
+    raise ToolError(
+        f"Piveau API unavailable: {e}. "
+        "Check network connection and API status."
+    ) from e
+except httpx.HTTPStatusError as e:
+    if e.response.status_code >= 500:
+        # Transient server error - will retry
+        raise ToolError(
+            f"API error {e.response.status_code}. "
+            "Please try again later."
+        ) from e
+    elif e.response.status_code == 404:
+        # Permanent error - no retry
+        raise ToolError(
+            f"Dataset '{dataset_id}' not found. "
+            "Check ID spelling."
+        ) from e
+```
+
+### Pattern 2: Optional Features Degrade Gracefully
+
+Non-critical features should fail gracefully without blocking the main operation:
+
+```python
+# From Austria MCP's semantic search implementation
+try:
+    semantic_expansion = await expander.expand(query)
+    themes = semantic_expansion.themes
+except Exception as e:
+    logger.warning(f"Semantic expansion failed: {e}")
+    themes = []  # Degrade to basic search
+    # Continue with basic search instead of failing
+```
+
+### Pattern 3: Core Features Fail Fast
+
+Critical features must validate input and fail immediately:
+
+```python
+# From Austria MCP's tool implementations
+if not dataset_id:
+    raise ToolError("dataset_id is required")
+
+if not is_valid_id(dataset_id):
+    raise ToolError(
+        f"Invalid dataset_id: '{dataset_id}'. "
+        "IDs must be 1-200 characters."
+    )
+
+if limit < 1 or limit > 1000:
+    raise ToolError(
+        f"Invalid limit: {limit}. Must be between 1 and 1000."
+    )
+```
+
+## Context-Aware Error Messages
+
+Use FastMCP's Context for better debugging and support:
+
+```python
+from fastmcp import Context
+
+async def get_dataset(ctx: Context, dataset_id: str):
+    """Get dataset with context-aware error handling."""
+    try:
+        dataset = await client.fetch(dataset_id)
+        return dataset
+    except PiveauNotFoundError:
+        # Use Context for correlation
+        logger.error(
+            f"Dataset not found",
+            extra={
+                "request_id": ctx.request_id,
+                "dataset_id": dataset_id
+            }
+        )
+        raise ToolError(
+            f"Dataset '{dataset_id}' not found. "
+            f"Request ID: {ctx.request_id} for support."
+        )
+```
+
+Benefits:
+- Correlation IDs link errors across logs
+- Support teams can trace specific requests
+- Better debugging in production
+
+## Common Error Scenarios
+
+### Scenario 1: API Unavailable
+
+**Symptom:** Connection refused, timeout
+**Cause:** Network issue, API down
+**Handling:** Raise ToolError with diagnostic guidance
+**Retry:** Yes (RetryMiddleware)
+
+```python
+except httpx.ConnectError as e:
+    raise ToolError(
+        f"Piveau API unavailable at {self.base_url}: {e}. "
+        "Check network connection and API status at https://www.data.gv.at"
+    ) from e
+```
+
+### Scenario 2: Invalid Parameters
+
+**Symptom:** 400 Bad Request
+**Cause:** Client sent invalid input
+**Handling:** Raise ToolError with validation rules
+**Retry:** No
+
+```python
+if limit < 1 or limit > 1000:
+    raise ToolError(
+        f"Invalid limit: {limit}. Must be between 1 and 1000."
+    )
+```
+
+### Scenario 3: Rate Limit Exceeded
+
+**Symptom:** 429 Too Many Requests
+**Cause:** Upstream API rate limit
+**Handling:** Raise ToolError with retry_after
+**Retry:** Yes, with exponential backoff
+
+```python
+if e.response.status_code == 429:
+    retry_after = e.response.headers.get("Retry-After", "60")
+    raise ToolError(
+        f"Rate limit exceeded. Retry after {retry_after} seconds."
+    ) from e
+```
+
+### Scenario 4: Missing API Key
+
+**Symptom:** Tool requires auth but key not set
+**Cause:** AUSTRIA_MCP_PIVEAU_API_KEY not configured
+**Handling:** AuthMiddleware raises ToolError
+**Retry:** No (configuration issue)
+
+```python
+# From mcp/app/middleware.py
+class AuthMiddleware(Middleware):
+    async def on_call_tool(self, context: MiddlewareContext, call_next: Any) -> Any:
+        tool_name = self._get_tool_name(context)
+
+        if tool_name in self.WRITE_TOOLS:
+            if not self._has_api_key(context):
+                raise ToolError(
+                    f"API key required for '{tool_name}'. "
+                    "Set AUSTRIA_MCP_PIVEAU_API_KEY environment variable."
+                )
+
+        return await call_next(context)
+```
+
+## Debugging Failed Requests
+
+### Using Structured Logging
+
+Austria MCP uses structured logging for debugging:
+
+```python
+logger.error(
+    f"Dataset fetch failed",
+    extra={
+        "request_id": ctx.request_id,
+        "dataset_id": dataset_id,
+        "status_code": e.response.status_code,
+    }
+)
+```
+
+### Filtering Logs by Request ID
+
+```bash
+# Find all logs for a specific request
+grep "request_id: abc-123" logs/austria-mcp.log
+
+# Trace error through middleware stack
+grep "abc-123" logs/austria-mcp.log | grep -E "(started|completed|failed)"
+```
+
+### Middleware Stack Tracing
+
+Each middleware logs its activity:
+
+```
+[abc-123] StructuredLoggingMiddleware: list_catalogues started
+[abc-123] AuditMiddleware: list_catalogues started
+[abc-123] AuditMiddleware: list_catalogues completed in 45.23ms
+[abc-123] StructuredLoggingMiddleware: list_catalogues completed
+```
+
+## Testing Error Handling
+
+Quick examples (see [Testing Guide](/advanced/testing) for details):
+
+```python
+import pytest
+from fastmcp.exceptions import ToolError
+
+async def test_tool_handles_api_error():
+    """Test tool converts API errors to ToolError."""
+    mock_client = AsyncMock()
+    mock_client.fetch.side_effect = httpx.HTTPStatusError(
+        message="Not found",
+        request=Mock(),
+        response=Mock(status_code=404)
+    )
+
+    ctx = create_mock_context(client=mock_client)
+
+    with pytest.raises(ToolError, match="not found"):
+        await get_dataset(ctx, "bad-id")
+
+async def test_tool_validates_parameters():
+    """Test tool validates input before calling API."""
+    ctx = create_mock_context()
+
+    with pytest.raises(ToolError, match="limit must be between"):
+        await search_datasets(ctx, query="test", limit=2000)
+```
+
+## Production Error Monitoring
+
+Patterns for production deployments:
+
+### Structured JSON Logs
+
+```python
+import logging
+import json
+
+logger = logging.getLogger(__name__)
+
+# Log as JSON for parsing
+logger.error(json.dumps({
+    "event": "tool_error",
+    "tool": "get_dataset",
+    "request_id": ctx.request_id,
+    "error": str(e),
+    "dataset_id": dataset_id,
+}))
+```
+
+### Error Rate Dashboards
+
+Monitor error rates by:
+- Tool name (which tool fails most)
+- Error type (4xx vs 5xx)
+- Time of day (peak load issues)
+
+### Alerting on Error Spikes
+
+Set alerts for:
+- Error rate >5% of total requests
+- Specific errors (auth failures, API unavailable)
+- Error duration trends
+
+### Correlation IDs
+
+Use `ctx.request_id` for cross-system tracing:
+- Link client request → tool execution → API call
+- Debug issues across distributed systems
+- Provide to support teams
+
+## See Also
+
+- [Testing Guide](/advanced/testing) - Testing error handling
+- [FastMCP Internals](/advanced/fastmcp-internals) - Context and middleware patterns
+- [Configuration](/guides/configuration) - Log level configuration
+- [Architecture](/advanced/architecture) - Middleware stack overview
