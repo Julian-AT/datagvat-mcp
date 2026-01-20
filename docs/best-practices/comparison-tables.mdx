@@ -1,0 +1,636 @@
+---
+title: Tool Comparison Tables
+description: Choose the right Austria MCP tool for your use case
+---
+
+# Tool Comparison Tables
+
+Decision guides and comparison tables to help you select the appropriate tool for your needs.
+
+## Search Strategy Comparison
+
+Austria MCP offers three search approaches with different strengths:
+
+| Feature | search_datasets | search_semantic | find_similar_datasets |
+|---------|-----------------|-----------------|----------------------|
+| **Query Type** | Keywords, phrases | Natural language questions | Dataset ID reference |
+| **Speed** | <500ms | 1-3s | <1s |
+| **Accuracy** | Exact/fuzzy keyword match | Conceptual similarity | Theme/keyword overlap |
+| **Pagination** | Yes (up to 100/page) | Yes (up to 20/page) | No (returns top N) |
+| **Facets** | Yes (format, theme, publisher, geography) | No | No |
+| **Quality Boost** | Optional parameter | N/A | N/A |
+| **Sorting** | Relevance, modified, issued | Relevance only | Similarity score |
+| **Max Results** | Unlimited (paginated) | Unlimited (paginated) | Limited to similar matches |
+| **Best For** | Targeted keyword search | Exploratory discovery | "More like this" features |
+
+### Decision Guide: Search Tools
+
+**Use `search_datasets` when:**
+- You know specific keywords or dataset titles
+- You need faceted filtering (by format, theme, organization)
+- You want quality-ranked results (with `quality_boost=True`)
+- You're building search UI with filters
+- You need fast response times (<500ms)
+- You're processing large result sets (pagination required)
+
+**Use `search_semantic` when:**
+- Your query is a natural question ("What datasets cover cardiovascular health in Vienna?")
+- You're exploring unfamiliar domains (don't know exact keywords)
+- Keyword search returns too few results (semantic finds conceptually related)
+- You want human-like understanding (synonyms, related concepts)
+- You can tolerate 1-3s response time (embedding computation)
+
+**Use `find_similar_datasets` when:**
+- You have a good example dataset and want similar ones
+- You want datasets with overlapping themes/keywords
+- You're building recommendation features ("Users who viewed this also viewed...")
+- You need "more like this" functionality
+- You're working with a single dataset reference
+
+### Search Strategy Examples
+
+**Scenario: Known topic, need filters**
+```python
+# Use search_datasets - fast with facets
+results = search_datasets(
+  query="health statistics",
+  themes=["HEAL"],
+  formats=["CSV"],
+  limit=20
+)
+```
+
+**Scenario: Exploratory research**
+```python
+# Use search_semantic - understands natural language
+results = search_semantic(
+  natural_query="What environmental data exists for Alpine regions?",
+  limit=10
+)
+```
+
+**Scenario: Find related datasets**
+```python
+# Use find_similar_datasets - content-based similarity
+similar = find_similar_datasets(
+  dataset_id="vienna-health-2024",
+  limit=5,
+  min_score=30
+)
+```
+
+## Quality Boost Decision
+
+The `quality_boost` parameter in `search_datasets` re-ranks results by metadata completeness:
+
+| Scenario | quality_boost | Speed | Result Priority | Use When |
+|----------|---------------|-------|----------------|----------|
+| Production integration | `True` | -15% slower | Complete metadata (85-100) ranked higher | Need reliable documentation |
+| Research/publication | `True` | -15% slower | High-quality datasets first | Citing datasets, need credibility |
+| End-user discovery | `False` | Fastest | Relevance to query | Users search by keywords |
+| Exploratory analysis | `False` | Fastest | Relevance to query | Speed matters more than quality |
+| Data pipeline setup | `True` | -15% slower | Well-documented datasets | Integration needs good metadata |
+| Quick lookup | `False` | Fastest | Relevance to query | Just finding something quickly |
+
+### Quality Boost Performance Tradeoff
+
+**Without quality boost (quality_boost=False):**
+- Search time: ~300-500ms
+- Ranking: Pure keyword relevance
+- Top result: Best keyword match
+- Use case: Fast discovery, exploration
+
+**With quality boost (quality_boost=True):**
+- Search time: ~350-600ms (10-20% slower)
+- Ranking: Keyword relevance × quality score
+- Top result: Good match with complete metadata
+- Use case: Production use, integration, research
+
+**Example impact:**
+
+Query: "health statistics"
+
+Without quality boost:
+1. Dataset A: Title "Health Stats" (quality: 45) - exact keyword match
+2. Dataset B: Title "Healthcare Data" (quality: 92)
+3. Dataset C: Title "Health Indicators Vienna" (quality: 78)
+
+With quality boost:
+1. Dataset B: Title "Healthcare Data" (quality: 92) - complete metadata
+2. Dataset C: Title "Health Indicators Vienna" (quality: 78) - good quality
+3. Dataset A: Title "Health Stats" (quality: 45) - keyword match but poor quality
+
+### Decision Tree for Quality Boost
+
+```
+Do you need the dataset for...
+
+├─ Production system?
+│  └─ YES: quality_boost=True (need reliable metadata)
+│
+├─ Research paper citation?
+│  └─ YES: quality_boost=True (need complete documentation)
+│
+├─ Quick exploration?
+│  └─ NO: quality_boost=False (speed matters)
+│
+├─ Building search UI?
+│  └─ NO: quality_boost=False (users expect keyword relevance)
+│
+└─ Data integration?
+   └─ YES: quality_boost=True (need good descriptions, formats, licenses)
+```
+
+## Preview Tools Comparison
+
+Choose between schema inspection and data preview:
+
+| Feature | preview_schema | preview_data |
+|---------|----------------|--------------|
+| **Data Transfer** | ~5-10 KB | ~20-500 KB |
+| **Speed** | <200ms | <1s |
+| **Returns** | Column names, types, count | Actual data rows |
+| **Use Case** | Structure validation | Content inspection |
+| **When to Use** | Before downloading | After schema check |
+| **Memory** | Minimal | Depends on max_rows |
+| **Information** | Type inference only | Full data preview |
+
+### Preview Strategy Decision
+
+**Schema-First Approach (Recommended):**
+
+```python
+# Step 1: Check schema (fast, minimal data transfer)
+schema = preview_schema(
+  url="https://data.gv.at/dataset/health.csv",
+  format="CSV"
+)
+
+# Validate structure
+if validate_schema(schema):
+  # Step 2: Preview data only if schema is good
+  preview = preview_data(
+    url="https://data.gv.at/dataset/health.csv",
+    format="CSV",
+    max_rows=20
+  )
+```
+
+**Data-Only Approach (When schema alone insufficient):**
+
+```python
+# Get data directly (includes schema)
+preview = preview_data(
+  url="https://data.gv.at/dataset/health.csv",
+  format="CSV",
+  max_rows=20
+)
+
+# Preview contains both schema and data
+columns = preview['columns']
+rows = preview['preview_data']
+```
+
+### Preview Use Cases
+
+| Use Case | Recommended Approach | Why |
+|----------|---------------------|-----|
+| Quick validation | `preview_schema` only | Fast, minimal data transfer |
+| Content inspection | `preview_schema` → `preview_data` | Two-step: structure then content |
+| Data quality check | `preview_data` (20-100 rows) | Need sample values |
+| Full exploration | `preview_data` (max 1000 rows) | Deep inspection |
+| Integration planning | `preview_schema` → full download | Schema tells you field mapping |
+
+## Analysis Tools Comparison
+
+Two tools provide quality insights with different scopes:
+
+| Feature | get_dataset_metrics | analyze_dataset_quality |
+|---------|---------------------|------------------------|
+| **Scope** | Quality metrics only (DQV) | Comprehensive analysis |
+| **Performance** | <500ms | 1-2s (4 API calls) |
+| **Output Detail** | DQV scoring breakdown | Metadata + distributions + metrics + DOI eligibility |
+| **Progress Tracking** | No | Yes (4-step reporting) |
+| **API Calls** | 1 (metrics endpoint) | 4 (dataset, distributions, metrics, eligibility) |
+| **Use When** | Quick quality check | Full dataset assessment |
+| **Degradation Handling** | No (fails on error) | Yes (continues with partial data) |
+
+### Analysis Decision Guide
+
+**Use `get_dataset_metrics` when:**
+- You only need the quality score and component breakdown
+- Speed is critical (<500ms required)
+- You're checking many datasets in bulk
+- You already have metadata from another source
+- You just want to filter by quality threshold
+
+**Use `analyze_dataset_quality` when:**
+- You need comprehensive dataset assessment
+- You want metadata, distributions, quality, and DOI eligibility in one call
+- You're presenting detailed dataset information to users
+- You can tolerate 1-2s response time
+- You want progress reporting during analysis
+
+### Analysis Examples
+
+**Scenario: Bulk quality filtering**
+```python
+# Use get_dataset_metrics - fast, focused
+dataset_ids = ["ds1", "ds2", "ds3", ..., "ds100"]
+
+high_quality = []
+for dataset_id in dataset_ids:
+  metrics = get_dataset_metrics(dataset_id=dataset_id)
+  if metrics['scoring']['score'] >= 85:
+    high_quality.append(dataset_id)
+
+# Fast: ~50s for 100 datasets (500ms each)
+```
+
+**Scenario: Detailed dataset assessment**
+```python
+# Use analyze_dataset_quality - comprehensive
+analysis = analyze_dataset_quality(dataset_id="vienna-health-2024")
+
+# Returns all information:
+# - metadata (title, description, publisher)
+# - distributions (formats, download URLs)
+# - metrics (DQV quality score)
+# - DOI eligibility check
+# - degradation tracking (partial results if some fail)
+```
+
+## Management Operations Workflow
+
+Dataset lifecycle operations follow a specific sequence:
+
+| Operation | Purpose | Next Steps | Can't Do After |
+|-----------|---------|-----------|----------------|
+| `create_draft` | Start new dataset | Edit with `update_draft` | Can't edit published datasets |
+| `update_draft` | Modify draft metadata | Continue editing or `publish_draft` | Can't update after publish |
+| `publish_draft` | Make dataset public | Update via new draft | Can't unpublish |
+| `delete_draft` | Remove unpublished draft | Start over with `create_draft` | Can't delete published |
+
+### Management Decision Tree
+
+```
+Creating new dataset?
+├─ YES: create_draft → update_draft (repeat) → publish_draft
+└─ NO: Updating existing?
+   ├─ YES: Is it published?
+   │  ├─ YES: Create new version (contact admin)
+   │  └─ NO: update_draft → publish_draft
+   └─ NO: Removing draft?
+      └─ delete_draft
+```
+
+### Management Examples
+
+**Scenario: New dataset publication**
+```python
+# 1. Create draft
+draft = create_draft(
+  catalogue_id="data-gv-at",
+  dataset_id="my-new-dataset"
+)
+
+# 2. Add metadata
+update_draft(
+  dataset_id="my-new-dataset",
+  metadata={
+    "title": {"en": "My Dataset", "de": "Mein Datensatz"},
+    "description": {"en": "...", "de": "..."},
+    "keywords": ["health", "Vienna"],
+    "themes": ["HEAL"]
+  }
+)
+
+# 3. Add distribution
+update_draft(
+  dataset_id="my-new-dataset",
+  metadata={
+    "distributions": [
+      {
+        "title": "CSV Download",
+        "access_url": "https://...",
+        "format": "CSV"
+      }
+    ]
+  }
+)
+
+# 4. Publish
+publish_draft(dataset_id="my-new-dataset")
+```
+
+**Scenario: Fixing draft mistakes**
+```python
+# Update can be called multiple times
+update_draft(dataset_id="my-draft", metadata={"title": "First Try"})
+update_draft(dataset_id="my-draft", metadata={"title": "Second Try"})
+update_draft(dataset_id="my-draft", metadata={"title": "Final Title"})
+
+# Or delete and start over
+delete_draft(dataset_id="my-draft")
+create_draft(catalogue_id="data-gv-at", dataset_id="my-draft-v2")
+```
+
+## Pagination Strategy
+
+Choose pagination approach based on result set size and use case:
+
+| Result Count | Strategy | Memory Usage | Performance | Use When |
+|--------------|----------|--------------|-------------|----------|
+| 1-100 | Single page | Low (~50 KB) | <500ms | Most searches, quick results |
+| 100-500 | Sequential pagination | Medium (~250 KB) | 2-5s | Full result set needed |
+| 500-1000+ | Generator pattern | Low (one page) | 5-10s | Processing, not storing |
+| 1000+ | Parallel pagination | High (all pages) | 2-3s | Bulk analysis, has memory |
+
+### Pagination Examples
+
+**Scenario: Small result set (≤100)**
+```python
+# Single page - simplest
+results = search_datasets(query="Vienna health", limit=100)
+datasets = results['results']  # List of datasets
+
+# Fast, low memory, covers 95% of use cases
+```
+
+**Scenario: Medium result set (100-500)**
+```python
+# Sequential pagination
+all_datasets = []
+offset = 0
+limit = 100
+
+while True:
+  page = search_datasets(
+    query="health",
+    limit=limit,
+    offset=offset
+  )
+
+  all_datasets.extend(page['results'])
+
+  # Check if more pages
+  if offset + limit >= page['count']:
+    break
+
+  offset += limit
+
+# Moderate memory (~250 KB for 500 datasets)
+```
+
+**Scenario: Large result set, streaming (500+)**
+```python
+# Generator pattern - memory efficient
+def stream_datasets(query, **kwargs):
+  """Generator that yields datasets one at a time."""
+  offset = 0
+  limit = 100
+
+  while True:
+    page = search_datasets(
+      query=query,
+      limit=limit,
+      offset=offset,
+      **kwargs
+    )
+
+    # Yield each dataset
+    for dataset in page['results']:
+      yield dataset
+
+    # Check if more pages
+    if offset + limit >= page['count']:
+      break
+
+    offset += limit
+
+# Usage - process without storing all
+for dataset in stream_datasets("health"):
+  process(dataset)  # Memory freed after processing each
+
+# Low memory (only one page in memory)
+```
+
+**Scenario: Large result set, parallel fetching**
+```python
+import asyncio
+
+async def fetch_all_pages_parallel(query, total_count):
+  """Fetch all pages in parallel."""
+  limit = 100
+  offsets = range(0, total_count, limit)
+
+  # Create tasks for all pages
+  tasks = [
+    asyncio.create_task(
+      search_datasets(query=query, limit=limit, offset=offset)
+    )
+    for offset in offsets
+  ]
+
+  # Wait for all pages
+  pages = await asyncio.gather(*tasks)
+
+  # Flatten results
+  all_datasets = []
+  for page in pages:
+    all_datasets.extend(page['results'])
+
+  return all_datasets
+
+# Usage
+# First get total count
+first_page = search_datasets(query="health", limit=1)
+total = first_page['count']
+
+# Fetch all in parallel
+all_datasets = asyncio.run(fetch_all_pages_parallel("health", total))
+
+# Fast (2-3s for 1000 datasets) but high memory
+```
+
+## Format Detection Strategy
+
+Austria MCP can auto-detect formats or accept explicit specification:
+
+| Scenario | Approach | Why |
+|----------|----------|-----|
+| Known format | Specify explicitly | Faster, no detection overhead |
+| URL with extension | Auto-detect | Reliable (.csv, .json, .xml) |
+| API endpoint | Specify explicitly | URLs often don't have extensions |
+| Ambiguous format | Try detection, fallback to manual | Best effort |
+
+### Format Detection Examples
+
+**Scenario: Clear file extension**
+```python
+# Auto-detect (format parameter optional)
+preview = preview_data(
+  url="https://data.gv.at/health.csv",
+  max_rows=20
+  # format="CSV" not needed - detected from .csv extension
+)
+```
+
+**Scenario: API endpoint without extension**
+```python
+# Explicit format required
+preview = preview_data(
+  url="https://api.data.gv.at/datasets/123/download",
+  format="JSON",  # Must specify - no extension in URL
+  max_rows=20
+)
+```
+
+**Scenario: Unsure of format**
+```python
+# Try detection, handle errors
+try:
+  preview = preview_data(url=url, max_rows=20)
+except ToolError as e:
+  if "Could not detect format" in str(e):
+    # Retry with explicit format
+    preview = preview_data(url=url, format="CSV", max_rows=20)
+```
+
+## Facet Filtering Strategy
+
+Facets narrow results efficiently at the API level:
+
+| Facet Type | Parameter | Values | Use When |
+|------------|-----------|--------|----------|
+| Theme | `themes` | ["HEAL", "ECON", ...] | Domain-specific search |
+| Format | `formats` | ["CSV", "JSON", ...] | Need specific data format |
+| Publisher | `publishers` | ["org-name"] | Filter by organization |
+| Geography | `geo` | ["Vienna", "Austria"] | Location-based search |
+
+### Facet Examples
+
+**Scenario: Need CSV data only**
+```python
+# Filter by format - returns only CSV datasets
+results = search_datasets(
+  query="health statistics",
+  formats=["CSV"],
+  limit=20
+)
+
+# Much faster than client-side filtering
+```
+
+**Scenario: Multi-facet filtering**
+```python
+# Combine multiple facets
+results = search_datasets(
+  query="economic indicators",
+  themes=["ECON"],
+  formats=["CSV", "JSON"],
+  publishers=["Statistics Austria"],
+  limit=50
+)
+
+# All filters applied at API level (efficient)
+```
+
+**Scenario: Browse by theme without query**
+```python
+# Empty query + theme facet = browse category
+results = search_datasets(
+  query="",
+  themes=["HEAL"],
+  limit=100
+)
+
+# Returns all health datasets
+```
+
+## Cross-Tool Workflows
+
+Common patterns combining multiple tools:
+
+### Workflow 1: Quality-First Discovery
+
+```python
+# 1. Search with quality boost
+results = search_datasets(
+  query="health Vienna",
+  quality_boost=True,
+  limit=50
+)
+
+# 2. Get detailed metrics for top results
+for dataset in results['results'][:10]:
+  metrics = get_dataset_metrics(dataset_id=dataset['id'])
+  if metrics['scoring']['score'] >= 85:
+    print(f"High quality: {dataset['title']} (score: {metrics['scoring']['score']})")
+```
+
+### Workflow 2: Schema-First Data Access
+
+```python
+# 1. Search for datasets
+results = search_datasets(query="COVID-19 cases", formats=["CSV"])
+
+# 2. Check schema before downloading
+for dataset in results['results']:
+  for dist in dataset.get('distributions', []):
+    # Inspect schema
+    schema = preview_schema(url=dist['access_url'], format="CSV")
+
+    # Validate columns
+    if has_required_columns(schema, ['date', 'cases', 'region']):
+      # Schema valid - preview data
+      preview = preview_data(
+        url=dist['access_url'],
+        format="CSV",
+        max_rows=20
+      )
+      print(f"Valid dataset: {dataset['title']}")
+```
+
+### Workflow 3: Semantic Discovery + Similar Exploration
+
+```python
+# 1. Find datasets using natural language
+results = search_semantic(
+  natural_query="What datasets cover air quality in Austrian cities?",
+  limit=5
+)
+
+# 2. Find similar datasets to best match
+best_match = results['results'][0]
+similar = find_similar_datasets(
+  dataset_id=best_match['id'],
+  limit=10,
+  min_score=40
+)
+
+# Returns: Original + 10 similar = 11 total relevant datasets
+```
+
+## Quick Reference: Decision Matrix
+
+| Task | Recommended Tool(s) | Notes |
+|------|-------------------|-------|
+| Find by keywords | `search_datasets` | Fast, faceted |
+| Find by question | `search_semantic` | Natural language |
+| Find similar | `find_similar_datasets` | Content-based |
+| Check quality | `get_dataset_metrics` | Fast quality score |
+| Full assessment | `analyze_dataset_quality` | Comprehensive |
+| Validate structure | `preview_schema` | Minimal data transfer |
+| Inspect content | `preview_data` | Sample rows |
+| Create dataset | `create_draft` → `update_draft` → `publish_draft` | Sequential |
+| High-quality search | `search_datasets` + `quality_boost=True` | Production use |
+| Fast exploration | `search_datasets` + `quality_boost=False` | Speed priority |
+
+## Cross-References
+
+- **[API Reference](/api/tools)** - Detailed tool documentation
+- **[Getting Started](/tutorials/getting-started)** - Basic tool usage
+- **[Workflows](/workflows)** - End-to-end scenarios
+- **[Performance Optimization](/best-practices/optimization)** - Speed optimization tips
+- **[Quality Interpretation](/best-practices/quality-interpretation)** - Understanding quality scores
