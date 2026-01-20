@@ -17,6 +17,36 @@ Higher quality scores indicate:
 - Higher likelihood of reuse
 - Eligibility for EU data portals
 
+<Mermaid chart={`
+graph TD
+    A[Quality Score 0-100] --> B[Core Metadata 40pts]
+    A --> C[Discovery Metadata 30pts]
+    A --> D[Access Metadata 20pts]
+    A --> E[Temporal Metadata 10pts]
+
+    B --> B1[Title 10pts]
+    B --> B2[Description 15pts]
+    B --> B3[Publisher 15pts]
+
+    C --> C1[Keywords 10pts]
+    C --> C2[Themes 10pts]
+    C --> C3[Spatial 10pts]
+
+    D --> D1[Distributions 15pts]
+    D --> D2[License 5pts]
+
+    E --> E1[Issued 5pts]
+    E --> E2[Modified 5pts]
+
+    style A fill:#f9f,stroke:#333,stroke-width:4px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style D fill:#bbf,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+`} />
+
+The diagram shows how the 100-point quality score breaks down into 4 dimensions and 10 individual components.
+
 ## The 8-Component Quality Model
 
 Quality scores are calculated across **8 metadata components** organized into 4 dimensions:
