@@ -23,6 +23,23 @@ Austria MCP offers three search approaches with different strengths:
 | **Max Results** | Unlimited (paginated) | Unlimited (paginated) | Limited to similar matches |
 | **Best For** | Targeted keyword search | Exploratory discovery | "More like this" features |
 
+### Visual Example: Search Tools in Action
+
+The following screenshot shows the `search_datasets` tool in Claude Desktop, demonstrating how keyword search with quality boost affects result ranking:
+
+![Claude Desktop showing search_datasets tool with query parameter set to health data Vienna and quality_boost parameter set to true. The response displays a results array with three datasets ranked by metadata completeness. Top result shows a dataset titled Vienna Health Statistics 2024 with quality score 89, complete metadata including title, description, publisher, keywords, themes, and distributions. Second result shows Healthcare Access Vienna with quality score 78 and good metadata coverage. Third result shows Basic Health Data with quality score 62 and limited metadata. Each result card displays title, description excerpt, quality score badge, theme tags, and available formats, demonstrating how quality boost prioritizes well-documented datasets over keyword-only matches.](/optimized/screenshots/placeholder.webp)
+
+<Callout type="info" title="Screenshot Placeholder">
+This is a placeholder image. Real Claude Desktop screenshots showing Austria MCP search results will be added soon. The screenshot will demonstrate actual search tool output with quality scores and metadata completeness indicators.
+</Callout>
+
+Notice how `quality_boost=True` affects ranking:
+- **Highest quality (89)** appears first despite potentially lower keyword relevance
+- **Good quality (78)** ranks second with solid metadata coverage
+- **Fair quality (62)** ranks lower due to incomplete documentation
+
+This ranking prioritizes datasets suitable for production use and research citations.
+
 ### Decision Guide: Search Tools
 
 **Use `search_datasets` when:**
