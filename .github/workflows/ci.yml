@@ -46,3 +46,28 @@ jobs:
         with:
           file: ./coverage.xml
           fail_ci_if_error: false
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: |
+          cd docs
+          bun install
+
+      - name: Run validation checks
+        run: |
+          cd docs
+          bun run validate
+
+      - name: Build documentation
+        run: |
+          cd docs
+          bun run build
