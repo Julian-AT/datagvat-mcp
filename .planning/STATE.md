@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 
 Milestone: v1.2 Documentation Rebuild
 Phase: 21 - Auto-Generated Tools Reference
-Plan: 21-01 of 1 complete
+Plan: 21-02 of 2 complete
 Status: Phase 21 complete, ready for Phase 22
-Last activity: 2026-01-20 — Completed 21-01-PLAN.md
+Last activity: 2026-01-20 — Completed 21-02-PLAN.md
 
-Progress: ████░░░░░░ 57% (4/7 phases complete)
+Progress: █████░░░░░ 71% (5/7 phases complete)
 
 ## Performance Metrics
 
@@ -50,17 +50,17 @@ Progress: ████░░░░░░ 57% (4/7 phases complete)
 | 18-documentation-foundation | 3 | 127 min | 42.3 min |
 | 19-getting-started-content | 2 | 19 min | 9.5 min |
 | 20-guides-and-workflows | 3 | 15 min | 5 min |
-| 21-auto-generated-tools-reference | 1 | 21 min | 21 min |
+| 21-auto-generated-tools-reference | 2 | 38 min | 19 min |
 
 **v1.2 Milestone:**
-- Total plans completed: 9
-- Average duration: 20.2 min
-- Total execution time: 182 min
+- Total plans completed: 10
+- Average duration: 19.9 min
+- Total execution time: 199 min
 - Timeline: 2 days (2026-01-19 → 2026-01-20)
 
 **Recent Trend:**
-- Last 5 plans: 20-01 (6 min), 20-03a (4 min), 20-03b (5 min), 21-01 (21 min)
-- Trend: Auto-generation infrastructure more complex than content writing
+- Last 5 plans: 20-03a (4 min), 20-03b (5 min), 21-01 (21 min), 21-02 (17 min)
+- Trend: Auto-generation infrastructure setup complete, documentation coverage at 100%
 
 ## Accumulated Context
 
@@ -209,6 +209,9 @@ Recent decisions affecting current work:
 - Handle anyOf JSON Schema patterns for optional parameters (str | None, list[str] | None) (21-01, 2026-01-20)
 - Escape Jinja2 braces using {\"{\"}}/{\"}\"}  for TypeTable MDX syntax compatibility in templates (21-01, 2026-01-20)
 - Generate tools.mdx and commit to git (not build artifact) for version control and review (21-01, 2026-01-20)
+- Field descriptions follow pattern: purpose + constraints + value ranges for all parameters (21-02, 2026-01-20)
+- Parameter description length: concise 5-15 words explaining parameter purpose (21-02, 2026-01-20)
+- Consistent terminology in descriptions: 'catalogue' not 'catalog', 'dataset' not 'data set' (21-02, 2026-01-20)
 
 ### Roadmap Evolution
 
@@ -232,15 +235,15 @@ None yet.
 
 ### Blockers/Concerns
 
-None - Phase 21 complete with auto-generation infrastructure in place. All 25 tools documented with complete parameter schemas.
+None - Phase 21 complete with 100% parameter documentation coverage. All 71 tool parameters have complete descriptions in both Python source and generated MDX documentation.
 
 ## Session Continuity
 
 Last session: 2026-01-20
-Stopped at: Completed 21-01-PLAN.md
+Stopped at: Completed 21-02-PLAN.md
 Resume file: None
 Next: Begin Phase 22 - Progressive Disclosure Examples
 
 ---
 *State initialized: 2026-01-19*
-*Last updated: 2026-01-20 after Phase 21-01 completion*
+*Last updated: 2026-01-20 after Phase 21-02 completion*
