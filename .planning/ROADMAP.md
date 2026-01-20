@@ -110,14 +110,15 @@ Plans:
 4. User follows end-to-end workflow with Steps component showing progress
 5. User handles errors using provided error handling patterns
 
-**Plans:** 3 plans
+**Plans:** 4 plans (completed 2026-01-20)
 
 Plans:
-- [ ] 20-01-PLAN.md — Task-Oriented Guides (searching, data-preview, quality-metrics with Basic/Advanced tabs)
-- [ ] 20-02-PLAN.md — Workflow Patterns & Navigation (workflow-patterns guide + meta.json updates)
-- [ ] 20-03-PLAN.md — End-to-End Workflow Scenarios (6 workflow walkthroughs with Steps component)
+- [x] 20-01-PLAN.md — Task-Oriented Guides (searching, data-preview, quality-metrics with Basic/Advanced tabs) — 9 min
+- [x] 20-02-PLAN.md — Workflow Patterns & Navigation (workflow-patterns guide + meta.json updates) — 3 min
+- [x] 20-03a-PLAN.md — Core Workflows (discovery, quality-assessment, data-export with Steps) — 4 min
+- [x] 20-03b-PLAN.md — Advanced Workflows (comparative-analysis, publication-research, semantic-exploration) — 5 min
 
-**Status:** Planned (ready for execution)
+**Status:** Complete
 
 ---
 
@@ -233,14 +234,14 @@ Plans:
 |-------|--------|-------|----------|
 | 18 - Documentation Foundation | Complete | 3/3 | ██████████ 100% |
 | 19 - Getting Started Content | Complete | 2/2 | ██████████ 100% |
-| 20 - Guides & Workflows | Planned | 3 plans | ░░░░░░░░░░ 0% |
+| 20 - Guides & Workflows | Complete | 4/4 | ██████████ 100% |
 | 21 - Auto-Generated Tools Reference | Pending | 0/0 | ░░░░░░░░░░ 0% |
 | 22 - API Reference & Integration | Pending | 0/0 | ░░░░░░░░░░ 0% |
 | 23 - Best Practices & Visual Assets | Pending | 0/0 | ░░░░░░░░░░ 0% |
 | 24 - Final Polish & Quality | Pending | 0/0 | ░░░░░░░░░░ 0% |
 
-**Overall:** 2/7 phases complete (29%)
+**Overall:** 3/7 phases complete (43%)
 
 ---
 *Roadmap created: 2026-01-19*
-*Last updated: 2026-01-19 after Phase 20 planning*
+*Last updated: 2026-01-20 after Phase 20 completion*

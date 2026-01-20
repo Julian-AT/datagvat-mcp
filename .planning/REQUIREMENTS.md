@@ -152,8 +152,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | START-05 | Phase 19 | Complete |
 | QUAL-01 | Phase 19, Phase 24 | Pending |
 | QUAL-02 | Phase 19, Phase 24 | Pending |
-| QUAL-03 | Phase 20, Phase 24 | Pending |
-| QUAL-04 | Phase 20, Phase 24 | Pending |
+| QUAL-03 | Phase 20, Phase 24 | Complete |
+| QUAL-04 | Phase 20, Phase 24 | Complete |
 | QUAL-05 | Phase 19, Phase 24 | Pending |
 | API-01 | Phase 21 | Pending |
 | API-02 | Phase 21 | Pending |
@@ -161,19 +161,19 @@ Which phases cover which requirements. Updated during roadmap creation.
 | API-04 | Phase 21 | Pending |
 | API-05 | Phase 21 | Pending |
 | API-06 | Phase 21 | Pending |
-| GUIDE-01 | Phase 20 | Pending |
-| GUIDE-02 | Phase 20 | Pending |
-| GUIDE-03 | Phase 20 | Pending |
-| GUIDE-04 | Phase 20 | Pending |
-| GUIDE-05 | Phase 20 | Pending |
-| GUIDE-06 | Phase 20 | Pending |
-| WORK-01 | Phase 20 | Pending |
-| WORK-02 | Phase 20 | Pending |
-| WORK-03 | Phase 20 | Pending |
-| WORK-04 | Phase 20 | Pending |
-| WORK-05 | Phase 20 | Pending |
-| WORK-06 | Phase 20 | Pending |
-| WORK-07 | Phase 20 | Pending |
+| GUIDE-01 | Phase 20 | Complete |
+| GUIDE-02 | Phase 20 | Complete |
+| GUIDE-03 | Phase 20 | Complete |
+| GUIDE-04 | Phase 20 | Complete |
+| GUIDE-05 | Phase 20 | Complete |
+| GUIDE-06 | Phase 20 | Complete |
+| WORK-01 | Phase 20 | Complete |
+| WORK-02 | Phase 20 | Complete |
+| WORK-03 | Phase 20 | Complete |
+| WORK-04 | Phase 20 | Complete |
+| WORK-05 | Phase 20 | Complete |
+| WORK-06 | Phase 20 | Complete |
+| WORK-07 | Phase 20 | Complete |
 | VIS-01 | Phase 23 | Pending |
 | VIS-02 | Phase 23 | Pending |
 | VIS-03 | Phase 23 | Pending |
@@ -191,7 +191,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BEST-04 | Phase 23 | Pending |
 | BEST-05 | Phase 23 | Pending |
 | COMP-01 | Phase 18, Phase 24 | Complete |
-| COMP-02 | Phase 20, Phase 24 | Pending |
+| COMP-02 | Phase 20, Phase 24 | Complete |
 | COMP-03 | Phase 21, Phase 24 | Pending |
 | COMP-04 | Phase 21, Phase 24 | Pending |
 | COMP-05 | Phase 18, Phase 24 | Complete |

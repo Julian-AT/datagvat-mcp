@@ -10,10 +10,10 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 ## Current Position
 
 Milestone: v1.2 Documentation Rebuild
-Phase: 20 - Guides & Workflows
-Plan: 3 of 3 complete
-Status: Phase complete
-Last activity: 2026-01-20 — Completed 20-03b-PLAN.md
+Phase: 21 - Auto-Generated Tools Reference
+Plan: None yet
+Status: Phase 20 complete, ready to plan Phase 21
+Last activity: 2026-01-20 — Phase 20 verified and completed
 
 Progress: ███░░░░░░░ 43% (3/7 phases complete)
 
