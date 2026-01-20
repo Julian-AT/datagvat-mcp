@@ -82,9 +82,9 @@ def register_discovery_tools(mcp: FastMCP) -> None:
     )
     async def list_catalogues(
         ctx: Context,
-        limit: Annotated[int, Field(ge=1, le=5000)] = 100,
-        offset: Annotated[int, Field(ge=0)] = 0,
-        value_type: str = "metadata",
+        limit: Annotated[int, Field(ge=1, le=5000, description="Maximum number of catalogues to return (1-5000)")] = 100,
+        offset: Annotated[int, Field(ge=0, description="Number of catalogues to skip for pagination")] = 0,
+        value_type: Annotated[str, Field(description="Type of value to return: 'id' for IDs only, 'metadata' for full metadata")] = "metadata",
     ) -> list[dict[str, Any]]:
         client = get_piveau_client(ctx)
         try:
@@ -105,7 +105,7 @@ def register_discovery_tools(mcp: FastMCP) -> None:
     )
     async def get_catalogue(
         ctx: Context,
-        catalogue_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
+        catalogue_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the catalogue to retrieve")],
     ) -> dict[str, Any]:
         client = get_piveau_client(ctx)
         try:
@@ -250,11 +250,12 @@ def register_discovery_tools(mcp: FastMCP) -> None:
                 ),
             ),
         ] = False,
-        limit: Annotated[int, Field(ge=1, le=100, default=20)] = 20,
-        page: Annotated[int, Field(ge=0, default=0)] = 0,
+        limit: Annotated[int, Field(ge=1, le=100, default=20, description="Maximum number of datasets to return per page (1-100)")] = 20,
+        page: Annotated[int, Field(ge=0, default=0, description="Page number for pagination (0-indexed)")] = 0,
         catalogue_id: Annotated[
             str | None,
             StringConstraints(min_length=1, max_length=200),
+            Field(description="Filter datasets to a specific catalogue ID"),
         ] = None,
     ) -> dict[str, Any]:
         client = get_piveau_client(ctx)
@@ -377,7 +378,7 @@ def register_discovery_tools(mcp: FastMCP) -> None:
     )
     async def get_dataset(
         ctx: Context,
-        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
+        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the dataset to retrieve")],
     ) -> dict[str, Any]:
         client = get_piveau_client(ctx)
         try:
@@ -392,8 +393,8 @@ def register_discovery_tools(mcp: FastMCP) -> None:
     )
     async def get_dataset_distributions(
         ctx: Context,
-        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
-        limit: Annotated[int, Field(ge=1, le=100)] = 50,
+        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the dataset whose distributions to retrieve")],
+        limit: Annotated[int, Field(ge=1, le=100, description="Maximum number of distributions to return (1-100)")] = 50,
     ) -> list[dict[str, Any]]:
         client = get_piveau_client(ctx)
         try:
@@ -408,7 +409,7 @@ def register_discovery_tools(mcp: FastMCP) -> None:
     )
     async def get_catalogue_record(
         ctx: Context,
-        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
+        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the dataset whose catalogue record to retrieve")],
     ) -> dict[str, Any]:
         client = get_piveau_client(ctx)
         try:
@@ -428,7 +429,7 @@ def register_discovery_tools(mcp: FastMCP) -> None:
     )
     async def find_related_datasets(
         ctx: Context,
-        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200)],
+        dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="Unique identifier of the source dataset to find related datasets for")],
         limit: Annotated[
             int,
             Field(
@@ -571,8 +572,8 @@ def register_discovery_tools(mcp: FastMCP) -> None:
                 ),
             ),
         ] = True,
-        limit: Annotated[int, Field(ge=1, le=100, default=20)] = 20,
-        page: Annotated[int, Field(ge=0, default=0)] = 0,
+        limit: Annotated[int, Field(ge=1, le=100, default=20, description="Maximum number of datasets to return per page (1-100)")] = 20,
+        page: Annotated[int, Field(ge=0, default=0, description="Page number for pagination (0-indexed)")] = 0,
     ) -> dict[str, Any]:
         """Search datasets using natural language understanding with AI expansion."""
         try:
