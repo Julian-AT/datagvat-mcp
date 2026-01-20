@@ -83,33 +83,33 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 25 | Pending |
-| INFRA-02 | Phase 25 | Pending |
-| INFRA-03 | Phase 25 | Pending |
-| INFRA-04 | Phase 25, Phase 30 | Pending |
-| INFRA-05 | Phase 25, Phase 30 | Pending |
-| NAV-01 | Phase 26 | Pending |
-| NAV-02 | Phase 26 | Pending |
-| NAV-03 | Phase 26 | Pending |
-| NAV-04 | Phase 26 | Pending |
-| CONTENT-02 | Phase 27 | Pending |
-| CONTENT-03 | Phase 27 | Pending |
-| CONTENT-01 | Phase 28 | Pending |
-| CONTENT-05 | Phase 28 | Pending |
-| CONTENT-06 | Phase 28 | Pending |
-| CONTENT-04 | Phase 29 | Pending |
-| API-01 | Phase 31 | Pending |
-| API-02 | Phase 31 | Pending |
-| API-03 | Phase 31 | Pending |
-| API-04 | Phase 31 | Pending |
-| CLI-01 | Phase 32 | Pending |
-| CLI-02 | Phase 32 | Pending |
-| CLI-03 | Phase 32 | Pending |
-| CLI-04 | Phase 32 | Pending |
-| TEST-01 | Phase 33 | Pending |
-| TEST-02 | Phase 33 | Pending |
-| TEST-03 | Phase 33 | Pending |
-| TEST-04 | Phase 33 | Pending |
+| INFRA-01 | Phase 1 | Pending |
+| INFRA-02 | Phase 1 | Pending |
+| INFRA-03 | Phase 1 | Pending |
+| INFRA-04 | Phase 1, Phase 6 | Pending |
+| INFRA-05 | Phase 1, Phase 6 | Pending |
+| NAV-01 | Phase 2 | Pending |
+| NAV-02 | Phase 2 | Pending |
+| NAV-03 | Phase 2 | Pending |
+| NAV-04 | Phase 2 | Pending |
+| CONTENT-02 | Phase 3 | Pending |
+| CONTENT-03 | Phase 3 | Pending |
+| CONTENT-01 | Phase 4 | Pending |
+| CONTENT-05 | Phase 4 | Pending |
+| CONTENT-06 | Phase 4 | Pending |
+| CONTENT-04 | Phase 5 | Pending |
+| API-01 | Phase 7 | Pending |
+| API-02 | Phase 7 | Pending |
+| API-03 | Phase 7 | Pending |
+| API-04 | Phase 7 | Pending |
+| CLI-01 | Phase 8 | Pending |
+| CLI-02 | Phase 8 | Pending |
+| CLI-03 | Phase 8 | Pending |
+| CLI-04 | Phase 8 | Pending |
+| TEST-01 | Phase 9 | Pending |
+| TEST-02 | Phase 9 | Pending |
+| TEST-03 | Phase 9 | Pending |
+| TEST-04 | Phase 9 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 24 total
@@ -118,15 +118,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 - Coverage: 100% ✓
 
 **Phase Distribution:**
-- Phase 25 (Infrastructure): 5 requirements
-- Phase 26 (Navigation): 4 requirements
-- Phase 27 (Links): 2 requirements
-- Phase 28 (Documentation): 3 requirements
-- Phase 29 (Code Quality): 1 requirement
-- Phase 30 (CI/CD Enhancement): 2 requirements (shared with Phase 25)
-- Phase 31 (OpenAPI): 4 requirements
-- Phase 32 (CLI): 4 requirements
-- Phase 33 (AI Assistant): 4 requirements
+- Phase 1 (Infrastructure): 5 requirements
+- Phase 2 (Navigation): 4 requirements
+- Phase 3 (Links): 2 requirements
+- Phase 4 (Documentation): 3 requirements
+- Phase 5 (Code Quality): 1 requirement
+- Phase 6 (CI/CD Enhancement): 2 requirements (shared with Phase 1)
+- Phase 7 (OpenAPI): 4 requirements
+- Phase 8 (CLI): 4 requirements
+- Phase 9 (AI Assistant): 4 requirements
 
 ---
 *Requirements defined: 2026-01-20*
