@@ -1,0 +1,785 @@
+---
+title: Caching Strategies
+description: Implement effective caching patterns to reduce API calls and improve performance
+---
+
+# Caching Strategies
+
+Learn when and how to cache Austria MCP data for optimal performance.
+
+## When to Cache
+
+Caching reduces API calls, improves response time, and prevents rate limiting. Use caching for:
+
+### Metadata (Stable Data)
+
+**Cache:** Dataset metadata, publisher information, vocabularies
+
+**Why:** Changes infrequently (days to weeks), identical for all users
+
+**TTL recommendation:** 1-4 hours
+
+**Example:**
+```python
+# Dataset metadata changes rarely
+dataset = get_dataset(dataset_id="vienna-health-2024")
+# Cache for 1 hour - metadata unlikely to change
+```
+
+### Quality Metrics (Expensive Computation)
+
+**Cache:** DQV quality scores, eligibility checks
+
+**Why:** Computationally expensive, results stable unless metadata changes
+
+**TTL recommendation:** 1 hour
+
+**Example:**
+```python
+# Quality analysis is expensive
+metrics = get_dataset_metrics(dataset_id="vienna-health-2024")
+# Cache for 1 hour - quality score doesn't change until metadata updates
+```
+
+### Search Results (Transient Data)
+
+**Cache:** Keyword searches, facet filters, paginated results
+
+**Why:** Reduces repeated searches for same query, high-frequency access
+
+**TTL recommendation:** 5-15 minutes
+
+**Example:**
+```python
+# User might refine search multiple times
+results = search_datasets(query="health", themes=["HEAL"])
+# Cache for 5-15 minutes - catalog changes infrequently
+```
+
+### Vocabularies (Reference Data)
+
+**Cache:** EU themes, format types, language codes
+
+**Why:** Static reference data, identical for all users
+
+**TTL recommendation:** 24 hours
+
+**Example:**
+```python
+# Theme codes rarely change
+themes = ["AGRI", "ECON", "EDUC", "ENER", "ENVI", "GOVE", "HEAL", "INTR", "JUST", "REGI", "SOCI", "TECH", "TRAN"]
+# Cache for 24 hours or indefinitely
+```
+
+## When NOT to Cache
+
+Avoid caching for operations requiring real-time data:
+
+### Real-Time Operations
+
+**Don't cache:** Live search with sorting by modified date, trending datasets
+
+**Why:** Results must reflect current state
+
+**Example:**
+```python
+# User wants newest datasets - must be fresh
+recent = search_datasets(
+  query="",
+  sort="modified",
+  limit=10
+)
+# DO NOT cache - sorting by recency requires fresh data
+```
+
+### Draft Management
+
+**Don't cache:** `create_draft`, `update_draft`, `delete_draft`, `publish_draft`
+
+**Why:** State changes with each operation, must see immediate effects
+
+**Example:**
+```python
+# Update draft metadata
+update_draft(dataset_id="draft-123", metadata={"title": "New Title"})
+
+# Get updated draft - must be fresh to see changes
+draft = get_dataset(dataset_id="draft-123")
+# DO NOT use cached version - user expects immediate update
+```
+
+### User-Specific Data
+
+**Don't cache:** Personalized results, user preferences, access permissions
+
+**Why:** Different for each user, privacy concerns
+
+**Example:**
+```python
+# User's own drafts
+my_drafts = list_datasets(filter="drafts")
+# DO NOT cache - another user has different drafts
+```
+
+## TTL-Based Caching
+
+Time-to-live (TTL) caching automatically expires entries after a period.
+
+### Simple TTL Cache Implementation
+
+Basic cache with automatic expiration:
+
+```python
+from datetime import datetime, timedelta
+from typing import Any, Optional
+
+class TTLCache:
+  """Simple time-to-live cache."""
+
+  def __init__(self, default_ttl_seconds=300):
+    self.cache = {}
+    self.timestamps = {}
+    self.default_ttl = timedelta(seconds=default_ttl_seconds)
+
+  def get(self, key: str) -> Optional[Any]:
+    """Get value from cache if not expired."""
+    if key not in self.cache:
+      return None
+
+    # Check expiration
+    if datetime.now() - self.timestamps[key] > self.default_ttl:
+      # Expired - remove from cache
+      del self.cache[key]
+      del self.timestamps[key]
+      return None
+
+    return self.cache[key]
+
+  def set(self, key: str, value: Any) -> None:
+    """Store value in cache with current timestamp."""
+    self.cache[key] = value
+    self.timestamps[key] = datetime.now()
+
+  def invalidate(self, key: str) -> None:
+    """Remove specific key from cache."""
+    self.cache.pop(key, None)
+    self.timestamps.pop(key, None)
+
+  def clear(self) -> None:
+    """Clear entire cache."""
+    self.cache.clear()
+    self.timestamps.clear()
+
+# Create caches with different TTLs
+search_cache = TTLCache(default_ttl_seconds=300)    # 5 minutes
+metadata_cache = TTLCache(default_ttl_seconds=3600)  # 1 hour
+vocab_cache = TTLCache(default_ttl_seconds=86400)    # 24 hours
+```
+
+### Usage with Austria MCP Tools
+
+Wrap tools with caching:
+
+```python
+def search_datasets_cached(query, **kwargs):
+  """Search with caching."""
+  # Create cache key from parameters
+  cache_key = f"search:{query}:{str(sorted(kwargs.items()))}"
+
+  # Check cache
+  cached = search_cache.get(cache_key)
+  if cached is not None:
+    print(f"Cache hit: {cache_key}")
+    return cached
+
+  # Cache miss - fetch fresh
+  print(f"Cache miss: {cache_key}")
+  results = search_datasets(query=query, **kwargs)
+
+  # Store in cache
+  search_cache.set(cache_key, results)
+
+  return results
+
+def get_dataset_cached(dataset_id):
+  """Get dataset with caching."""
+  cache_key = f"dataset:{dataset_id}"
+
+  cached = metadata_cache.get(cache_key)
+  if cached is not None:
+    return cached
+
+  dataset = get_dataset(dataset_id=dataset_id)
+  metadata_cache.set(cache_key, dataset)
+
+  return dataset
+
+# Usage
+results = search_datasets_cached("health", limit=20)
+# Subsequent calls within 5 minutes return cached results
+
+dataset = get_dataset_cached("vienna-health-2024")
+# Subsequent calls within 1 hour return cached metadata
+```
+
+### Recommended TTL Values
+
+Choose TTL based on data volatility and use case:
+
+| Data Type | TTL | Rationale |
+|-----------|-----|-----------|
+| Search results | 5-15 minutes | Catalog updates infrequently, users refine searches |
+| Dataset metadata | 1 hour | Metadata changes rarely, balance freshness vs performance |
+| Quality metrics | 1 hour | Expensive computation, only changes when metadata updates |
+| Distribution lists | 30 minutes | Formats/downloads change occasionally |
+| Vocabularies | 24 hours | Static reference data (EU themes, formats) |
+| Preview data | 15 minutes | File content stable, but not critical if slightly stale |
+| DOI eligibility | 1 hour | Depends on quality metrics (similar TTL) |
+
+**Tuning tips:**
+- Shorter TTL: More API calls, fresher data
+- Longer TTL: Fewer API calls, possibly stale data
+- Monitor cache hit rate to find optimal balance
+
+## LRU Cache (Size-Limited)
+
+Least Recently Used (LRU) cache prevents unbounded memory growth.
+
+### LRU Cache Implementation
+
+Automatically evicts oldest entries when size limit reached:
+
+```python
+from collections import OrderedDict
+from typing import Any, Optional
+
+class LRUCache:
+  """Least Recently Used cache with size limit."""
+
+  def __init__(self, max_size=100):
+    self.cache = OrderedDict()
+    self.max_size = max_size
+
+  def get(self, key: str) -> Optional[Any]:
+    """Get value and mark as recently used."""
+    if key not in self.cache:
+      return None
+
+    # Move to end (most recently used)
+    self.cache.move_to_end(key)
+    return self.cache[key]
+
+  def set(self, key: str, value: Any) -> None:
+    """Store value and enforce size limit."""
+    # Update or add
+    if key in self.cache:
+      self.cache.move_to_end(key)
+    self.cache[key] = value
+
+    # Evict oldest if over limit
+    if len(self.cache) > self.max_size:
+      oldest_key = next(iter(self.cache))
+      del self.cache[oldest_key]
+      print(f"LRU eviction: {oldest_key}")
+
+  def clear(self) -> None:
+    """Clear entire cache."""
+    self.cache.clear()
+
+# Create LRU caches
+dataset_cache = LRUCache(max_size=100)   # Keep 100 most recent datasets
+search_cache = LRUCache(max_size=50)     # Keep 50 most recent searches
+```
+
+### Combined TTL + LRU Cache
+
+Best of both worlds: time expiration + size limit:
+
+```python
+from datetime import datetime, timedelta
+from collections import OrderedDict
+
+class TTLLRUCache:
+  """Cache with both TTL and LRU eviction."""
+
+  def __init__(self, max_size=100, default_ttl_seconds=300):
+    self.cache = OrderedDict()
+    self.timestamps = {}
+    self.max_size = max_size
+    self.default_ttl = timedelta(seconds=default_ttl_seconds)
+
+  def get(self, key: str):
+    """Get value if not expired."""
+    if key not in self.cache:
+      return None
+
+    # Check expiration
+    if datetime.now() - self.timestamps[key] > self.default_ttl:
+      del self.cache[key]
+      del self.timestamps[key]
+      return None
+
+    # Mark as recently used
+    self.cache.move_to_end(key)
+    return self.cache[key]
+
+  def set(self, key: str, value):
+    """Store with TTL and LRU eviction."""
+    if key in self.cache:
+      self.cache.move_to_end(key)
+    else:
+      # Enforce size limit
+      if len(self.cache) >= self.max_size:
+        oldest_key = next(iter(self.cache))
+        del self.cache[oldest_key]
+        del self.timestamps[oldest_key]
+
+    self.cache[key] = value
+    self.timestamps[key] = datetime.now()
+
+  def clear(self):
+    """Clear cache."""
+    self.cache.clear()
+    self.timestamps.clear()
+
+# Production-ready cache
+production_cache = TTLLRUCache(
+  max_size=200,
+  default_ttl_seconds=3600  # 1 hour
+)
+```
+
+## Cache Decorator Pattern
+
+Simplify caching with decorators:
+
+### Basic Cache Decorator
+
+```python
+from functools import wraps
+
+def cached(cache_instance, key_func=None):
+  """Decorator to cache function results."""
+
+  def decorator(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+      # Generate cache key
+      if key_func:
+        cache_key = key_func(*args, **kwargs)
+      else:
+        cache_key = f"{func.__name__}:{args}:{sorted(kwargs.items())}"
+
+      # Check cache
+      cached_result = cache_instance.get(cache_key)
+      if cached_result is not None:
+        return cached_result
+
+      # Call function
+      result = func(*args, **kwargs)
+
+      # Store result
+      cache_instance.set(cache_key, result)
+
+      return result
+
+    return wrapper
+  return decorator
+
+# Apply to functions
+@cached(metadata_cache, key_func=lambda dataset_id: f"dataset:{dataset_id}")
+def get_dataset_v2(dataset_id):
+  """Get dataset with automatic caching."""
+  return get_dataset(dataset_id=dataset_id)
+
+@cached(search_cache, key_func=lambda query, **kw: f"search:{query}:{kw.get('limit',20)}")
+def search_datasets_v2(query, **kwargs):
+  """Search with automatic caching."""
+  return search_datasets(query=query, **kwargs)
+
+# Usage is transparent
+dataset = get_dataset_v2("vienna-health-2024")  # Cache miss
+dataset = get_dataset_v2("vienna-health-2024")  # Cache hit
+```
+
+### Async Cache Decorator
+
+For async Austria MCP operations:
+
+```python
+import asyncio
+from functools import wraps
+
+def async_cached(cache_instance, key_func=None):
+  """Decorator for async functions."""
+
+  def decorator(func):
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+      if key_func:
+        cache_key = key_func(*args, **kwargs)
+      else:
+        cache_key = f"{func.__name__}:{args}:{sorted(kwargs.items())}"
+
+      cached_result = cache_instance.get(cache_key)
+      if cached_result is not None:
+        return cached_result
+
+      result = await func(*args, **kwargs)
+      cache_instance.set(cache_key, result)
+
+      return result
+
+    return wrapper
+  return decorator
+
+# Usage with async tools
+@async_cached(metadata_cache)
+async def get_dataset_async(dataset_id):
+  """Async get with caching."""
+  return await get_dataset(dataset_id=dataset_id)
+```
+
+## Cache Invalidation Strategies
+
+### Time-Based Invalidation (TTL)
+
+Automatic expiration (already covered in TTL cache):
+
+```python
+# Cache expires automatically after TTL
+cache = TTLCache(default_ttl_seconds=300)
+cache.set("key", "value")
+# After 5 minutes, cache.get("key") returns None
+```
+
+### Event-Based Invalidation
+
+Invalidate cache when data changes:
+
+```python
+def update_dataset_with_invalidation(dataset_id, metadata):
+  """Update dataset and invalidate cache."""
+
+  # Update dataset
+  result = update_draft(dataset_id=dataset_id, metadata=metadata)
+
+  # Invalidate cached metadata
+  metadata_cache.invalidate(f"dataset:{dataset_id}")
+
+  # Invalidate cached metrics (quality changed)
+  metadata_cache.invalidate(f"metrics:{dataset_id}")
+
+  # Invalidate search cache (results may change)
+  search_cache.clear()  # Aggressive - clear all searches
+
+  return result
+
+# Usage
+update_dataset_with_invalidation(
+  dataset_id="vienna-health-2024",
+  metadata={"title": "Updated Title"}
+)
+
+# Next get_dataset_cached will fetch fresh data
+```
+
+### Manual Invalidation
+
+Explicit cache clearing:
+
+```python
+def invalidate_dataset_cache(dataset_id):
+  """Remove dataset from all caches."""
+  metadata_cache.invalidate(f"dataset:{dataset_id}")
+  metadata_cache.invalidate(f"metrics:{dataset_id}")
+  metadata_cache.invalidate(f"distributions:{dataset_id}")
+  print(f"Cleared cache for {dataset_id}")
+
+# Call after known data change
+invalidate_dataset_cache("vienna-health-2024")
+```
+
+### Partial Cache Clearing
+
+Clear related entries only:
+
+```python
+def invalidate_search_cache_by_theme(theme):
+  """Clear search cache entries for specific theme."""
+
+  # Identify keys to invalidate
+  keys_to_clear = [
+    key for key in search_cache.cache.keys()
+    if theme in key
+  ]
+
+  # Invalidate matching keys
+  for key in keys_to_clear:
+    search_cache.invalidate(key)
+
+  print(f"Cleared {len(keys_to_clear)} search cache entries for theme {theme}")
+
+# Usage after adding datasets to theme
+invalidate_search_cache_by_theme("HEAL")
+```
+
+## Cache Key Design
+
+Consistent, deterministic keys are critical:
+
+### Good Cache Keys
+
+```python
+# Dataset metadata - simple ID
+key = f"dataset:{dataset_id}"
+
+# Search - include all parameters
+key = f"search:{query}:{limit}:{offset}:{sorted(themes)}"
+
+# Quality metrics - include flags
+key = f"metrics:{dataset_id}:history={include_history}"
+
+# Distribution preview - include format and limits
+key = f"preview:{url}:{format}:{max_rows}"
+```
+
+### Bad Cache Keys
+
+```python
+# ✗ Includes timestamp - never hits
+key = f"dataset:{dataset_id}:{time.time()}"
+
+# ✗ Includes random value
+key = f"search:{query}:{random.randint(0, 1000)}"
+
+# ✗ Dictionary not sorted - same params, different keys
+key = f"search:{query}:{kwargs}"
+# {"limit": 20, "offset": 0} != {"offset": 0, "limit": 20}
+
+# ✓ Sort dictionary for consistency
+key = f"search:{query}:{sorted(kwargs.items())}"
+```
+
+### Cache Key Helper Function
+
+```python
+import hashlib
+import json
+
+def make_cache_key(prefix, *args, **kwargs):
+  """Generate deterministic cache key."""
+
+  # Combine all parameters
+  parts = [prefix] + list(args)
+
+  # Sort kwargs for consistency
+  if kwargs:
+    sorted_kwargs = sorted(kwargs.items())
+    parts.append(json.dumps(sorted_kwargs))
+
+  # Create key
+  key_str = ":".join(str(p) for p in parts)
+
+  # Optional: Hash long keys
+  if len(key_str) > 100:
+    key_hash = hashlib.md5(key_str.encode()).hexdigest()
+    return f"{prefix}:{key_hash}"
+
+  return key_str
+
+# Usage
+key = make_cache_key("search", "health", limit=20, themes=["HEAL", "SOCI"])
+# Result: "search:health:[('limit', 20), ('themes', ['HEAL', 'SOCI'])]"
+```
+
+## Multi-Level Caching
+
+Combine in-memory (L1) and external (L2) caches:
+
+### L1 (Memory) + L2 (Redis) Pattern
+
+```python
+import redis
+import pickle
+
+class TwoLevelCache:
+  """Memory cache with Redis fallback."""
+
+  def __init__(self, redis_url, ttl_seconds=300):
+    self.l1_cache = TTLLRUCache(max_size=100, default_ttl_seconds=60)
+    self.l2_cache = redis.from_url(redis_url)
+    self.ttl = ttl_seconds
+
+  def get(self, key):
+    """Get from L1, then L2."""
+
+    # Check L1 (fast)
+    value = self.l1_cache.get(key)
+    if value is not None:
+      return value
+
+    # Check L2 (slower)
+    serialized = self.l2_cache.get(key)
+    if serialized:
+      value = pickle.loads(serialized)
+
+      # Populate L1 for next access
+      self.l1_cache.set(key, value)
+
+      return value
+
+    return None
+
+  def set(self, key, value):
+    """Write to both L1 and L2."""
+
+    # Store in L1
+    self.l1_cache.set(key, value)
+
+    # Store in L2 with TTL
+    serialized = pickle.dumps(value)
+    self.l2_cache.setex(key, self.ttl, serialized)
+
+  def invalidate(self, key):
+    """Remove from both caches."""
+    self.l1_cache.cache.pop(key, None)
+    self.l2_cache.delete(key)
+
+# Usage
+cache = TwoLevelCache(
+  redis_url="redis://localhost:6379/0",
+  ttl_seconds=3600
+)
+
+def get_dataset_multilevel(dataset_id):
+  """Get with two-level caching."""
+  cache_key = f"dataset:{dataset_id}"
+
+  cached = cache.get(cache_key)
+  if cached:
+    return cached
+
+  dataset = get_dataset(dataset_id=dataset_id)
+  cache.set(cache_key, dataset)
+
+  return dataset
+```
+
+**Benefits:**
+- L1 (memory): <1ms access, 100 entries
+- L2 (Redis): ~5ms access, unlimited entries
+- Shared across processes (Redis)
+
+## Cache Warming
+
+Pre-populate cache for common queries:
+
+```python
+def warm_cache():
+  """Pre-load common searches into cache."""
+
+  common_queries = [
+    ("health", {"limit": 20}),
+    ("economy", {"limit": 20}),
+    ("environment", {"limit": 20}),
+    ("education", {"limit": 20})
+  ]
+
+  print("Warming cache...")
+
+  for query, kwargs in common_queries:
+    results = search_datasets_cached(query, **kwargs)
+    print(f"Cached: {query} ({results['count']} results)")
+
+  print("Cache warmed")
+
+# Run at application startup
+warm_cache()
+```
+
+## Monitoring Cache Performance
+
+Track cache effectiveness:
+
+```python
+class MonitoredCache:
+  """Cache with hit/miss tracking."""
+
+  def __init__(self, base_cache):
+    self.cache = base_cache
+    self.hits = 0
+    self.misses = 0
+
+  def get(self, key):
+    value = self.cache.get(key)
+
+    if value is not None:
+      self.hits += 1
+    else:
+      self.misses += 1
+
+    return value
+
+  def set(self, key, value):
+    self.cache.set(key, value)
+
+  def get_stats(self):
+    """Get cache performance statistics."""
+    total = self.hits + self.misses
+
+    if total == 0:
+      return {"hit_rate": 0, "hits": 0, "misses": 0}
+
+    hit_rate = (self.hits / total) * 100
+
+    return {
+      "hit_rate": hit_rate,
+      "hits": self.hits,
+      "misses": self.misses,
+      "total": total
+    }
+
+# Usage
+monitored_cache = MonitoredCache(TTLCache(default_ttl_seconds=300))
+
+# ... use cache ...
+
+# Check performance
+stats = monitored_cache.get_stats()
+print(f"Cache hit rate: {stats['hit_rate']:.1f}%")
+print(f"Hits: {stats['hits']}, Misses: {stats['misses']}")
+```
+
+**Target hit rates:**
+- 80-90%: Excellent (most requests cached)
+- 60-80%: Good (effective caching)
+- 40-60%: Fair (consider longer TTL or more selective caching)
+- <40%: Poor (cache not effective, review strategy)
+
+## Best Practices Summary
+
+**DO:**
+- ✓ Cache stable data (metadata, vocabularies) with long TTL
+- ✓ Use TTL + LRU combination for production
+- ✓ Invalidate cache after data modifications
+- ✓ Monitor cache hit rates to tune TTL
+- ✓ Use consistent, deterministic cache keys
+
+**DON'T:**
+- ✗ Don't cache real-time operations (draft management)
+- ✗ Don't cache user-specific data across users
+- ✗ Don't use unbounded caches (implement LRU)
+- ✗ Don't cache without TTL (data becomes stale)
+- ✗ Don't over-cache (increases memory, complicates invalidation)
+
+**Quick wins:**
+- Cache dataset metadata: 100x faster repeated access
+- Cache search results: 50x faster for common queries
+- Cache quality metrics: Avoid expensive computation
+
+## Cross-References
+
+- **[Performance Optimization](/best-practices/optimization)** - General optimization patterns
+- **[Rate Limiting](/best-practices/rate-limiting)** - Caching reduces rate limit pressure
+- **[Workflows](/workflows)** - Apply caching in real scenarios
