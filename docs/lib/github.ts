@@ -8,7 +8,9 @@ export const DocsCategory = 'Docs Feedback';
 let instance: Octokit | undefined;
 
 async function getOctokit(): Promise<Octokit> {
-  if (instance) return instance;
+  if (instance) {
+    return instance;
+  }
   const appId = process.env.GITHUB_APP_ID;
   const privateKey = process.env.GITHUB_APP_PRIVATE_KEY;
 
@@ -45,7 +47,9 @@ interface RepositoryInfo {
 
 let cachedDestination: RepositoryInfo | undefined;
 async function getFeedbackDestination() {
-  if (cachedDestination) return cachedDestination;
+  if (cachedDestination) {
+    return cachedDestination;
+  }
   const octokit = await getOctokit();
 
   const {
@@ -89,7 +93,9 @@ async function createDiscussionThread(pageId: string, body: string) {
     (category) => category.name === DocsCategory,
   );
 
-  if (!category) throw new Error(`Please create a "${DocsCategory}" category in GitHub Discussion`);
+  if (!category) {
+    throw new Error(`Please create a "${DocsCategory}" category in GitHub Discussion`);
+  }
 
   const title = `Feedback for ${pageId}`;
   const {

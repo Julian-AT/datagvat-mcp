@@ -71,20 +71,30 @@ export default function CustomSearchDialog(props: SharedProps) {
       if (node.type === 'page' && typeof node.name === 'string') {
         map.set(node.name.toLowerCase(), node);
       } else if (node.type === 'folder') {
-        if (node.index) onNode(node.index);
-        for (const item of node.children) onNode(item);
+        if (node.index) {
+          onNode(node.index);
+        }
+        for (const item of node.children) {
+          onNode(item);
+        }
       }
     }
 
-    for (const item of full.children) onNode(item);
+    for (const item of full.children) {
+      onNode(item);
+    }
     return map;
   }, [full]);
   const pageTreeAction = useMemo<SearchItemType | undefined>(() => {
-    if (search.length === 0) return;
+    if (search.length === 0) {
+      return;
+    }
 
     const normalized = search.toLowerCase();
     for (const [k, page] of searchMap) {
-      if (!k.startsWith(normalized)) continue;
+      if (!k.startsWith(normalized)) {
+        continue;
+      }
 
       return {
         id: 'quick-action',

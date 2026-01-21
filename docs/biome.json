@@ -36,7 +36,7 @@
       },
       "a11y": {
         "noSvgWithoutTitle": "warn"
-      } 
+      }
     }
   },
   "javascript": {

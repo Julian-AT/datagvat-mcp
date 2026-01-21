@@ -8,8 +8,8 @@
  * - Manual test checklist generation for search quality
  */
 
-import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
-import { join } from 'path';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 
 interface VerificationResult {
   id: string;
@@ -41,11 +41,11 @@ const componentAudit = existsSync(componentAuditPath)
   ? JSON.parse(readFileSync(componentAuditPath, 'utf-8'))
   : null;
 
-const exampleTestResults = existsSync(exampleTestPath)
+const _exampleTestResults = existsSync(exampleTestPath)
   ? readFileSync(exampleTestPath, 'utf-8')
   : null;
 
-const sampledExamples = existsSync(sampledExamplesPath)
+const _sampledExamples = existsSync(sampledExamplesPath)
   ? JSON.parse(readFileSync(sampledExamplesPath, 'utf-8'))
   : null;
 
@@ -54,9 +54,11 @@ function checkFileExists(path: string): boolean {
   return existsSync(join(__dirname, '..', path));
 }
 
-function countFiles(directory: string, extension: string): number {
+function _countFiles(directory: string, extension: string): number {
   const dirPath = join(__dirname, '..', directory);
-  if (!existsSync(dirPath)) return 0;
+  if (!existsSync(dirPath)) {
+    return 0;
+  }
 
   let count = 0;
   const walk = (dir: string) => {
@@ -77,7 +79,9 @@ function countFiles(directory: string, extension: string): number {
 
 function grepPattern(directory: string, pattern: string): number {
   const dirPath = join(__dirname, '..', directory);
-  if (!existsSync(dirPath)) return 0;
+  if (!existsSync(dirPath)) {
+    return 0;
+  }
 
   let count = 0;
   const walk = (dir: string) => {
@@ -538,7 +542,7 @@ const reportPath = join(
   '../.planning/phases/24-final-polish-a-quality/requirements-verification.md',
 );
 
-import { writeFileSync } from 'fs';
+import { writeFileSync } from 'node:fs';
 
 writeFileSync(reportPath, report, 'utf-8');
 console.log(`\n✓ Report saved to: ${reportPath}`);

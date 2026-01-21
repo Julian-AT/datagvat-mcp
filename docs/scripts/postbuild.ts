@@ -1,5 +1,5 @@
+import { existsSync } from 'node:fs';
 import { $ } from 'bun';
-import { existsSync } from 'fs';
 
 async function postbuild() {
   console.log('=== Post-build Verification ===\n');

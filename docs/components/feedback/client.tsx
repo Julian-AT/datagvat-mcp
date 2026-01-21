@@ -63,7 +63,9 @@ export function Feedback({
   const [isPending, startTransition] = useTransition();
 
   function submit(e?: SyntheticEvent) {
-    if (opinion == null) return;
+    if (opinion == null) {
+      return;
+    }
 
     startTransition(async () => {
       const feedback: PageFeedback = {
@@ -90,7 +92,9 @@ export function Feedback({
     <Collapsible
       open={opinion !== null || previous !== null}
       onOpenChange={(v) => {
-        if (!v) setOpinion(null);
+        if (!v) {
+          setOpinion(null);
+        }
       }}
       className="border-y py-3"
     >
@@ -163,7 +167,6 @@ export function Feedback({
         ) : (
           <form className="flex flex-col gap-3" onSubmit={submit}>
             <textarea
-              autoFocus
               required
               value={message}
               onChange={(e) => setMessage(e.target.value)}
@@ -207,7 +210,9 @@ export function FeedbackBlock({
   const blockId = `${url}-${id}`;
   const { previous, setPrevious } = useSubmissionStorage(blockId, (v) => {
     const result = blockFeedbackResult.safeParse(v);
-    if (result.success) return result.data;
+    if (result.success) {
+      return result.data;
+    }
     return null;
   });
   const [message, setMessage] = useState('');
@@ -299,7 +304,6 @@ export function FeedbackBlock({
         ) : (
           <form className="flex flex-col gap-2" onSubmit={submit}>
             <textarea
-              autoFocus
               required
               value={message}
               onChange={(e) => setMessage(e.target.value)}
@@ -332,17 +336,24 @@ function useSubmissionStorage<Result>(blockId: string, validate: (v: unknown) =>
 
   useEffect(() => {
     const item = localStorage.getItem(storageKey);
-    if (item === null) return;
+    if (item === null) {
+      return;
+    }
     const validated = validateCallback(JSON.parse(item));
 
-    if (validated !== null) setValue(validated);
+    if (validated !== null) {
+      setValue(validated);
+    }
   }, [storageKey]);
 
   return {
     previous: value,
     setPrevious(result: Result | null) {
-      if (result) localStorage.setItem(storageKey, JSON.stringify(result));
-      else localStorage.removeItem(storageKey);
+      if (result) {
+        localStorage.setItem(storageKey, JSON.stringify(result));
+      } else {
+        localStorage.removeItem(storageKey);
+      }
 
       setValue(result);
     },

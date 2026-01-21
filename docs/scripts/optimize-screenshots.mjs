@@ -1,7 +1,7 @@
-import { mkdir, readdir, stat } from 'fs/promises';
-import { basename, dirname, extname, join } from 'path';
+import { mkdir, readdir, stat } from 'node:fs/promises';
+import { basename, dirname, extname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
-import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -74,7 +74,7 @@ async function main() {
     // Process each image
     for (const file of imageFiles) {
       const inputPath = join(SOURCE_DIR, file);
-      const outputFile = basename(file, extname(file)) + '.webp';
+      const outputFile = `${basename(file, extname(file))}.webp`;
       const outputPath = join(OUTPUT_DIR, outputFile);
 
       try {

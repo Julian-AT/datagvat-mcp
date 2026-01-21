@@ -4,7 +4,7 @@ import { TooltipProvider } from '@radix-ui/react-tooltip';
 import dynamic from 'next/dynamic';
 import type { ReactNode } from 'react';
 
-const SearchDialog = dynamic(() => import('@/components/search'), {
+const _SearchDialog = dynamic(() => import('@/components/search'), {
   ssr: false,
 });
 
@@ -25,11 +25,9 @@ if (item === 'true') {
 
 export function Provider({ children }: { children: ReactNode }) {
   return (
-    <>
-      <TooltipProvider>
-        <script suppressHydrationWarning dangerouslySetInnerHTML={{ __html: inject }} />
-        {children}
-      </TooltipProvider>
-    </>
+    <TooltipProvider>
+      <script suppressHydrationWarning dangerouslySetInnerHTML={{ __html: inject }} />
+      {children}
+    </TooltipProvider>
   );
 }

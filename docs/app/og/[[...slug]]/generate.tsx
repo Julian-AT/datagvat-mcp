@@ -11,7 +11,7 @@ const loadFont = async (path: string, name: string, weight: number) => {
   try {
     const data = await readFile(path);
     return { name, data, weight };
-  } catch (error) {
+  } catch (_error) {
     console.warn(`Font file not found: ${path}, OG images will use fallback fonts`);
     return null;
   }

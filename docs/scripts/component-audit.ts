@@ -9,8 +9,8 @@
  * Usage: npx tsx ./scripts/component-audit.ts
  */
 
-import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'fs';
-import { dirname, join } from 'path';
+import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 interface ComponentUsage {
   total: number;
@@ -202,7 +202,7 @@ async function main() {
   console.log(`JSON results saved to: ${outputPath}\n`);
 
   // Print human-readable output
-  console.log('Tabs: ' + result.tabs.total + ' usages');
+  console.log(`Tabs: ${result.tabs.total} usages`);
   console.log(`  ✓ ${result.tabs.withPersist} with persist`);
   console.log(`  ✓ ${result.tabs.withGroupId} with groupId`);
   if (result.tabs.issues.length > 0) {
@@ -212,10 +212,10 @@ async function main() {
     });
   }
 
-  console.log('\nTypeTable: ' + result.typeTable.total + ' usages');
+  console.log(`\nTypeTable: ${result.typeTable.total} usages`);
   console.log(`  ✓ ${result.typeTable.inApiDocs} in API docs`);
 
-  console.log('\nSteps: ' + result.steps.total + ' usages');
+  console.log(`\nSteps: ${result.steps.total} usages`);
   console.log(`  ✓ ${result.steps.inWorkflows} in workflow guides`);
 
   console.log('\nQUAL-03 (Type Information):');
@@ -231,7 +231,7 @@ async function main() {
   if (result.tabs.issues.length > 0) {
     console.log('\nRecommendations:');
     console.log(
-      '- Add persist prop to Tabs in ' + result.tabs.issues.length + ' files for cross-page state',
+      `- Add persist prop to Tabs in ${result.tabs.issues.length} files for cross-page state`,
     );
   }
 

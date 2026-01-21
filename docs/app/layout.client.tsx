@@ -13,7 +13,9 @@ export function Body({ children }: { children: ReactNode }): React.ReactElement 
 
 export function useMode(): string | undefined {
   const { slug = [] } = useParams();
-  if (Array.isArray(slug)) return getSection(slug[0]);
+  if (Array.isArray(slug)) {
+    return getSection(slug[0]);
+  }
 }
 
 export function FumadocsIcon(props: React.SVGProps<SVGSVGElement>) {

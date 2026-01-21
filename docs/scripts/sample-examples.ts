@@ -32,8 +32,12 @@ function classifyPage(relativePath: string): string {
   if (match) {
     const section = match[1];
     // Map sections to strata
-    if (section === 'getting-started') return 'tutorials';
-    if (section === 'tools' || section === 'integration') return 'advanced';
+    if (section === 'getting-started') {
+      return 'tutorials';
+    }
+    if (section === 'tools' || section === 'integration') {
+      return 'advanced';
+    }
     return section;
   }
 
@@ -56,9 +60,15 @@ function extractCodeBlocks(filePath: string, content: string): CodeExample[] {
 
     // Normalize language names
     let normalizedLang = lang.toLowerCase();
-    if (normalizedLang === 'ts') normalizedLang = 'typescript';
-    if (normalizedLang === 'py') normalizedLang = 'python';
-    if (normalizedLang === 'sh') normalizedLang = 'bash';
+    if (normalizedLang === 'ts') {
+      normalizedLang = 'typescript';
+    }
+    if (normalizedLang === 'py') {
+      normalizedLang = 'python';
+    }
+    if (normalizedLang === 'sh') {
+      normalizedLang = 'bash';
+    }
 
     examples.push({
       page: filePath.replace(/\\/g, '/').replace('docs/content/docs/', '/docs/'),

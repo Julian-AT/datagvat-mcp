@@ -66,7 +66,9 @@ function ClientOnly({
 
   const handleNodeHover = (node: Node | null) => {
     const graph = graphRef.current;
-    if (!graph) return;
+    if (!graph) {
+      return;
+    }
     hoveredRef.current = node;
 
     if (node) {
@@ -84,7 +86,9 @@ function ClientOnly({
   // Custom node rendering: circle with text label below
   const nodeCanvasObject: ForceGraphProps['nodeCanvasObject'] = (node, ctx) => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container) {
+      return;
+    }
     const style = getComputedStyle(container);
     const fontSize = 14;
     const radius = 5;
@@ -111,7 +115,9 @@ function ClientOnly({
 
   const linkColor = (link: Link) => {
     const container = containerRef.current;
-    if (!container) return '#999';
+    if (!container) {
+      return '#999';
+    }
     const style = getComputedStyle(container);
     const hoverNode = hoveredRef.current;
 
@@ -132,8 +138,12 @@ function ClientOnly({
     const { nodes, links } = structuredClone(graph);
     for (const node of nodes) {
       node.neighbors = links.flatMap((link) => {
-        if (link.source === node.id) return link.target as string;
-        if (link.target === node.id) return link.source as string;
+        if (link.source === node.id) {
+          return link.target as string;
+        }
+        if (link.target === node.id) {
+          return link.source as string;
+        }
         return [];
       });
     }

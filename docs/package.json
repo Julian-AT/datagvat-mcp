@@ -1,7 +1,7 @@
 {
   "name": "datagvat-mcp-docs",
   "version": "1.0.0",
-  "description": "Documentation for DataGVAT MCP Server",
+  "description": "Documentation for data.gv.at MCP Server",
   "private": true,
   "scripts": {
     "prebuild": "bun run scripts/prebuild.ts",

@@ -63,7 +63,7 @@ function generateTestChecklist(data: SamplingOutput): string {
     markdown.push(`**Location:** ${displayPage} (line ${example.line})`);
     markdown.push('');
     markdown.push('**Code:**');
-    markdown.push('```' + example.language);
+    markdown.push(`\`\`\`${example.language}`);
     markdown.push(example.code);
     markdown.push('```');
     markdown.push('');
@@ -107,9 +107,15 @@ function getExampleContext(example: SampledExample): string | null {
 
   // Infer context based on page and code content
   if (page.includes('installation') || page.includes('quickstart')) {
-    if (code.includes('pip install')) return 'Installation command';
-    if (code.includes('python -m')) return 'Server startup';
-    if (code.includes('curl')) return 'API connectivity test';
+    if (code.includes('pip install')) {
+      return 'Installation command';
+    }
+    if (code.includes('python -m')) {
+      return 'Server startup';
+    }
+    if (code.includes('curl')) {
+      return 'API connectivity test';
+    }
   }
 
   if (page.includes('searching') || page.includes('search')) {
@@ -125,19 +131,33 @@ function getExampleContext(example: SampledExample): string | null {
   }
 
   if (page.includes('testing')) {
-    if (code.includes('async def test_')) return 'Pytest async test';
-    if (code.includes('mock')) return 'Unit test with mocking';
+    if (code.includes('async def test_')) {
+      return 'Pytest async test';
+    }
+    if (code.includes('mock')) {
+      return 'Unit test with mocking';
+    }
   }
 
   if (page.includes('error-handling')) {
-    if (code.includes('try:') || code.includes('except')) return 'Error handling pattern';
+    if (code.includes('try:') || code.includes('except')) {
+      return 'Error handling pattern';
+    }
   }
 
   // Look at code content for hints
-  if (code.includes('search_datasets')) return 'Search tool usage';
-  if (code.includes('get_dataset')) return 'Dataset retrieval';
-  if (code.includes('preview_data')) return 'Data preview tool';
-  if (code.includes('find_related_datasets')) return 'Related datasets tool';
+  if (code.includes('search_datasets')) {
+    return 'Search tool usage';
+  }
+  if (code.includes('get_dataset')) {
+    return 'Dataset retrieval';
+  }
+  if (code.includes('preview_data')) {
+    return 'Data preview tool';
+  }
+  if (code.includes('find_related_datasets')) {
+    return 'Related datasets tool';
+  }
 
   return null;
 }

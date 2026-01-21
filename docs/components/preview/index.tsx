@@ -14,7 +14,6 @@ import {
   File,
   Files,
   Folder,
-  ImageZoom,
   InlineTOC,
 } from '@/components/preview/lazy';
 import { owner, repo } from '@/lib/github';

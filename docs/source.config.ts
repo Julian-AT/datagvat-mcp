@@ -1,7 +1,6 @@
 import type { RemarkFeedbackBlockOptions } from 'fumadocs-core/mdx-plugins';
 import {
   applyMdxPreset,
-  defineCollections,
   defineConfig,
   defineDocs,
   frontmatterSchema,
@@ -52,7 +51,9 @@ export const docs = defineDocs({
       const feedbackOptions: RemarkFeedbackBlockOptions = {
         resolve(node) {
           // defensive approach
-          if (node.type === 'mdxJsxFlowElement') return 'skip';
+          if (node.type === 'mdxJsxFlowElement') {
+            return 'skip';
+          }
           return node.type === 'paragraph' || node.type === 'image' || node.type === 'list';
         },
       };

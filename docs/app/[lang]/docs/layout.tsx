@@ -28,7 +28,9 @@ export default async function Layout({
         tabs: {
           transform(option, node) {
             const meta = source.getNodeMeta(node);
-            if (!meta || !node.icon) return option;
+            if (!meta || !node.icon) {
+              return option;
+            }
             const color = `var(--${getSection(meta.path)}-color, var(--color-fd-foreground))`;
 
             return {

@@ -18,7 +18,9 @@ export function buildGraph(): Graph {
     ) as Array<{ href: string }>;
     for (const ref of extractedReferences) {
       const refPage = source.getPageByHref(ref.href);
-      if (!refPage) continue;
+      if (!refPage) {
+        continue;
+      }
 
       graph.links.push({
         source: page.url,

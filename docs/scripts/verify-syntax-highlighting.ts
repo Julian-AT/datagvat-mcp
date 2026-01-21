@@ -8,8 +8,8 @@
  * Usage: npx tsx ./scripts/verify-syntax-highlighting.ts
  */
 
-import { readdirSync, readFileSync, statSync } from 'fs';
-import { join } from 'path';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 import { remark } from 'remark';
 import remarkMdx from 'remark-mdx';
 import { visit } from 'unist-util-visit';
@@ -121,7 +121,7 @@ async function main() {
           languageCounts[block.lang] = (languageCounts[block.lang] || 0) + 1;
         }
       }
-    } catch (error) {
+    } catch (_error) {
       console.warn(`Warning: Could not parse ${filePath}`);
     }
   }

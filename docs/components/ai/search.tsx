@@ -28,7 +28,7 @@ const Context = createContext<{
 } | null>(null);
 
 function useChatContext() {
-  return use(Context)!.chat;
+  return use(Context)?.chat;
 }
 
 function Header() {
@@ -61,7 +61,9 @@ function SearchAIActions() {
   const { messages, status, setMessages, regenerate } = useChatContext();
   const isLoading = status === 'streaming';
 
-  if (messages.length === 0) return null;
+  if (messages.length === 0) {
+    return null;
+  }
 
   return (
     <>
@@ -112,7 +114,9 @@ function SearchAIInput(props: ComponentProps<'form'>) {
   localStorage.setItem(StorageKeyInput, input);
 
   useEffect(() => {
-    if (isLoading) document.getElementById('nd-ai-input')?.focus();
+    if (isLoading) {
+      document.getElementById('nd-ai-input')?.focus();
+    }
   }, [isLoading]);
 
   return (
@@ -170,10 +174,14 @@ function List(props: Omit<ComponentProps<'div'>, 'dir'>) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current) {
+      return;
+    }
     function callback() {
       const container = containerRef.current;
-      if (!container) return;
+      if (!container) {
+        return;
+      }
 
       container.scrollTo({
         top: container.scrollHeight,

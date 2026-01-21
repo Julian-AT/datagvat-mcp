@@ -11,7 +11,9 @@ export function Breadcrumb({ tree }: { tree: PageTreeRoot }) {
   const pathname = usePathname();
   const items = useBreadcrumb(pathname, tree);
 
-  if (items.length === 0) return null;
+  if (items.length === 0) {
+    return null;
+  }
 
   return (
     <div className="-mb-3 flex flex-row items-center gap-1 text-sm font-medium text-fd-muted-foreground">

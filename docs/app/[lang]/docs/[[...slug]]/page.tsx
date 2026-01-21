@@ -13,7 +13,6 @@ import type { ComponentProps, FC, ReactNode } from 'react';
 import { LLMCopyButton, ViewOptions } from '@/components/ai/page-actions';
 import { Feedback, FeedbackBlock } from '@/components/feedback/client';
 import { Mermaid } from '@/components/mdx/mermaid';
-import { NotFound } from '@/components/not-found';
 import * as Preview from '@/components/preview';
 import { Customisation } from '@/components/preview/customisation';
 import { Installation } from '@/components/preview/installation';
@@ -43,7 +42,9 @@ export default async function Page({
   const { slug, lang } = await params;
   const page = source.getPage(slug ?? [], lang);
 
-  if (!page) return notFound();
+  if (!page) {
+    return notFound();
+  }
 
   if (page.data.type === 'openapi') {
     const { APIPage } = await import('@/components/api-page');
@@ -86,7 +87,9 @@ export default async function Page({
                 dir: PathUtils.dirname(page.path),
               });
 
-              if (!found) return <Link href={href} {...props} />;
+              if (!found) {
+                return <Link href={href} {...props} />;
+              }
 
               return (
                 <HoverCard>
@@ -139,9 +142,13 @@ function DocsCategory({ url, lang }: { url: string; lang: string }) {
   return (
     <Cards>
       {findSiblings(source.getPageTree(lang), url).map((item) => {
-        if (item.type === 'separator') return;
+        if (item.type === 'separator') {
+          return;
+        }
         if (item.type === 'folder') {
-          if (!item.index) return;
+          if (!item.index) {
+            return;
+          }
           item = item.index;
         }
 
@@ -162,10 +169,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug = [], lang } = await params;
   const page = source.getPage(slug, lang);
-  if (!page)
+  if (!page) {
     return createMetadata({
       title: 'Not Found',
     });
+  }
 
   const description = page.data.description ?? 'The library for building documentation sites';
 
