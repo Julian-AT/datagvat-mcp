@@ -21,9 +21,6 @@
     "start": "next start",
     "prepare": "simple-git-hooks"
   },
-  "simple-git-hooks": {
-    "pre-commit": "cd docs && bun run validate"
-  },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.13",
     "@ai-sdk/react": "^3.0.43",
