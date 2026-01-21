@@ -17,7 +17,7 @@ Requirements for v2.0 Professional Documentation System. Detailed specifications
 
 ### Navigation
 
-- [ ] **NAV-01**: Documentation organized into 3-4 top-level sections (reduced from 7)
+- [ ] **NAV-01**: Documentation organized into 3-4 top-level sections (reduced from 8)
 - [ ] **NAV-02**: Advanced meta.json features enable better organization
 - [ ] **NAV-03**: Users can find information in ≤3 clicks from homepage
 - [ ] **NAV-04**: Navigation structure is consistent across all pages
@@ -81,35 +81,35 @@ Explicitly excluded from v2.0. Documented to prevent scope creep.
 
 Which phases cover which requirements. Updated during roadmap creation.
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| INFRA-01 | Phase 1 | Complete |
-| INFRA-02 | Phase 1 | Complete |
-| INFRA-03 | Phase 1 | Complete |
-| INFRA-04 | Phase 1, Phase 6 | Complete |
-| INFRA-05 | Phase 1, Phase 6 | Complete |
-| NAV-01 | Phase 2 | Pending |
-| NAV-02 | Phase 2 | Pending |
-| NAV-03 | Phase 2 | Pending |
-| NAV-04 | Phase 2 | Pending |
-| CONTENT-02 | Phase 3 | Pending |
-| CONTENT-03 | Phase 3 | Pending |
-| CONTENT-01 | Phase 4 | Pending |
-| CONTENT-05 | Phase 4 | Pending |
-| CONTENT-06 | Phase 4 | Pending |
-| CONTENT-04 | Phase 5 | Pending |
-| API-01 | Phase 7 | Pending |
-| API-02 | Phase 7 | Pending |
-| API-03 | Phase 7 | Pending |
-| API-04 | Phase 7 | Pending |
-| CLI-01 | Phase 8 | Pending |
-| CLI-02 | Phase 8 | Pending |
-| CLI-03 | Phase 8 | Pending |
-| CLI-04 | Phase 8 | Pending |
-| TEST-01 | Phase 9 | Pending |
-| TEST-02 | Phase 9 | Pending |
-| TEST-03 | Phase 9 | Pending |
-| TEST-04 | Phase 9 | Pending |
+| Requirement | Phase | Plans | Status |
+|-------------|-------|-------|--------|
+| INFRA-01 | Phase 1 | 01-01 to 01-05 | Complete |
+| INFRA-02 | Phase 1 | 01-01 to 01-05 | Complete |
+| INFRA-03 | Phase 1 | 01-01 to 01-05 | Complete |
+| INFRA-04 | Phase 1, Phase 6 | 01-01 to 01-05 | Complete |
+| INFRA-05 | Phase 1, Phase 6 | 01-01 to 01-05 | Complete |
+| NAV-01 | Phase 2 | 02-01 to 02-03 | Planned |
+| NAV-02 | Phase 2 | 02-01 to 02-03 | Planned |
+| NAV-03 | Phase 2 | 02-01 to 02-03 | Planned |
+| NAV-04 | Phase 2 | 02-01 to 02-03 | Planned |
+| CONTENT-02 | Phase 3 | - | Pending |
+| CONTENT-03 | Phase 3 | - | Pending |
+| CONTENT-01 | Phase 4 | - | Pending |
+| CONTENT-05 | Phase 4 | - | Pending |
+| CONTENT-06 | Phase 4 | - | Pending |
+| CONTENT-04 | Phase 5 | - | Pending |
+| API-01 | Phase 7 | - | Pending |
+| API-02 | Phase 7 | - | Pending |
+| API-03 | Phase 7 | - | Pending |
+| API-04 | Phase 7 | - | Pending |
+| CLI-01 | Phase 8 | - | Pending |
+| CLI-02 | Phase 8 | - | Pending |
+| CLI-03 | Phase 8 | - | Pending |
+| CLI-04 | Phase 8 | - | Pending |
+| TEST-01 | Phase 9 | - | Pending |
+| TEST-02 | Phase 9 | - | Pending |
+| TEST-03 | Phase 9 | - | Pending |
+| TEST-04 | Phase 9 | - | Pending |
 
 **Coverage:**
 - v2.0 requirements: 24 total
@@ -118,8 +118,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 - Coverage: 100% ✓
 
 **Phase Distribution:**
-- Phase 1 (Infrastructure): 5 requirements
-- Phase 2 (Navigation): 4 requirements
+- Phase 1 (Infrastructure): 5 requirements — COMPLETE
+- Phase 2 (Navigation): 4 requirements — PLANNED (3 plans, 2 waves)
 - Phase 3 (Links): 2 requirements
 - Phase 4 (Documentation): 3 requirements
 - Phase 5 (Code Quality): 1 requirement
@@ -130,4 +130,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-20*
-*Last updated: 2026-01-20 after v2.0 roadmap creation*
+*Last updated: 2026-01-21 after Phase 2 planning*

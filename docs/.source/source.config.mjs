@@ -4,11 +4,12 @@ import {
   defineConfig,
   defineDocs,
   frontmatterSchema,
-  metaSchema
-} from "fumadocs-mdx/config";
-import jsonSchema from "fumadocs-mdx/plugins/json-schema";
-import lastModified from "fumadocs-mdx/plugins/last-modified";
-import { z } from "zod";
+  metaSchema,
+} from 'fumadocs-mdx/config';
+import jsonSchema from 'fumadocs-mdx/plugins/json-schema';
+import lastModified from 'fumadocs-mdx/plugins/last-modified';
+import { z } from 'zod';
+
 var docs = defineDocs({
   docs: {
     schema: frontmatterSchema.extend({
@@ -17,59 +18,65 @@ var docs = defineDocs({
       /**
        * API routes only
        */
-      method: z.string().optional()
+      method: z.string().optional(),
     }),
     postprocess: {
       includeProcessedMarkdown: true,
-      extractLinkReferences: true
+      extractLinkReferences: true,
     },
     async: true,
     async mdxOptions(environment) {
-      const { rehypeCodeDefaultOptions } = await import("fumadocs-core/mdx-plugins/rehype-code");
-      const { remarkStructureDefaultOptions } = await import("fumadocs-core/mdx-plugins/remark-structure");
-      const { remarkSteps } = await import("fumadocs-core/mdx-plugins/remark-steps");
-      const { remarkFeedbackBlock } = await import("fumadocs-core/mdx-plugins/remark-feedback-block");
-      const { transformerTwoslash } = await import("fumadocs-twoslash");
-      const { createFileSystemTypesCache } = await import("fumadocs-twoslash/cache-fs");
-      const { default: remarkMath } = await import("remark-math");
-      const { remarkTypeScriptToJavaScript } = await import("fumadocs-docgen/remark-ts2js");
-      const { default: rehypeKatex } = await import("rehype-katex");
-      const { remarkAutoTypeTable, createGenerator, createFileSystemGeneratorCache } = await import("fumadocs-typescript");
+      const { rehypeCodeDefaultOptions } = await import('fumadocs-core/mdx-plugins/rehype-code');
+      const { remarkStructureDefaultOptions } = await import(
+        'fumadocs-core/mdx-plugins/remark-structure'
+      );
+      const { remarkSteps } = await import('fumadocs-core/mdx-plugins/remark-steps');
+      const { remarkFeedbackBlock } = await import(
+        'fumadocs-core/mdx-plugins/remark-feedback-block'
+      );
+      const { transformerTwoslash } = await import('fumadocs-twoslash');
+      const { createFileSystemTypesCache } = await import('fumadocs-twoslash/cache-fs');
+      const { default: remarkMath } = await import('remark-math');
+      const { remarkTypeScriptToJavaScript } = await import('fumadocs-docgen/remark-ts2js');
+      const { default: rehypeKatex } = await import('rehype-katex');
+      const { remarkAutoTypeTable, createGenerator, createFileSystemGeneratorCache } = await import(
+        'fumadocs-typescript'
+      );
       const generator = createGenerator({
-        cache: createFileSystemGeneratorCache(".next/fumadocs-typescript")
+        cache: createFileSystemGeneratorCache('.next/fumadocs-typescript'),
       });
       const feedbackOptions = {
         resolve(node) {
-          if (node.type === "mdxJsxFlowElement") return "skip";
-          return node.type === "paragraph" || node.type === "image" || node.type === "list";
-        }
+          if (node.type === 'mdxJsxFlowElement') return 'skip';
+          return node.type === 'paragraph' || node.type === 'image' || node.type === 'list';
+        },
       };
       return applyMdxPreset({
         remarkStructureOptions: {
-          types: [...remarkStructureDefaultOptions.types, "code"]
+          types: [...remarkStructureDefaultOptions.types, 'code'],
         },
         rehypeCodeOptions: {
-          langs: ["ts", "js", "html", "tsx", "mdx"],
-          inline: "tailing-curly-colon",
+          langs: ['ts', 'js', 'html', 'tsx', 'mdx'],
+          inline: 'tailing-curly-colon',
           themes: {
-            light: "catppuccin-latte",
-            dark: "catppuccin-mocha"
+            light: 'catppuccin-latte',
+            dark: 'catppuccin-mocha',
           },
           transformers: [
-            ...rehypeCodeDefaultOptions.transformers ?? [],
+            ...(rehypeCodeDefaultOptions.transformers ?? []),
             transformerTwoslash({
-              typesCache: createFileSystemTypesCache()
+              typesCache: createFileSystemTypesCache(),
             }),
-            transformerEscape()
-          ]
+            transformerEscape(),
+          ],
         },
         remarkCodeTabOptions: {
-          parseMdx: true
+          parseMdx: true,
         },
         remarkNpmOptions: {
           persist: {
-            id: "package-manager"
-          }
+            id: 'package-manager',
+          },
         },
         remarkPlugins: [
           remarkSteps,
@@ -78,29 +85,29 @@ var docs = defineDocs({
           [
             remarkAutoTypeTable,
             {
-              generator
-            }
+              generator,
+            },
           ],
-          remarkTypeScriptToJavaScript
+          remarkTypeScriptToJavaScript,
         ],
-        rehypePlugins: (v) => [rehypeKatex, ...v]
+        rehypePlugins: (v) => [rehypeKatex, ...v],
       })(environment);
-    }
+    },
   },
   meta: {
     schema: metaSchema.extend({
-      description: z.string().optional()
-    })
-  }
+      description: z.string().optional(),
+    }),
+  },
 });
 function transformerEscape() {
   return {
-    name: "@shikijs/transformers:remove-notation-escape",
+    name: '@shikijs/transformers:remove-notation-escape',
     code(hast) {
       function replace(node) {
-        if (node.type === "text") {
-          node.value = node.value.replace("[\\!code", "[!code");
-        } else if ("children" in node) {
+        if (node.type === 'text') {
+          node.value = node.value.replace('[\\!code', '[!code');
+        } else if ('children' in node) {
           for (const child of node.children) {
             replace(child);
           }
@@ -108,18 +115,15 @@ function transformerEscape() {
       }
       replace(hast);
       return hast;
-    }
+    },
   };
 }
 var source_config_default = defineConfig({
   plugins: [
     jsonSchema({
-      insert: true
+      insert: true,
     }),
-    lastModified()
-  ]
+    lastModified(),
+  ],
 });
-export {
-  source_config_default as default,
-  docs
-};
+export { source_config_default as default, docs };

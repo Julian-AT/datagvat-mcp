@@ -2,12 +2,14 @@
   "$schema": "..\\..\\..\\docs\\.source\\json-schema\\docs.meta.json",
   "pages": [
     "getting-started",
-    "guides",
-    "workflows",
-    "tools",
-    "examples",
-    "advanced",
-    "integration",
-    "best-practices"
+    "---[BookOpen]Documentation---",
+    "(guides)",
+    "---[Code]Reference---",
+    "reference",
+    "---[Wrench]Advanced Topics---",
+    "(advanced)",
+    "---[ExternalLink]Resources---",
+    "external:[Official data.gv.at API](https://www.data.gv.at/katalog/api/3/)",
+    "external:[GitHub Repository](https://github.com/datagvat/datagvat-mcp)"
   ]
 }

@@ -31,10 +31,12 @@
         "useFlatMap": "error"
       },
       "suspicious": {
-        "noConsole": "warn",
-        "noDebugger": "error",
-        "noExplicitAny": "warn"
-      }
+        "noExplicitAny": "warn",
+        "useIterableCallbackReturn": "warn"
+      },
+      "a11y": {
+        "noSvgWithoutTitle": "warn"
+      } 
     }
   },
   "javascript": {

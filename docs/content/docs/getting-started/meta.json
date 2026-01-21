@@ -1,14 +1,17 @@
 {
   "$schema": "../.source/json-schema/docs.meta.json",
   "title": "Getting Started",
-  "description": "Quick start guide and installation instructions",
+  "description": "Set up and start using data.gv.at MCP Server",
   "icon": "Rocket",
   "root": true,
+  "defaultOpen": true,
   "pages": [
     "index",
-    "installation",
+    "---[Zap]Quick Start---",
     "quickstart",
+    "installation",
     "first-query",
+    "---[HelpCircle]Support---",
     "quick-reference",
     "troubleshooting"
   ]

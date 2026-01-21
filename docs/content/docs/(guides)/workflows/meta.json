@@ -1,0 +1,19 @@
+{
+  "$schema": "../../.source/json-schema/docs.meta.json",
+  "title": "Workflows",
+  "description": "Complete end-to-end workflows",
+  "icon": "Workflow",
+  "root": true,
+  "pages": [
+    "---[Compass]Exploration---",
+    "discovery",
+    "semantic-exploration",
+    "---[FileCheck]Quality---",
+    "quality-assessment",
+    "---[GitCompare]Comparison---",
+    "comparative-analysis",
+    "publication-research",
+    "---[Download]Export---",
+    "data-export"
+  ]
+}
