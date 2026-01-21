@@ -4,4 +4,6 @@ out
 build
 dist
 **/.bun/**
-~/.bun/**
+~/**
+**/node_modules/**
+**/.bun/**

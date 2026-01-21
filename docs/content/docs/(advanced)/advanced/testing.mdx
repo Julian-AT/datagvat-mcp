@@ -17,7 +17,7 @@ Testing MCP tools is critical because they involve:
 - Async operations (Context, HTTP clients)
 
 data.gv.at MCP Server's testing approach:
-- **Fast feedback:** Unit tests run in <1s, no subprocess overhead
+- **Fast feedback:** Unit tests run in &lt;1s, no subprocess overhead
 - **Isolation:** Mock external dependencies (PiveauClient, APIs)
 - **Determinism:** No network calls, no time-based flakiness
 - **Coverage:** Test happy path + error cases + edge cases
@@ -39,7 +39,7 @@ data.gv.at MCP Server's testing approach:
 **Unit tests (majority):**
 - Test individual tools in isolation
 - Mock PiveauClient responses
-- Fast execution (<1s for entire suite)
+- Fast execution (&lt;1s for entire suite)
 
 **Integration tests (selective):**
 - Test tool registration and discovery
@@ -668,8 +668,8 @@ jobs:
 **CI benefits:**
 - Runs on every PR
 - Tests across Python versions
-- Fails if coverage <80%
-- Fast feedback (<2 minutes)
+- Fails if coverage &lt;80%
+- Fast feedback (&lt;2 minutes)
 
 ## Debugging test failures
 

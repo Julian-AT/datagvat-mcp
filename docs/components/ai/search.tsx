@@ -58,8 +58,9 @@ function Header() {
 }
 
 function SearchAIActions() {
-  const { messages, status, setMessages, regenerate } = useChatContext();
-  const isLoading = status === 'streaming';
+  const chat = useChatContext();
+  const isLoading = chat?.status === 'streaming';
+  const messages = chat?.messages ?? [];
 
   if (messages.length === 0) {
     return null;
@@ -77,7 +78,7 @@ function SearchAIActions() {
               className: 'rounded-full gap-1.5',
             }),
           )}
-          onClick={() => regenerate()}
+          onClick={() => chat?.regenerate?.()}
         >
           <RefreshCw className="size-4" />
           Retry
@@ -92,7 +93,7 @@ function SearchAIActions() {
             className: 'rounded-full',
           }),
         )}
-        onClick={() => setMessages([])}
+        onClick={() => chat?.setMessages?.([])}
       >
         Clear Chat
       </button>
@@ -102,12 +103,12 @@ function SearchAIActions() {
 
 const StorageKeyInput = '__ai_search_input';
 function SearchAIInput(props: ComponentProps<'form'>) {
-  const { status, sendMessage, stop } = useChatContext();
+  const chat = useChatContext();
   const [input, setInput] = useState(() => localStorage.getItem(StorageKeyInput) ?? '');
-  const isLoading = status === 'streaming' || status === 'submitted';
+  const isLoading = chat?.status === 'streaming' || chat?.status === 'submitted';
   const onStart = (e?: SyntheticEvent) => {
     e?.preventDefault();
-    void sendMessage({ text: input });
+    void chat?.sendMessage?.({ text: input });
     setInput('');
   };
 
@@ -126,7 +127,7 @@ function SearchAIInput(props: ComponentProps<'form'>) {
         placeholder={isLoading ? 'AI is answering...' : 'Ask a question'}
         autoFocus
         className="p-3"
-        disabled={status === 'streaming' || status === 'submitted'}
+        disabled={chat?.status === 'streaming' || chat?.status === 'submitted'}
         onChange={(e) => {
           setInput(e.target.value);
         }}
@@ -146,7 +147,7 @@ function SearchAIInput(props: ComponentProps<'form'>) {
               className: 'transition-all rounded-full mt-2 gap-2',
             }),
           )}
-          onClick={stop}
+          onClick={() => chat?.stop?.()}
         >
           <Loader2 className="size-4 animate-spin text-fd-muted-foreground" />
           Abort Answer
@@ -390,8 +391,8 @@ export function AISearchPanel() {
               }}
             >
               <div className="flex flex-col gap-4">
-                {chat.messages
-                  .filter((msg) => msg.role !== 'system')
+                {chat?.messages
+                  ?.filter((msg) => msg.role !== 'system')
                   .map((item) => (
                     <Message key={item.id} message={item} />
                   ))}

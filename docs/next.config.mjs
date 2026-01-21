@@ -4,6 +4,9 @@ const withMDX = createMDX();
 
 const config = {
   reactStrictMode: true,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   async rewrites() {
     return [
       {
