@@ -16,6 +16,11 @@ async function validateLinks() {
     const results = await validateFiles(files, {
       scanned,
       checkRelativePaths: 'as-url',
+      markdown: {
+        Card: ['href'],
+        Callout: ['href'],
+        'Tabs.Tab': ['href'],
+      },
     });
 
     // Print errors and exit with code 1 on failure
