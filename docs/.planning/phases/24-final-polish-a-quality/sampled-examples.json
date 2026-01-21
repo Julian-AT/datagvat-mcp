@@ -1,0 +1,174 @@
+{
+  "totalExamples": 603,
+  "sampledExamples": 20,
+  "strata": {
+    "guides": 5,
+    "workflows": 4,
+    "tutorials": 2,
+    "examples": 4,
+    "advanced": 3,
+    "best-practices": 2
+  },
+  "examples": [
+    {
+      "id": 1,
+      "page": "C:/GitHub/datagvat-mcp//docs/guides/workflow-patterns.mdx",
+      "section": "guides",
+      "language": "python",
+      "code": "dataset = get_dataset(dataset_id)\nlicense = dataset.get('license')\n# Verify license allows research use\n# Common research-friendly: CC-BY, CC0, ODbL",
+      "line": 90
+    },
+    {
+      "id": 2,
+      "page": "C:/GitHub/datagvat-mcp//docs/guides/setup.de.mdx",
+      "section": "guides",
+      "language": "bash",
+      "code": "python --version  # Muss 3.11 oder höher sein",
+      "line": 472
+    },
+    {
+      "id": 3,
+      "page": "C:/GitHub/datagvat-mcp//docs/guides/setup.mdx",
+      "section": "guides",
+      "language": "bash",
+      "code": "python -m app.server",
+      "line": 508
+    },
+    {
+      "id": 4,
+      "page": "C:/GitHub/datagvat-mcp//docs/guides/setup.de.mdx",
+      "section": "guides",
+      "language": "bash",
+      "code": "python -m app.server  # Sollte ohne Fehler starten",
+      "line": 477
+    },
+    {
+      "id": 5,
+      "page": "C:/GitHub/datagvat-mcp//docs/guides/data-preview.mdx",
+      "section": "guides",
+      "language": "python",
+      "code": "data = preview_data(url=csv_url, format=\"csv\", max_rows=10)",
+      "line": 172
+    },
+    {
+      "id": 6,
+      "page": "C:/GitHub/datagvat-mcp//docs/workflows/semantic-exploration.mdx",
+      "section": "workflows",
+      "language": "python",
+      "code": "initial_query = \"What data exists about urban sustainability in Vienna?\"\n\nresults = semantic_search_datasets(\n    natural_query=initial_query,\n    limit=20\n)\n\nprint(f\"Found {results['count']} datasets\")\nprint(f\"Query expanded to themes: {results.get('expansion_info', {}).get('semantic_themes', [])}\")\n\n# Review top results\nfor dataset in results['results'][:5]:\n    print(f\"  - {dataset['title'][:60]}\")",
+      "line": 91
+    },
+    {
+      "id": 7,
+      "page": "C:/GitHub/datagvat-mcp//docs/workflows/discovery.mdx",
+      "section": "workflows",
+      "language": "python",
+      "code": "# Validation summary\nvalidation_passed = all([\n    quality['metrics']['overall_score'] >= 70,\n    csv_url is not None,\n    all(col in actual_columns for col in required_columns)\n])\n\nif validation_passed:\n    print(\"✓ All validations passed\")\n    print(f\"Download URL: {csv_url}\")\n    # Use your preferred download method\n    # (requests, urllib, wget, etc.)\nelse:\n    print(\"✗ Validation failed - review dataset\")\n    print(f\"Quality score: {quality['metrics']['overall_score']}\")\n    print(f\"Schema valid: {not missing}\")",
+      "line": 384
+    },
+    {
+      "id": 8,
+      "page": "C:/GitHub/datagvat-mcp//docs/workflows/discovery.mdx",
+      "section": "workflows",
+      "language": "python",
+      "code": "dataset_id = results['results'][0]['id']\ndataset = get_dataset(dataset_id=dataset_id)",
+      "line": 173
+    },
+    {
+      "id": 9,
+      "page": "C:/GitHub/datagvat-mcp//docs/workflows/publication-research.mdx",
+      "section": "workflows",
+      "language": "python",
+      "code": "research_licenses = [\n    'CC-BY', 'CC-BY-4.0', 'CC-BY-3.0',\n    'CC0', 'CC0-1.0',\n    'ODbL', 'ODC-BY'\n]\n\nresearch_approved = []\n\nfor item in validated:\n    license = item['license']\n\n    if license in research_licenses:\n        research_approved.append(item)\n        print(f\"✓ {item['id']}: {license} - Academic use approved\")\n\n        # Check attribution requirements\n        requires_attribution = 'BY' in license or 'ODbL' in license\n        if requires_attribution:\n            print(f\"  ⚠ Requires attribution in citations\")\n    else:\n        print(f\"✗ {item['id']}: {license} - Verify restrictions\")",
+      "line": 239
+    },
+    {
+      "id": 10,
+      "page": "C:/GitHub/datagvat-mcp//docs/getting-started/troubleshooting.mdx",
+      "section": "tutorials",
+      "language": "bash",
+      "code": "cd /path/to/datagvat-mcp/mcp\npip list | grep -E \"fastmcp|httpx|pydantic\"",
+      "line": 222
+    },
+    {
+      "id": 11,
+      "page": "C:/GitHub/datagvat-mcp//docs/getting-started/installation.mdx",
+      "section": "tutorials",
+      "language": "bash",
+      "code": "killall claude-desktop",
+      "line": 456
+    },
+    {
+      "id": 12,
+      "page": "C:/GitHub/datagvat-mcp//docs/examples/search.de.mdx",
+      "section": "examples",
+      "language": "python",
+      "code": "# Vollständige, gut dokumentierte Datensätze priorisieren\nsearch_datasets(\n  query=\"Gesundheit\",\n  boost_quality=True,\n  limit=10\n)\n\n# Mit und ohne Qualitätsverstärkung vergleichen\nohne_boost = search_datasets(query=\"Gesundheit\", limit=10)\nmit_boost = search_datasets(query=\"Gesundheit\", boost_quality=True, limit=10)",
+      "line": 531
+    },
+    {
+      "id": 13,
+      "page": "C:/GitHub/datagvat-mcp//docs/examples/search.mdx",
+      "section": "examples",
+      "language": "python",
+      "code": "# Most relevant first (default with query)\nsearch_datasets(\n  query=\"population\",\n  sort_by=\"relevance\",\n  limit=10\n)\n\n# Most recently modified first\nsearch_datasets(\n  query=\"\",\n  sort_by=\"modified_desc\",\n  limit=10\n)\n\n# Alphabetical by title\nsearch_datasets(\n  query=\"\",\n  sort_by=\"title_asc\",\n  limit=10\n)",
+      "line": 359
+    },
+    {
+      "id": 14,
+      "page": "C:/GitHub/datagvat-mcp//docs/examples/preview.de.mdx",
+      "section": "examples",
+      "language": "python",
+      "code": "# Format aus .csv-Erweiterung abgeleitet\npreview_data(url=\"https://example.com/daten.csv\")\n\n# Format aus .json-Erweiterung abgeleitet\npreview_data(url=\"https://example.com/daten.json\")",
+      "line": 684
+    },
+    {
+      "id": 15,
+      "page": "C:/GitHub/datagvat-mcp//docs/examples/workflows.mdx",
+      "section": "examples",
+      "language": "python",
+      "code": "limit = 20\noffset = 0\nall_results = []\n\nwhile True:\n  page = search_datasets(\n    query=\"environment\",\n    limit=limit,\n    offset=offset\n  )\n\n  all_results.extend(page['results'])\n\n  # Check if more pages exist\n  if offset + limit >= page['count']:\n    break\n\n  offset += limit\n\nprint(f\"Retrieved {len(all_results)} total datasets\")",
+      "line": 696
+    },
+    {
+      "id": 16,
+      "page": "C:/GitHub/datagvat-mcp//docs/advanced/error-handling.mdx",
+      "section": "advanced",
+      "language": "python",
+      "code": "# From mcp/app/middleware.py\nRetryMiddleware(\n    max_retries=3,\n    base_delay=1.0,\n    max_delay=60.0,\n    backoff_multiplier=2.0,\n    retry_exceptions=(ConnectionError, TimeoutError),\n)",
+      "line": 246
+    },
+    {
+      "id": 17,
+      "page": "C:/GitHub/datagvat-mcp//docs/advanced/fastmcp-internals.mdx",
+      "section": "advanced",
+      "language": "python",
+      "code": "from dataclasses import dataclass\nfrom fastmcp import FastMCP, Context\nfrom contextlib import asynccontextmanager\n\n@dataclass\nclass AppState:\n    \"\"\"Application state available to all tools.\"\"\"\n    settings: Settings\n    piveau_client: PiveauClient\n    # Add any shared resources (DB connections, HTTP clients, etc.)\n\n@asynccontextmanager\nasync def lifespan(mcp: FastMCP):\n    \"\"\"Initialize and cleanup application resources.\"\"\"\n    settings = get_settings()\n    client = PiveauClient(base_url=settings.api_url, timeout=30)\n\n    try:\n        yield AppState(settings=settings, piveau_client=client)\n    finally:\n        await client.close()  # Cleanup on shutdown\n\nmcp = FastMCP(\n    name=\"my-server\",\n    lifespan=lifespan,  # Attach lifespan handler\n)\n\n# Access state in tools\n@mcp.tool()\nasync def search(ctx: Context, query: str) -> dict:\n    # Get app state from Context\n    app_state = ctx.request_context.lifespan_context\n    client = app_state.piveau_client\n\n    # Use shared client for API calls\n    results = await client.search(query)\n    return results",
+      "line": 263
+    },
+    {
+      "id": 18,
+      "page": "C:/GitHub/datagvat-mcp//docs/advanced/architecture.mdx",
+      "section": "advanced",
+      "language": "python",
+      "code": "from fastmcp import FastMCP\n\nmcp = FastMCP(\n    name=\"austria-data\",\n    instructions=\"MCP server for Austrian Open Data\",\n    lifespan=lifespan,\n    middleware=[...]\n)\n\n@mcp.tool()\nasync def search_datasets(query: str) -> dict:\n    \"\"\"Search for datasets\"\"\"\n    ...",
+      "line": 98
+    },
+    {
+      "id": 19,
+      "page": "C:/GitHub/datagvat-mcp//docs/best-practices/rate-limiting.mdx",
+      "section": "best-practices",
+      "language": "python",
+      "code": "import time\nimport random\n\ndef fetch_with_backoff(func, max_retries=5, base_delay=1.0):\n  \"\"\"Execute function with exponential backoff on rate limit.\"\"\"\n\n  for attempt in range(max_retries):\n    try:\n      return func()\n    except ToolError as e:\n      if not is_rate_limit_error(e):\n        raise  # Not rate limit, re-raise\n\n      if attempt == max_retries - 1:\n        raise  # Max retries reached\n\n      # Calculate delay with exponential backoff + jitter\n      delay = base_delay * (2 ** attempt)\n      jitter = random.uniform(0, 0.1 * delay)\n      total_delay = min(delay + jitter, 60.0)  # Max 60s\n\n      print(f\"Rate limited, waiting {total_delay:.1f}s (attempt {attempt + 1}/{max_retries})\")\n      time.sleep(total_delay)\n\n  raise RuntimeError(\"Max retries exceeded\")\n\n# Usage\ndef search_operation():\n  return search_datasets(query=\"health\", limit=100)\n\nresults = fetch_with_backoff(search_operation, max_retries=5)",
+      "line": 339
+    },
+    {
+      "id": 20,
+      "page": "C:/GitHub/datagvat-mcp//docs/best-practices/caching-strategies.mdx",
+      "section": "best-practices",
+      "language": "python",
+      "code": "import asyncio\nfrom functools import wraps\n\ndef async_cached(cache_instance, key_func=None):\n  \"\"\"Decorator for async functions.\"\"\"\n\n  def decorator(func):\n    @wraps(func)\n    async def wrapper(*args, **kwargs):\n      if key_func:\n        cache_key = key_func(*args, **kwargs)\n      else:\n        cache_key = f\"{func.__name__}:{args}:{sorted(kwargs.items())}\"\n\n      cached_result = cache_instance.get(cache_key)\n      if cached_result is not None:\n        return cached_result\n\n      result = await func(*args, **kwargs)\n      cache_instance.set(cache_key, result)\n\n      return result\n\n    return wrapper\n  return decorator\n\n# Usage with async tools\n@async_cached(metadata_cache)\nasync def get_dataset_async(dataset_id):\n  \"\"\"Async get with caching.\"\"\"\n  return await get_dataset(dataset_id=dataset_id)",
+      "line": 409
+    }
+  ]
+}

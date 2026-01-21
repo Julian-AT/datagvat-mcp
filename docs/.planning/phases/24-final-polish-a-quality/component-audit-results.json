@@ -1,0 +1,87 @@
+{
+  "tabs": {
+    "total": 98,
+    "withPersist": 86,
+    "withGroupId": 86,
+    "issues": [
+      {
+        "file": "C:\\GitHub\\datagvat-mcp\\docs\\content\\docs\\getting-started\\installation.mdx",
+        "line": 22,
+        "issue": "Missing persist prop"
+      },
+      {
+        "file": "C:\\GitHub\\datagvat-mcp\\docs\\content\\docs\\getting-started\\installation.mdx",
+        "line": 30,
+        "issue": "Missing persist prop"
+      },
+      {
+        "file": "C:\\GitHub\\datagvat-mcp\\docs\\content\\docs\\getting-started\\installation.mdx",
+        "line": 134,
+        "issue": "Missing persist prop"
+      },
+      {
+        "file": "C:\\GitHub\\datagvat-mcp\\docs\\content\\docs\\getting-started\\installation.mdx",
+        "line": 141,
+        "issue": "Missing persist prop"
+      },
+      {
+        "file": "C:\\GitHub\\datagvat-mcp\\docs\\content\\docs\\getting-started\\installation.mdx",
+        "line": 152,
+        "issue": "Missing persist prop"
+      },
+      {
+        "file": "C:\\GitHub\\datagvat-mcp\\docs\\content\\docs\\getting-started\\installation.mdx",
+        "line": 168,
+        "issue": "Missing persist prop"
+      },
+      {
+        "file": "C:\\GitHub\\datagvat-mcp\\docs\\content\\docs\\getting-started\\installation.mdx",
+        "line": 231,
+        "issue": "Missing persist prop"
+      },
+      {
+        "file": "C:\\GitHub\\datagvat-mcp\\docs\\content\\docs\\getting-started\\installation.mdx",
+        "line": 258,
+        "issue": "Missing persist prop"
+      },
+      {
+        "file": "C:\\GitHub\\datagvat-mcp\\docs\\content\\docs\\getting-started\\installation.mdx",
+        "line": 285,
+        "issue": "Missing persist prop"
+      },
+      {
+        "file": "C:\\GitHub\\datagvat-mcp\\docs\\content\\docs\\getting-started\\installation.mdx",
+        "line": 448,
+        "issue": "Missing persist prop"
+      },
+      {
+        "file": "C:\\GitHub\\datagvat-mcp\\docs\\content\\docs\\getting-started\\installation.mdx",
+        "line": 454,
+        "issue": "Missing persist prop"
+      },
+      {
+        "file": "C:\\GitHub\\datagvat-mcp\\docs\\content\\docs\\getting-started\\installation.mdx",
+        "line": 463,
+        "issue": "Missing persist prop"
+      }
+    ]
+  },
+  "typeTable": {
+    "total": 8,
+    "inApiDocs": 0,
+    "issues": []
+  },
+  "steps": {
+    "total": 20,
+    "inWorkflows": 0,
+    "issues": []
+  },
+  "typeInfo": {
+    "apiDocsWithTypes": 0,
+    "examplesWithTypes": 9
+  },
+  "errorHandling": {
+    "guidesWithExamples": 0,
+    "patterns": []
+  }
+}

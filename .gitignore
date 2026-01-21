@@ -37,9 +37,6 @@ package-lock.json
 .env.test.local
 .env.production.local
 
-# Code generation and planning directories
-.planning/
-.planning
 .cursor/
 .cursorrules
 *.cursorrules
