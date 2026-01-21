@@ -1,12 +1,12 @@
 ---
-status: complete
+status: diagnosed
 phase: 01-infrastructure-modernization
 source:
   - 01-01-SUMMARY.md
   - 01-02-SUMMARY.md
   - 01-03-SUMMARY.md
 started: 2026-01-21T03:00:00Z
-updated: 2026-01-21T03:10:00Z
+updated: 2026-01-21T03:15:00Z
 ---
 
 ## Current Test
@@ -68,5 +68,10 @@ skipped: 0
   reason: "User reported: Missing component validation for Card, Callout, Tabs in markdown config"
   severity: major
   test: 4
-  artifacts: []
-  missing: []
+  root_cause: "validate-links.ts uses next-validate-link with default config, only validates standard HTML/markdown links, missing markdown option to specify custom MDX component attributes"
+  artifacts:
+    - path: "docs/scripts/validate-links.ts"
+      issue: "Missing markdown config option in validateFiles() call"
+  missing:
+    - "Add markdown config to validateFiles() with component attribute mappings (Card: ['href'], Callout: ['href'], Tabs.Tab: ['href'])"
+  debug_session: "Diagnosed by gsd-debugger (agent ae3926a)"
