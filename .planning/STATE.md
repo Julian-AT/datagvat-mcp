@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-01-20)
 
 Milestone: v2.0 Professional Documentation System
 Phase: 4 of 9 (Documentation Style Guide Compliance)
-Plan: 04-04 of 7 (complete)
-Status: In progress - Batch 4 (Tool Reference) complete
-Last activity: 2026-01-21 - Completed 04-04-PLAN.md (Tool Reference rewrite)
+Plan: 04-02 of 7 (complete)
+Status: In progress - Batch 2 (Workflows) complete
+Last activity: 2026-01-21 - Completed 04-02-PLAN.md (Workflows rewrite)
 
-Progress: ████████░░░░ 67% (8/12 plans complete across all phases)
+Progress: ████████░░░░ 75% (9/12 plans complete across all phases)
 
 ## Performance Metrics
 
@@ -66,16 +66,16 @@ Progress: ████████░░░░ 67% (8/12 plans complete across a
 - Trend: v1.2 milestone complete - comprehensive documentation rebuild achieved
 
 **v2.0 Milestone:**
-- Total plans completed: 8
-- Average duration: 7.9 min
-- Total execution time: 63 min
+- Total plans completed: 9
+- Average duration: 8.2 min
+- Total execution time: 75 min
 - Timeline: 2 days (2026-01-20 → 2026-01-21)
 
 **Recent Trend:**
-- Last 5 plans: 01-04 (1 min), 01-05 (23 min), 03-01 (8 min), 04-01 (8 min), 04-04 (7 min)
+- Last 5 plans: 01-05 (23 min), 03-01 (8 min), 04-01 (8 min), 04-02 (12 min), 04-04 (7 min)
 - Phase 1 (Infrastructure Modernization): 5/5 plans complete - PHASE COMPLETE
 - Phase 3 (Link Validation & Fixes): 1/1 plans complete - PHASE COMPLETE
-- Phase 4 (Style Guide Compliance): 2/7 plans complete - IN PROGRESS
+- Phase 4 (Style Guide Compliance): 3/7 plans complete - IN PROGRESS
 
 ## Accumulated Context
 
@@ -184,7 +184,6 @@ Recent decisions affecting current work:
 - Grep-based discovery ensures all instances of error pattern found (16-06, 2026-01-18)
 - Replace_all strategy for efficient bulk corrections (16-06, 2026-01-18)
 - Comprehensive verification across all documentation prevents future gaps (16-06, 2026-01-18)
-- Import generated API workspace from .source/api/server instead of virtual module path (17-01, 2026-01-18)
 - API workspace includes lastModified plugin for consistency with root workspace (17-01, 2026-01-18)
 - API content structured at api/api/ to preserve /api/ URL paths while maintaining workspace isolation (17-01, 2026-01-18)
 - Both workspaces use shared mdxOptions (rehype plugins, transformers) from root config (17-01, 2026-01-18)
@@ -301,6 +300,10 @@ Recent decisions affecting current work:
 - Active voice and second person (You can search vs Datasets can be searched) for engaging professional tone (04-01, 2026-01-21)
 - Present tense preferred over future tense (returns vs will return) for technical accuracy (04-01, 2026-01-21)
 - Natural contractions allowed (don't, can't) for conversational professional tone in documentation (04-01, 2026-01-21)
+- "When to use this workflow" replaces "Use This Workflow When" (sentence case, active voice) (04-02, 2026-01-21)
+- "What you'll accomplish" / "What you accomplished" bookending creates clear expectations (04-02, 2026-01-21)
+- Real dataset IDs (bev-stat-wien-2024, gesundheit-indikatoren-wien-2024) replace generic (dataset-123) (04-02, 2026-01-21)
+- Step headers as "Step 1: Action verb" not "Step 1: Title Case Noun" (04-02, 2026-01-21)
 
 ### Roadmap Evolution
 
