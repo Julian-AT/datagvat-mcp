@@ -92,8 +92,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NAV-02 | Phase 2 | 02-01 to 02-03 | Planned |
 | NAV-03 | Phase 2 | 02-01 to 02-03 | Planned |
 | NAV-04 | Phase 2 | 02-01 to 02-03 | Planned |
-| CONTENT-02 | Phase 3 | 03-01 | Planned |
-| CONTENT-03 | Phase 3 | 03-01 | Planned |
+| CONTENT-02 | Phase 3 | 03-01 | Complete |
+| CONTENT-03 | Phase 3 | 03-01 | Complete |
 | CONTENT-01 | Phase 4 | - | Pending |
 | CONTENT-05 | Phase 4 | - | Pending |
 | CONTENT-06 | Phase 4 | - | Pending |
