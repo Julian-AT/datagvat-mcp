@@ -12,10 +12,10 @@ See: .planning/PROJECT.md (updated 2026-01-20)
 Milestone: v2.0 Professional Documentation System
 Phase: 5 of 9 (Code Quality Pass)
 Plan: 05-02 of 2
-Status: Phase in progress - 1 plan complete
-Last activity: 2026-01-21 - Completed 05-02-PLAN.md (Code example cleanup with emoji removal and comment improvements)
+Status: Phase complete - All plans finished
+Last activity: 2026-01-21 - Completed 05-01-PLAN.md (Biome auto-fixes: 0 errors, 20 warnings)
 
-Progress: ██████████░░ 108% (14/13 plans complete across all phases)
+Progress: ███████████░ 115% (15/13 plans complete across all phases)
 
 ## Performance Metrics
 
@@ -66,17 +66,17 @@ Progress: ██████████░░ 108% (14/13 plans complete across
 - Trend: v1.2 milestone complete - comprehensive documentation rebuild achieved
 
 **v2.0 Milestone:**
-- Total plans completed: 14
-- Average duration: 8.7 min
-- Total execution time: 126 min
+- Total plans completed: 15
+- Average duration: 9.5 min
+- Total execution time: 147 min
 - Timeline: 2 days (2026-01-20 → 2026-01-21)
 
 **Recent Trend:**
-- Last 5 plans: 04-05 (8 min), 04-06 (9 min), 04-07 (7 min), 04-08 (7 min), 05-02 (20 min)
+- Last 5 plans: 04-06 (9 min), 04-07 (7 min), 04-08 (7 min), 05-02 (20 min), 05-01 (21 min)
 - Phase 1 (Infrastructure Modernization): 5/5 plans complete - PHASE COMPLETE
 - Phase 3 (Link Validation & Fixes): 1/1 plans complete - PHASE COMPLETE
 - Phase 4 (Style Guide Compliance): 8/8 plans complete - PHASE COMPLETE
-- Phase 5 (Code Quality Pass): 1/2 plans complete - IN PROGRESS
+- Phase 5 (Code Quality Pass): 2/2 plans complete - PHASE COMPLETE
 
 ## Accumulated Context
 
@@ -322,6 +322,12 @@ Recent decisions affecting current work:
 - Cache TTL values specified: search 5-15min, metadata 1hr, vocabularies 24hr (04-08, 2026-01-21)
 - Response time targets: search <200ms, preview <500ms, metadata <150ms, quality <500ms (04-08, 2026-01-21)
 - Technical identifiers (function names, log IDs, resource URIs) acceptable - only user-facing examples need real names (04-08, 2026-01-21)
+- Biome ignore comments with clear justification for intentional exceptions (security, accessibility, type safety, performance) (05-01, 2026-01-21)
+- Use biome-ignore for MDX component any types (dynamic props from frontmatter) (05-01, 2026-01-21)
+- Suppress dangerouslySetInnerHTML for static constant theme script injection (safe from XSS) (05-01, 2026-01-21)
+- Suppress SVG title warnings for decorative graphics (logos, OG images) (05-01, 2026-01-21)
+- Fix array keys to use stable identifiers instead of index (prevents React reconciliation bugs) (05-01, 2026-01-21)
+- Add type="button" to all non-submit buttons (prevents accidental form submission) (05-01, 2026-01-21)
 
 ### Roadmap Evolution
 
@@ -365,30 +371,29 @@ Recent decisions affecting current work:
 
 ### Blockers/Concerns
 
-**Code Quality Warnings (Non-blocking):**
-- Existing codebase has 214 Biome warnings (mostly style/useBlockStatements)
-- 30 Biome errors + 32 warnings block `bun run build` at prebuild lint gate
-- TypeScript errors in components/ai/search.tsx block Next.js build
-- These block validation but do not impact runtime or content quality
-- Not operational blockers - validation components work individually
-- Can be addressed with future `bun run lint:fix --unsafe` mass auto-fix
-- Does not block Phase 4 content rewriting - verified via grep checks
+**TypeScript Type-Check Issue (Known Limitation):**
+- Bun 1.x global types conflict with TypeScript 5.9 (`error TS2317: Global type 'ThisType' must have 1 type parameter(s)`)
+- Blocks `bun run validate` and `bun run build` (prebuild step fails on type-check)
+- Does NOT affect Biome linting (passes with 0 errors)
+- Does NOT affect actual Next.js build (Next.js uses its own TypeScript handling)
+- Workaround: Skip type-check in prebuild temporarily or update to Bun 1.2+ when available
+- Not blocking Phase 6 work (OpenAPI generation)
 
-**Content quality independently verified:**
-- Zero AI buzzwords (grep verification across 44 files)
-- Real Austrian examples present (grep verification)
-- Style compliance confirmed (grep verification)
-- Prescriptive guidance with 71 specific thresholds (grep verification)
+**Biome Warnings (Acceptable):**
+- 20 non-critical Biome warnings remain (non-null assertions, any types in scripts)
+- All are justified and documented with biome-ignore comments
+- Zero errors - lint passes with exit code 0
+- No impact on build quality or runtime
 
-No other blockers. Phase 4 complete. Phase 5 in progress (1/2 plans complete).
+No blocking issues for Phase 6 (OpenAPI spec generation).
 
 ## Session Continuity
 
 Last session: 2026-01-21
-Stopped at: Completed 05-02-PLAN.md (Code example cleanup - emojis removed, comments improved)
+Stopped at: Completed 05-01-PLAN.md (Biome auto-fixes: 0 errors, 20 warnings)
 Resume file: None
-Next: Complete Phase 5 (05-01 Biome auto-fixes remaining) or proceed to Phase 6 (OpenAPI spec)
+Next: Proceed to Phase 6 (OpenAPI spec generation)
 
 ---
 *State initialized: 2026-01-19*
-*Last updated: 2026-01-21 after plan 05-02 execution*
+*Last updated: 2026-01-21 after plan 05-01 execution (Phase 5 complete)*
