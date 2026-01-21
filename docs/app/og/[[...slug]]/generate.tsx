@@ -34,6 +34,7 @@ export function generate({ title, description }: GenerateProps) {
   const siteName = 'data.gv.at MCP Server';
   const primaryTextColor = 'rgb(240,240,240)';
   const logo = (
+    // biome-ignore lint/a11y/noSvgWithoutTitle: Decorative logo in OG image
     <svg width="60" height="60" viewBox="0 0 180 180" filter="url(#logo-shadow)">
       <circle cx="90" cy="90" r="86" fill="url(#logo-iconGradient)" />
       <defs>

@@ -32,6 +32,7 @@ function useChatContext() {
 }
 
 function Header() {
+  // biome-ignore lint/style/noNonNullAssertion: Context guaranteed to exist within SearchProvider
   const { setOpen } = use(Context)!;
 
   return (
@@ -40,6 +41,7 @@ function Header() {
         <p className="text-sm font-medium mb-2">Ask AI</p>
       </div>
       <button
+        type="button"
         aria-label="Close"
         tabIndex={-1}
         className={cn(
@@ -243,6 +245,7 @@ const roleName: Record<string, string> = {
 
 function Message({ message, ...props }: { message: UIMessage } & ComponentProps<'div'>) {
   let markdown = '';
+  // biome-ignore lint/suspicious/noExplicitAny: Tool result schema not statically typed
   let links: z.infer<any>['links'] = [];
 
   for (const part of message.parts ?? []) {
@@ -252,6 +255,7 @@ function Message({ message, ...props }: { message: UIMessage } & ComponentProps<
     }
 
     if (part.type === 'tool-provideLinks' && part.input) {
+      // biome-ignore lint/suspicious/noExplicitAny: Tool input schema not statically typed
       links = (part.input as z.infer<any>).links;
     }
   }
@@ -271,9 +275,10 @@ function Message({ message, ...props }: { message: UIMessage } & ComponentProps<
       </div>
       {links && links.length > 0 && (
         <div className="mt-2 flex flex-row flex-wrap items-center gap-1">
+          {/* biome-ignore lint/suspicious/noExplicitAny: Link items from tool result */}
           {links.map((item: any, index: number) => (
             <Link
-              key={index}
+              key={item.url || index}
               href={item.url}
               className="block text-xs rounded-lg border p-3 hover:bg-fd-accent hover:text-fd-accent-foreground"
             >
@@ -302,10 +307,12 @@ export function AISearch({ children }: { children: ReactNode }) {
 }
 
 export function AISearchTrigger() {
+  // biome-ignore lint/style/noNonNullAssertion: Context guaranteed to exist within SearchProvider
   const { open, setOpen } = use(Context)!;
 
   return (
     <button
+      type="button"
       className={cn(
         buttonVariants({
           variant: 'secondary',
@@ -364,6 +371,8 @@ export function AISearchPanel() {
         }`}
       </style>
       <Presence present={open}>
+        {/* biome-ignore lint/a11y/useKeyWithClickEvents: Backdrop overlay for modal dismissal */}
+        {/* biome-ignore lint/a11y/noStaticElementInteractions: Backdrop overlay for modal dismissal */}
         <div
           data-state={open ? 'open' : 'closed'}
           className="fixed inset-0 z-30 backdrop-blur-xs bg-fd-overlay data-[state=open]:animate-fd-fade-in data-[state=closed]:animate-fd-fade-out lg:hidden"

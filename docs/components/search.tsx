@@ -150,7 +150,8 @@ export default function CustomSearchDialog(props: SharedProps) {
 
                 return (
                   <button
-                    key={i}
+                    type="button"
+                    key={item.value}
                     onClick={() => {
                       setTag(item.value);
                       setOpen(false);

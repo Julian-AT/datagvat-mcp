@@ -55,6 +55,7 @@ function MermaidContent({ chart }: { chart: string }) {
           bindFunctions?.(container);
         }
       }}
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: SVG content from mermaid rendering library
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );

@@ -67,6 +67,7 @@ async function getFeedbackDestination() {
   }
 `);
 
+  // biome-ignore lint/suspicious/noAssignInExpressions: Cache assignment pattern
   return (cachedDestination = repository);
 }
 

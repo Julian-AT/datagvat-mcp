@@ -21,6 +21,7 @@ export function useMode(): string | undefined {
 export function FumadocsIcon(props: React.SVGProps<SVGSVGElement>) {
   const id = useId();
   return (
+    // biome-ignore lint/a11y/noSvgWithoutTitle: Decorative logo icon
     <svg width="80" height="80" viewBox="0 0 180 180" {...props}>
       <circle
         cx="90"

@@ -25,6 +25,7 @@ import { getMDXComponents } from '@/mdx-components';
 
 function PreviewRenderer({ preview }: { preview: string }): ReactNode {
   if (preview && preview in Preview) {
+    // biome-ignore lint/performance/noDynamicNamespaceImportAccess: Preview components loaded dynamically from frontmatter
     const Comp = Preview[preview as keyof typeof Preview];
     return <Comp />;
   }
@@ -82,6 +83,7 @@ export default async function Page({
         <Mdx
           components={getMDXComponents({
             ...Twoslash,
+            // biome-ignore lint/suspicious/noExplicitAny: MDX component props are dynamic
             a: ({ href, ...props }: { href?: string; [key: string]: any }) => {
               const found = source.getPageByHref(href ?? '', {
                 dir: PathUtils.dirname(page.path),
@@ -112,6 +114,7 @@ export default async function Page({
             }: {
               children: React.ReactNode;
               id: string;
+              // biome-ignore lint/suspicious/noExplicitAny: MDX component props are dynamic
               [key: string]: any;
             }) => (
               <FeedbackBlock {...props} id={props.id} onSendAction={onBlockFeedbackAction}>
@@ -143,11 +146,11 @@ function DocsCategory({ url, lang }: { url: string; lang: string }) {
     <Cards>
       {findSiblings(source.getPageTree(lang), url).map((item) => {
         if (item.type === 'separator') {
-          return;
+          return null;
         }
         if (item.type === 'folder') {
           if (!item.index) {
-            return;
+            return null;
           }
           item = item.index;
         }

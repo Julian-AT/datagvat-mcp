@@ -33,6 +33,7 @@ export function LanguageToggle({ lang }: { lang: string }) {
   return (
     <div className="relative">
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           'flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium',
@@ -50,6 +51,8 @@ export function LanguageToggle({ lang }: { lang: string }) {
 
       {isOpen && (
         <>
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: Backdrop overlay for modal dismissal */}
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: Backdrop overlay for modal dismissal */}
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
           <div className="absolute right-0 top-full mt-2 z-20 min-w-[150px] rounded-md border border-fd-border bg-fd-popover p-1 shadow-lg">
             {i18n.languages.map((language: string) => (

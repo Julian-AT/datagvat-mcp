@@ -62,6 +62,7 @@ async function extractCodeBlocks(filePath: string, content: string): Promise<Cod
   const processor = remark().use(remarkMdx);
   const tree = processor.parse(content);
 
+  // biome-ignore lint/suspicious/noExplicitAny: AST node type from remark-mdx
   visit(tree, 'code', (node: any) => {
     const lang = node.lang || null;
     const valid = lang ? VALID_LANGUAGES.includes(lang.toLowerCase()) : false;
