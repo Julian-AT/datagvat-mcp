@@ -3,11 +3,11 @@ title: System Architecture
 description: Deep dive into data.gv.at MCP Server server architecture
 ---
 
-# System Architecture
+# System architecture
 
 Understanding data.gv.at MCP Server's architecture helps you extend, debug, and optimize the server.
 
-## High-Level Overview
+## High-level overview
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -75,9 +75,9 @@ Understanding data.gv.at MCP Server's architecture helps you extend, debug, and 
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## Core Components
+## Core components
 
-### 1. FastMCP Framework
+### FastMCP framework
 
 **Role:** MCP protocol implementation
 
@@ -88,19 +88,19 @@ Understanding data.gv.at MCP Server's architecture helps you extend, debug, and 
 - Manage server lifecycle (startup/shutdown)
 - Type validation with Pydantic models
 
-**Key Features:**
-- Decoratorsbased tool registration (`@mcp.tool()`)
+**Key features:**
+- Decorator-based tool registration (`@mcp.tool()`)
 - Automatic JSON Schema generation
 - Built-in error handling
 - Context management for dependencies
 
-**Example:**
+**Example from `mcp/app/server.py`:**
 ```python
 from fastmcp import FastMCP
 
 mcp = FastMCP(
     name="austria-data",
-    instructions="MCP server for Austrian Open Data",
+    instructions="Access Austrian Open Government Data from data.gv.at via the Piveau Hub API.",
     lifespan=lifespan,
     middleware=[...]
 )
@@ -111,7 +111,7 @@ async def search_datasets(query: str) -> dict:
     ...
 ```
 
-### 2. Middleware Stack
+### Middleware stack
 
 Middleware processes requests in order (inbound) and responses in reverse (outbound).
 
@@ -125,7 +125,7 @@ Middleware processes requests in order (inbound) and responses in reverse (outbo
 - Performance timing
 - Parameter sanitization (removes sensitive data)
 
-**Log Format:**
+**Log format:**
 ```json
 {
   "timestamp": "2024-01-18T10:30:45.123Z",
@@ -141,18 +141,42 @@ Middleware processes requests in order (inbound) and responses in reverse (outbo
 
 **Purpose:** API key validation for management tools
 
-**Protected Tools:**
+**Protected tools:**
 - `create_dataset_draft`
 - `update_dataset_draft`
 - `delete_dataset_draft`
 - `publish_dataset`
 
-**Auth Flow:**
+**Auth flow:**
 1. Check if tool requires auth
 2. Extract API key from environment
 3. Validate key with Piveau API
 4. Cache validation result (5 min TTL)
 5. Allow/deny request
+
+**Example from `mcp/app/middleware.py`:**
+```python
+class AuthMiddleware(Middleware):
+    WRITE_TOOLS = frozenset({
+        "create_dataset_draft",
+        "update_dataset_draft",
+        "delete_dataset_draft",
+        "publish_dataset",
+        "hide_dataset",
+    })
+
+    async def on_call_tool(self, context: MiddlewareContext, call_next: Any) -> Any:
+        tool_name = self._get_tool_name(context)
+
+        if tool_name in self.WRITE_TOOLS:
+            if not self._has_api_key(context):
+                raise ToolError(
+                    f"API key required for '{tool_name}'. "
+                    "Set AUSTRIA_MCP_PIVEAU_API_KEY environment variable."
+                )
+
+        return await call_next(context)
+```
 
 #### RateLimitingMiddleware
 
@@ -179,13 +203,13 @@ Middleware processes requests in order (inbound) and responses in reverse (outbo
 
 **Purpose:** Consistent error formatting
 
-**Error Types:**
+**Error types:**
 - `ToolError` - Tool execution failures
 - `ValidationError` - Invalid parameters
 - `NetworkError` - API communication failures
 - `AuthError` - Authentication failures
 
-**Error Response:**
+**Error response:**
 ```json
 {
   "error": "ToolError",
@@ -201,7 +225,7 @@ Middleware processes requests in order (inbound) and responses in reverse (outbo
 
 **Strategy:** Exponential backoff with jitter
 
-**Retry Logic:**
+**Retry logic:**
 - Max retries: 3
 - Initial delay: 1 second
 - Backoff factor: 2.0
@@ -213,19 +237,40 @@ Middleware processes requests in order (inbound) and responses in reverse (outbo
 
 **Purpose:** Compliance and security auditing
 
-**Logged Events:**
+**Logged events:**
 - All tool invocations
 - Parameter values (sanitized)
 - User identification (when available)
 - Timestamps and outcomes
 
-**Use Cases:**
+**Example from `mcp/app/middleware.py`:**
+```python
+class AuditMiddleware(Middleware):
+    async def on_call_tool(self, context: MiddlewareContext, call_next: Any) -> Any:
+        tool_name = self._get_tool_name(context)
+        request_id = self._get_request_id(context)
+        start = time.perf_counter()
+
+        logger.info(f"[{request_id}] {tool_name} started")
+
+        try:
+            result = await call_next(context)
+            elapsed = (time.perf_counter() - start) * 1000
+            logger.info(f"[{request_id}] {tool_name} completed in {elapsed:.2f}ms")
+            return result
+        except Exception as e:
+            elapsed = (time.perf_counter() - start) * 1000
+            logger.error(f"[{request_id}] {tool_name} failed after {elapsed:.2f}ms: {e}")
+            raise
+```
+
+**Use cases:**
 - Security investigations
 - Usage analytics
 - Compliance reporting
 - Debugging
 
-### 3. Tool Layer
+### Tool layer
 
 Tools are organized by functional category in `app/tools/`:
 
@@ -239,7 +284,7 @@ app/tools/
 └── vocabularies.py   # EU themes, formats, autocomplete
 ```
 
-**Tool Registration:**
+**Tool registration:**
 ```python
 @mcp.tool()
 async def search_datasets(
@@ -260,14 +305,14 @@ async def search_datasets(
     Returns:
         Search results with facets
     """
-    state = ctx.state
+    state = ctx.request_context.lifespan_context
     client = state.piveau_client
 
     results = await client.search(query, themes, limit)
     return results
 ```
 
-### 4. Service Layer
+### Service layer
 
 #### PiveauClient
 
@@ -339,7 +384,7 @@ expansion = await expander.expand(query)
 
 **Purpose:** DQV-compliant quality scoring
 
-**Scoring Algorithm:**
+**Scoring algorithm:**
 ```python
 def calculate_quality_score(dataset: dict) -> int:
     score = 0
@@ -378,9 +423,9 @@ def calculate_quality_score(dataset: dict) -> int:
     return min(score, 100)
 ```
 
-## Data Flow Examples
+## Data flow examples
 
-### Discovery Flow (Search)
+### Discovery flow (search)
 
 ```
 1. User → Claude Desktop
@@ -425,34 +470,34 @@ def calculate_quality_score(dataset: dict) -> int:
      ..."
 ```
 
-## Lifecycle Management
+## Lifecycle management
 
 ### Startup
 
+**Example from `mcp/app/server.py`:**
 ```python
 @asynccontextmanager
-async def lifespan(mcp: FastMCP):
-    # Initialize dependencies
+async def lifespan(mcp: FastMCP) -> AsyncGenerator[AppState, None]:
     settings = get_settings()
+    logging.basicConfig(
+        level=getattr(logging, settings.log_level.upper(), logging.INFO),
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    )
+    logger = logging.getLogger(__name__)
+    logger.info("Starting Austria MCP Server")
+
     client = PiveauClient(
         base_url=settings.piveau_api_base,
-        timeout=settings.request_timeout
-    )
-    semantic_expander = SemanticQueryExpander()
-
-    # Yield application state
-    state = AppState(
-        settings=settings,
-        piveau_client=client,
-        semantic_expander=semantic_expander
+        api_key=settings.api_key_value,
+        timeout=settings.request_timeout,
+        user_agent=settings.user_agent,
     )
 
     try:
-        yield state
+        yield AppState(settings=settings, piveau_client=client)
     finally:
-        # Cleanup
         await client.close()
-        await semantic_expander.close()
+        logger.info("Austria MCP Server stopped")
 ```
 
 ### Shutdown
@@ -466,7 +511,7 @@ async def lifespan(mcp: FastMCP):
 
 ## Configuration
 
-### Settings Management
+### Settings management
 
 ```python
 class Settings(BaseSettings):
@@ -481,7 +526,7 @@ class Settings(BaseSettings):
         env_file = ".env"
 ```
 
-### Environment Variables
+### Environment variables
 
 All settings can be configured via environment:
 
@@ -491,9 +536,9 @@ AUSTRIA_MCP_REQUEST_TIMEOUT=60
 AUSTRIA_MCP_LOG_LEVEL=DEBUG
 ```
 
-## Performance Characteristics
+## Performance characteristics
 
-### Response Times
+### Response times
 
 - **Search:** 200-500ms (cached vocabularies)
 - **Get dataset:** 100-200ms
@@ -512,21 +557,21 @@ AUSTRIA_MCP_LOG_LEVEL=DEBUG
 - **Auth tokens:** 5 minutes TTL
 - **No caching:** Dataset content (always fresh)
 
-## Extension Points
+## Extension points
 
-### Adding New Tools
+### Adding new tools
 
 ```python
 # app/tools/custom.py
 @mcp.tool()
 async def my_custom_tool(ctx: Context, param: str) -> dict:
     """My custom tool"""
-    state = ctx.state
+    state = ctx.request_context.lifespan_context
     # Use state.piveau_client, etc.
     return {"result": "..."}
 ```
 
-### Adding New Middleware
+### Adding new middleware
 
 ```python
 # app/middleware.py
@@ -543,7 +588,7 @@ class CustomMiddleware:
 
         return result
 
-# Add to stack
+# Add to stack in server.py
 mcp = FastMCP(
     middleware=[
         CustomMiddleware(),
@@ -552,7 +597,7 @@ mcp = FastMCP(
 )
 ```
 
-### Custom API Clients
+### Custom API clients
 
 ```python
 class CustomAPIClient:
@@ -581,7 +626,7 @@ async def lifespan(mcp: FastMCP):
         await custom_client.close()
 ```
 
-## Next Steps
+## Next steps
 
 - **[Middleware Deep Dive](/advanced/middleware)** - Detailed middleware guide
 - **[Semantic Search Internals](/advanced/semantic-search)** - How query expansion works

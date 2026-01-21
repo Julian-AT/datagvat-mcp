@@ -1,12 +1,12 @@
 ---
 title: Error Handling
-description: Production-ready error handling patterns for robust MCP servers
+description: Production-ready error handling patterns for MCP servers
 icon: AlertTriangle
 ---
 
-# Error Handling
+# Error handling
 
-Learn how to build robust MCP servers with comprehensive error handling, graceful failure modes, and user-friendly error messages.
+Learn how to build production-ready MCP servers with proper error handling, graceful failure modes, and user-friendly error messages.
 
 ## Introduction
 
@@ -35,11 +35,11 @@ data.gv.at MCP Server's error handling philosophy:
 - **Contextual**: Include relevant details (IDs, status codes, constraints)
 - **Friendly**: Avoid stack traces and technical jargon in user-facing messages
 
-## Error Hierarchy
+## Error hierarchy
 
 data.gv.at MCP Server uses a layered error hierarchy for different failure scenarios:
 
-### ToolError (User-Facing)
+### ToolError (user-facing)
 
 `ToolError` is the primary error type for all tool-level errors. FastMCP displays these directly to the user (Claude).
 
@@ -63,7 +63,7 @@ raise ToolError(
 raise Exception("Not found")
 ```
 
-### PiveauApiError (Internal)
+### PiveauApiError (internal)
 
 Internal error type for unexpected API responses. These are logged but converted to `ToolError` at the tool boundary.
 
@@ -93,16 +93,16 @@ class PiveauAuthError(PiveauApiError):
     pass
 ```
 
-### Transient Errors
+### Transient errors
 
 Network errors and timeouts that `RetryMiddleware` can retry:
 - `httpx.ConnectError` - Connection refused
 - `httpx.TimeoutException` - Request timeout
 - HTTP 500/502/503/504 - Server errors
 
-## ToolError Best Practices
+## ToolError best practices
 
-### Always Use ToolError
+### Always use ToolError
 
 From data.gv.at MCP Server's established pattern (see `mcp/app/client.py`):
 
@@ -122,7 +122,7 @@ async def get_dataset(ctx: Context, dataset_id: str) -> dict[str, Any]:
         raise ToolError(f"Failed to fetch dataset: {e}") from e
 ```
 
-### Error Message Guidelines
+### Error message guidelines
 
 **Be specific:** Include IDs, values, and context
 
@@ -164,7 +164,7 @@ raise ToolError(
 )
 ```
 
-### Code Examples from data.gv.at MCP Server
+### Code examples from data.gv.at MCP Server
 
 From `mcp/app/client.py`:
 
@@ -177,7 +177,7 @@ async def _request(
     json_body: dict[str, Any] | None = None,
     require_auth: bool = False,
 ) -> dict[str, Any] | list[Any]:
-    """Make HTTP request with comprehensive error handling."""
+    """Make HTTP request with error handling."""
     try:
         response = await self._client.request(
             method=method,
@@ -207,7 +207,7 @@ async def _request(
         self._handle_http_error(e)
 ```
 
-## Middleware Error Flow
+## Middleware error flow
 
 Errors propagate through the middleware stack in order:
 
@@ -229,7 +229,7 @@ AuthMiddleware: N/A (error already raised)
 Client receives formatted error message
 ```
 
-### When RetryMiddleware Retries
+### When RetryMiddleware retries
 
 From data.gv.at MCP Server's middleware configuration:
 
@@ -244,7 +244,7 @@ From data.gv.at MCP Server's middleware configuration:
 - Validation errors
 
 ```python
-# From mcp/app/middleware.py
+# From mcp/app/server.py
 RetryMiddleware(
     max_retries=3,
     base_delay=1.0,
@@ -254,9 +254,9 @@ RetryMiddleware(
 )
 ```
 
-## Error Handling Patterns
+## Error handling patterns
 
-### Pattern 1: Transient vs Permanent Errors
+### Pattern 1: Transient vs permanent errors
 
 Distinguish between errors that can be retried and those that cannot:
 
@@ -264,14 +264,14 @@ Distinguish between errors that can be retried and those that cannot:
 try:
     response = await client.request(...)
 except httpx.ConnectError as e:
-    # Transient - RetryMiddleware will retry
+    # Transient - RetryMiddleware retries
     raise ToolError(
         f"Piveau API unavailable: {e}. "
         "Check network connection and API status."
     ) from e
 except httpx.HTTPStatusError as e:
     if e.response.status_code >= 500:
-        # Transient server error - will retry
+        # Transient server error - retries
         raise ToolError(
             f"API error {e.response.status_code}. "
             "Please try again later."
@@ -284,7 +284,7 @@ except httpx.HTTPStatusError as e:
         ) from e
 ```
 
-### Pattern 2: Optional Features Degrade Gracefully
+### Pattern 2: Optional features degrade gracefully
 
 Non-critical features should fail gracefully without blocking the main operation:
 
@@ -299,7 +299,7 @@ except Exception as e:
     # Continue with basic search instead of failing
 ```
 
-### Pattern 3: Core Features Fail Fast
+### Pattern 3: Core features fail fast
 
 Critical features must validate input and fail immediately:
 
@@ -320,7 +320,7 @@ if limit < 1 or limit > 1000:
     )
 ```
 
-## Context-Aware Error Messages
+## Context-aware error messages
 
 Use FastMCP's Context for better debugging and support:
 
@@ -352,9 +352,9 @@ Benefits:
 - Support teams can trace specific requests
 - Better debugging in production
 
-## Common Error Scenarios
+## Common error scenarios
 
-### Scenario 1: API Unavailable
+### Scenario 1: API unavailable
 
 **Symptom:** Connection refused, timeout
 **Cause:** Network issue, API down
@@ -369,7 +369,7 @@ except httpx.ConnectError as e:
     ) from e
 ```
 
-### Scenario 2: Invalid Parameters
+### Scenario 2: Invalid parameters
 
 **Symptom:** 400 Bad Request
 **Cause:** Client sent invalid input
@@ -383,7 +383,7 @@ if limit < 1 or limit > 1000:
     )
 ```
 
-### Scenario 3: Rate Limit Exceeded
+### Scenario 3: Rate limit exceeded
 
 **Symptom:** 429 Too Many Requests
 **Cause:** Upstream API rate limit
@@ -398,15 +398,15 @@ if e.response.status_code == 429:
     ) from e
 ```
 
-### Scenario 4: Missing API Key
+### Scenario 4: Missing API key
 
 **Symptom:** Tool requires auth but key not set
 **Cause:** AUSTRIA_MCP_PIVEAU_API_KEY not configured
 **Handling:** AuthMiddleware raises ToolError
 **Retry:** No (configuration issue)
 
+**From `mcp/app/middleware.py`:**
 ```python
-# From mcp/app/middleware.py
 class AuthMiddleware(Middleware):
     async def on_call_tool(self, context: MiddlewareContext, call_next: Any) -> Any:
         tool_name = self._get_tool_name(context)
@@ -421,9 +421,9 @@ class AuthMiddleware(Middleware):
         return await call_next(context)
 ```
 
-## Debugging Failed Requests
+## Debugging failed requests
 
-### Using Structured Logging
+### Using structured logging
 
 data.gv.at MCP Server uses structured logging for debugging:
 
@@ -438,7 +438,7 @@ logger.error(
 )
 ```
 
-### Filtering Logs by Request ID
+### Filtering logs by request ID
 
 ```bash
 # Find all logs for a specific request
@@ -448,7 +448,7 @@ grep "request_id: abc-123" logs/austria-mcp.log
 grep "abc-123" logs/austria-mcp.log | grep -E "(started|completed|failed)"
 ```
 
-### Middleware Stack Tracing
+### Middleware stack tracing
 
 Each middleware logs its activity:
 
@@ -459,7 +459,7 @@ Each middleware logs its activity:
 [abc-123] StructuredLoggingMiddleware: list_catalogues completed
 ```
 
-## Testing Error Handling
+## Testing error handling
 
 Quick examples (see [Testing Guide](/advanced/testing) for details):
 
@@ -489,11 +489,11 @@ async def test_tool_validates_parameters():
         await search_datasets(ctx, query="test", limit=2000)
 ```
 
-## Production Error Monitoring
+## Production error monitoring
 
 Patterns for production deployments:
 
-### Structured JSON Logs
+### Structured JSON logs
 
 ```python
 import logging
@@ -511,14 +511,14 @@ logger.error(json.dumps({
 }))
 ```
 
-### Error Rate Dashboards
+### Error rate dashboards
 
 Monitor error rates by:
 - Tool name (which tool fails most)
 - Error type (4xx vs 5xx)
 - Time of day (peak load issues)
 
-### Alerting on Error Spikes
+### Alerting on error spikes
 
 Set alerts for:
 - Error rate >5% of total requests
@@ -532,7 +532,7 @@ Use `ctx.request_id` for cross-system tracing:
 - Debug issues across distributed systems
 - Provide to support teams
 
-## See Also
+## See also
 
 - [Testing Guide](/advanced/testing) - Testing error handling
 - [FastMCP Internals](/advanced/fastmcp-internals) - Context and middleware patterns

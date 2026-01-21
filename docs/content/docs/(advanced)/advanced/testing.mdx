@@ -1,6 +1,6 @@
 ---
 title: Testing
-description: Comprehensive testing patterns for MCP tools and middleware
+description: Testing patterns for MCP tools and middleware
 icon: TestTube2
 ---
 
@@ -17,14 +17,14 @@ Testing MCP tools is critical because they involve:
 - Async operations (Context, HTTP clients)
 
 data.gv.at MCP Server's testing approach:
-- **Fast feedback:** Unit tests run in &lt;1s, no subprocess overhead
+- **Fast feedback:** Unit tests run in <1s, no subprocess overhead
 - **Isolation:** Mock external dependencies (PiveauClient, APIs)
 - **Determinism:** No network calls, no time-based flakiness
 - **Coverage:** Test happy path + error cases + edge cases
 
-## Testing Philosophy
+## Testing philosophy
 
-### Test Pyramid
+### Test pyramid
 
 ```
         /\
@@ -39,7 +39,7 @@ data.gv.at MCP Server's testing approach:
 **Unit tests (majority):**
 - Test individual tools in isolation
 - Mock PiveauClient responses
-- Fast execution (&lt;1s for entire suite)
+- Fast execution (<1s for entire suite)
 
 **Integration tests (selective):**
 - Test tool registration and discovery
@@ -50,7 +50,7 @@ data.gv.at MCP Server's testing approach:
 - Test with real Piveau API (if needed)
 - Slow, reserved for critical flows
 
-## Test Setup
+## Test setup
 
 ### Dependencies
 
@@ -61,7 +61,7 @@ data.gv.at MCP Server uses pytest with async support:
 pip install pytest>=8.0.0 pytest-asyncio>=0.23.0 pytest-mock>=3.12.0
 ```
 
-### Running Tests
+### Running tests
 
 Use absolute paths for Windows compatibility:
 
@@ -83,11 +83,11 @@ pytest -k "test_search"
 pytest --cov=app --cov-report=html
 ```
 
-## Mock Context Pattern
+## Mock Context pattern
 
 The core pattern for testing MCP tools: mock FastMCP's Context to provide app state.
 
-### Creating Mock Context
+### Creating mock Context
 
 From `mcp/tests/conftest.py`:
 
@@ -130,13 +130,13 @@ def create_mock_context(
     return ctx
 ```
 
-### Why This Pattern?
+### Why this pattern?
 
 - **Context provides app state:** Tools access `ctx.request_context.lifespan_context`
 - **Mock allows controlling responses:** Set `client.search.return_value`
 - **AsyncMock for async methods:** `ctx.report_progress` is async
 
-### Using Mock Context in Tests
+### Using mock Context in tests
 
 From `mcp/tests/test_tools.py`:
 
@@ -164,9 +164,9 @@ async def test_list_catalogues_success(sample_catalogues_list):
     )
 ```
 
-## Testing Tools (Unit Tests)
+## Testing tools (unit tests)
 
-### Pattern 1: Happy Path
+### Pattern 1: Happy path
 
 Test successful tool execution:
 
@@ -200,7 +200,7 @@ async def test_search_datasets_success():
     mock_client.search_datasets_advanced.assert_called_once()
 ```
 
-### Pattern 2: Error Handling
+### Pattern 2: Error handling
 
 Test tool converts exceptions to ToolError:
 
@@ -255,7 +255,7 @@ async def test_search_validates_limit():
         await search_datasets(ctx, query="test", limit=0)
 ```
 
-### Pattern 4: Progress Reporting
+### Pattern 4: Progress reporting
 
 Test Context usage:
 
@@ -278,9 +278,9 @@ async def test_list_catalogues_reports_progress():
     assert ctx.report_progress.call_count >= 1
 ```
 
-## Testing Middleware
+## Testing middleware
 
-### Pattern: Middleware Isolation
+### Pattern: Middleware isolation
 
 Test middleware independently from tools:
 
@@ -315,7 +315,7 @@ async def test_audit_middleware_logs_timing(caplog):
     assert any("completed" in record.message for record in caplog.records)
 ```
 
-### Testing Auth Middleware
+### Testing auth middleware
 
 From `mcp/tests/test_middleware.py`:
 
@@ -355,7 +355,7 @@ async def test_auth_middleware_blocks_write_tools():
         await middleware.on_call_tool(ctx, call_next)
 ```
 
-### Testing Error Propagation
+### Testing error propagation
 
 ```python
 async def test_audit_middleware_reraises_exceptions():
@@ -369,11 +369,11 @@ async def test_audit_middleware_reraises_exceptions():
         await middleware.on_call_tool(ctx, call_next)
 ```
 
-## Integration Testing with In-Memory Client
+## Integration testing with in-memory client
 
 FastMCP provides in-memory testing without subprocess overhead.
 
-### Creating Test Server
+### Creating test server
 
 From `mcp/tests/conftest.py`:
 
@@ -407,7 +407,7 @@ def mcp_server() -> FastMCP:
     return mcp
 ```
 
-### Testing Tool Discovery
+### Testing tool discovery
 
 ```python
 from fastmcp.client import Client
@@ -427,7 +427,7 @@ async def test_integration_list_tools(mcp_server):
         assert len(tool_names) >= 20
 ```
 
-### Testing End-to-End Tool Call
+### Testing end-to-end tool call
 
 ```python
 async def test_integration_search_flow(mcp_server):
@@ -447,7 +447,7 @@ async def test_integration_search_flow(mcp_server):
         assert "facets" in result
 ```
 
-### When to Use Integration Tests
+### When to use integration tests
 
 **Use integration tests for:**
 - Verify tool registration works correctly
@@ -460,9 +460,9 @@ async def test_integration_search_flow(mcp_server):
 - Testing individual error cases (use unit tests)
 - Testing external APIs (mock them)
 
-## Test Fixtures and Utilities
+## Test fixtures and utilities
 
-### Common Fixtures
+### Common fixtures
 
 From `mcp/tests/conftest.py`:
 
@@ -499,7 +499,7 @@ def test_settings() -> Settings:
     )
 ```
 
-### Utility Functions
+### Utility functions
 
 ```python
 def create_test_dataset(**overrides) -> dict[str, Any]:
@@ -519,7 +519,7 @@ def assert_valid_dcat_ap(dataset: dict):
     # ... additional validation
 ```
 
-## Testing Best Practices
+## Testing best practices
 
 ### DO
 
@@ -596,9 +596,9 @@ async def test_only_happy_path(): ...
 await asyncio.sleep(1)
 ```
 
-### Common Pitfalls
+### Common pitfalls
 
-From 22-RESEARCH.md:
+From Phase 04-02 research:
 
 **Pitfall 1: Subprocess testing**
 - Problem: Tests spawn subprocess, causing flaky tests and slow execution
@@ -614,7 +614,7 @@ From 22-RESEARCH.md:
 
 ## Coverage and CI
 
-### Running with Coverage
+### Running with coverage
 
 ```bash
 # Generate HTML coverage report
@@ -628,7 +628,7 @@ start htmlcov\index.html
 pytest --cov=app --cov-report=term-missing
 ```
 
-### data.gv.at MCP Server CI Setup
+### data.gv.at MCP Server CI setup
 
 From `.github/workflows/test.yml`:
 
@@ -668,12 +668,12 @@ jobs:
 **CI benefits:**
 - Runs on every PR
 - Tests across Python versions
-- Fails if coverage &lt;80%
-- Fast feedback (&lt;2 minutes)
+- Fails if coverage <80%
+- Fast feedback (<2 minutes)
 
-## Debugging Test Failures
+## Debugging test failures
 
-### Common Failures and Solutions
+### Common failures and solutions
 
 **AsyncMock not awaited:**
 ```python
@@ -714,7 +714,7 @@ await httpx.get("https://real-api.com")  # Real network call
 mock_client.get.return_value = {...}  # Mock it
 ```
 
-### Using pytest Debugging
+### Using pytest debugging
 
 ```bash
 # Drop into debugger on failure
@@ -758,7 +758,7 @@ Add to `.vscode/launch.json`:
 }
 ```
 
-## See Also
+## See also
 
 - [Error Handling](/advanced/error-handling) - Error patterns to test
 - [FastMCP Internals](/advanced/fastmcp-internals) - Understanding Context
