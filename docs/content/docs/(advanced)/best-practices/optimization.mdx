@@ -497,24 +497,44 @@ def search_with_logging(query, **kwargs):
   return results
 ```
 
-## Summary: Quick Wins
+## Performance targets
+
+Set these response time goals for your application:
+
+| Operation | Target | Acceptable | Needs Optimization |
+|-----------|--------|------------|-------------------|
+| Simple search | &lt;200ms | &lt;500ms | >500ms |
+| Search with quality boost | &lt;300ms | &lt;600ms | >600ms |
+| Dataset metadata fetch | &lt;150ms | &lt;300ms | >300ms |
+| Schema preview | &lt;200ms | &lt;400ms | >400ms |
+| Data preview (20 rows) | &lt;500ms | &lt;1000ms | >1000ms |
+| Quality metrics | &lt;500ms | &lt;1000ms | >1000ms |
+| Semantic search | &lt;2000ms | &lt;3000ms | >3000ms |
+
+**How to achieve targets:**
+- **Search &lt;200ms:** Use specific filters, limit=20, quality_boost=False
+- **Preview &lt;500ms:** Schema-first approach, max_rows=20
+- **Metadata &lt;150ms:** Enable caching with 1-hour TTL
+- **Quality &lt;500ms:** Cache results with 1-hour TTL
+
+## Summary: Quick wins
 
 **Top 5 optimization techniques:**
 
-1. **Filter early**: Use API filters instead of client-side filtering
-2. **Limit results**: Request only what you need
-3. **Cache aggressively**: Cache metadata and quality analysis
-4. **Schema first**: Check structure before downloading data
-5. **Batch operations**: Group related API calls together
+1. **Filter early**: Use API filters instead of client-side filtering (10-50x faster)
+2. **Limit results**: Request exactly what you need (reduces network transfer by 80-95%)
+3. **Cache aggressively**: Cache metadata (1-hour TTL) and quality analysis (1-hour TTL) for 100x speedup
+4. **Schema first**: Check structure (5-10 KB transfer) before data preview (20-500 KB transfer)
+5. **Batch operations**: Group related API calls (process 10 requests per second sustained)
 
 **Expected improvements:**
-- Search: 10-50x faster with proper filtering
-- Preview: 5-10x faster with schema-first approach
-- Repeated operations: 100x faster with caching
-- Large datasets: 5-10x faster with pagination
-- Memory usage: 10-20x reduction with streaming
+- Search: 10-50x faster with proper filtering (500ms → 10-50ms)
+- Preview: 5-10x faster with schema-first approach (1000ms → 100-200ms)
+- Repeated operations: 100x faster with caching (500ms → 5ms)
+- Large datasets: 5-10x faster with pagination (50s → 5-10s for 500 results)
+- Memory usage: 10-20x reduction with streaming (500MB → 25-50MB)
 
-## Next Steps
+## Next steps
 
 - **[Workflows](/examples/workflows)** - Apply optimizations to real scenarios
 - **[API Reference](/api/tools)** - Understand tool capabilities

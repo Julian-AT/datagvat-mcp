@@ -47,21 +47,24 @@ This ranking prioritizes datasets suitable for production use and research citat
 - You need faceted filtering (by format, theme, organization)
 - You want quality-ranked results (with `quality_boost=True`)
 - You're building search UI with filters
-- You need fast response times (&lt;500ms)
-- You're processing large result sets (pagination required)
+- You need fast response times (&lt;500ms target, &lt;200ms optimal)
+- You're processing large result sets (>100 results, pagination required)
+- You need precise control over result count (limit parameter 1-100)
 
 **Use `search_semantic` when:**
 - Your query is a natural question ("What datasets cover cardiovascular health in Vienna?")
 - You're exploring unfamiliar domains (don't know exact keywords)
-- Keyword search returns too few results (semantic finds conceptually related)
+- Keyword search returns &lt;5 results (semantic finds conceptually related)
 - You want human-like understanding (synonyms, related concepts)
-- You can tolerate 1-3s response time (embedding computation)
+- You can accept 1-3s response time (embedding computation overhead)
+- Query length >5 words (natural language benefits from semantic understanding)
 
 **Use `find_similar_datasets` when:**
 - You have a good example dataset and want similar ones
-- You want datasets with overlapping themes/keywords
+- You want datasets with overlapping themes/keywords (similarity score ≥30)
 - You're building recommendation features ("Users who viewed this also viewed...")
 - You need "more like this" functionality
+- You need &lt;5 similar datasets (typical use case)
 - You're working with a single dataset reference
 
 ### Search Strategy Examples
@@ -100,14 +103,14 @@ similar = find_similar_datasets(
 
 The `quality_boost` parameter in `search_datasets` re-ranks results by metadata completeness:
 
-| Scenario | quality_boost | Speed | Result Priority | Use When |
-|----------|---------------|-------|----------------|----------|
-| Production integration | `True` | -15% slower | Complete metadata (85-100) ranked higher | Need reliable documentation |
-| Research/publication | `True` | -15% slower | High-quality datasets first | Citing datasets, need credibility |
-| End-user discovery | `False` | Fastest | Relevance to query | Users search by keywords |
-| Exploratory analysis | `False` | Fastest | Relevance to query | Speed matters more than quality |
-| Data pipeline setup | `True` | -15% slower | Well-documented datasets | Integration needs good metadata |
-| Quick lookup | `False` | Fastest | Relevance to query | Just finding something quickly |
+| Scenario | quality_boost | Speed Impact | Result Priority | Use When |
+|----------|---------------|--------------|----------------|----------|
+| Production integration | `True` | +100-150ms | Complete metadata (85-100) ranked higher | Need reliable documentation for API integration |
+| Research/publication | `True` | +100-150ms | High-quality datasets (90+) first | Citing datasets, need complete citations |
+| End-user discovery | `False` | Baseline (300-500ms) | Relevance to query keywords | Users search by keywords, expect instant results |
+| Exploratory analysis | `False` | Baseline (300-500ms) | Relevance to query keywords | Speed matters more than metadata completeness |
+| Data pipeline setup | `True` | +100-150ms | Well-documented datasets (80+) | Integration needs complete format/schema info |
+| Quick lookup | `False` | Baseline (300-500ms) | Relevance to query keywords | Just finding something quickly (&lt;500ms target) |
 
 ### Quality Boost Performance Tradeoff
 
@@ -242,7 +245,7 @@ Two tools provide quality insights with different scopes:
 - You just want to filter by quality threshold
 
 **Use `analyze_dataset_quality` when:**
-- You need comprehensive dataset assessment
+- You need complete dataset assessment
 - You want metadata, distributions, quality, and DOI eligibility in one call
 - You're presenting detailed dataset information to users
 - You can tolerate 1-2s response time
@@ -266,7 +269,7 @@ for dataset_id in dataset_ids:
 
 **Scenario: Detailed dataset assessment**
 ```python
-# Use analyze_dataset_quality - comprehensive
+# Use analyze_dataset_quality - complete analysis
 analysis = analyze_dataset_quality(dataset_id="vienna-health-2024")
 
 # Returns all information:

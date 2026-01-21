@@ -238,7 +238,7 @@ Choose TTL based on data volatility and use case:
 
 **Tuning tips:**
 - Shorter TTL: More API calls, fresher data
-- Longer TTL: Fewer API calls, possibly stale data
+- Longer TTL: Fewer API calls, accept potential staleness
 - Monitor cache hit rate to find optimal balance
 
 ## LRU Cache (Size-Limited)
@@ -754,7 +754,7 @@ print(f"Hits: {stats['hits']}, Misses: {stats['misses']}")
 **Target hit rates:**
 - 80-90%: Excellent (most requests cached)
 - 60-80%: Good (effective caching)
-- 40-60%: Fair (consider longer TTL or more selective caching)
+- 40-60%: Fair (increase TTL or cache more selectively)
 - &lt;40%: Poor (cache not effective, review strategy)
 
 ## Best Practices Summary

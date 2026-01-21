@@ -7,7 +7,7 @@ description: Understanding DQV quality metrics and metadata completeness scoring
 
 Learn how to interpret metadata quality scores and improve dataset discoverability.
 
-## Understanding Quality Scores
+## Understanding quality scores
 
 data.gv.at MCP Server uses the W3C Data Quality Vocabulary (DQV) to measure metadata completeness. Quality scores range from **0-100** and reflect how complete and well-documented a dataset is.
 
@@ -47,7 +47,7 @@ graph TD
 
 The diagram shows how the 100-point quality score breaks down into 4 dimensions and 10 individual components.
 
-### Quality Metrics in Action
+### Quality metrics in action
 
 The following screenshot demonstrates the `get_dataset_metrics` tool in Claude Desktop, showing a detailed quality breakdown for a real dataset:
 
@@ -62,11 +62,11 @@ From a quality metrics response, you can identify:
 - **Weak components:** Missing keywords, incomplete themes, absent spatial coverage
 - **Actionable improvements:** Add keywords (+10 points), complete themes (+6 points), specify license (+5 points)
 
-## The 8-Component Quality Model
+## The 8-component quality model
 
 Quality scores are calculated across **8 metadata components** organized into 4 dimensions:
 
-### Core Metadata (40 points)
+### Core metadata (40 points)
 
 Essential fields that identify and describe the dataset:
 
@@ -92,7 +92,7 @@ Essential fields that identify and describe the dataset:
 
 **Impact:** Publisher info builds trust and enables user questions
 
-### Discovery Metadata (30 points)
+### Discovery metadata (30 points)
 
 Fields that help users find datasets through search and filtering:
 
@@ -110,14 +110,14 @@ Fields that help users find datasets through search and filtering:
 
 **Impact:** Theme filtering accounts for 60% of browse traffic
 
-#### Spatial Coverage (10 points)
+#### Spatial coverage (10 points)
 - **Geographic scope:** City, region, or national level
 - **Coordinates or names:** Vienna, Austria, EU
 - **Precision matters:** "Vienna" beats "Central Europe"
 
 **Impact:** Location-aware searches require spatial coverage
 
-### Access Metadata (20 points)
+### Access metadata (20 points)
 
 Information about how to access and use the dataset:
 
@@ -136,25 +136,25 @@ Information about how to access and use the dataset:
 
 **Impact:** Research users filter by open licenses (CC-BY, CC0)
 
-### Temporal Metadata (10 points)
+### Temporal metadata (10 points)
 
 Dates that indicate dataset currency and maintenance:
 
-#### Issued Date (5 points)
+#### Issued date (5 points)
 - **Publication date:** When dataset first became available
 - **ISO 8601 format:** YYYY-MM-DD
 - **Required for DOI eligibility**
 
 **Impact:** Recent datasets rank higher in default sort
 
-#### Modified Date (5 points)
+#### Modified date (5 points)
 - **Last update timestamp:** When data was refreshed
 - **Indicates maintenance:** Updated datasets signal active curation
 - **ISO 8601 format:** YYYY-MM-DD or YYYY-MM-DDTHH:MM:SSZ
 
 **Impact:** Modified date shows data freshness
 
-## Quality Interpretation Thresholds
+## Quality interpretation thresholds
 
 Use these ranges to evaluate and communicate quality:
 
@@ -173,7 +173,7 @@ Use these ranges to evaluate and communicate quality:
 - Research publications
 - Production integrations
 
-**Action:** No improvements needed. Consider DOI assignment.
+**Action:** No improvements needed. Assign DOI for citations.
 
 ### 70-89: Good
 **Status:** Minor gaps, acceptable for most use cases
@@ -190,7 +190,7 @@ Use these ranges to evaluate and communicate quality:
 - Exploratory research
 - Tool development
 
-**Action:** Review missing components. Add keywords/themes for better discovery.
+**Action:** Review missing components. Add keywords and themes for better discovery.
 
 ### 50-69: Fair
 **Status:** Missing key metadata components
@@ -212,7 +212,7 @@ Use these ranges to evaluate and communicate quality:
 - No license → unclear usage rights
 - Missing temporal data → unknown freshness
 
-**Action:** High-priority improvements needed for public use.
+**Action:** Complete high-priority improvements before public use.
 
 ### 0-49: Poor
 **Status:** Insufficient for discovery
@@ -233,11 +233,11 @@ Use these ranges to evaluate and communicate quality:
 - Inaccessible (no distributions)
 - Unusable (no documentation)
 
-**Action:** Major metadata additions required before publication.
+**Action:** Add core metadata components before publication.
 
-## Taking Action: Improving Quality
+## Taking action: Improving quality
 
-### Step 1: Get Current Quality Score
+### Step 1: Get current quality score
 
 Use the `get_dataset_metrics` tool to see detailed component breakdown:
 
@@ -271,7 +271,7 @@ metrics = get_dataset_metrics(dataset_id="vienna-health-2024")
 }
 ```
 
-### Step 2: Analyze the Gap
+### Step 2: Analyze the gap
 
 This dataset scores **68/100 (Fair)** with these issues:
 
@@ -282,9 +282,9 @@ This dataset scores **68/100 (Fair)** with these issues:
 | License | 0 | 5 | 5 |
 | Description | 12 | 15 | 3 |
 
-**Total gap:** 24 points (would reach 92 if addressed)
+**Total gap:** 24 points (reaches 92 if addressed)
 
-### Step 3: Prioritize Improvements
+### Step 3: Prioritize improvements
 
 **Quick wins (reach 70+ "Good"):**
 1. Add 3+ keywords → +10 points (68 → 78)
@@ -294,7 +294,7 @@ This dataset scores **68/100 (Fair)** with these issues:
 3. Map to additional EU themes → +6 points (83 → 89)
 4. Enhance description → +3 points (89 → 92)
 
-### Step 4: Apply Improvements
+### Step 4: Apply improvements
 
 Use the dataset management tools to update metadata:
 
@@ -348,9 +348,9 @@ new_metrics = get_dataset_metrics(dataset_id="vienna-health-2024")
 # Expected: 92/100 (Excellent)
 ```
 
-## Component-Level Improvement Guidance
+## Component-level improvement guidance
 
-### Improving Keywords (0 → 10 points)
+### Improving keywords (0 → 10 points)
 
 **Goal:** Add 3-5 relevant keywords
 
@@ -377,7 +377,7 @@ metadata = {
 }
 ```
 
-### Improving Themes (4 → 10 points)
+### Improving themes (4 → 10 points)
 
 **Goal:** Map to appropriate EU DCAT-AP themes
 
@@ -402,9 +402,9 @@ metadata = {"themes": ["HEAL", "SOCI", "REGI"]}
 # REGI: Regional/city data
 ```
 
-### Improving Description (12 → 15 points)
+### Improving description (12 → 15 points)
 
-**Goal:** Comprehensive, multilingual description
+**Goal:** Complete, multilingual description
 
 **Scoring factors:**
 - Length: 200+ characters preferred
@@ -429,7 +429,7 @@ metadata = {
 }
 ```
 
-### Improving Distributions (0 → 15 points)
+### Improving distributions (0 → 15 points)
 
 **Goal:** Add downloadable distribution with metadata
 
@@ -467,7 +467,7 @@ metadata = {
 }
 ```
 
-### Improving License (0 → 5 points)
+### Improving license (0 → 5 points)
 
 **Goal:** Specify clear usage rights
 
@@ -491,9 +491,9 @@ metadata = {
 }
 ```
 
-## Quality-Aware Search Strategies
+## Quality-aware search strategies
 
-### Filtering by Quality Score
+### Filtering by quality score
 
 Find high-quality datasets for production use:
 
@@ -512,7 +512,7 @@ high_quality = [
 ]
 ```
 
-### Quality Thresholds by Use Case
+### Quality thresholds by use case
 
 Choose appropriate quality requirements:
 
@@ -523,7 +523,7 @@ Choose appropriate quality requirements:
 | Exploratory analysis | 60+ | Basic metadata sufficient |
 | Internal testing | 50+ | Work-in-progress acceptable |
 
-### Progressive Quality Enhancement
+### Progressive quality enhancement
 
 Iterative improvement workflow:
 
@@ -568,7 +568,7 @@ def improve_dataset_quality(dataset_id, target_score=85):
 improve_dataset_quality("vienna-health-2024", target_score=90)
 ```
 
-## Cross-References
+## Cross-references
 
 - **[analyze_dataset_quality](/api/tools#analyze_dataset_quality)** - Get complete quality analysis
 - **[get_dataset_metrics](/api/tools#get_dataset_metrics)** - Get DQV metrics breakdown

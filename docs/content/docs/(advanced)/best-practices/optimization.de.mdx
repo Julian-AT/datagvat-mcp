@@ -497,22 +497,42 @@ def search_with_logging(query, **kwargs):
   return results
 ```
 
+## Leistungsziele
+
+Setzen Sie diese Antwortzeitvorgaben für Ihre Anwendung:
+
+| Operation | Ziel | Akzeptabel | Benötigt Optimierung |
+|-----------|------|------------|----------------------|
+| Einfache Suche | &lt;200ms | &lt;500ms | >500ms |
+| Suche mit Quality Boost | &lt;300ms | &lt;600ms | >600ms |
+| Datensatz-Metadaten abrufen | &lt;150ms | &lt;300ms | >300ms |
+| Schema-Vorschau | &lt;200ms | &lt;400ms | >400ms |
+| Daten-Vorschau (20 Zeilen) | &lt;500ms | &lt;1000ms | >1000ms |
+| Qualitätsmetriken | &lt;500ms | &lt;1000ms | >1000ms |
+| Semantische Suche | &lt;2000ms | &lt;3000ms | >3000ms |
+
+**Ziele erreichen:**
+- **Suche &lt;200ms:** Spezifische Filter verwenden, limit=20, quality_boost=False
+- **Vorschau &lt;500ms:** Schema-First-Ansatz, max_rows=20
+- **Metadaten &lt;150ms:** Caching mit 1-Stunden-TTL aktivieren
+- **Qualität &lt;500ms:** Ergebnisse mit 1-Stunden-TTL cachen
+
 ## Zusammenfassung: Schnelle Erfolge
 
 **Top 5 Optimierungstechniken:**
 
-1. **Früh filtern**: Verwenden Sie API-Filter statt clientseitiger Filterung
-2. **Ergebnisse begrenzen**: Fordern Sie nur an, was Sie benötigen
-3. **Aggressiv cachen**: Cachen Sie Metadaten und Qualitätsanalysen
-4. **Erst Schema**: Überprüfen Sie die Struktur vor dem Herunterladen von Daten
-5. **Batch-Operationen**: Gruppieren Sie verwandte API-Aufrufe
+1. **Früh filtern**: Verwenden Sie API-Filter statt clientseitiger Filterung (10-50x schneller)
+2. **Ergebnisse begrenzen**: Fordern Sie genau an, was Sie benötigen (reduziert Netzwerkübertragung um 80-95%)
+3. **Aggressiv cachen**: Cachen Sie Metadaten (1-Stunden-TTL) und Qualitätsanalysen (1-Stunden-TTL) für 100x Beschleunigung
+4. **Erst Schema**: Überprüfen Sie die Struktur (5-10 KB Übertragung) vor Datenvorschau (20-500 KB Übertragung)
+5. **Batch-Operationen**: Gruppieren Sie verwandte API-Aufrufe (verarbeiten Sie 10 Anfragen pro Sekunde dauerhaft)
 
 **Erwartete Verbesserungen:**
-- Suche: 10-50x schneller mit korrekter Filterung
-- Vorschau: 5-10x schneller mit Schema-First-Ansatz
-- Wiederholte Operationen: 100x schneller mit Caching
-- Große Datensätze: 5-10x schneller mit Paginierung
-- Speichernutzung: 10-20x Reduktion durch Streaming
+- Suche: 10-50x schneller mit korrekter Filterung (500ms → 10-50ms)
+- Vorschau: 5-10x schneller mit Schema-First-Ansatz (1000ms → 100-200ms)
+- Wiederholte Operationen: 100x schneller mit Caching (500ms → 5ms)
+- Große Datensätze: 5-10x schneller mit Paginierung (50s → 5-10s für 500 Ergebnisse)
+- Speichernutzung: 10-20x Reduktion durch Streaming (500MB → 25-50MB)
 
 ## Nächste Schritte
 
