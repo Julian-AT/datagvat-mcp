@@ -1,5 +1,5 @@
 {
-  "$schema": "../.source/json-schema/docs.meta.json",
+  "$schema": "../../.source/json-schema/docs.meta.json",
   "title": "Integration",
   "description": "Integrate data.gv.at MCP Server with your tools",
   "icon": "Plug",
