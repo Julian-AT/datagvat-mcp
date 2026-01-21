@@ -9,11 +9,11 @@ Requirements for v2.0 Professional Documentation System. Detailed specifications
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: Build system uses Bun for faster package management and execution
-- [ ] **INFRA-02**: Code quality enforced with Biome (linter + formatter)
-- [ ] **INFRA-03**: Professional build scripts for development and production workflows
-- [ ] **INFRA-04**: GitHub Actions CI/CD pipeline runs on all commits
-- [ ] **INFRA-05**: Pre-commit hooks prevent committing broken code
+- [x] **INFRA-01**: Build system uses Bun for faster package management and execution
+- [x] **INFRA-02**: Code quality enforced with Biome (linter + formatter)
+- [x] **INFRA-03**: Professional build scripts for development and production workflows
+- [x] **INFRA-04**: GitHub Actions CI/CD pipeline runs on all commits
+- [x] **INFRA-05**: Pre-commit hooks prevent committing broken code
 
 ### Navigation
 
@@ -83,11 +83,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 1 | Pending |
-| INFRA-02 | Phase 1 | Pending |
-| INFRA-03 | Phase 1 | Pending |
-| INFRA-04 | Phase 1, Phase 6 | Pending |
-| INFRA-05 | Phase 1, Phase 6 | Pending |
+| INFRA-01 | Phase 1 | Complete |
+| INFRA-02 | Phase 1 | Complete |
+| INFRA-03 | Phase 1 | Complete |
+| INFRA-04 | Phase 1, Phase 6 | Complete |
+| INFRA-05 | Phase 1, Phase 6 | Complete |
 | NAV-01 | Phase 2 | Pending |
 | NAV-02 | Phase 2 | Pending |
 | NAV-03 | Phase 2 | Pending |
