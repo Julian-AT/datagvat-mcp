@@ -1,0 +1,4 @@
+Validating documentation links...
+[1m[92m0 errored file, 0 errors[39m[22m
+✓ All links validated successfully
+
