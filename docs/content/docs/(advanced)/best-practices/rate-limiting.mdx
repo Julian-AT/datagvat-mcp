@@ -133,13 +133,13 @@ Notice how:
 Group related operations to minimize request count:
 
 ```python
-# ✗ Inefficient: One request per dataset (30 requests)
+# Bad: Inefficient: One request per dataset (30 requests)
 dataset_ids = ["ds1", "ds2", ..., "ds30"]
 for dataset_id in dataset_ids:
   dataset = get_dataset(dataset_id=dataset_id)
   process(dataset)
 
-# ✓ Efficient: Batch with delays (4 requests)
+# Good: Efficient: Batch with delays (4 requests)
 def fetch_in_batches(dataset_ids, batch_size=10):
   """Fetch datasets in batches to avoid rate limits."""
   results = []
@@ -174,7 +174,7 @@ datasets = fetch_in_batches(dataset_ids, batch_size=10)
 Fetch larger pages instead of many small requests:
 
 ```python
-# ✗ Inefficient: Many small pages (10 requests)
+# Bad: Inefficient: Many small pages (10 requests)
 all_results = []
 for page in range(10):
   page_results = search_datasets(
@@ -184,7 +184,7 @@ for page in range(10):
   )
   all_results.extend(page_results['results'])
 
-# ✓ Efficient: One large page (1 request)
+# Good: Efficient: One large page (1 request)
 results = search_datasets(
   query="health",
   limit=100  # Max page size
@@ -581,18 +581,18 @@ def search_datasets_dev(query, **kwargs):
 ## Best Practices Summary
 
 **DO:**
-- ✓ Use batch operations (10 requests per second sustained)
-- ✓ Cache frequently accessed data (15-minute TTL recommended)
-- ✓ Fetch larger pages instead of many small requests
-- ✓ Implement exponential backoff for sustained operations
-- ✓ Monitor rate limit errors in production
+- Use batch operations (10 requests per second sustained)
+- Cache frequently accessed data (15-minute TTL recommended)
+- Fetch larger pages instead of many small requests
+- Implement exponential backoff for sustained operations
+- Monitor rate limit errors in production
 
 **DON'T:**
-- ✗ Don't poll at high frequency (>10 req/s)
-- ✗ Don't bypass automatic retry (it's optimized)
-- ✗ Don't fetch same data repeatedly (use caching)
-- ✗ Don't ignore rate limit errors (implement backoff)
-- ✗ Don't use small page sizes for batch operations
+- Don't poll at high frequency (>10 req/s)
+- Don't bypass automatic retry (it's optimized)
+- Don't fetch same data repeatedly (use caching)
+- Don't ignore rate limit errors (implement backoff)
+- Don't use small page sizes for batch operations
 
 **Performance targets:**
 - Single request: &lt;500ms (no rate limit)

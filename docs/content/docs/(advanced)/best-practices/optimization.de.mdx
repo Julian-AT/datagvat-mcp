@@ -14,11 +14,11 @@ Best Practices für effiziente Nutzung von data.gv.at MCP Server.
 Grenze Suchen früh ein, um Ergebnismengen zu reduzieren:
 
 ```python
-# ✗ Langsam: Alles abrufen und dann filtern
+# Schlecht: Langsam: Alles abrufen und dann filtern
 all_results = search_datasets(query="", limit=1000)
 csv_only = [d for d in all_results['results'] if has_csv_format(d)]
 
-# ✓ Schnell: Auf API-Ebene filtern
+# Gut: Schnell: Auf API-Ebene filtern
 csv_results = search_datasets(query="", formats=["CSV"], limit=100)
 ```
 
@@ -29,11 +29,11 @@ csv_results = search_datasets(query="", formats=["CSV"], limit=100)
 Fordere nur an, was du brauchst:
 
 ```python
-# ✗ Verschwenderisch: Mehr anfordern als benötigt
+# Schlecht: Verschwenderisch: Mehr anfordern als benötigt
 results = search_datasets(query="Gesundheit", limit=100)
 top_5 = results['results'][:5]
 
-# ✓ Effizient: Genau das anfordern, was benötigt wird
+# Gut: Effizient: Genau das anfordern, was benötigt wird
 results = search_datasets(query="Gesundheit", limit=5)
 ```
 
@@ -44,14 +44,14 @@ results = search_datasets(query="Gesundheit", limit=5)
 Aktiviere Quality Boost nur, wenn Qualität wichtig ist:
 
 ```python
-# ✓ Gut: Qualität ist wichtig für Produktionsdaten
+# Gut: Qualität ist wichtig für Produktionsdaten
 production_data = search_datasets(
   query="Wirtschaftsindikatoren",
   quality_boost=True,
   limit=10
 )
 
-# ✓ Gut: Geschwindigkeit ist wichtig für Erkundung
+# Gut: Geschwindigkeit ist wichtig für Erkundung
 quick_browse = search_datasets(
   query="Wirtschaftsindikatoren",
   quality_boost=False,  # Schneller
@@ -68,7 +68,7 @@ quick_browse = search_datasets(
 Überprüfen Sie die Struktur vor dem Herunterladen der Daten:
 
 ```python
-# ✓ Optimal: Zuerst Schema prüfen (minimale Datenübertragung)
+# Gut: Optimal: Zuerst Schema prüfen (minimale Datenübertragung)
 schema = preview_schema(url=download_url, format="CSV")
 
 if is_structure_valid(schema):
@@ -106,12 +106,12 @@ preview_data(url=url, max_rows=1000)  # ~500 KB
 Cachen Sie Vorschau-Ergebnisse:
 
 ```python
-# ✗ Ineffizient: Mehrmals dieselbe URL vorschauen
+# Schlecht: Ineffizient: Mehrmals dieselbe URL vorschauen
 for analysis_type in ['structure', 'quality', 'content']:
   preview = preview_data(url=url, max_rows=20)
   analyze(preview, analysis_type)
 
-# ✓ Effizient: Einmal vorschauen, mehrmals analysieren
+# Gut: Effizient: Einmal vorschauen, mehrmals analysieren
 preview = preview_data(url=url, max_rows=20)
 for analysis_type in ['structure', 'quality', 'content']:
   analyze(preview, analysis_type)
@@ -262,7 +262,7 @@ async def fetch_all_pages_parallel(query, total_count, page_size=50):
 Für wiederholte Abfragen, einmal erweitern:
 
 ```python
-# ✗ Ineffizient: Semantische Erweiterung bei jedem Aufruf
+# Schlecht: Ineffizient: Semantische Erweiterung bei jedem Aufruf
 for user in users:
   results = semantic_search_datasets(
     natural_query="Gesundheitsdaten Wien",
@@ -270,7 +270,7 @@ for user in users:
   )
   send_results(user, results)
 
-# ✓ Effizient: Einmal erweitern, mehrmals suchen
+# Gut: Effizient: Einmal erweitern, mehrmals suchen
 # Erster Aufruf erweitert Abfrage
 expanded_results = semantic_search_datasets(
   natural_query="Gesundheitsdaten Wien",
@@ -305,7 +305,7 @@ def smart_search(query, **kwargs):
 Validieren Sie Eingaben vor teuren Operationen:
 
 ```python
-# ✓ Effizient: Frühe Validierung
+# Gut: Effizient: Frühe Validierung
 def preview_with_validation(url, format):
   # Schnelle Validierung (kein Netzwerkaufruf)
   if not url.startswith(('http://', 'https://')):
@@ -345,13 +345,13 @@ else:
 Minimieren Sie Roundtrips durch Batching:
 
 ```python
-# ✗ Ineffizient: Einzelne Verarbeitung
+# Schlecht: Ineffizient: Einzelne Verarbeitung
 for dataset_id in dataset_ids:
   dataset = get_dataset(dataset_id=dataset_id)
   quality = analyze_dataset_quality(dataset_id=dataset_id)
   process(dataset, quality)
 
-# ✓ Effizient: Batch nach Operationstyp
+# Gut: Effizient: Batch nach Operationstyp
 datasets = [get_dataset(dataset_id=id) for id in dataset_ids]
 qualities = [analyze_dataset_quality(dataset_id=id) for id in dataset_ids]
 
@@ -366,11 +366,11 @@ for dataset, quality in zip(datasets, qualities):
 Holen Sie, was Sie benötigen, in einem Aufruf:
 
 ```python
-# ✗ Mehrere Aufrufe für denselben Datensatz
+# Schlecht: Mehrere Aufrufe für denselben Datensatz
 dataset = get_dataset(dataset_id=dataset_id)
 distributions = get_dataset_distributions(dataset_id=dataset_id)
 
-# ✓ Einzelner Aufruf enthält Distributionen
+# Gut: Einzelner Aufruf enthält Distributionen
 dataset = get_dataset(dataset_id=dataset_id)
 distributions = dataset.get('distributions', [])
 ```
@@ -380,7 +380,7 @@ distributions = dataset.get('distributions', [])
 Der data.gv.at MCP Server-Client verwendet Verbindungen automatisch wieder, aber stellen Sie sicher, dass Sie keine Clients neu erstellen:
 
 ```python
-# ✗ Ineffizient: Jedes Mal neuer Client
+# Schlecht: Ineffizient: Jedes Mal neuer Client
 def search_many_times(queries):
   results = []
   for query in queries:
@@ -388,7 +388,7 @@ def search_many_times(queries):
     results.append(search_datasets(query=query))
   return results
 
-# ✓ Effizient: Client wird über Aufrufe hinweg wiederverwendet
+# Gut: Effizient: Client wird über Aufrufe hinweg wiederverwendet
 def search_many_times(queries):
   # MCP-Server hält einen einzigen Client
   results = []
@@ -404,12 +404,12 @@ def search_many_times(queries):
 Laden Sie nicht alles in den Speicher:
 
 ```python
-# ✗ Speicherintensiv: Alles auf einmal laden
+# Schlecht: Speicherintensiv: Alles auf einmal laden
 all_datasets = search_datasets(query="", limit=10000)
 for dataset in all_datasets['results']:
   process(dataset)
 
-# ✓ Speicher-effizient: In Seiten verarbeiten
+# Gut: Speicher-effizient: In Seiten verarbeiten
 limit = 50
 offset = 0
 

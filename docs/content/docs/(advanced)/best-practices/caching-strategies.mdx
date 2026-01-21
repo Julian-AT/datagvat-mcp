@@ -547,17 +547,17 @@ key = f"preview:{url}:{format}:{max_rows}"
 ### Bad Cache Keys
 
 ```python
-# ✗ Includes timestamp - never hits
+# Bad: Includes timestamp - never hits
 key = f"dataset:{dataset_id}:{time.time()}"
 
-# ✗ Includes random value
+# Bad: Includes random value
 key = f"search:{query}:{random.randint(0, 1000)}"
 
-# ✗ Dictionary not sorted - same params, different keys
+# Bad: Dictionary not sorted - same params, different keys
 key = f"search:{query}:{kwargs}"
 # {"limit": 20, "offset": 0} != {"offset": 0, "limit": 20}
 
-# ✓ Sort dictionary for consistency
+# Good: Sort dictionary for consistency
 key = f"search:{query}:{sorted(kwargs.items())}"
 ```
 
@@ -760,18 +760,18 @@ print(f"Hits: {stats['hits']}, Misses: {stats['misses']}")
 ## Best Practices Summary
 
 **DO:**
-- ✓ Cache stable data (metadata, vocabularies) with long TTL
-- ✓ Use TTL + LRU combination for production
-- ✓ Invalidate cache after data modifications
-- ✓ Monitor cache hit rates to tune TTL
-- ✓ Use consistent, deterministic cache keys
+- Cache stable data (metadata, vocabularies) with long TTL
+- Use TTL + LRU combination for production
+- Invalidate cache after data modifications
+- Monitor cache hit rates to tune TTL
+- Use consistent, deterministic cache keys
 
 **DON'T:**
-- ✗ Don't cache real-time operations (draft management)
-- ✗ Don't cache user-specific data across users
-- ✗ Don't use unbounded caches (implement LRU)
-- ✗ Don't cache without TTL (data becomes stale)
-- ✗ Don't over-cache (increases memory, complicates invalidation)
+- Don't cache real-time operations (draft management)
+- Don't cache user-specific data across users
+- Don't use unbounded caches (implement LRU)
+- Don't cache without TTL (data becomes stale)
+- Don't over-cache (increases memory, complicates invalidation)
 
 **Quick wins:**
 - Cache dataset metadata: 100x faster repeated access
