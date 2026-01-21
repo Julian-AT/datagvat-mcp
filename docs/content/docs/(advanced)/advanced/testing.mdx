@@ -103,24 +103,24 @@ def create_mock_context(
     client: AsyncMock | None = None,
 ) -> MagicMock:
     """Create mock Context with app state."""
-    # Default settings if not provided
+    # Provide default config to avoid environment variable dependencies
     if settings is None:
         settings = Settings(
             piveau_api_base="https://test.api.at",
             piveau_api_key="test-key",
         )
 
-    # Default mock client if not provided
+    # Use AsyncMock to enable response value configuration in tests
     if client is None:
         client = AsyncMock(spec=PiveauClient)
 
-    # Create app state (lifespan context)
+    # Bundle configuration and client for tool access via Context
     app_state = AppState(
         settings=settings,
         piveau_client=client
     )
 
-    # Create mock Context
+    # FastMCP injects Context; mock provides same interface for testing
     ctx = MagicMock(spec=Context)
     ctx.request_context = MagicMock()
     ctx.request_context.lifespan_context = app_state
@@ -300,7 +300,7 @@ async def test_audit_middleware_logs_timing(caplog):
 
     async def mock_handler(context):
         """Simulate tool execution."""
-        await asyncio.sleep(0.01)  # Simulate work
+        await asyncio.sleep(0.01)  # Brief delay to generate measurable timing metrics
         return {"result": "success"}
 
     # Act: Call middleware
@@ -326,7 +326,7 @@ async def test_auth_middleware_allows_read_tools():
     """Test AuthMiddleware allows read operations without API key."""
     middleware = AuthMiddleware()
 
-    # Mock context without API key
+    # Read operations permitted without authentication for public data access
     ctx = create_middleware_context(
         tool_name="list_catalogues",
         has_api_key=False
@@ -334,7 +334,7 @@ async def test_auth_middleware_allows_read_tools():
 
     call_next = AsyncMock(return_value="result")
 
-    # Should not raise (read tool)
+    # Verify read tools proceed without raising auth errors
     result = await middleware.on_call_tool(ctx, call_next)
     assert result == "result"
 
@@ -342,7 +342,7 @@ async def test_auth_middleware_blocks_write_tools():
     """Test AuthMiddleware requires API key for write operations."""
     middleware = AuthMiddleware()
 
-    # Mock context without API key
+    # Write operations require authentication to prevent unauthorized changes
     ctx = create_middleware_context(
         tool_name="create_dataset_draft",
         has_api_key=False

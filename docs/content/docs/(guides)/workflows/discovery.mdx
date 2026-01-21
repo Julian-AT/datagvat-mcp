@@ -70,33 +70,33 @@ By following this workflow, you'll:
     Complete workflow from search to download validation:
 
     ```python
-    # 1. Search for datasets
+    # Search with semantic expansion to find datasets beyond exact keyword matches
     results = semantic_search_datasets(
         natural_query="health data from Vienna",
         formats=["CSV"],
         boost_quality=True
     )
 
-    # 2. Get top result details
+    # Retrieve full metadata to verify license and contact information
     dataset_id = results['results'][0]['id']
     dataset = get_dataset(dataset_id=dataset_id)
 
-    # 3. Analyze quality
+    # Check DQV quality metrics before committing to download
     quality = analyze_dataset_quality(dataset_id=dataset_id)
 
     if quality['metrics']['overall_score'] < 70:
         print("Warning: Quality below threshold")
-        # Fall back to second result or adjust criteria
+        # Quality threshold protects against incomplete or stale datasets
 
-    # 4. Get download URL
+    # Identify downloadable files meeting format requirements
     distributions = get_dataset_distributions(dataset_id=dataset_id)
     csv_url = next(d['downloadURL'] for d in distributions
                    if d.get('format') == 'CSV')
 
-    # 5. Preview schema
+    # Validate schema structure before downloading full dataset
     schema = preview_schema(url=csv_url, format="csv")
 
-    # 6. Verify required columns
+    # Confirm data structure matches analysis requirements
     required_columns = ["year", "region", "value"]
     actual_columns = [c['name'] for c in schema['columns']]
 
