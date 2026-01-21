@@ -62,7 +62,7 @@ By following this workflow, you'll:
             response = requests.head(dist['downloadURL'])
             if response.status_code != 200:
                 all_accessible = False
-                print(f"⚠ {dist['format']} URL inaccessible")
+                print(f"Warning: {dist['format']} URL inaccessible")
 
     # 6. Final decision
     approval = {
@@ -220,7 +220,7 @@ By following this workflow, you'll:
         elif age_days <= 365:
             print("✓ Acceptable (< 1 year)")
         elif age_days <= 730:
-            print("⚠ Aging (1-2 years old)")
+            print("Warning: Aging (1-2 years old)")
         else:
             print("✗ Stale (> 2 years old)")
         ```

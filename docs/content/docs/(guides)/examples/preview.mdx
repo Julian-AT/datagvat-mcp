@@ -176,10 +176,10 @@ Learn how to inspect dataset contents before downloading.
 
       # Check if columns look reasonable
       if num_columns < 2:
-        print("⚠ Warning: Only one column detected")
+        print("Warning: Only one column detected")
         print("   Delimiter might not be detected correctly")
       else:
-        print("✓ Delimiter detection successful")
+        print("Delimiter detection successful")
 
     # For problematic files, check raw data
     # (Would need direct HTTP download for manual parsing)
@@ -304,7 +304,7 @@ Learn how to inspect dataset contents before downloading.
           inconsistent.append(i)
 
       if inconsistent:
-        print(f"⚠ Objects with different fields: {inconsistent}")
+        print(f"Warning: Objects with different fields: {inconsistent}")
       else:
         print("✓ Consistent structure across all objects")
     ```
@@ -358,7 +358,7 @@ Learn how to inspect dataset contents before downloading.
 
       # Check if data looks complete
       if len(first_item.keys()) < 2:
-        print("⚠ Warning: Items have very few fields")
+        print("Warning: Items have very few fields")
         print("   JSON structure might not be correctly detected")
 
     # For non-standard structures, may need to:
@@ -407,7 +407,7 @@ Learn how to inspect dataset contents before downloading.
       received = preview['row_count']
 
       if received < requested:
-        print(f"⚠ Truncation detected:")
+        print(f"Warning: Truncation detected:")
         print(f"   Requested: {requested} rows")
         print(f"   Received: {received} rows")
         print(f"   Estimated total: {preview['estimated_total_rows']}")
@@ -422,7 +422,7 @@ Learn how to inspect dataset contents before downloading.
     if preview['data']:
       for i, obj in enumerate(preview['data']):
         if not isinstance(obj, dict):
-          print(f"⚠ Warning: Object {i} is not a valid dict")
+          print(f"Warning: Object {i} is not a valid dict")
     ```
   </Tab>
 </Tabs>
@@ -558,7 +558,7 @@ Learn how to inspect dataset contents before downloading.
           if null_pct < 5:
             print("✓ Data quality acceptable - proceed with download")
           else:
-            print("⚠ High null percentage - review data quality")
+            print("Warning: High null percentage - review data quality")
         ```
       </Step>
     </Steps>
@@ -767,7 +767,7 @@ Learn how to inspect dataset contents before downloading.
         if col['name'] in expected_columns:
           # Check type is appropriate
           if col['type'] == 'string' and col['name'].endswith('_id'):
-            print(f"⚠ Warning: {col['name']} is string, expected number?")
+            print(f"Warning: {col['name']} is string, expected number?")
 
       # Step 3: Data quality check
       preview = preview_data(url=url, max_rows=100, format=format)

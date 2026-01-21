@@ -176,7 +176,7 @@ Datensatzinhalte vor dem Download prüfen.
 
       # Prüfen, ob Spalten vernünftig erscheinen
       if anzahl_spalten < 2:
-        print("⚠ Warnung: Nur eine Spalte erkannt")
+        print("Warnung: Nur eine Spalte erkannt")
         print("   Trennzeichen möglicherweise nicht korrekt erkannt")
       else:
         print("✓ Trennzeichenerkennung erfolgreich")
@@ -304,7 +304,7 @@ Datensatzinhalte vor dem Download prüfen.
           inkonsistent.append(i)
 
       if inkonsistent:
-        print(f"⚠ Objekte mit unterschiedlichen Feldern: {inkonsistent}")
+        print(f"Warnung: Objekte mit unterschiedlichen Feldern: {inkonsistent}")
       else:
         print("✓ Konsistente Struktur über alle Objekte")
     ```
@@ -358,7 +358,7 @@ Datensatzinhalte vor dem Download prüfen.
 
       # Prüfen, ob Daten vollständig aussehen
       if len(erstes_element.keys()) < 2:
-        print("⚠ Warnung: Elemente haben sehr wenige Felder")
+        print("Warnung: Elemente haben sehr wenige Felder")
         print("   JSON-Struktur möglicherweise nicht korrekt erkannt")
 
     # Für nicht-standardmäßige Strukturen möglicherweise erforderlich:
@@ -407,7 +407,7 @@ Datensatzinhalte vor dem Download prüfen.
       erhalten = vorschau['row_count']
 
       if erhalten < angefordert:
-        print(f"⚠ Abschneidung erkannt:")
+        print(f"Warnung: Abschneidung erkannt:")
         print(f"   Angefordert: {angefordert} Zeilen")
         print(f"   Erhalten: {erhalten} Zeilen")
         print(f"   Geschätzte Gesamtzahl: {vorschau['estimated_total_rows']}")
@@ -422,7 +422,7 @@ Datensatzinhalte vor dem Download prüfen.
     if vorschau['data']:
       for i, obj in enumerate(vorschau['data']):
         if not isinstance(obj, dict):
-          print(f"⚠ Warnung: Objekt {i} ist kein gültiges dict")
+          print(f"Warnung: Objekt {i} ist kein gültiges dict")
     ```
   </Tab>
 </Tabs>
@@ -558,7 +558,7 @@ Datensatzinhalte vor dem Download prüfen.
           if null_prozent < 5:
             print("✓ Datenqualität akzeptabel - mit Download fortfahren")
           else:
-            print("⚠ Hoher Null-Prozentsatz - Datenqualität überprüfen")
+            print("Warnung: Hoher Null-Prozentsatz - Datenqualität überprüfen")
         ```
       </Step>
     </Steps>
@@ -767,7 +767,7 @@ Datensatzinhalte vor dem Download prüfen.
         if col['name'] in erwartete_spalten:
           # Typ auf Angemessenheit prüfen
           if col['type'] == 'string' and col['name'].endswith('_id'):
-            print(f"⚠ Warnung: {col['name']} ist string, Zahl erwartet?")
+            print(f"Warnung: {col['name']} ist string, Zahl erwartet?")
 
       # Schritt 3: Datenqualitätsprüfung
       vorschau = preview_data(url=url, max_rows=100, format=format)

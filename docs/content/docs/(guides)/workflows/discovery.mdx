@@ -85,7 +85,7 @@ By following this workflow, you'll:
     quality = analyze_dataset_quality(dataset_id=dataset_id)
 
     if quality['metrics']['overall_score'] < 70:
-        print("⚠️ Quality below threshold")
+        print("Warning: Quality below threshold")
         # Fall back to second result or adjust criteria
 
     # 4. Get download URL
@@ -239,7 +239,7 @@ By following this workflow, you'll:
         **If degraded is true:**
         ```python
         if quality.get('degraded'):
-            print("⚠ Quality service degraded - using cached metrics")
+            print("Warning: Quality service degraded - using cached metrics")
             # Verify critical fields manually from dataset metadata
         ```
       </Step>
@@ -346,7 +346,7 @@ By following this workflow, you'll:
         # Check types
         year_col = next(c for c in schema['columns'] if c['name'] == 'year')
         if year_col['type'] != 'integer':
-            print("⚠ Year column not integer type")
+            print("Warning: Year column not integer type")
         ```
 
         **Common errors:**

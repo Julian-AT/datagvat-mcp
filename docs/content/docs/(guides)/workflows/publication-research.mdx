@@ -262,7 +262,7 @@ By following this workflow, you'll:
                 # Check attribution requirements
                 requires_attribution = 'BY' in license or 'ODbL' in license
                 if requires_attribution:
-                    print(f"  ⚠ Requires attribution in citations")
+                    print(f"  Note: Requires attribution in citations")
             else:
                 print(f"✗ {item['id']}: {license} - Verify restrictions")
         ```
@@ -270,7 +270,7 @@ By following this workflow, you'll:
         **Expected output:**
         ```
         ✓ gesundheit-indikatoren-wien-2024: CC-BY-4.0 - Academic use approved
-          ⚠ Requires attribution in citations
+          Note: Requires attribution in citations
         ✓ umwelt-stat-austria: CC0-1.0 - Academic use approved
           (No attribution required, but recommended)
         ```

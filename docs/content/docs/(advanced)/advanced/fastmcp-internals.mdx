@@ -1013,18 +1013,18 @@ mcp = FastMCP(
 **Wrong:**
 ```python
 middleware=[
-    AuthMiddleware(),          # ❌ Auth exceptions not formatted
+    AuthMiddleware(),          # Incorrect: Auth exceptions not formatted
     ErrorHandlingMiddleware(),
-    StructuredLoggingMiddleware(),  # ❌ No correlation ID assigned
+    StructuredLoggingMiddleware(),  # Incorrect: No correlation ID assigned
 ]
 ```
 
 **Correct:**
 ```python
 middleware=[
-    StructuredLoggingMiddleware(),  # ✅ Assign correlation ID first
-    ErrorHandlingMiddleware(),      # ✅ Catch all exceptions
-    AuthMiddleware(),               # ✅ Auth errors properly formatted
+    StructuredLoggingMiddleware(),  # Assign correlation ID first
+    ErrorHandlingMiddleware(),      # Catch all exceptions
+    AuthMiddleware(),               # Auth errors properly formatted
 ]
 ```
 
@@ -1073,7 +1073,7 @@ async def search(ctx: Context, query: str) -> dict:
 mcp = FastMCP(
     name="my-server",
     middleware=[
-        RateLimitingMiddleware(max_requests_per_second=10.0),  # ❌ Hardcoded
+        RateLimitingMiddleware(max_requests_per_second=10.0),  # Incorrect: Hardcoded
     ]
 )
 ```
@@ -1088,7 +1088,7 @@ class Settings(BaseSettings):
 
 @asynccontextmanager
 async def lifespan(mcp: FastMCP):
-    settings = Settings()  # ✅ From environment
+    settings = Settings()  # From environment
     yield AppState(settings=settings)
 
 settings = Settings()
@@ -1096,7 +1096,7 @@ mcp = FastMCP(
     name="my-server",
     middleware=[
         RateLimitingMiddleware(
-            max_requests_per_second=settings.rate_limit  # ✅ Configurable
+            max_requests_per_second=settings.rate_limit  # Configurable
         ),
     ]
 )
@@ -1111,7 +1111,7 @@ mcp = FastMCP(
 **Wrong:**
 ```python
 @mcp.tool()
-async def search(ctx, query, limit=20):  # ❌ No types
+async def search(ctx, query, limit=20):  # Incorrect: No types
     ...
 ```
 
@@ -1122,10 +1122,10 @@ from pydantic import Field
 
 @mcp.tool()
 async def search(
-    ctx: Context,  # ✅ Context type
-    query: str,    # ✅ Required str
-    limit: Annotated[int, Field(ge=1, le=100)] = 20  # ✅ Validated int
-) -> dict[str, Any]:  # ✅ Return type
+    ctx: Context,  # Context type
+    query: str,    # Required str
+    limit: Annotated[int, Field(ge=1, le=100)] = 20  # Validated int
+) -> dict[str, Any]:  # Return type
     ...
 ```
 
