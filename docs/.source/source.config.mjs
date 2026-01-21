@@ -6,9 +6,9 @@ import {
   frontmatterSchema,
   metaSchema
 } from "fumadocs-mdx/config";
-import { z } from "zod";
 import jsonSchema from "fumadocs-mdx/plugins/json-schema";
 import lastModified from "fumadocs-mdx/plugins/last-modified";
+import { z } from "zod";
 var docs = defineDocs({
   docs: {
     schema: frontmatterSchema.extend({

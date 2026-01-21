@@ -1,9 +1,8 @@
-import { type Registry } from '@fumadocs/cli/build';
-import * as ui from '@fumadocs/base-ui/src/_registry';
-import * as radixUi from '@fumadocs/radix-ui/src/_registry';
-import { fileURLToPath } from 'node:url';
 import * as path from 'node:path';
-import { resolveFromRemote } from '@fumadocs/cli/build';
+import { fileURLToPath } from 'node:url';
+import * as ui from '@fumadocs/base-ui/src/_registry';
+import { type Registry, resolveFromRemote } from '@fumadocs/cli/build';
+import * as radixUi from '@fumadocs/radix-ui/src/_registry';
 
 const baseDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../');
 

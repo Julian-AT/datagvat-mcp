@@ -34,13 +34,17 @@ function generateTestChecklist(data: SamplingOutput): string {
   markdown.push('');
   markdown.push('For each example below:');
   markdown.push('1. Copy the code exactly as shown');
-  markdown.push('2. Run in appropriate environment (Node.js for TS, Python venv for Python, bash shell)');
+  markdown.push(
+    '2. Run in appropriate environment (Node.js for TS, Python venv for Python, bash shell)',
+  );
   markdown.push('3. Mark ✓ PASS if runs without errors, ✗ FAIL if errors');
   markdown.push('4. Document any issues in notes');
   markdown.push('');
   markdown.push('**Environments:**');
   markdown.push('- TypeScript: `node` (or `npx tsx` for TypeScript files)');
-  markdown.push('- Python: Fresh virtual environment with `pip install datagvat-mcp` (or dev install)');
+  markdown.push(
+    '- Python: Fresh virtual environment with `pip install datagvat-mcp` (or dev install)',
+  );
   markdown.push('- Bash: Standard bash/zsh shell');
   markdown.push('');
   markdown.push('---');
@@ -139,8 +143,22 @@ function getExampleContext(example: SampledExample): string | null {
 }
 
 async function main() {
-  const inputPath = join(process.cwd(), '..', '.planning', 'phases', '24-final-polish-a-quality', 'sampled-examples.json');
-  const outputPath = join(process.cwd(), '..', '.planning', 'phases', '24-final-polish-a-quality', 'example-test-results.md');
+  const inputPath = join(
+    process.cwd(),
+    '..',
+    '.planning',
+    'phases',
+    '24-final-polish-a-quality',
+    'sampled-examples.json',
+  );
+  const outputPath = join(
+    process.cwd(),
+    '..',
+    '.planning',
+    'phases',
+    '24-final-polish-a-quality',
+    'example-test-results.md',
+  );
 
   console.log('Reading sampled examples...');
   const data: SamplingOutput = JSON.parse(readFileSync(inputPath, 'utf-8'));

@@ -1,15 +1,13 @@
-import { Home } from 'lucide-react';
-import { Heading } from 'fumadocs-ui/components/heading';
-import { Card } from 'fumadocs-ui/components/card';
-import { Callout } from 'fumadocs-ui/components/callout';
 import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
-import { Step, Steps } from 'fumadocs-ui/components/steps';
-import { TypeTable } from 'fumadocs-ui/components/type-table';
-import { type ReactNode } from 'react';
-import { Wrapper } from './wrapper';
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Card } from 'fumadocs-ui/components/card';
 import { GithubInfo } from 'fumadocs-ui/components/github-info';
-import { owner, repo } from '@/lib/github';
+import { Heading } from 'fumadocs-ui/components/heading';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+import { Home } from 'lucide-react';
+import type { ReactNode } from 'react';
 import {
   Banner,
   DynamicCodeBlock,
@@ -19,6 +17,8 @@ import {
   ImageZoom,
   InlineTOC,
 } from '@/components/preview/lazy';
+import { owner, repo } from '@/lib/github';
+import { Wrapper } from './wrapper';
 
 export function heading(): ReactNode {
   return (
@@ -90,10 +90,7 @@ export function typeTable(): ReactNode {
 }
 
 export function zoomImage(): ReactNode {
-  return (
-    <Wrapper>
-    </Wrapper>
-  );
+  return <Wrapper></Wrapper>;
 }
 
 export function accordion(): ReactNode {

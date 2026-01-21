@@ -1,5 +1,7 @@
 'use client';
 
+import type { Item, Node } from 'fumadocs-core/page-tree';
+import { useDocsSearch } from 'fumadocs-core/search/client';
 import {
   SearchDialog,
   SearchDialogClose,
@@ -13,15 +15,13 @@ import {
   type SearchItemType,
   type SharedProps,
 } from 'fumadocs-ui/components/dialog/search';
-import { useDocsSearch } from 'fumadocs-core/search/client';
-import { useMemo, useState } from 'react';
-import { Popover, PopoverContent, PopoverTrigger } from 'fumadocs-ui/components/ui/popover';
-import { ArrowRight, ChevronDown } from 'lucide-react';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
-import { cn } from '@/lib/cn';
+import { Popover, PopoverContent, PopoverTrigger } from 'fumadocs-ui/components/ui/popover';
 import { useTreeContext } from 'fumadocs-ui/contexts/tree';
-import type { Item, Node } from 'fumadocs-core/page-tree';
+import { ArrowRight, ChevronDown } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useMemo, useState } from 'react';
+import { cn } from '@/lib/cn';
 
 const items = [
   {
@@ -115,9 +115,9 @@ export default function CustomSearchDialog(props: SharedProps) {
           items={
             query.data !== 'empty' || pageTreeAction
               ? [
-                ...(pageTreeAction ? [pageTreeAction] : []),
-                ...(Array.isArray(query.data) ? query.data : []),
-              ]
+                  ...(pageTreeAction ? [pageTreeAction] : []),
+                  ...(Array.isArray(query.data) ? query.data : []),
+                ]
               : null
           }
         />

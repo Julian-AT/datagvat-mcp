@@ -1,28 +1,28 @@
-import type { Metadata } from 'next';
-import { type ComponentProps, type FC, type ReactNode } from 'react';
-import * as Twoslash from 'fumadocs-twoslash/ui';
-import { Callout } from 'fumadocs-ui/components/callout';
-import { TypeTable } from 'fumadocs-ui/components/type-table';
-import * as Preview from '@/components/preview';
-import { createMetadata, getPageImage } from '@/lib/metadata';
-import { source } from '@/lib/source';
-import { Wrapper } from '@/components/preview/wrapper';
-import { Mermaid } from '@/components/mdx/mermaid';
-import { Feedback, FeedbackBlock } from '@/components/feedback/client';
-import { onBlockFeedbackAction, onPageFeedbackAction, owner, repo } from '@/lib/github';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import Link from 'fumadocs-core/link';
 import { findSiblings } from 'fumadocs-core/page-tree';
-import { Card, Cards } from 'fumadocs-ui/components/card';
-import { getMDXComponents } from '@/mdx-components';
-import { LLMCopyButton, ViewOptions } from '@/components/ai/page-actions';
-import { Banner } from 'fumadocs-ui/components/banner';
-import { Installation } from '@/components/preview/installation';
-import { Customisation } from '@/components/preview/customisation';
-import { DocsBody, DocsPage, PageLastUpdate } from 'fumadocs-ui/layouts/docs/page';
-import { NotFound } from '@/components/not-found';
 import { PathUtils } from 'fumadocs-core/source';
+import * as Twoslash from 'fumadocs-twoslash/ui';
+import { Banner } from 'fumadocs-ui/components/banner';
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Card, Cards } from 'fumadocs-ui/components/card';
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+import { DocsBody, DocsPage, PageLastUpdate } from 'fumadocs-ui/layouts/docs/page';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import type { ComponentProps, FC, ReactNode } from 'react';
+import { LLMCopyButton, ViewOptions } from '@/components/ai/page-actions';
+import { Feedback, FeedbackBlock } from '@/components/feedback/client';
+import { Mermaid } from '@/components/mdx/mermaid';
+import { NotFound } from '@/components/not-found';
+import * as Preview from '@/components/preview';
+import { Customisation } from '@/components/preview/customisation';
+import { Installation } from '@/components/preview/installation';
+import { Wrapper } from '@/components/preview/wrapper';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { onBlockFeedbackAction, onPageFeedbackAction, owner, repo } from '@/lib/github';
+import { createMetadata, getPageImage } from '@/lib/metadata';
+import { source } from '@/lib/source';
+import { getMDXComponents } from '@/mdx-components';
 
 function PreviewRenderer({ preview }: { preview: string }): ReactNode {
   if (preview && preview in Preview) {
@@ -43,8 +43,7 @@ export default async function Page({
   const { slug, lang } = await params;
   const page = source.getPage(slug ?? [], lang);
 
-  if (!page)
-    return notFound();
+  if (!page) return notFound();
 
   if (page.data.type === 'openapi') {
     const { APIPage } = await import('@/components/api-page');
@@ -82,7 +81,7 @@ export default async function Page({
         <Mdx
           components={getMDXComponents({
             ...Twoslash,
-            a: ({ href, ...props }: { href?: string;[key: string]: any }) => {
+            a: ({ href, ...props }: { href?: string; [key: string]: any }) => {
               const found = source.getPageByHref(href ?? '', {
                 dir: PathUtils.dirname(page.path),
               });
@@ -104,7 +103,14 @@ export default async function Page({
                 </HoverCard>
               );
             },
-            FeedbackBlock: ({ children, ...props }: { children: React.ReactNode; id: string;[key: string]: any }) => (
+            FeedbackBlock: ({
+              children,
+              ...props
+            }: {
+              children: React.ReactNode;
+              id: string;
+              [key: string]: any;
+            }) => (
               <FeedbackBlock {...props} id={props.id} onSendAction={onBlockFeedbackAction}>
                 {children}
               </FeedbackBlock>

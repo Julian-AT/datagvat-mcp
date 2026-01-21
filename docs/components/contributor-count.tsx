@@ -1,5 +1,5 @@
-import type { HTMLAttributes } from 'react';
 import Image from 'next/image';
+import type { HTMLAttributes } from 'react';
 import { cn } from '@/lib/cn';
 import { fetchContributors } from '@/lib/get-contributors';
 

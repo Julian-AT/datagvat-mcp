@@ -1,29 +1,29 @@
 'use client';
-import { cn } from '@/lib/cn';
+import { cva } from 'class-variance-authority';
+import type { FeedbackBlockProps } from 'fumadocs-core/mdx-plugins/remark-feedback-block';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
+import { Collapsible, CollapsibleContent } from 'fumadocs-ui/components/ui/collapsible';
+import { Popover, PopoverContent, PopoverTrigger } from 'fumadocs-ui/components/ui/popover';
 import { MessageSquare, ThumbsDown, ThumbsUp } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 import {
-  ReactNode,
+  type ReactNode,
   type SyntheticEvent,
   useEffect,
   useEffectEvent,
   useState,
   useTransition,
 } from 'react';
-import { Collapsible, CollapsibleContent } from 'fumadocs-ui/components/ui/collapsible';
-import { cva } from 'class-variance-authority';
-import { usePathname } from 'next/navigation';
-import { Popover, PopoverContent, PopoverTrigger } from 'fumadocs-ui/components/ui/popover';
-import type { FeedbackBlockProps } from 'fumadocs-core/mdx-plugins/remark-feedback-block';
-import {
-  actionResponse,
-  blockFeedback,
-  pageFeedback,
-  type ActionResponse,
-  type BlockFeedback,
-  type PageFeedback,
-} from './schema';
 import { z } from 'zod/mini';
+import { cn } from '@/lib/cn';
+import {
+  type ActionResponse,
+  actionResponse,
+  type BlockFeedback,
+  blockFeedback,
+  type PageFeedback,
+  pageFeedback,
+} from './schema';
 
 const rateButtonVariants = cva(
   'inline-flex items-center gap-2 px-3 py-2 rounded-full font-medium border text-sm [&_svg]:size-4 disabled:cursor-not-allowed',

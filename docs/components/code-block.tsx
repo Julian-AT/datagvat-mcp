@@ -1,7 +1,7 @@
-import * as Base from 'fumadocs-ui/components/codeblock';
 import { getHighlighter, hastToJsx } from 'fumadocs-core/highlight';
-import { cn } from '@/lib/cn';
+import * as Base from 'fumadocs-ui/components/codeblock';
 import type { BundledLanguage } from 'shiki';
+import { cn } from '@/lib/cn';
 
 export interface CodeBlockProps {
   code: string;

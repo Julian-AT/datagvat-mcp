@@ -9,5 +9,5 @@ export function getSection(path: string | undefined) {
       cli: 'cli',
       headless: 'headless',
     }[dir] ?? 'framework'
-  );  
+  );
 }

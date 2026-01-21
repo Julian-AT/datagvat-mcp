@@ -126,11 +126,11 @@ async function main() {
     }
   }
 
-  const invalidBlocks = allBlocks.filter(b => !b.valid);
+  const invalidBlocks = allBlocks.filter((b) => !b.valid);
 
   const result: ValidationResult = {
     totalBlocks: allBlocks.length,
-    validBlocks: allBlocks.filter(b => b.valid).length,
+    validBlocks: allBlocks.filter((b) => b.valid).length,
     invalidBlocks,
     languageCounts,
   };
@@ -141,8 +141,7 @@ async function main() {
   console.log(`Invalid blocks: ${result.invalidBlocks.length}\n`);
 
   console.log('Languages found:');
-  const sortedLanguages = Object.entries(result.languageCounts)
-    .sort(([, a], [, b]) => b - a);
+  const sortedLanguages = Object.entries(result.languageCounts).sort(([, a], [, b]) => b - a);
 
   for (const [lang, count] of sortedLanguages) {
     const status = VALID_LANGUAGES.includes(lang.toLowerCase()) ? '✓' : '✗';
@@ -154,7 +153,9 @@ async function main() {
     for (const block of result.invalidBlocks) {
       console.log(`  ${block.file}:${block.line} - Invalid language: "${block.lang || '(empty)'}"`);
     }
-    console.log('\nSuggestion: Use one of the supported languages or add the language to VALID_LANGUAGES array.');
+    console.log(
+      '\nSuggestion: Use one of the supported languages or add the language to VALID_LANGUAGES array.',
+    );
     process.exit(1);
   } else {
     console.log('\n✓ All code blocks have valid syntax highlighting languages');
@@ -162,7 +163,7 @@ async function main() {
   }
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('Error running syntax highlighting verification:', error);
   process.exit(1);
 });

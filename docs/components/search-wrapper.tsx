@@ -1,7 +1,7 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import type { SharedProps } from 'fumadocs-ui/components/dialog/search';
+import dynamic from 'next/dynamic';
 
 const CustomSearchDialog = dynamic(() => import('./search'), {
   ssr: false,

@@ -9,8 +9,8 @@
  * Usage: npx tsx ./scripts/component-audit.ts
  */
 
-import { readdirSync, readFileSync, statSync, writeFileSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
+import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'fs';
+import { dirname, join } from 'path';
 
 interface ComponentUsage {
   total: number;
@@ -138,9 +138,16 @@ async function main() {
     }
 
     // Type information (QUAL-03) - check for TypeTable usage and inline types
-    if (filePath.includes('/tools/') || filePath.includes('/api/') || filePath.includes('/guides/')) {
+    if (
+      filePath.includes('/tools/') ||
+      filePath.includes('/api/') ||
+      filePath.includes('/guides/')
+    ) {
       const hasTypeTable = typeTableMatches > 0;
-      const hasInlineTypes = content.includes(': string') || content.includes(': number') || content.includes(': boolean');
+      const hasInlineTypes =
+        content.includes(': string') ||
+        content.includes(': number') ||
+        content.includes(': boolean');
 
       if (hasTypeTable || hasInlineTypes) {
         result.typeInfo.apiDocsWithTypes++;
@@ -149,7 +156,11 @@ async function main() {
 
     // Count code examples with type annotations
     if (content.match(/```(typescript|python|ts|tsx)/gi)) {
-      const hasTypeAnnotations = content.includes(': str') || content.includes(': int') || content.includes(': string') || content.includes(': number');
+      const hasTypeAnnotations =
+        content.includes(': str') ||
+        content.includes(': int') ||
+        content.includes(': string') ||
+        content.includes(': number');
       if (hasTypeAnnotations) {
         result.typeInfo.examplesWithTypes++;
       }
@@ -157,9 +168,12 @@ async function main() {
 
     // Error handling (QUAL-04) - check for try/catch, error responses
     if (filePath.includes('/guides/') || filePath.includes('/advanced/')) {
-      const hasTryCatch = content.includes('try:') || content.includes('try {') || content.includes('except');
-      const hasErrorResponse = content.includes('ToolError') || content.includes('error') || content.includes('Error');
-      const hasTroubleshooting = content.includes('## Troubleshooting') || content.includes('## Common Issues');
+      const hasTryCatch =
+        content.includes('try:') || content.includes('try {') || content.includes('except');
+      const hasErrorResponse =
+        content.includes('ToolError') || content.includes('error') || content.includes('Error');
+      const hasTroubleshooting =
+        content.includes('## Troubleshooting') || content.includes('## Common Issues');
 
       if (hasTryCatch || hasErrorResponse || hasTroubleshooting) {
         result.errorHandling.guidesWithExamples++;
@@ -193,7 +207,7 @@ async function main() {
   console.log(`  ✓ ${result.tabs.withGroupId} with groupId`);
   if (result.tabs.issues.length > 0) {
     console.log(`  ✗ ${result.tabs.issues.length} missing persist:`);
-    result.tabs.issues.forEach(issue => {
+    result.tabs.issues.forEach((issue) => {
       console.log(`    ${issue.file}:${issue.line} - ${issue.issue}`);
     });
   }
@@ -209,19 +223,23 @@ async function main() {
   console.log(`  ✓ ${result.typeInfo.examplesWithTypes} code examples with type annotations`);
 
   console.log('\nQUAL-04 (Error Handling):');
-  console.log(`  ✓ ${result.errorHandling.guidesWithExamples} guides include error handling examples`);
+  console.log(
+    `  ✓ ${result.errorHandling.guidesWithExamples} guides include error handling examples`,
+  );
   console.log(`  ✓ Patterns: ${result.errorHandling.patterns.join(', ')}`);
 
   if (result.tabs.issues.length > 0) {
     console.log('\nRecommendations:');
-    console.log('- Add persist prop to Tabs in ' + result.tabs.issues.length + ' files for cross-page state');
+    console.log(
+      '- Add persist prop to Tabs in ' + result.tabs.issues.length + ' files for cross-page state',
+    );
   }
 
   console.log('\n✓ Component audit complete');
   process.exit(0);
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('Error running component audit:', error);
   process.exit(1);
 });

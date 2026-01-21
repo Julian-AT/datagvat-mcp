@@ -30,7 +30,8 @@ function printHeader(text: string) {
 
 function printResult(result: CheckResult) {
   const icon = result.status === 'PASS' ? '✓' : result.status === 'WARN' ? '⚠' : '✗';
-  const color = result.status === 'PASS' ? '\x1b[32m' : result.status === 'WARN' ? '\x1b[33m' : '\x1b[31m';
+  const color =
+    result.status === 'PASS' ? '\x1b[32m' : result.status === 'WARN' ? '\x1b[33m' : '\x1b[31m';
   const reset = '\x1b[0m';
 
   console.log(`${color}${icon} ${result.name}: ${result.status}${reset}`);
@@ -47,20 +48,20 @@ function runCommand(command: string, name: string): CheckResult {
     const output = execSync(command, {
       cwd: join(process.cwd()),
       encoding: 'utf-8',
-      stdio: 'pipe'
+      stdio: 'pipe',
     });
 
     return {
       name,
       status: 'PASS',
-      message: output.trim().split('\n').slice(-2).join(' ')
+      message: output.trim().split('\n').slice(-2).join(' '),
     };
   } catch (error: any) {
     return {
       name,
       status: 'FAIL',
       message: 'Command failed',
-      details: error.message
+      details: error.message,
     };
   }
 }
@@ -71,13 +72,13 @@ function checkFileExists(path: string, name: string): CheckResult {
     return {
       name,
       status: 'PASS',
-      message: `Found: ${path}`
+      message: `Found: ${path}`,
     };
   } else {
     return {
       name,
       status: 'FAIL',
-      message: `Missing: ${path}`
+      message: `Missing: ${path}`,
     };
   }
 }
@@ -113,7 +114,10 @@ async function main() {
 
   // Check 4: Syntax Highlighting Verification
   console.log('Running syntax highlighting verification...');
-  const syntaxCheck = runCommand('npx tsx ./scripts/verify-syntax-highlighting.ts', 'Syntax Highlighting');
+  const syntaxCheck = runCommand(
+    'npx tsx ./scripts/verify-syntax-highlighting.ts',
+    'Syntax Highlighting',
+  );
   results.push(syntaxCheck);
   printResult(syntaxCheck);
 
@@ -125,22 +129,28 @@ async function main() {
 
   // Check 6: Type Information Verification (QUAL-03)
   console.log('\nVerifying type information presence...');
-  const typeInfoCheck = checkFileExists('.planning/phases/24-final-polish-a-quality/component-audit-results.json', 'Type Information (QUAL-03)');
+  const typeInfoCheck = checkFileExists(
+    '.planning/phases/24-final-polish-a-quality/component-audit-results.json',
+    'Type Information (QUAL-03)',
+  );
   results.push(typeInfoCheck);
   printResult(typeInfoCheck);
 
   // Check 7: Error Handling Examples (QUAL-04)
   console.log('\nVerifying error handling examples...');
-  const errorHandlingCheck = checkFileExists('content/docs/advanced/error-handling.mdx', 'Error Handling (QUAL-04)');
+  const errorHandlingCheck = checkFileExists(
+    'content/docs/advanced/error-handling.mdx',
+    'Error Handling (QUAL-04)',
+  );
   results.push(errorHandlingCheck);
   printResult(errorHandlingCheck);
 
   // Summary
   printHeader('Summary');
 
-  const passed = results.filter(r => r.status === 'PASS').length;
-  const failed = results.filter(r => r.status === 'FAIL').length;
-  const warnings = results.filter(r => r.status === 'WARN').length;
+  const passed = results.filter((r) => r.status === 'PASS').length;
+  const failed = results.filter((r) => r.status === 'FAIL').length;
+  const warnings = results.filter((r) => r.status === 'WARN').length;
 
   console.log(`Total checks: ${results.length}`);
   console.log(`✓ Passed: ${passed}`);
@@ -156,7 +166,7 @@ async function main() {
   }
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('Fatal error running quality checks:', error);
   process.exit(1);
 });

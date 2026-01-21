@@ -1,5 +1,5 @@
-import { source } from '@/lib/source';
 import type { Graph } from '@/components/graph-view';
+import { source } from '@/lib/source';
 
 export function buildGraph(): Graph {
   const pages = source.getPages();
@@ -13,7 +13,9 @@ export function buildGraph(): Graph {
       description: page.data.description ?? '',
     });
 
-    const extractedReferences = ('extractedReferences' in page.data ? page.data.extractedReferences : []) as Array<{ href: string }>;
+    const extractedReferences = (
+      'extractedReferences' in page.data ? page.data.extractedReferences : []
+    ) as Array<{ href: string }>;
     for (const ref of extractedReferences) {
       const refPage = source.getPageByHref(ref.href);
       if (!refPage) continue;

@@ -1,4 +1,10 @@
 'use client';
+import { type UIMessage, type UseChatHelpers, useChat } from '@ai-sdk/react';
+import { Presence } from '@radix-ui/react-presence';
+import { DefaultChatTransport } from 'ai';
+import Link from 'fumadocs-core/link';
+import { buttonVariants } from 'fumadocs-ui/components/ui/button';
+import { Loader2, MessageCircleIcon, RefreshCw, Send, X } from 'lucide-react';
 import {
   type ComponentProps,
   createContext,
@@ -11,15 +17,9 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Loader2, MessageCircleIcon, RefreshCw, Send, X } from 'lucide-react';
-import { cn } from '@/lib/cn';
-import { buttonVariants } from 'fumadocs-ui/components/ui/button';
-import Link from 'fumadocs-core/link';
-import { type UIMessage, useChat, type UseChatHelpers } from '@ai-sdk/react';
 import type { z } from 'zod';
-import { DefaultChatTransport } from 'ai';
+import { cn } from '@/lib/cn';
 import { Markdown } from './markdown';
-import { Presence } from '@radix-ui/react-presence';
 
 const Context = createContext<{
   open: boolean;

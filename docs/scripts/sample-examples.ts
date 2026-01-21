@@ -1,9 +1,9 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import type { Code } from 'mdast';
 import { remark } from 'remark';
 import remarkMdx from 'remark-mdx';
 import { visit } from 'unist-util-visit';
-import type { Code } from 'mdast';
 
 interface CodeExample {
   page: string;
@@ -20,7 +20,7 @@ const samplingStrata = {
   tutorials: { targetSamples: 2 },
   examples: { targetSamples: 4 },
   advanced: { targetSamples: 3 },
-  'best-practices': { targetSamples: 2 }
+  'best-practices': { targetSamples: 2 },
 };
 
 function classifyPage(relativePath: string): string {
@@ -66,7 +66,7 @@ function extractCodeBlocks(filePath: string, content: string): CodeExample[] {
       language: normalizedLang,
       code: node.value,
       line: node.position?.start.line || 0,
-      filename: node.meta || undefined
+      filename: node.meta || undefined,
     });
   });
 
@@ -107,7 +107,7 @@ function stratifiedSample(examples: CodeExample[]): CodeExample[] {
     tutorials: [],
     examples: [],
     advanced: [],
-    'best-practices': []
+    'best-practices': [],
   };
 
   // Group examples by section
@@ -168,10 +168,17 @@ async function main() {
     totalExamples: allExamples.length,
     sampledExamples: withIds.length,
     strata: actualStrata,
-    examples: withIds
+    examples: withIds,
   };
 
-  const outputPath = join(process.cwd(), '..', '.planning', 'phases', '24-final-polish-a-quality', 'sampled-examples.json');
+  const outputPath = join(
+    process.cwd(),
+    '..',
+    '.planning',
+    'phases',
+    '24-final-polish-a-quality',
+    'sampled-examples.json',
+  );
   const { writeFileSync } = await import('node:fs');
   writeFileSync(outputPath, JSON.stringify(output, null, 2));
 

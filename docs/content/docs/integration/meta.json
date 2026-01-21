@@ -4,8 +4,5 @@
   "description": "Integrate data.gv.at MCP Server with your tools",
   "icon": "Plug",
   "root": true,
-  "pages": [
-    "claude-desktop",
-    "other-clients"
-  ]
+  "pages": ["claude-desktop", "other-clients"]
 }

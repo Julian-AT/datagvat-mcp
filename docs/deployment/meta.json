@@ -4,9 +4,5 @@
   "description": "Production deployment and operations guide",
   "icon": "Cloud",
   "root": true,
-  "pages": [
-    "production",
-    "monitoring",
-    "performance"
-  ]
+  "pages": ["production", "monitoring", "performance"]
 }

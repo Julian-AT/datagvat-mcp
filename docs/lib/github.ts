@@ -1,5 +1,5 @@
 import { App, type Octokit } from 'octokit';
-import type { ActionResponse, PageFeedback, BlockFeedback } from '@/components/feedback/schema';
+import type { ActionResponse, BlockFeedback, PageFeedback } from '@/components/feedback/schema';
 
 export const repo = 'datagvat-mcp';
 export const owner = 'julian-at';

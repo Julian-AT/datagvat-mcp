@@ -1,11 +1,11 @@
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
-import { source } from '@/lib/source';
 import { AISearch, AISearchPanel, AISearchTrigger } from '@/components/ai/search';
+import { source } from '@/lib/source';
 import 'katex/dist/katex.min.css';
-import { getSection } from '@/lib/source/navigation';
+import type { ReactNode } from 'react';
 import { Logo } from '@/components/logo';
 import { baseOptions } from '@/lib/layout.shared';
-import type { ReactNode } from 'react';
+import { getSection } from '@/lib/source/navigation';
 
 export default async function Layout({
   params,
@@ -22,9 +22,7 @@ export default async function Layout({
       {...base}
       tree={source.getPageTree(lang)}
       nav={{
-        title: (
-          <Logo />
-        ),
+        title: <Logo />,
       }}
       sidebar={{
         tabs: {
@@ -51,7 +49,7 @@ export default async function Layout({
           },
         },
       }}
-      githubUrl='https://github.com/julian-at/datagvat-mcp/'
+      githubUrl="https://github.com/julian-at/datagvat-mcp/"
     >
       {children}
       <AISearch>

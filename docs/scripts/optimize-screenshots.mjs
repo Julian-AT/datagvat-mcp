@@ -1,8 +1,7 @@
+import { mkdir, readdir, stat } from 'fs/promises';
+import { basename, dirname, extname, join } from 'path';
 import sharp from 'sharp';
-import { readdir, mkdir, stat } from 'fs/promises';
-import { join, basename, extname } from 'path';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -28,11 +27,11 @@ async function optimizeScreenshot(inputPath, outputPath) {
   await sharp(inputPath)
     .resize(MAX_WIDTH, null, {
       withoutEnlargement: true,
-      fit: 'inside'
+      fit: 'inside',
     })
     .webp({
       quality: WEBP_QUALITY,
-      effort: 6
+      effort: 6,
     })
     .toFile(outputPath);
 
@@ -55,7 +54,7 @@ async function main() {
     const files = await readdir(SOURCE_DIR);
 
     // Filter to image files only
-    const imageFiles = files.filter(file => {
+    const imageFiles = files.filter((file) => {
       const ext = extname(file).toLowerCase();
       return ['.png', '.jpg', '.jpeg'].includes(ext);
     });
@@ -65,7 +64,9 @@ async function main() {
       return;
     }
 
-    console.log(`Optimizing ${imageFiles.length} screenshot${imageFiles.length !== 1 ? 's' : ''}...`);
+    console.log(
+      `Optimizing ${imageFiles.length} screenshot${imageFiles.length !== 1 ? 's' : ''}...`,
+    );
 
     let totalInputSize = 0;
     let totalOutputSize = 0;
@@ -86,15 +87,15 @@ async function main() {
         console.log(`✓ ${file} → ${outputFile} (${reduction}% reduction)`);
       } catch (error) {
         console.error(`✗ Failed to optimize ${file}: ${error.message}`);
-        continue; // Continue with next file
       }
     }
 
     // Summary
     const totalReduction = ((1 - totalOutputSize / totalInputSize) * 100).toFixed(1);
     console.log(`\nOptimization complete!`);
-    console.log(`Total size reduction: ${totalReduction}% (${(totalInputSize / 1024 / 1024).toFixed(2)}MB → ${(totalOutputSize / 1024 / 1024).toFixed(2)}MB)`);
-
+    console.log(
+      `Total size reduction: ${totalReduction}% (${(totalInputSize / 1024 / 1024).toFixed(2)}MB → ${(totalOutputSize / 1024 / 1024).toFixed(2)}MB)`,
+    );
   } catch (error) {
     console.error(`Error during optimization: ${error.message}`);
     process.exit(1);

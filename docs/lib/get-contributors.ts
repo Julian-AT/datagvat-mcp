@@ -15,22 +15,16 @@ export interface Contributor {
  * @param repo - Repository name
  * @returns Array of contributors sorted by contribution count
  */
-export async function fetchContributors(
-  owner: string,
-  repo: string
-): Promise<Contributor[]> {
+export async function fetchContributors(owner: string, repo: string): Promise<Contributor[]> {
   try {
-    const response = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contributors`,
-      {
-        headers: {
-          'Accept': 'application/vnd.github.v3+json',
-        },
-        next: {
-          revalidate: 3600, // Cache for 1 hour
-        },
-      }
-    );
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contributors`, {
+      headers: {
+        Accept: 'application/vnd.github.v3+json',
+      },
+      next: {
+        revalidate: 3600, // Cache for 1 hour
+      },
+    });
 
     if (!response.ok) {
       console.warn(`Failed to fetch contributors: ${response.statusText}`);

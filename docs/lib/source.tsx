@@ -5,12 +5,11 @@ import {
   loader,
   multiple,
 } from 'fumadocs-core/source';
-import { openapiPlugin, openapiSource } from 'fumadocs-openapi/server';
-import { docs } from '../.source/server';
 import { lucideIconsPlugin } from 'fumadocs-core/source/lucide-icons';
-import { openapi } from '@/lib/openapi';
+import { openapiPlugin, openapiSource } from 'fumadocs-openapi/server';
 import { i18n } from '@/lib/i18n';
-
+import { openapi } from '@/lib/openapi';
+import { docs } from '../.source/server';
 
 export const source = loader(
   multiple({
@@ -48,8 +47,6 @@ function pageTreeCodeTitles(): LoaderPlugin {
     },
   };
 }
-
-
 
 export type Page = InferPageType<typeof source>;
 export type Meta = InferMetaType<typeof source>;

@@ -1,9 +1,9 @@
 'use client';
-import { usePathname } from 'next/navigation';
 import { useBreadcrumb } from 'fumadocs-core/breadcrumb';
-import { Fragment } from 'react';
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Fragment } from 'react';
 
 type PageTreeRoot = Parameters<typeof useBreadcrumb>[1];
 
