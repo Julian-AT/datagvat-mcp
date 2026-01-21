@@ -2,27 +2,120 @@
 import { browser } from 'fumadocs-mdx/runtime/browser';
 import type * as Config from '../source.config';
 
-const create = browser<typeof Config, import("fumadocs-mdx/runtime/types").InternalTypeConfig & {
-  DocData: {
-    docs: {
-      /**
-       * extracted references (e.g. hrefs, paths), useful for analyzing relationships between pages.
-       */
-      extractedReferences: import("fumadocs-mdx").ExtractedReference[];
-    },
+const create = browser<
+  typeof Config,
+  import('fumadocs-mdx/runtime/types').InternalTypeConfig & {
+    DocData: {
+      docs: {
+        /**
+         * extracted references (e.g. hrefs, paths), useful for analyzing relationships between pages.
+         */
+        extractedReferences: import('fumadocs-mdx').ExtractedReference[];
+      };
+    };
+  } & {
+    DocData: {
+      docs: {
+        /**
+         * Last modified date of document file, obtained from version control.
+         *
+         */
+        lastModified?: Date;
+      };
+    };
   }
-} & {
-  DocData: {
-    docs: {
-      /**
-       * Last modified date of document file, obtained from version control.
-       *
-       */
-      lastModified?: Date;
-    },
-  }
-}>();
+>();
 const browserCollections = {
-  docs: create.doc("docs", {"index.mdx": () => import("../content/docs/index.mdx?collection=docs"), "getting-started/first-query.mdx": () => import("../content/docs/getting-started/first-query.mdx?collection=docs"), "getting-started/index.de.mdx": () => import("../content/docs/getting-started/index.de.mdx?collection=docs"), "getting-started/index.mdx": () => import("../content/docs/getting-started/index.mdx?collection=docs"), "getting-started/installation.de.mdx": () => import("../content/docs/getting-started/installation.de.mdx?collection=docs"), "getting-started/installation.mdx": () => import("../content/docs/getting-started/installation.mdx?collection=docs"), "getting-started/quick-reference.mdx": () => import("../content/docs/getting-started/quick-reference.mdx?collection=docs"), "getting-started/quickstart.mdx": () => import("../content/docs/getting-started/quickstart.mdx?collection=docs"), "getting-started/troubleshooting.mdx": () => import("../content/docs/getting-started/troubleshooting.mdx?collection=docs"), "tutorials/getting-started.de.mdx": () => import("../content/docs/tutorials/getting-started.de.mdx?collection=docs"), "tutorials/getting-started.mdx": () => import("../content/docs/tutorials/getting-started.mdx?collection=docs"), "(advanced)/advanced/architecture.mdx": () => import("../content/docs/(advanced)/advanced/architecture.mdx?collection=docs"), "(advanced)/advanced/error-handling.mdx": () => import("../content/docs/(advanced)/advanced/error-handling.mdx?collection=docs"), "(advanced)/advanced/fastmcp-internals.mdx": () => import("../content/docs/(advanced)/advanced/fastmcp-internals.mdx?collection=docs"), "(advanced)/advanced/testing.mdx": () => import("../content/docs/(advanced)/advanced/testing.mdx?collection=docs"), "(advanced)/best-practices/caching-strategies.mdx": () => import("../content/docs/(advanced)/best-practices/caching-strategies.mdx?collection=docs"), "(advanced)/best-practices/comparison-tables.mdx": () => import("../content/docs/(advanced)/best-practices/comparison-tables.mdx?collection=docs"), "(advanced)/best-practices/optimization.de.mdx": () => import("../content/docs/(advanced)/best-practices/optimization.de.mdx?collection=docs"), "(advanced)/best-practices/optimization.mdx": () => import("../content/docs/(advanced)/best-practices/optimization.mdx?collection=docs"), "(advanced)/best-practices/quality-interpretation.mdx": () => import("../content/docs/(advanced)/best-practices/quality-interpretation.mdx?collection=docs"), "(advanced)/best-practices/rate-limiting.mdx": () => import("../content/docs/(advanced)/best-practices/rate-limiting.mdx?collection=docs"), "(advanced)/integration/claude-desktop.mdx": () => import("../content/docs/(advanced)/integration/claude-desktop.mdx?collection=docs"), "(advanced)/integration/other-clients.mdx": () => import("../content/docs/(advanced)/integration/other-clients.mdx?collection=docs"), "(guides)/examples/component-showcase.mdx": () => import("../content/docs/(guides)/examples/component-showcase.mdx?collection=docs"), "(guides)/examples/preview.de.mdx": () => import("../content/docs/(guides)/examples/preview.de.mdx?collection=docs"), "(guides)/examples/preview.mdx": () => import("../content/docs/(guides)/examples/preview.mdx?collection=docs"), "(guides)/examples/search.de.mdx": () => import("../content/docs/(guides)/examples/search.de.mdx?collection=docs"), "(guides)/examples/search.mdx": () => import("../content/docs/(guides)/examples/search.mdx?collection=docs"), "(guides)/examples/workflows.de.mdx": () => import("../content/docs/(guides)/examples/workflows.de.mdx?collection=docs"), "(guides)/examples/workflows.mdx": () => import("../content/docs/(guides)/examples/workflows.mdx?collection=docs"), "(guides)/guides/configuration.de.mdx": () => import("../content/docs/(guides)/guides/configuration.de.mdx?collection=docs"), "(guides)/guides/configuration.mdx": () => import("../content/docs/(guides)/guides/configuration.mdx?collection=docs"), "(guides)/guides/data-preview.mdx": () => import("../content/docs/(guides)/guides/data-preview.mdx?collection=docs"), "(guides)/guides/quality-metrics.mdx": () => import("../content/docs/(guides)/guides/quality-metrics.mdx?collection=docs"), "(guides)/guides/searching.mdx": () => import("../content/docs/(guides)/guides/searching.mdx?collection=docs"), "(guides)/guides/setup.de.mdx": () => import("../content/docs/(guides)/guides/setup.de.mdx?collection=docs"), "(guides)/guides/setup.mdx": () => import("../content/docs/(guides)/guides/setup.mdx?collection=docs"), "(guides)/guides/workflow-patterns.mdx": () => import("../content/docs/(guides)/guides/workflow-patterns.mdx?collection=docs"), "(guides)/workflows/comparative-analysis.mdx": () => import("../content/docs/(guides)/workflows/comparative-analysis.mdx?collection=docs"), "(guides)/workflows/data-export.mdx": () => import("../content/docs/(guides)/workflows/data-export.mdx?collection=docs"), "(guides)/workflows/discovery.mdx": () => import("../content/docs/(guides)/workflows/discovery.mdx?collection=docs"), "(guides)/workflows/publication-research.mdx": () => import("../content/docs/(guides)/workflows/publication-research.mdx?collection=docs"), "(guides)/workflows/quality-assessment.mdx": () => import("../content/docs/(guides)/workflows/quality-assessment.mdx?collection=docs"), "(guides)/workflows/semantic-exploration.mdx": () => import("../content/docs/(guides)/workflows/semantic-exploration.mdx?collection=docs"), }),
+  docs: create.doc('docs', {
+    'index.mdx': () => import('../content/docs/index.mdx?collection=docs'),
+    'getting-started/first-query.mdx': () =>
+      import('../content/docs/getting-started/first-query.mdx?collection=docs'),
+    'getting-started/index.de.mdx': () =>
+      import('../content/docs/getting-started/index.de.mdx?collection=docs'),
+    'getting-started/index.mdx': () =>
+      import('../content/docs/getting-started/index.mdx?collection=docs'),
+    'getting-started/installation.de.mdx': () =>
+      import('../content/docs/getting-started/installation.de.mdx?collection=docs'),
+    'getting-started/installation.mdx': () =>
+      import('../content/docs/getting-started/installation.mdx?collection=docs'),
+    'getting-started/quick-reference.mdx': () =>
+      import('../content/docs/getting-started/quick-reference.mdx?collection=docs'),
+    'getting-started/quickstart.mdx': () =>
+      import('../content/docs/getting-started/quickstart.mdx?collection=docs'),
+    'getting-started/troubleshooting.mdx': () =>
+      import('../content/docs/getting-started/troubleshooting.mdx?collection=docs'),
+    'tutorials/getting-started.de.mdx': () =>
+      import('../content/docs/tutorials/getting-started.de.mdx?collection=docs'),
+    'tutorials/getting-started.mdx': () =>
+      import('../content/docs/tutorials/getting-started.mdx?collection=docs'),
+    '(advanced)/advanced/architecture.mdx': () =>
+      import('../content/docs/(advanced)/advanced/architecture.mdx?collection=docs'),
+    '(advanced)/advanced/error-handling.mdx': () =>
+      import('../content/docs/(advanced)/advanced/error-handling.mdx?collection=docs'),
+    '(advanced)/advanced/fastmcp-internals.mdx': () =>
+      import('../content/docs/(advanced)/advanced/fastmcp-internals.mdx?collection=docs'),
+    '(advanced)/advanced/testing.mdx': () =>
+      import('../content/docs/(advanced)/advanced/testing.mdx?collection=docs'),
+    '(advanced)/best-practices/caching-strategies.mdx': () =>
+      import('../content/docs/(advanced)/best-practices/caching-strategies.mdx?collection=docs'),
+    '(advanced)/best-practices/comparison-tables.mdx': () =>
+      import('../content/docs/(advanced)/best-practices/comparison-tables.mdx?collection=docs'),
+    '(advanced)/best-practices/optimization.de.mdx': () =>
+      import('../content/docs/(advanced)/best-practices/optimization.de.mdx?collection=docs'),
+    '(advanced)/best-practices/optimization.mdx': () =>
+      import('../content/docs/(advanced)/best-practices/optimization.mdx?collection=docs'),
+    '(advanced)/best-practices/quality-interpretation.mdx': () =>
+      import(
+        '../content/docs/(advanced)/best-practices/quality-interpretation.mdx?collection=docs'
+      ),
+    '(advanced)/best-practices/rate-limiting.mdx': () =>
+      import('../content/docs/(advanced)/best-practices/rate-limiting.mdx?collection=docs'),
+    '(advanced)/integration/claude-desktop.mdx': () =>
+      import('../content/docs/(advanced)/integration/claude-desktop.mdx?collection=docs'),
+    '(advanced)/integration/other-clients.mdx': () =>
+      import('../content/docs/(advanced)/integration/other-clients.mdx?collection=docs'),
+    '(guides)/examples/component-showcase.mdx': () =>
+      import('../content/docs/(guides)/examples/component-showcase.mdx?collection=docs'),
+    '(guides)/examples/preview.de.mdx': () =>
+      import('../content/docs/(guides)/examples/preview.de.mdx?collection=docs'),
+    '(guides)/examples/preview.mdx': () =>
+      import('../content/docs/(guides)/examples/preview.mdx?collection=docs'),
+    '(guides)/examples/search.de.mdx': () =>
+      import('../content/docs/(guides)/examples/search.de.mdx?collection=docs'),
+    '(guides)/examples/search.mdx': () =>
+      import('../content/docs/(guides)/examples/search.mdx?collection=docs'),
+    '(guides)/examples/workflows.de.mdx': () =>
+      import('../content/docs/(guides)/examples/workflows.de.mdx?collection=docs'),
+    '(guides)/examples/workflows.mdx': () =>
+      import('../content/docs/(guides)/examples/workflows.mdx?collection=docs'),
+    '(guides)/guides/configuration.de.mdx': () =>
+      import('../content/docs/(guides)/guides/configuration.de.mdx?collection=docs'),
+    '(guides)/guides/configuration.mdx': () =>
+      import('../content/docs/(guides)/guides/configuration.mdx?collection=docs'),
+    '(guides)/guides/data-preview.mdx': () =>
+      import('../content/docs/(guides)/guides/data-preview.mdx?collection=docs'),
+    '(guides)/guides/quality-metrics.mdx': () =>
+      import('../content/docs/(guides)/guides/quality-metrics.mdx?collection=docs'),
+    '(guides)/guides/searching.mdx': () =>
+      import('../content/docs/(guides)/guides/searching.mdx?collection=docs'),
+    '(guides)/guides/setup.de.mdx': () =>
+      import('../content/docs/(guides)/guides/setup.de.mdx?collection=docs'),
+    '(guides)/guides/setup.mdx': () =>
+      import('../content/docs/(guides)/guides/setup.mdx?collection=docs'),
+    '(guides)/guides/workflow-patterns.mdx': () =>
+      import('../content/docs/(guides)/guides/workflow-patterns.mdx?collection=docs'),
+    '(guides)/workflows/comparative-analysis.mdx': () =>
+      import('../content/docs/(guides)/workflows/comparative-analysis.mdx?collection=docs'),
+    '(guides)/workflows/data-export.mdx': () =>
+      import('../content/docs/(guides)/workflows/data-export.mdx?collection=docs'),
+    '(guides)/workflows/discovery.mdx': () =>
+      import('../content/docs/(guides)/workflows/discovery.mdx?collection=docs'),
+    '(guides)/workflows/publication-research.mdx': () =>
+      import('../content/docs/(guides)/workflows/publication-research.mdx?collection=docs'),
+    '(guides)/workflows/quality-assessment.mdx': () =>
+      import('../content/docs/(guides)/workflows/quality-assessment.mdx?collection=docs'),
+    '(guides)/workflows/semantic-exploration.mdx': () =>
+      import('../content/docs/(guides)/workflows/semantic-exploration.mdx?collection=docs'),
+  }),
 };
 export default browserCollections;
