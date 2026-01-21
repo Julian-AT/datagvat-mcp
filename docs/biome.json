@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -23,7 +23,7 @@
         "noNegationElse": "error",
         "useBlockStatements": "warn",
         "useCollapsedElseIf": "error",
-        "useShorthandArrayType": "error"
+        "useConsistentArrayType": "error"
       },
       "complexity": {
         "noExtraBooleanCast": "error",
@@ -31,8 +31,9 @@
         "useFlatMap": "error"
       },
       "suspicious": {
-        "noConsoleLog": "warn",
-        "noDebugger": "error"
+        "noConsole": "warn",
+        "noDebugger": "error",
+        "noExplicitAny": "warn"
       }
     }
   },
@@ -40,6 +41,12 @@
     "formatter": {
       "quoteStyle": "single",
       "semicolons": "always"
+    }
+  },
+  "css": {
+    "parser": {
+      "cssModules": false,
+      "tailwindDirectives": true
     }
   },
   "assist": {
