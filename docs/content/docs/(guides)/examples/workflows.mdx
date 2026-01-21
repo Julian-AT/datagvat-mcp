@@ -3,9 +3,9 @@ title: Complete Workflows
 description: End-to-end scenarios combining multiple tools
 ---
 
-# Complete Workflows
+# Complete workflows
 
-Learn how to combine data.gv.at MCP Server tools for complete data discovery workflows.
+Learn how to combine tools for complete data discovery workflows.
 
 ## Workflow 1: Find → Preview → Download
 
@@ -14,14 +14,14 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
     Complete journey from search to data access:
 
     ```python
-    # All-in-one discovery workflow
+    # Discovery workflow for Vienna population data
     # 1. Search for datasets
     results = search_datasets(
-      query="health statistics",
-      themes=["HEAL"],
+      query="Bevölkerung Wien Bezirk",
+      themes=["SOCI"],
       formats=["CSV"],
       publishers=["Stadt Wien"],
-      quality_boost=True,
+      boost_quality=True,
       limit=10
     )
 
@@ -39,7 +39,7 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
     preview = preview_data(url=download_url, max_rows=20, format="CSV")
 
     # 5. Validate and proceed
-    expected_columns = ["year", "region", "cases"]
+    expected_columns = ["Jahr", "Bezirk", "Einwohner"]
     actual_columns = [c['name'] for c in schema['columns']]
 
     if all(col in actual_columns for col in expected_columns):
@@ -51,17 +51,17 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
   <Tab value="Step by Step">
     <Steps>
       <Step>
-        ### Search for Datasets
+        ### Search for datasets
         Find relevant datasets using filters:
 
         ```python
-        # Find health-related CSV datasets from Vienna
+        # Find population datasets from Vienna
         results = search_datasets(
-          query="health statistics",
-          themes=["HEAL"],
+          query="Bevölkerung Wien Bezirk",
+          themes=["SOCI"],
           formats=["CSV"],
           publishers=["Stadt Wien"],
-          quality_boost=True,
+          boost_quality=True,
           limit=10
         )
 
@@ -76,8 +76,8 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
       </Step>
 
       <Step>
-        ### Select and Examine Dataset
-        Get complete metadata for selected dataset:
+        ### Select and examine dataset
+        Get complete metadata:
 
         ```python
         # Pick the first result
@@ -96,7 +96,7 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
       </Step>
 
       <Step>
-        ### Get Download URLs
+        ### Get download URLs
         Retrieve distribution information:
 
         ```python
@@ -119,7 +119,7 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
       </Step>
 
       <Step>
-        ### Preview Before Download
+        ### Preview before download
         Check schema and sample data:
 
         ```python
@@ -140,18 +140,17 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
       </Step>
 
       <Step>
-        ### Verify and Download
+        ### Verify and download
         Validate structure before proceeding:
 
         ```python
         # Verify structure matches expectations
-        expected_columns = ["year", "region", "cases"]
+        expected_columns = ["Jahr", "Bezirk", "Einwohner"]
         actual_columns = [c['name'] for c in schema['columns']]
 
         if all(col in actual_columns for col in expected_columns):
           print("✓ Schema validated")
           # Proceed with full download using download_url
-          # (Download implementation depends on your environment)
         else:
           print("✗ Schema mismatch, check dataset")
         ```
@@ -160,17 +159,17 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
   </Tab>
 </Tabs>
 
-## Workflow 2: Semantic Search → Related Datasets
+## Workflow 2: Semantic search → Related datasets
 
 <Tabs items={['Complete Example', 'Step by Step']} persist groupId="workflow-style">
   <Tab value="Complete Example">
     Discover related data through intelligent search:
 
     ```python
-    # All-in-one semantic discovery workflow
+    # Semantic discovery for air quality data
     # 1. Semantic search
     results = semantic_search_datasets(
-      natural_query="climate change data for Austrian cities",
+      natural_query="Luftqualität Messungen österreichische Städte",
       limit=5
     )
 
@@ -203,13 +202,13 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
   <Tab value="Step by Step">
     <Steps>
       <Step>
-        ### Natural Language Query
-        Use semantic search for natural language queries:
+        ### Natural language query
+        Use semantic search:
 
         ```python
         # Use semantic search for natural language
         results = semantic_search_datasets(
-          natural_query="climate change data for Austrian cities",
+          natural_query="Luftqualität Messungen österreichische Städte",
           limit=5
         )
 
@@ -225,14 +224,14 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
       </Step>
 
       <Step>
-        ### Analyze Quality
-        Get comprehensive quality metrics:
+        ### Analyze quality
+        Get quality metrics:
 
         ```python
         # Pick most relevant dataset
         dataset_id = results['results'][0]['id']
 
-        # Get comprehensive quality analysis
+        # Get quality analysis
         quality = analyze_dataset_quality(dataset_id=dataset_id)
 
         print(f"Quality Score: {quality['score']}/100")
@@ -245,8 +244,8 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
       </Step>
 
       <Step>
-        ### Find Related Datasets
-        Discover similar datasets based on themes and keywords:
+        ### Find related datasets
+        Discover similar datasets:
 
         ```python
         # Discover similar datasets
@@ -269,8 +268,8 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
       </Step>
 
       <Step>
-        ### Compare Datasets
-        Analyze similarities between datasets:
+        ### Compare datasets
+        Analyze similarities:
 
         ```python
         # Compare original and related dataset
@@ -294,20 +293,20 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
   </Tab>
 </Tabs>
 
-## Workflow 3: Quality-Filtered Search
+## Workflow 3: Quality-filtered search
 
 <Tabs items={['Complete Example', 'Step by Step']} persist groupId="workflow-style">
   <Tab value="Complete Example">
     Find high-quality datasets for production use:
 
     ```python
-    # Quality-focused discovery workflow
+    # Quality-focused discovery for economic data
     # 1. Quality-aware search
     results = search_datasets(
-      query="",
+      query="Arbeitsmarkt Beschäftigung",
       themes=["ECON"],
       formats=["CSV", "JSON"],
-      quality_boost=True,
+      boost_quality=True,
       sort_by="modified_desc",
       limit=20
     )
@@ -353,16 +352,16 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
   <Tab value="Step by Step">
     <Steps>
       <Step>
-        ### Quality-Aware Search
+        ### Quality-aware search
         Search with quality boost enabled:
 
         ```python
-        # Search with quality boost enabled
+        # Search with quality boost
         results = search_datasets(
-          query="",
+          query="Arbeitsmarkt Beschäftigung",
           themes=["ECON"],
           formats=["CSV", "JSON"],
-          quality_boost=True,
+          boost_quality=True,
           sort_by="modified_desc",
           limit=20
         )
@@ -372,11 +371,11 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
       </Step>
 
       <Step>
-        ### Filter by Quality Metrics
+        ### Filter by quality metrics
         Analyze each dataset for quality:
 
         ```python
-        # Analyze each dataset for quality
+        # Analyze each dataset
         high_quality_datasets = []
 
         for dataset in results['results'][:10]:
@@ -385,7 +384,7 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
           # Get quality analysis
           quality = analyze_dataset_quality(dataset_id=dataset_id)
 
-          # Filter: score > 70 and all critical components present
+          # Filter: score > 70 and critical components present
           if quality['score'] > 70:
             critical_ok = all([
               quality['components']['has_title'],
@@ -407,11 +406,11 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
       </Step>
 
       <Step>
-        ### Verify Data Accessibility
-        Ensure data is actually accessible:
+        ### Verify data accessibility
+        Ensure data is accessible:
 
         ```python
-        # Ensure data is actually accessible
+        # Ensure data is accessible
         accessible_datasets = []
 
         for dataset in high_quality_datasets:
@@ -425,7 +424,7 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
           )
 
           if has_csv:
-            # Verify URL is accessible by checking schema
+            # Verify URL is accessible
             csv_url = next(
               d['access_url'] for d in distributions
               if d.get('format', {}).get('id') == 'CSV'
@@ -453,14 +452,14 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
   </Tab>
 </Tabs>
 
-## Workflow 4: Multi-Language Search
+## Workflow 4: Multi-language search
 
 <Tabs items={['Complete Example', 'Step by Step']} persist groupId="workflow-style">
   <Tab value="Complete Example">
-    Handle German and English queries effectively:
+    Handle German and English queries:
 
     ```python
-    # Multi-language discovery workflow
+    # Multi-language discovery
     # 1. German query
     de_results = semantic_search_datasets(
       natural_query="Gesundheitsdaten aus Wien",
@@ -492,7 +491,7 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
   <Tab value="Step by Step">
     <Steps>
       <Step>
-        ### German Query
+        ### German query
         Search using German terms:
 
         ```python
@@ -509,11 +508,11 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
       </Step>
 
       <Step>
-        ### English Query Equivalent
+        ### English query equivalent
         Same search intent in English:
 
         ```python
-        # English semantic search (same intent)
+        # English semantic search
         en_results = semantic_search_datasets(
           natural_query="health data from Vienna",
           limit=10
@@ -526,8 +525,8 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
       </Step>
 
       <Step>
-        ### Compare Results
-        Analyze language detection effectiveness:
+        ### Compare results
+        Analyze language detection:
 
         ```python
         # Extract dataset IDs
@@ -538,7 +537,7 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
         overlap = de_ids & en_ids
         print(f"\nOverlapping datasets: {len(overlap)}/{len(de_ids)}")
 
-        # Language detection worked correctly if high overlap
+        # Check language detection effectiveness
         overlap_pct = (len(overlap) / len(de_ids)) * 100
         if overlap_pct > 70:
           print(f"✓ Language detection effective ({overlap_pct:.0f}% overlap)")
@@ -548,14 +547,14 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
   </Tab>
 </Tabs>
 
-## Workflow 5: Catalogue Exploration
+## Workflow 5: Catalogue exploration
 
 <Tabs items={['Complete Example', 'Step by Step']} persist groupId="workflow-style">
   <Tab value="Complete Example">
     Explore all data from a specific publisher:
 
     ```python
-    # Catalogue exploration workflow
+    # Catalogue exploration
     # 1. List catalogues
     catalogues = list_catalogues(limit=50)
     vienna = next(c for c in catalogues if 'wien' in c.get('title', {}).get('de', '').lower())
@@ -589,7 +588,7 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
   <Tab value="Step by Step">
     <Steps>
       <Step>
-        ### List Catalogues
+        ### List catalogues
         Find available data catalogues:
 
         ```python
@@ -609,7 +608,7 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
       </Step>
 
       <Step>
-        ### Get Catalogue Metadata
+        ### Get catalogue metadata
         Retrieve detailed catalogue information:
 
         ```python
@@ -624,11 +623,11 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
       </Step>
 
       <Step>
-        ### Browse Catalogue Datasets
+        ### Browse catalogue datasets
         Search within specific catalogue:
 
         ```python
-        # Search within specific catalogue
+        # Search within catalogue
         datasets = search_datasets(
           query="",
           catalogues=[vienna['id']],
@@ -649,11 +648,11 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
       </Step>
 
       <Step>
-        ### Category Distribution
-        Analyze what categories the catalogue covers:
+        ### Category distribution
+        Analyze categories the catalogue covers:
 
         ```python
-        # Analyze what categories the catalogue covers
+        # Analyze category coverage
         category_counts = {}
 
         for dataset in datasets['results']:
@@ -674,15 +673,15 @@ Learn how to combine data.gv.at MCP Server tools for complete data discovery wor
   </Tab>
 </Tabs>
 
-## Best Practices
+## Best practices
 
-### Error Handling
+### Error handling
 
-Always wrap workflows in try-except blocks:
+Wrap workflows in try-except blocks:
 
 ```python
 try:
-  results = search_datasets(query="data", limit=10)
+  results = search_datasets(query="Bevölkerung", limit=10)
   # Process results...
 except ToolError as e:
   print(f"Error: {e}")
@@ -691,7 +690,7 @@ except ToolError as e:
 
 ### Pagination
 
-For large result sets, paginate through results:
+For large result sets, paginate:
 
 ```python
 limit = 20
@@ -700,7 +699,7 @@ all_results = []
 
 while True:
   page = search_datasets(
-    query="environment",
+    query="Umwelt",
     limit=limit,
     offset=offset
   )
@@ -716,7 +715,7 @@ while True:
 print(f"Retrieved {len(all_results)} total datasets")
 ```
 
-### Caching Results
+### Caching results
 
 Cache expensive operations:
 
@@ -732,7 +731,7 @@ def get_quality_cached(dataset_id):
   return quality_cache[dataset_id]
 ```
 
-## Next Steps
+## Next steps
 
 - **[API Reference](/api/tools)** - Complete tool documentation
 - **[Best Practices](/best-practices/optimization)** - Performance optimization

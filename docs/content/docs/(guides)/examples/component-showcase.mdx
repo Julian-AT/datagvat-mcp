@@ -22,13 +22,13 @@ This page demonstrates all interactive components used throughout data.gv.at MCP
 
     ```typescript
     const results = await mcp.callTool('search_datasets', {
-      query: 'gesundheit wien'
+      query: 'Bevölkerung Wien'
     });
 
     console.log(`Found ${results.count} datasets`);
     ```
 
-    This returns up to 20 datasets matching "gesundheit wien".
+    This returns up to 20 datasets matching "Bevölkerung Wien".
   </Tab>
 
   <Tab value="Advanced">
@@ -38,14 +38,14 @@ This page demonstrates all interactive components used throughout data.gv.at MCP
 
     ```typescript
     const results = await mcp.callTool('search_datasets', {
-      query: 'gesundheit wien',
+      query: 'Bevölkerung Wien',
       filters: {
         organization: 'Stadt Wien',
-        tags: ['Gesundheit', 'COVID-19'],
+        tags: ['Bevölkerung', 'Statistik'],
         license: 'cc-by'
       },
       limit: 50,
-      quality_boost: true
+      boost_quality: true
     });
 
     // Access facets for filter UI
@@ -101,15 +101,15 @@ This page demonstrates all interactive components used throughout data.gv.at MCP
       "results": [
         {
           "id": "dataset-id",
-          "title": "Gesundheitsdaten Wien",
+          "title": "Bevölkerung Wien nach Bezirk",
           "description": "...",
-          "tags": ["Gesundheit"],
+          "tags": ["Bevölkerung"],
           "organization": "Stadt Wien"
         }
       ],
       "facets": {
         "organization": ["Stadt Wien", "..."],
-        "tags": ["Gesundheit", "COVID-19"]
+        "tags": ["Bevölkerung", "Statistik"]
       }
     }
     ```

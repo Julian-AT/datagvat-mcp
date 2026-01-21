@@ -232,7 +232,7 @@ Learn how to inspect dataset contents before downloading.
       format="CSV"
     )
 
-    # Maximum preview for comprehensive analysis (1000 rows)
+    # Maximum preview for complete analysis (1000 rows)
     full_preview = preview_data(
       url="https://example.com/large-dataset.csv",
       max_rows=1000,
@@ -439,7 +439,7 @@ Learn how to inspect dataset contents before downloading.
         ```python
         # Search for datasets
         results = search_datasets(
-          query="population Vienna",
+          query="Bevölkerung Wien Bezirk",
           formats=["CSV"],
           limit=5
         )
@@ -491,9 +491,9 @@ Learn how to inspect dataset contents before downloading.
         ### Search and Select
         ```python
         results = search_datasets(
-          query="population Vienna",
+          query="Bevölkerung Wien Bezirk",
           formats=["CSV"],
-          quality_boost=True,
+          boost_quality=True,
           limit=5
         )
 
@@ -525,7 +525,7 @@ Learn how to inspect dataset contents before downloading.
           print(f"  - {col['name']}: {col['type']}")
 
         # Validate expected columns
-        expected = ["year", "region", "population"]
+        expected = ["Jahr", "Bezirk", "Einwohner"]
         actual = [c['name'] for c in schema['columns']]
 
         schema_valid = all(col in actual for col in expected)
@@ -603,7 +603,7 @@ Learn how to inspect dataset contents before downloading.
 
     ```python
     def safe_preview(url, max_rows=20, format=None):
-      """Preview with comprehensive error handling."""
+      """Preview with complete error handling."""
       try:
         # Attempt preview
         preview = preview_data(

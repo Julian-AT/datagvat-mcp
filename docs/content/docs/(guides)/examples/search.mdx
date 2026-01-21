@@ -3,48 +3,48 @@ title: Search Examples
 description: Common search patterns and use cases
 ---
 
-# Search Examples
+# Search examples
 
-Master dataset discovery with these practical search examples.
+Learn dataset discovery with practical search patterns you can copy.
 
-## Basic Text Search
+## Basic text search
 
 <Tabs items={['Basic', 'Advanced']} persist groupId="search-complexity">
   <Tab value="Basic">
-    Simple keyword search across all datasets:
+    Search across all datasets with keywords:
 
     ```python
-    # Search for population-related datasets
-    search_datasets(query="population", limit=10)
+    # Find Vienna population datasets
+    search_datasets(query="Bevölkerung Wien", limit=10)
 
-    # Search for environmental data
-    search_datasets(query="environment", limit=10)
+    # Find air quality measurements
+    search_datasets(query="Luftqualität", limit=10)
 
-    # Search for traffic data
-    search_datasets(query="traffic", limit=10)
+    # Find traffic counting data
+    search_datasets(query="Verkehrszählungen", limit=10)
     ```
 
     **Tips:**
-    - Use German keywords for better results (most datasets are in German)
+    - Use German keywords (most datasets are in German)
     - The API searches titles, descriptions, and keywords
-    - Relevance-based ranking is applied automatically
+    - Relevance ranking ranks results automatically
   </Tab>
 
   <Tab value="Advanced">
-    Advanced search with fuzzy matching and wildcards:
+    Use fuzzy matching and wildcards:
 
     ```python
-    # Fuzzy search (finds similar terms)
-    search_datasets(query="health~", limit=10)
+    # Fuzzy search finds similar terms
+    search_datasets(query="Gesundheit~", limit=10)
 
-    # Wildcard search
-    search_datasets(query="data*", limit=10)
+    # Wildcard matches multiple terms
+    search_datasets(query="Energie*", limit=10)
 
-    # Phrase search with exact matching
-    search_datasets(query='"air quality"', limit=10)
+    # Exact phrase with quotes
+    search_datasets(query='"Kriminalstatistik Österreich"', limit=10)
 
-    # Boost specific terms
-    search_datasets(query="environment^2 climate", limit=10)
+    # Boost term importance with ^N
+    search_datasets(query="Umwelt^2 Klima", limit=10)
     ```
 
     **Advanced features:**
@@ -55,32 +55,32 @@ Master dataset discovery with these practical search examples.
   </Tab>
 </Tabs>
 
-## Filtered Search
+## Filtered search
 
-### By Category
+### By category
 
 <Tabs items={['Single Category', 'Multiple Categories']} persist groupId="search-complexity">
   <Tab value="Single Category">
-    Filter by a single EU DCAT-AP theme:
+    Filter by one EU DCAT-AP theme:
 
     ```python
     # Health datasets only
     search_datasets(
-      query="statistics",
+      query="Krankenhaus",
       themes=["HEAL"],
       limit=10
     )
 
     # Environment datasets
     search_datasets(
-      query="climate",
+      query="Emissionen",
       themes=["ENVI"],
       limit=10
     )
 
     # Population and society data
     search_datasets(
-      query="demographics",
+      query="Einwohner",
       themes=["SOCI"],
       limit=10
     )
@@ -88,26 +88,26 @@ Master dataset discovery with these practical search examples.
   </Tab>
 
   <Tab value="Multiple Categories">
-    Combine multiple themes (OR logic):
+    Combine themes with OR logic:
 
     ```python
     # Environment OR Energy datasets
     search_datasets(
-      query="climate",
+      query="Klimadaten",
       themes=["ENVI", "ENER"],
       limit=10
     )
 
     # Health OR Social datasets
     search_datasets(
-      query="statistics",
+      query="Demografie",
       themes=["HEAL", "SOCI"],
       limit=10
     )
 
     # Government OR Justice datasets
     search_datasets(
-      query="public",
+      query="Verwaltung",
       themes=["GOVE", "JUST"],
       limit=10
     )
@@ -130,23 +130,23 @@ Master dataset discovery with these practical search examples.
 - `TECH` - Science and technology
 - `TRAN` - Transport
 
-### By Format
+### By format
 
 <Tabs items={['Single Format', 'Multiple Formats']} persist groupId="search-complexity">
   <Tab value="Single Format">
-    Filter by a specific file format:
+    Filter by file format:
 
     ```python
     # CSV datasets only
     search_datasets(
-      query="data",
+      query="Bevölkerung",
       formats=["CSV"],
       limit=10
     )
 
     # Excel files
     search_datasets(
-      query="statistics",
+      query="Statistik",
       formats=["XLSX"],
       limit=10
     )
@@ -156,26 +156,26 @@ Master dataset discovery with these practical search examples.
   </Tab>
 
   <Tab value="Multiple Formats">
-    Find datasets available in multiple formats:
+    Find datasets in multiple formats:
 
     ```python
     # JSON or XML datasets
     search_datasets(
-      query="api",
+      query="Energieverbrauch",
       formats=["JSON", "XML"],
       limit=10
     )
 
     # CSV or Excel datasets
     search_datasets(
-      query="statistics",
+      query="Arbeitslosigkeit",
       formats=["CSV", "XLSX"],
       limit=10
     )
 
-    # API-friendly formats (JSON, XML, RDF)
+    # API-friendly formats
     search_datasets(
-      query="data",
+      query="Wetter",
       formats=["JSON", "XML", "RDF"],
       limit=10
     )
@@ -183,7 +183,7 @@ Master dataset discovery with these practical search examples.
   </Tab>
 </Tabs>
 
-### By Publisher
+### By publisher
 
 <Tabs items={['Simple Filter', 'Advanced Filter']} persist groupId="search-complexity">
   <Tab value="Simple Filter">
@@ -207,17 +207,17 @@ Master dataset discovery with these practical search examples.
   </Tab>
 
   <Tab value="Advanced Filter">
-    Combine multiple publishers and filters:
+    Combine publishers and filters:
 
     ```python
-    # Vienna or Graz data
+    # Vienna or Graz traffic data
     search_datasets(
-      query="traffic",
+      query="Verkehr",
       publishers=["Stadt Wien", "Stadt Graz"],
       limit=10
     )
 
-    # Multiple federal sources
+    # Federal CSV datasets
     search_datasets(
       query="",
       publishers=["Bundesministerium", "Statistik Austria"],
@@ -228,16 +228,16 @@ Master dataset discovery with these practical search examples.
   </Tab>
 </Tabs>
 
-### Combined Filters
+### Combined filters
 
 <Tabs items={['Basic Combination', 'Complex Combination']} persist groupId="search-complexity">
   <Tab value="Basic Combination">
-    Combine 2-3 filters for targeted results:
+    Combine 2-3 filters:
 
     ```python
     # CSV health data from Vienna
     search_datasets(
-      query="health",
+      query="Krankenhaus",
       themes=["HEAL"],
       formats=["CSV"],
       publishers=["Stadt Wien"],
@@ -246,7 +246,7 @@ Master dataset discovery with these practical search examples.
 
     # Recent environment data
     search_datasets(
-      query="",
+      query="Luftqualität",
       themes=["ENVI"],
       min_date="2024-01-01",
       limit=10
@@ -255,12 +255,12 @@ Master dataset discovery with these practical search examples.
   </Tab>
 
   <Tab value="Complex Combination">
-    Advanced multi-filter queries:
+    Multi-filter queries:
 
     ```python
     # High-quality CSV health data from Vienna, recently updated
     search_datasets(
-      query="health statistics",
+      query="Gesundheit Statistik",
       themes=["HEAL"],
       formats=["CSV"],
       publishers=["Stadt Wien"],
@@ -272,7 +272,7 @@ Master dataset discovery with these practical search examples.
 
     # Multi-theme, multi-format recent datasets
     search_datasets(
-      query="climate renewable",
+      query="Klima Energie",
       themes=["ENVI", "ENER"],
       formats=["CSV", "JSON"],
       min_date="2023-01-01",
@@ -283,31 +283,31 @@ Master dataset discovery with these practical search examples.
   </Tab>
 </Tabs>
 
-## Date Range Filtering
+## Date range filtering
 
 <Tabs items={['Simple Date Filters', 'Complex Date Filters']} persist groupId="search-complexity">
   <Tab value="Simple Date Filters">
-    Filter by modification or publication date:
+    Filter by modification date:
 
     ```python
     # Datasets modified in 2024
     search_datasets(
-      query="",
+      query="Bevölkerung",
       min_date="2024-01-01",
       max_date="2024-12-31",
       limit=10
     )
 
-    # Recently updated datasets (last 30 days)
+    # Recently updated (last 30 days)
     search_datasets(
-      query="",
+      query="Verkehr",
       min_date="2024-12-15",
       limit=10
     )
 
-    # Datasets published before 2020
+    # Historical datasets
     search_datasets(
-      query="",
+      query="Statistik",
       max_date="2020-01-01",
       limit=10
     )
@@ -322,7 +322,7 @@ Master dataset discovery with these practical search examples.
     ```python
     # Recent health datasets from Vienna
     search_datasets(
-      query="health",
+      query="Krankenhaus",
       themes=["HEAL"],
       publishers=["Stadt Wien"],
       min_date="2024-01-01",
@@ -330,17 +330,17 @@ Master dataset discovery with these practical search examples.
       limit=10
     )
 
-    # Datasets modified in 2024
+    # Datasets modified this year
     search_datasets(
-      query="",
+      query="Energie",
       min_date="2024-01-01",
       max_date="2024-12-31",
       limit=10
     )
 
-    # Legacy datasets that are still updated
+    # Legacy datasets still maintained
     search_datasets(
-      query="",
+      query="Demografie",
       max_date="2020-01-01",
       min_date="2024-01-01",
       sort_by="modified_desc",
@@ -350,7 +350,7 @@ Master dataset discovery with these practical search examples.
   </Tab>
 </Tabs>
 
-## Sorting Options
+## Sorting options
 
 <Tabs items={['Basic Sorting', 'Advanced Sorting']} persist groupId="search-complexity">
   <Tab value="Basic Sorting">
@@ -359,21 +359,21 @@ Master dataset discovery with these practical search examples.
     ```python
     # Most relevant first (default with query)
     search_datasets(
-      query="population",
+      query="Bevölkerung Wien",
       sort_by="relevance",
       limit=10
     )
 
     # Most recently modified first
     search_datasets(
-      query="",
+      query="Luftqualität",
       sort_by="modified_desc",
       limit=10
     )
 
     # Alphabetical by title
     search_datasets(
-      query="",
+      query="Verkehr",
       sort_by="title_asc",
       limit=10
     )
@@ -387,27 +387,27 @@ Master dataset discovery with these practical search examples.
   </Tab>
 
   <Tab value="Advanced Sorting">
-    Combine sorting with filters for targeted discovery:
+    Combine sorting with filters:
 
     ```python
     # Most relevant high-quality health data
     search_datasets(
-      query="health statistics",
+      query="Krankenhaus Statistik",
       themes=["HEAL"],
       boost_quality=True,
       sort_by="relevance",
       limit=10
     )
 
-    # Recently published datasets, sorted by relevance
+    # Recently published climate datasets
     search_datasets(
-      query="climate",
+      query="Klimadaten",
       min_date="2024-01-01",
       sort_by="relevance",
       limit=10
     )
 
-    # Oldest datasets from a publisher (historical data)
+    # Historical data from Statistik Austria
     search_datasets(
       query="",
       publishers=["Statistik Austria"],
@@ -415,7 +415,7 @@ Master dataset discovery with these practical search examples.
       limit=10
     )
 
-    # Recently updated datasets across all categories
+    # Recently updated across all categories
     search_datasets(
       query="",
       sort_by="modified_desc",
@@ -434,35 +434,35 @@ Master dataset discovery with these practical search examples.
     ```python
     # Get first page (10 results)
     page1 = search_datasets(
-      query="data",
+      query="Bevölkerung",
       limit=10,
       page=0
     )
 
     # Get second page (next 10 results)
     page2 = search_datasets(
-      query="data",
+      query="Bevölkerung",
       limit=10,
       page=1
     )
 
     # Get third page
     page3 = search_datasets(
-      query="data",
+      query="Bevölkerung",
       limit=10,
       page=2
     )
     ```
 
     **Result metadata:**
-    - `count` - Total number of matching datasets
-    - `results` - Array of datasets for current page
+    - `count` - Total matching datasets
+    - `results` - Datasets for current page
 
     Calculate total pages: `total_pages = ceil(count / limit)`
   </Tab>
 
   <Tab value="Advanced Pagination">
-    Implement complete pagination with iteration:
+    Iterate through all results:
 
     ```python
     # Paginate through all results
@@ -472,7 +472,7 @@ Master dataset discovery with these practical search examples.
 
     while True:
       response = search_datasets(
-        query="environment",
+        query="Umwelt",
         themes=["ENVI"],
         limit=limit,
         page=page
@@ -488,10 +488,10 @@ Master dataset discovery with these practical search examples.
 
     print(f"Retrieved {len(all_results)} total datasets")
 
-    # Smart pagination with progress tracking
+    # Pagination with progress tracking
     def fetch_all_datasets(query, **filters):
       results = []
-      limit = 50  # Larger page size for efficiency
+      limit = 50
       page = 0
       total = None
 
@@ -521,7 +521,7 @@ Master dataset discovery with these practical search examples.
   </Tab>
 </Tabs>
 
-## Quality-Aware Search
+## Quality-aware search
 
 <Tabs items={['Enable Quality Boost', 'Quality-Driven Search']} persist groupId="search-complexity">
   <Tab value="Enable Quality Boost">
@@ -530,14 +530,14 @@ Master dataset discovery with these practical search examples.
     ```python
     # Prioritize complete, well-documented datasets
     search_datasets(
-      query="health",
+      query="Gesundheit",
       boost_quality=True,
       limit=10
     )
 
     # Compare with and without quality boost
-    without_boost = search_datasets(query="health", limit=10)
-    with_boost = search_datasets(query="health", boost_quality=True, limit=10)
+    without_boost = search_datasets(query="Gesundheit", limit=10)
+    with_boost = search_datasets(query="Gesundheit", boost_quality=True, limit=10)
     ```
 
     Quality boost considers:
@@ -559,7 +559,7 @@ Master dataset discovery with these practical search examples.
     ```python
     # Find high-quality recent datasets
     search_datasets(
-      query="",
+      query="Krankenhaus",
       themes=["HEAL"],
       min_date="2024-01-01",
       boost_quality=True,
@@ -567,18 +567,18 @@ Master dataset discovery with these practical search examples.
       limit=20
     )
 
-    # Production-ready datasets (high quality + accessible formats)
+    # Production-ready datasets
     search_datasets(
-      query="statistics",
+      query="Arbeitsmarkt",
       formats=["CSV", "JSON"],
       boost_quality=True,
       sort_by="relevance",
       limit=10
     )
 
-    # Comprehensive search for well-documented data
+    # Well-documented environmental data
     search_datasets(
-      query="environment climate",
+      query="Luftqualität Emissionen",
       themes=["ENVI", "ENER"],
       formats=["CSV"],
       min_date="2023-01-01",
@@ -596,25 +596,25 @@ Master dataset discovery with these practical search examples.
   </Tab>
 </Tabs>
 
-## Advanced Search Patterns
+## Advanced search patterns
 
-### Multi-theme Discovery
+### Multi-theme discovery
 
 <Tabs items={['Basic Multi-theme', 'Strategic Multi-theme']} persist groupId="search-complexity">
   <Tab value="Basic Multi-theme">
-    Find datasets that span multiple domains:
+    Find datasets spanning multiple domains:
 
     ```python
     # Climate and energy data
     search_datasets(
-      query="renewable",
+      query="Erneuerbare Energie",
       themes=["ENVI", "ENER"],
       limit=10
     )
 
     # Health and social data
     search_datasets(
-      query="demographics",
+      query="Demografie Gesundheit",
       themes=["HEAL", "SOCI"],
       limit=10
     )
@@ -622,30 +622,30 @@ Master dataset discovery with these practical search examples.
   </Tab>
 
   <Tab value="Strategic Multi-theme">
-    Advanced cross-domain discovery:
+    Cross-domain discovery:
 
     ```python
-    # Climate, energy, and transport (sustainability focus)
+    # Climate, energy, and transport
     search_datasets(
-      query="sustainable renewable green",
+      query="Nachhaltige Mobilität",
       themes=["ENVI", "ENER", "TRAN"],
       boost_quality=True,
       sort_by="relevance",
       limit=20
     )
 
-    # Government, justice, and society (public sector analysis)
+    # Government, justice, and society
     search_datasets(
-      query="public administration statistics",
+      query="Öffentliche Verwaltung",
       themes=["GOVE", "JUST", "SOCI"],
       formats=["CSV"],
       min_date="2023-01-01",
       limit=20
     )
 
-    # Economy, education, and technology (innovation research)
+    # Economy, education, and technology
     search_datasets(
-      query="innovation digital research",
+      query="Innovation Forschung",
       themes=["ECON", "EDUC", "TECH"],
       boost_quality=True,
       limit=20
@@ -654,16 +654,16 @@ Master dataset discovery with these practical search examples.
   </Tab>
 </Tabs>
 
-### Format Comparison
+### Format comparison
 
 <Tabs items={['Simple Comparison', 'Comprehensive Comparison']} persist groupId="search-complexity">
   <Tab value="Simple Comparison">
     Compare availability across formats:
 
     ```python
-    # Find if data is available as both CSV and JSON
-    csv_results = search_datasets(query="statistics", formats=["CSV"])
-    json_results = search_datasets(query="statistics", formats=["JSON"])
+    # Check CSV vs JSON availability
+    csv_results = search_datasets(query="Bevölkerung", formats=["CSV"])
+    json_results = search_datasets(query="Bevölkerung", formats=["JSON"])
 
     print(f"CSV: {csv_results['count']} datasets")
     print(f"JSON: {json_results['count']} datasets")
@@ -671,16 +671,16 @@ Master dataset discovery with these practical search examples.
   </Tab>
 
   <Tab value="Comprehensive Comparison">
-    Analyze format distribution for a topic:
+    Analyze format distribution:
 
     ```python
-    # Compare all format availability for health data
+    # Compare format availability for health data
     formats = ["CSV", "JSON", "XML", "XLSX", "PDF"]
     format_counts = {}
 
     for fmt in formats:
       results = search_datasets(
-        query="health",
+        query="Krankenhaus",
         themes=["HEAL"],
         formats=[fmt]
       )
@@ -690,27 +690,26 @@ Master dataset discovery with these practical search examples.
     for fmt, count in sorted(format_counts.items(), key=lambda x: x[1], reverse=True):
       print(f"{fmt}: {count} datasets")
 
-    # Find datasets available in multiple formats
-    # (requires checking individual dataset distributions)
-    all_results = search_datasets(query="health", themes=["HEAL"], limit=50)
+    # Find datasets in multiple formats
+    all_results = search_datasets(query="Krankenhaus", themes=["HEAL"], limit=50)
 
     multi_format_datasets = []
     for dataset in all_results['results']:
       # Get distributions to count formats
-      # (Would use get_dataset_distributions in real workflow)
+      # (Use get_dataset_distributions in real workflow)
       pass
     ```
   </Tab>
 </Tabs>
 
-### Publisher Exploration
+### Publisher exploration
 
 <Tabs items={['Basic Exploration', 'Advanced Exploration']} persist groupId="search-complexity">
   <Tab value="Basic Exploration">
     Explore what a publisher offers:
 
     ```python
-    # All datasets from a specific catalogue
+    # All datasets from Stadt Wien catalogue
     search_datasets(
       query="",
       catalogues=["l9"],  # Stadt Wien catalogue ID
@@ -728,7 +727,7 @@ Master dataset discovery with these practical search examples.
   </Tab>
 
   <Tab value="Advanced Exploration">
-    Comprehensive publisher analysis:
+    Publisher analysis:
 
     ```python
     # Vienna's recent health datasets
@@ -741,15 +740,15 @@ Master dataset discovery with these practical search examples.
       limit=50
     )
 
-    # Publisher comparison (Vienna vs. Federal data)
+    # Publisher comparison
     vienna_data = search_datasets(
-      query="traffic",
+      query="Verkehr",
       publishers=["Stadt Wien"],
       formats=["CSV"]
     )
 
     federal_data = search_datasets(
-      query="traffic",
+      query="Verkehr",
       publishers=["Bundesministerium"],
       formats=["CSV"]
     )
@@ -778,7 +777,7 @@ Master dataset discovery with these practical search examples.
   </Tab>
 </Tabs>
 
-## Next Steps
+## Next steps
 
 - **[Semantic Search](/examples/semantic-search)** - Natural language queries
 - **[Preview Examples](/examples/preview)** - Data inspection
