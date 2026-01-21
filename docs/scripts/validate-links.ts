@@ -1,4 +1,4 @@
-import { scanURLs, printErrors, readFiles, validateFiles } from 'next-validate-link';
+import { printErrors, readFiles, scanURLs, validateFiles } from 'next-validate-link';
 
 async function validateLinks() {
   console.log('Validating documentation links...');
@@ -20,7 +20,7 @@ async function validateLinks() {
         Card: ['href'],
         Callout: ['href'],
         'Tabs.Tab': ['href'],
-      },
+      } as Record<string, string[]>,
     });
 
     // Print errors and exit with code 1 on failure
