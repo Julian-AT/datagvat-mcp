@@ -8,7 +8,7 @@ import { TypeTable } from 'fumadocs-ui/components/type-table';
 
 # MCP Tools
 
-The data.gv.at MCP Server server provides comprehensive tools for discovering, analyzing, and managing Austrian Open Data datasets.
+The data.gv.at MCP Server provides tools for discovering, analyzing, and managing Austrian Open Data datasets.
 
 ## Discovery Tools
 
@@ -74,7 +74,7 @@ The data.gv.at MCP Server server provides comprehensive tools for discovering, a
     {
       "id": "stadt-wien",
       "title": "Stadt Wien Open Data",
-      "description": "Comprehensive open data from Vienna",
+      "description": "Open data from the City of Vienna",
       "publisher": {...}
     }
     ```
@@ -109,17 +109,17 @@ The data.gv.at MCP Server server provides comprehensive tools for discovering, a
       },
       publishers: {
         type: "string[]",
-        description: "Filter by publisher/organization ID",
+        description: "Filter by publisher or organization ID",
         default: "None"
       },
       min_date: {
         type: "string",
-        description: "Filter datasets modified/issued after this date (YYYY-MM-DD or ISO 8601)",
+        description: "Filter datasets modified or issued after this date (YYYY-MM-DD or ISO 8601)",
         default: "None"
       },
       max_date: {
         type: "string",
-        description: "Filter datasets modified/issued before this date (YYYY-MM-DD or ISO 8601)",
+        description: "Filter datasets modified or issued before this date (YYYY-MM-DD or ISO 8601)",
         default: "None"
       },
       sort_by: {
@@ -129,7 +129,7 @@ The data.gv.at MCP Server server provides comprehensive tools for discovering, a
       },
       boost_quality: {
         type: "boolean",
-        description: "Boost high-quality datasets in search results (uses completeness, freshness, compliance metrics)",
+        description: "Boost high-quality datasets in results using completeness, freshness, and compliance metrics",
         default: false
       },
       limit: {
@@ -163,9 +163,9 @@ The data.gv.at MCP Server server provides comprehensive tools for discovering, a
     {
       "results": [
         {
-          "id": "dataset-123",
-          "title": "Population Statistics 2024",
-          "description": "Annual population data...",
+          "id": "bev-stat-wien-2024",
+          "title": "Bevölkerung Wien 2020-2024",
+          "description": "Annual population data for Vienna districts...",
           "themes": ["SOCI"],
           "formats": ["CSV", "JSON"]
         }
@@ -215,7 +215,7 @@ The data.gv.at MCP Server server provides comprehensive tools for discovering, a
     **Example:**
 
     ```python
-    get_dataset(dataset_id="dataset-123")
+    get_dataset(dataset_id="bev-stat-wien-2024")
     ```
   </Accordion>
 
@@ -253,7 +253,7 @@ The data.gv.at MCP Server server provides comprehensive tools for discovering, a
     **Example:**
 
     ```python
-    get_dataset_distributions(dataset_id="dataset-123")
+    get_dataset_distributions(dataset_id="bev-stat-wien-2024")
     ```
   </Accordion>
 
@@ -276,7 +276,7 @@ The data.gv.at MCP Server server provides comprehensive tools for discovering, a
     **Example:**
 
     ```python
-    get_catalogue_record(dataset_id="dataset-123")
+    get_catalogue_record(dataset_id="bev-stat-wien-2024")
     ```
   </Accordion>
 
@@ -314,8 +314,8 @@ The data.gv.at MCP Server server provides comprehensive tools for discovering, a
     ```json
     {
       "source": {
-        "id": "dataset-123",
-        "title": "Population Statistics"
+        "id": "bev-stat-wien-2024",
+        "title": "Bevölkerung Wien 2020-2024"
       },
       "related": [
         {
@@ -332,7 +332,7 @@ The data.gv.at MCP Server server provides comprehensive tools for discovering, a
 
     ```python
     find_related_datasets(
-        dataset_id="dataset-123",
+        dataset_id="bev-stat-wien-2024",
         limit=10,
         min_score=30.0
     )
@@ -366,12 +366,12 @@ The data.gv.at MCP Server server provides comprehensive tools for discovering, a
       },
       min_date: {
         type: "string",
-        description: "Filter by modification/issue date (YYYY-MM-DD)",
+        description: "Filter by modification or issue date (YYYY-MM-DD)",
         default: "None"
       },
       max_date: {
         type: "string",
-        description: "Filter by modification/issue date (YYYY-MM-DD)",
+        description: "Filter by modification or issue date (YYYY-MM-DD)",
         default: "None"
       },
       sort_by: {
@@ -470,7 +470,7 @@ The data.gv.at MCP Server server provides comprehensive tools for discovering, a
 
     ```python
     get_dataset_metrics(
-        dataset_id="dataset-123",
+        dataset_id="bev-stat-wien-2024",
         include_history=True
     )
     ```
@@ -506,12 +506,12 @@ The data.gv.at MCP Server server provides comprehensive tools for discovering, a
     **Example:**
 
     ```python
-    check_doi_eligibility(dataset_id="dataset-123")
+    check_doi_eligibility(dataset_id="bev-stat-wien-2024")
     ```
   </Accordion>
 
   <Accordion title="analyze_dataset_quality" id="analyze-dataset-quality">
-    Perform comprehensive quality analysis of a dataset. Combines metadata, distributions, quality metrics, and DOI eligibility into a single report.
+    Perform quality analysis of a dataset. Combines metadata, distributions, quality metrics, and DOI eligibility into a single report.
 
     **Parameters:**
 
@@ -526,7 +526,7 @@ The data.gv.at MCP Server server provides comprehensive tools for discovering, a
 
     ```json
     {
-      "dataset_id": "dataset-123",
+      "dataset_id": "bev-stat-wien-2024",
       "metadata": {
         "has_title": true,
         "has_description": true,
@@ -549,7 +549,7 @@ The data.gv.at MCP Server server provides comprehensive tools for discovering, a
     **Example:**
 
     ```python
-    analyze_dataset_quality(dataset_id="dataset-123")
+    analyze_dataset_quality(dataset_id="bev-stat-wien-2024")
     ```
   </Accordion>
 </Accordions>
@@ -679,7 +679,7 @@ The data.gv.at MCP Server server provides comprehensive tools for discovering, a
     <TypeTable type={{
       filter_by_provider: {
         type: "boolean",
-        description: "Filter drafts by your provider/organization",
+        description: "Filter drafts by your provider or organization",
         default: false
       }
     }} />

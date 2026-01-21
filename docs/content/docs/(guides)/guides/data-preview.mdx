@@ -7,27 +7,29 @@ description: Inspect schemas and sample data before downloading full datasets
 
 Verify data structure, column types, and content before committing to full dataset download.
 
-## When to Use This Guide
+## When to use this guide
 
-- You need to verify required columns exist
-- You want to check data types before processing
-- You need to estimate data quality from samples
-- You want to avoid downloading incompatible formats
+Use this guide when you need to:
+
+- Verify required columns exist
+- Check data types before processing
+- Estimate data quality from samples
+- Avoid downloading incompatible formats
 
 ## Prerequisites
 
 - Dataset ID or download URL
 - Understanding of your data requirements (required columns, types)
 
-## Quick Schema Preview
+## Quick schema preview
 
 <Tabs items={['Basic', 'Advanced']} groupId="preview-complexity" persist>
   <Tab value="Basic">
-    ### Ask Claude to Preview
+    ### Ask Claude to preview
 
     "Show me the schema for dataset [dataset-id]"
 
-    Claude fetches distributions, selects downloadable format, previews schema automatically.
+    Claude fetches distributions, selects downloadable format, and previews schema automatically.
 
     **What you'll see:**
     - Column names
@@ -37,11 +39,11 @@ Verify data structure, column types, and content before committing to full datas
   </Tab>
 
   <Tab value="Advanced">
-    ### Direct Schema Preview
+    ### Direct schema preview
 
     ```python
     # First, get download URL
-    distributions = get_dataset_distributions(dataset_id="dataset-123")
+    distributions = get_dataset_distributions(dataset_id="bev-stat-wien-2024")
     csv_url = next(d['downloadURL'] for d in distributions
                    if d.get('format') == 'CSV')
 
@@ -79,12 +81,12 @@ Verify data structure, column types, and content before committing to full datas
       "bytes_fetched": 65536,
       "columns": [
         {
-          "name": "year",
+          "name": "jahr",
           "type": "integer",
           "sample_values": [2022, 2023, 2024]
         },
         {
-          "name": "region",
+          "name": "bezirk",
           "type": "string",
           "sample_values": ["Innere Stadt", "Leopoldstadt"]
         }
@@ -92,7 +94,7 @@ Verify data structure, column types, and content before committing to full datas
     }
     ```
 
-    **Error Handling:**
+    **Error handling:**
 
     **NetworkError:**
     ```json
@@ -108,11 +110,11 @@ Verify data structure, column types, and content before committing to full datas
   </Tab>
 </Tabs>
 
-## Validating Required Columns
+## Validating required columns
 
 <Tabs items={['Basic', 'Advanced']} persist groupId="preview-complexity">
   <Tab value="Basic">
-    ### Ask Claude to Verify Columns
+    ### Ask Claude to verify columns
 
     "Does dataset [id] have columns X, Y, Z?"
 
@@ -120,14 +122,14 @@ Verify data structure, column types, and content before committing to full datas
   </Tab>
 
   <Tab value="Advanced">
-    ### Programmatic Column Validation
+    ### Programmatic column validation
 
     ```python
     # Get schema
     schema = preview_schema(url=csv_url)
 
     # Define requirements
-    required_columns = ["year", "region", "cases"]
+    required_columns = ["jahr", "bezirk", "faelle"]
     actual_columns = [c['name'] for c in schema['columns']]
 
     # Check presence
@@ -138,28 +140,28 @@ Verify data structure, column types, and content before committing to full datas
         print("All required columns present")
 
     # Verify types
-    year_col = next(c for c in schema['columns'] if c['name'] == 'year')
-    if year_col['type'] != 'integer':
-        print("Warning: Year column not integer type")
+    jahr_col = next(c for c in schema['columns'] if c['name'] == 'jahr')
+    if jahr_col['type'] != 'integer':
+        print("Warning: Jahr column not integer type")
     ```
 
-    **Error Handling:**
+    **Error handling:**
 
-    **Column Not Found:**
+    **Column not found:**
     ```python
     try:
-        year_col = next(c for c in schema['columns'] if c['name'] == 'year')
+        jahr_col = next(c for c in schema['columns'] if c['name'] == 'jahr')
     except StopIteration:
-        print("Year column not found in schema")
+        print("Jahr column not found in schema")
     ```
   </Tab>
 </Tabs>
 
-## Previewing Data Samples
+## Previewing data samples
 
 <Tabs items={['Basic', 'Advanced']} persist groupId="preview-complexity">
   <Tab value="Basic">
-    ### Ask for Sample Rows
+    ### Ask for sample rows
 
     "Show me sample rows from dataset [id]"
 
@@ -167,7 +169,7 @@ Verify data structure, column types, and content before committing to full datas
   </Tab>
 
   <Tab value="Advanced">
-    ### Direct Data Preview
+    ### Direct data preview
 
     ```python
     data = preview_data(url=csv_url, format="csv", max_rows=10)
@@ -200,15 +202,15 @@ Verify data structure, column types, and content before committing to full datas
       "url": "...",
       "format": "csv",
       "rows": [
-        {"year": 2024, "region": "Wien", "cases": 150},
-        {"year": 2024, "region": "Graz", "cases": 120}
+        {"jahr": 2024, "bezirk": "Wien", "faelle": 150},
+        {"jahr": 2024, "bezirk": "Graz", "faelle": 120}
       ],
       "row_count": 10,
       "estimated_total_rows": 1000
     }
     ```
 
-    **Error Handling:**
+    **Error handling:**
 
     **ParseError:**
     ```json
@@ -218,11 +220,11 @@ Verify data structure, column types, and content before committing to full datas
   </Tab>
 </Tabs>
 
-## Checking Data Quality from Samples
+## Checking data quality from samples
 
 <Tabs items={['Basic', 'Advanced']} persist groupId="preview-complexity">
   <Tab value="Basic">
-    ### Quality Assessment Questions
+    ### Quality assessment questions
 
     Ask Claude to check data quality:
     - "Are there null values in the dataset?"
@@ -233,7 +235,7 @@ Verify data structure, column types, and content before committing to full datas
   </Tab>
 
   <Tab value="Advanced">
-    ### Programmatic Quality Checks
+    ### Programmatic quality checks
 
     ```python
     preview = preview_data(url=csv_url, max_rows=50)
@@ -245,17 +247,17 @@ Verify data structure, column types, and content before committing to full datas
                 print(f"Null value in column: {key}")
 
     # Check date range
-    dates = [row['year'] for row in preview['rows'] if 'year' in row]
+    dates = [row['jahr'] for row in preview['rows'] if 'jahr' in row]
     print(f"Date range: {min(dates)} to {max(dates)}")
 
     # Check unique values
-    regions = {row['region'] for row in preview['rows'] if 'region' in row}
-    print(f"Unique regions in sample: {len(regions)}")
+    bezirke = {row['bezirk'] for row in preview['rows'] if 'bezirk' in row}
+    print(f"Unique districts in sample: {len(bezirke)}")
     ```
 
-    **Common Issues:**
+    **Common issues:**
 
-    **Sparse Data:**
+    **Sparse data:**
     ```python
     null_count = sum(1 for row in preview['rows']
                      for v in row.values() if v is None)
@@ -263,20 +265,20 @@ Verify data structure, column types, and content before committing to full datas
         print("Warning: >50% null values in sample")
     ```
 
-    **Inconsistent Types:**
+    **Inconsistent types:**
     ```python
     # Check if numeric column has non-numeric values
-    cases = [row.get('cases') for row in preview['rows']]
-    non_numeric = [c for c in cases if not isinstance(c, (int, float))]
+    faelle = [row.get('faelle') for row in preview['rows']]
+    non_numeric = [c for c in faelle if not isinstance(c, (int, float))]
     if non_numeric:
-        print(f"Warning: Non-numeric values in cases: {non_numeric}")
+        print(f"Warning: Non-numeric values in faelle: {non_numeric}")
     ```
   </Tab>
 </Tabs>
 
 ## Troubleshooting
 
-### Preview Fails on Valid URL
+### Preview fails on valid URL
 
 **Symptom:** URL works in browser but preview fails
 
@@ -287,7 +289,7 @@ Verify data structure, column types, and content before committing to full datas
 2. Use smaller max_bytes parameter
 3. Check if different format available
 
-### Type Inference Incorrect
+### Type inference incorrect
 
 **Symptom:** Column shows "string" but contains numbers
 
@@ -298,7 +300,7 @@ Verify data structure, column types, and content before committing to full datas
 2. Check if first rows are headers or metadata
 3. Use preview_data to see actual values
 
-### Cannot Detect Format
+### Cannot detect format
 
 **Symptom:** FormatError on auto-detection
 
@@ -309,7 +311,7 @@ Verify data structure, column types, and content before committing to full datas
 2. Check file extension matches actual content
 3. Download sample manually to inspect
 
-### Partial Fetch Warning
+### Partial fetch warning
 
 **Symptom:** Response shows partial_fetch: true
 
@@ -320,7 +322,7 @@ Verify data structure, column types, and content before committing to full datas
 2. Increase max_bytes if you need more sample data
 3. Schema should still be accurate from partial data
 
-## Next Steps
+## Next steps
 
 - **[Quality Metrics Guide](/guides/quality-metrics)** - Assess data quality
 - **[Searching Guide](/guides/searching)** - Find datasets to preview

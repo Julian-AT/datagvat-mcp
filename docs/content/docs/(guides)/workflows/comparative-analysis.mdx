@@ -1,34 +1,41 @@
 ---
-title: Comparative Dataset Analysis
+title: Comparative dataset analysis
 description: Compare multiple datasets to choose the best option for your needs
 ---
 
-# Comparative Dataset Analysis
+# Comparative dataset analysis
 
 Systematically compare multiple datasets on the same topic to select the optimal option.
-
-## Use This Workflow When
-
-- Multiple datasets available for same topic
-- Need to choose between alternatives
-- Comparing data quality across sources
-- Benchmarking dataset characteristics
 
 ## Prerequisites
 
 - [ ] Search criteria defined (topic, domain)
 - [ ] Comparison criteria prioritized (quality, freshness, completeness)
 - [ ] Minimum requirements established
+- [ ] Understanding of weighted scoring
 
-## Time Estimate
+## Time estimate
 
 20-30 minutes for 3-5 datasets
+
+## When to use this workflow
+
+Multiple datasets are available for the same topic. You need to choose between alternatives. You're comparing data quality across sources. You're benchmarking dataset characteristics.
+
+## What you'll accomplish
+
+By following this workflow, you'll:
+- Compare 3-5 datasets
+- Get quality scores for all candidates
+- Document schema structures
+- Create a comparison matrix
+- Make a selection decision with justification
 
 ## Workflow
 
 <Tabs items={['Complete Example', 'Step by Step']} persist groupId="workflow-detail">
   <Tab value="Complete Example">
-    ### Full Comparison Script
+    ### Full comparison script
 
     ```python
     # Search for datasets
@@ -81,9 +88,9 @@ Systematically compare multiple datasets on the same topic to select the optimal
   <Tab value="Step by Step">
     <Steps>
       <Step>
-        ### Search for Multiple Candidates
+        ### Step 1: Search for multiple candidates
 
-        Find all datasets matching your topic:
+        Find all datasets matching your topic.
 
         ```python
         results = search_datasets(
@@ -103,19 +110,19 @@ Systematically compare multiple datasets on the same topic to select the optimal
         {
           "results": [
             {
-              "id": "dataset-123",
-              "title": "Vienna Population 2024",
+              "id": "bev-stat-wien-2024",
+              "title": "Bevölkerung Wien 2024",
               "quality_score": 87,
               "modified": "2024-01-15"
             },
             {
-              "id": "dataset-456",
+              "id": "demografie-austria",
               "title": "Austria Demographics",
               "quality_score": 75,
               "modified": "2023-11-20"
             },
             {
-              "id": "dataset-789",
+              "id": "bev-regional",
               "title": "Regional Population Data",
               "quality_score": 68,
               "modified": "2024-02-01"
@@ -132,9 +139,9 @@ Systematically compare multiple datasets on the same topic to select the optimal
       </Step>
 
       <Step>
-        ### Batch Quality Analysis
+        ### Step 2: Batch quality analysis
 
-        Analyze quality for all candidates:
+        Analyze quality for all candidates.
 
         ```python
         quality_results = {}
@@ -154,9 +161,9 @@ Systematically compare multiple datasets on the same topic to select the optimal
 
         **Expected output:**
         ```
-        dataset-123: 87 (completeness: 95)
-        dataset-456: 75 (completeness: 80)
-        dataset-789: 68 (completeness: 70)
+        bev-stat-wien-2024: 87 (completeness: 95)
+        demografie-austria: 75 (completeness: 80)
+        bev-regional: 68 (completeness: 70)
 
         Quality range: 68-87 (spread: 19 points)
         ```
@@ -168,9 +175,9 @@ Systematically compare multiple datasets on the same topic to select the optimal
       </Step>
 
       <Step>
-        ### Schema Comparison
+        ### Step 3: Schema comparison
 
-        Compare data structures across datasets:
+        Compare data structures across datasets.
 
         ```python
         schema_comparison = {}
@@ -197,15 +204,15 @@ Systematically compare multiple datasets on the same topic to select the optimal
         **Expected output:**
         ```json
         {
-          "dataset-123": {
+          "bev-stat-wien-2024": {
             "columns": ["year", "district", "population", "growth_rate"],
             "column_count": 4
           },
-          "dataset-456": {
+          "demografie-austria": {
             "columns": ["year", "region", "population", "density"],
             "column_count": 4
           },
-          "dataset-789": {
+          "bev-regional": {
             "columns": ["year", "population"],
             "column_count": 2
           }
@@ -221,9 +228,9 @@ Systematically compare multiple datasets on the same topic to select the optimal
       </Step>
 
       <Step>
-        ### Create Comparison Matrix
+        ### Step 4: Create comparison matrix
 
-        Compile all criteria into decision matrix:
+        Compile all criteria into a decision matrix.
 
         ```python
         import pandas as pd
@@ -258,9 +265,9 @@ Systematically compare multiple datasets on the same topic to select the optimal
         **Expected output:**
         ```
            ID                          Title  Quality  Columns  Recency    Modified
-        at-123        Vienna Population 2024       87        4       99  2024-01-15
-        at-456           Austria Demographics       75        4       85  2023-11-20
-        at-789        Regional Population Data       68        2      100  2024-02-01
+         -2024          Bevölkerung Wien 2024       87        4       99  2024-01-15
+        ustria           Austria Demographics       75        4       85  2023-11-20
+        gional        Regional Population Data       68        2      100  2024-02-01
         ```
 
         **Verify:**
@@ -270,9 +277,9 @@ Systematically compare multiple datasets on the same topic to select the optimal
       </Step>
 
       <Step>
-        ### Selection Decision
+        ### Step 5: Selection decision
 
-        Apply decision criteria and select winner:
+        Apply decision criteria and select winner.
 
         ```python
         # Define weights (adjust based on priorities)
@@ -309,9 +316,9 @@ Systematically compare multiple datasets on the same topic to select the optimal
 
         | Rank | Dataset | Quality | Recency | Columns | Score |
         |------|---------|---------|---------|---------|-------|
-        | 1 | dataset-123 | 87 | 99 | 4 | 0.91 |
-        | 2 | dataset-789 | 68 | 100 | 2 | 0.77 |
-        | 3 | dataset-456 | 75 | 85 | 4 | 0.76 |
+        | 1 | bev-stat-wien-2024 | 87 | 99 | 4 | 0.91 |
+        | 2 | bev-regional | 68 | 100 | 2 | 0.77 |
+        | 3 | demografie-austria | 75 | 85 | 4 | 0.76 |
 
         **Verify:**
         - [ ] Winner aligns with priorities
@@ -322,9 +329,9 @@ Systematically compare multiple datasets on the same topic to select the optimal
   </Tab>
 </Tabs>
 
-## Success Criteria
+## What you accomplished
 
-At completion, you should have:
+After completing this workflow, you have:
 
 - [ ] 3-5 datasets compared
 - [ ] Quality scores for all candidates
@@ -334,7 +341,7 @@ At completion, you should have:
 
 ## Troubleshooting
 
-### All Datasets Have Similar Scores
+### All datasets have similar scores
 
 **Symptom:** Quality scores within 5-10 points
 
@@ -346,7 +353,7 @@ At completion, you should have:
 - Test data previews for actual quality
 - Consider combining multiple datasets
 
-### Required Columns Missing from All
+### Required columns missing from all
 
 **Symptom:** No candidate has all required columns
 
@@ -358,7 +365,7 @@ At completion, you should have:
 - Check if data can be derived from available columns
 - Expand search to different publishers
 
-### Cannot Decide Between Top Two
+### Can't decide between top two
 
 **Symptom:** Two datasets tied on all criteria
 
@@ -370,12 +377,12 @@ At completion, you should have:
 - Choose publisher with better support
 - Test with sample data processing
 
-## Related Workflows
+## Related workflows
 
-- **[Dataset Discovery Workflow](/workflows/discovery)** - Finding initial candidates
-- **[Quality Assessment Workflow](/workflows/quality-assessment)** - Detailed quality evaluation
+- **[Dataset discovery workflow](/workflows/discovery)** - Finding initial candidates
+- **[Quality assessment workflow](/workflows/quality-assessment)** - Detailed quality evaluation
 
-## Related Guides
+## Related guides
 
-- **[Quality Metrics Guide](/guides/quality-metrics)** - Understanding quality scores
-- **[Data Preview Guide](/guides/data-preview)** - Schema comparison techniques
+- **[Quality metrics guide](/guides/quality-metrics)** - Understanding quality scores
+- **[Data preview guide](/guides/data-preview)** - Schema comparison techniques

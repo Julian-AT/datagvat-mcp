@@ -7,27 +7,29 @@ description: Evaluate dataset quality and discover related datasets
 
 Determine dataset reliability through quality scores and discover related datasets for comparison.
 
-## When to Use This Guide
+## When to use this guide
 
-- You need to verify data quality before using in research/production
-- You want to understand what DQV quality scores mean
-- You need to find similar or related datasets
-- You want to compare quality across dataset options
+Use this guide when you need to:
+
+- Verify data quality before using in research or production
+- Understand what DQV quality scores mean
+- Find similar or related datasets
+- Compare quality across dataset options
 
 ## Prerequisites
 
 - Dataset ID from search results
 - Understanding of your quality requirements (research vs exploration)
 
-## Understanding Quality Scores
+## Understanding quality scores
 
-Quality scores (0-100) measure metadata completeness, update frequency, standards compliance.
+Quality scores (0-100) measure metadata completeness, update frequency, and standards compliance.
 
 **Score ranges:**
 - 85-100: Excellent (research, citations)
 - 70-84: Good (production applications)
 - 50-69: Acceptable (exploratory analysis)
-- &lt;50: Poor (verify carefully)
+- <50: Poor (verify carefully)
 
 **Score components:**
 - Completeness (40 points): Title, description, license, contact, keywords, themes, spatial, temporal coverage
@@ -35,11 +37,11 @@ Quality scores (0-100) measure metadata completeness, update frequency, standard
 - Compliance (20 points): DCAT-AP standard compliance
 - Accessibility (20 points): Valid download links, open formats
 
-## Quick Quality Check
+## Quick quality check
 
 <Tabs items={['Basic', 'Advanced']} groupId="quality-complexity" persist>
   <Tab value="Basic">
-    ### Ask Claude for Quality Assessment
+    ### Ask Claude for quality assessment
 
     "What's the quality score for dataset [dataset-id]?"
 
@@ -47,15 +49,15 @@ Quality scores (0-100) measure metadata completeness, update frequency, standard
 
     **What you'll learn:**
     - Overall quality score (0-100)
-    - What metadata is present/missing
+    - What metadata is present or missing
     - Whether quality meets your needs
   </Tab>
 
   <Tab value="Advanced">
-    ### Direct Quality Analysis
+    ### Direct quality analysis
 
     ```python
-    quality = analyze_dataset_quality(dataset_id="dataset-123")
+    quality = analyze_dataset_quality(dataset_id="bev-stat-wien-2024")
     ```
 
     **Parameters:**
@@ -72,7 +74,7 @@ Quality scores (0-100) measure metadata completeness, update frequency, standard
 
     ```json
     {
-      "dataset_id": "dataset-123",
+      "dataset_id": "bev-stat-wien-2024",
       "metadata": {
         "has_title": true,
         "has_description": true,
@@ -97,23 +99,23 @@ Quality scores (0-100) measure metadata completeness, update frequency, standard
 
     **Quality decision matrix:**
 
-    | Score | Use For | Verification |
+    | Score | Use for | Verification |
     |-------|---------|--------------|
     | 85-100 | Research, citations | Proceed with confidence |
     | 70-84 | Production apps | Verify critical fields present |
     | 50-69 | Exploration | Check schema, preview data |
-    | &lt;50 | Caution | Manual verification required |
+    | <50 | Caution | Manual verification required |
 
-    **Error Handling:**
+    **Error handling:**
 
-    **Degraded Service:**
+    **Degraded service:**
     ```python
     if quality.get('degraded'):
         print("Quality service degraded - using cached metrics")
         # Verify critical fields manually
     ```
 
-    **Dataset Not Found:**
+    **Dataset not found:**
     ```json
     {"error": "NotFoundError", "message": "Dataset not found"}
     ```
@@ -121,11 +123,11 @@ Quality scores (0-100) measure metadata completeness, update frequency, standard
   </Tab>
 </Tabs>
 
-## Quality-Aware Search
+## Quality-aware search
 
 <Tabs items={['Basic', 'Advanced']} persist groupId="quality-complexity">
   <Tab value="Basic">
-    ### Search with Quality Preference
+    ### Search with quality preference
 
     "Find high-quality datasets about health"
 
@@ -133,11 +135,11 @@ Quality scores (0-100) measure metadata completeness, update frequency, standard
   </Tab>
 
   <Tab value="Advanced">
-    ### Quality Boost in Search
+    ### Quality boost in search
 
     ```python
     search_datasets(
-        query="health",
+        query="gesundheit",
         boost_quality=True
     )
     ```
@@ -149,24 +151,24 @@ Quality scores (0-100) measure metadata completeness, update frequency, standard
 
     **Note:** Quality boost only active when query is provided (not on facet-only searches)
 
-    **Error Handling:**
+    **Error handling:**
 
     ```python
     try:
-        results = search_datasets(query="health", boost_quality=True)
+        results = search_datasets(query="gesundheit", boost_quality=True)
     except ToolError as e:
         print(f"Search with quality boost failed: {e}")
         # Try without boost
-        results = search_datasets(query="health")
+        results = search_datasets(query="gesundheit")
     ```
   </Tab>
 </Tabs>
 
-## Finding Related Datasets
+## Finding related datasets
 
 <Tabs items={['Basic', 'Advanced']} persist groupId="quality-complexity">
   <Tab value="Basic">
-    ### Ask for Related Datasets
+    ### Ask for related datasets
 
     "Find datasets related to [dataset-id]"
 
@@ -174,11 +176,11 @@ Quality scores (0-100) measure metadata completeness, update frequency, standard
   </Tab>
 
   <Tab value="Advanced">
-    ### Direct Related Dataset Search
+    ### Direct related dataset search
 
     ```python
     related = find_related_datasets(
-        dataset_id="dataset-123",
+        dataset_id="bev-stat-wien-2024",
         min_score=20
     )
     ```
@@ -212,15 +214,15 @@ Quality scores (0-100) measure metadata completeness, update frequency, standard
 
     ```json
     {
-      "reference_dataset_id": "dataset-123",
+      "reference_dataset_id": "bev-stat-wien-2024",
       "related_datasets": [
         {
-          "id": "dataset-456",
-          "title": "Related Dataset",
+          "id": "wien-einwohner-bezirk",
+          "title": "Einwohnerinnen und Einwohner Wien nach Bezirken",
           "similarity_score": 75,
           "match_reasons": {
-            "theme_matches": ["HEAL", "SOCI"],
-            "keyword_matches": ["health", "statistics"],
+            "theme_matches": ["SOCI", "REGI"],
+            "keyword_matches": ["bevölkerung", "wien"],
             "same_publisher": true
           }
         }
@@ -228,33 +230,33 @@ Quality scores (0-100) measure metadata completeness, update frequency, standard
     }
     ```
 
-    **Error Handling:**
+    **Error handling:**
 
     ```python
     try:
-        related = find_related_datasets(dataset_id="dataset-123")
+        related = find_related_datasets(dataset_id="bev-stat-wien-2024")
     except ToolError as e:
         print(f"Related search failed: {e}")
     ```
 
-    **Empty Results:**
+    **Empty results:**
     ```python
     if len(related['related_datasets']) == 0:
         print("No related datasets found")
         # Try lowering min_score threshold
         related = find_related_datasets(
-            dataset_id="dataset-123",
+            dataset_id="bev-stat-wien-2024",
             min_score=10
         )
     ```
   </Tab>
 </Tabs>
 
-## Interpreting Metadata Completeness
+## Interpreting metadata completeness
 
 <Tabs items={['Basic', 'Advanced']} persist groupId="quality-complexity">
   <Tab value="Basic">
-    ### Understanding What's Missing
+    ### Understanding what's missing
 
     Ask Claude: "What metadata is missing from dataset [id]?"
 
@@ -262,10 +264,10 @@ Quality scores (0-100) measure metadata completeness, update frequency, standard
   </Tab>
 
   <Tab value="Advanced">
-    ### Programmatic Completeness Check
+    ### Programmatic completeness check
 
     ```python
-    quality = analyze_dataset_quality(dataset_id="dataset-123")
+    quality = analyze_dataset_quality(dataset_id="bev-stat-wien-2024")
     metadata = quality['metadata']
 
     # Critical fields for research
@@ -284,14 +286,14 @@ Quality scores (0-100) measure metadata completeness, update frequency, standard
 
     **Field importance:**
 
-    | Field | Importance | Impact if Missing |
+    | Field | Importance | Impact if missing |
     |-------|-----------|------------------|
-    | Title | Critical | Cannot identify dataset |
-    | Description | Critical | Cannot assess relevance |
-    | License | Critical | Cannot determine usage rights |
-    | Contact | High | Cannot report issues |
+    | Title | Critical | Can't identify dataset |
+    | Description | Critical | Can't assess relevance |
+    | License | Critical | Can't determine usage rights |
+    | Contact | High | Can't report issues |
     | Keywords | Medium | Reduced discoverability |
-    | Themes | Medium | Cannot filter by topic |
+    | Themes | Medium | Can't filter by topic |
     | Temporal | Low | Unknown time period |
     | Spatial | Low | Unknown geographic coverage |
   </Tab>
@@ -299,7 +301,7 @@ Quality scores (0-100) measure metadata completeness, update frequency, standard
 
 ## Troubleshooting
 
-### All Datasets Have Low Quality Scores
+### All datasets have low quality scores
 
 **Symptom:** No results with score >70
 
@@ -310,7 +312,7 @@ Quality scores (0-100) measure metadata completeness, update frequency, standard
 2. Check what metadata is missing (use analyze_dataset_quality)
 3. Verify critical fields (license, description) present even if score low
 
-### Quality Analysis Returns Degraded
+### Quality analysis returns degraded
 
 **Symptom:** degraded: true in response
 
@@ -321,7 +323,7 @@ Quality scores (0-100) measure metadata completeness, update frequency, standard
 2. Verify critical fields manually from dataset metadata
 3. Retry after few minutes if current metrics needed
 
-### Find Related Returns No Results
+### Find related returns no results
 
 **Symptom:** Empty related_datasets array
 
@@ -332,7 +334,7 @@ Quality scores (0-100) measure metadata completeness, update frequency, standard
 2. Check reference dataset has themes and keywords
 3. Search by same publisher or themes instead
 
-### Quality Score Doesn't Match Expectations
+### Quality score doesn't match expectations
 
 **Symptom:** High-quality dataset shows low score
 
@@ -344,7 +346,7 @@ Quality scores (0-100) measure metadata completeness, update frequency, standard
 3. Consider metadata richness vs actual data quality
 4. Contact publisher to improve metadata
 
-## Next Steps
+## Next steps
 
 - **[Searching Guide](/guides/searching)** - Find datasets with quality filtering
 - **[Data Preview Guide](/guides/data-preview)** - Verify data structure

@@ -1,34 +1,41 @@
 ---
-title: Semantic Domain Exploration
+title: Semantic domain exploration
 description: Discover datasets in unfamiliar domains through iterative semantic search
 ---
 
-# Semantic Domain Exploration
+# Semantic domain exploration
 
 Explore new research domains by discovering datasets through semantic search and related dataset traversal.
-
-## Use This Workflow When
-
-- Exploring unfamiliar research domains
-- Don't know exact keywords or terminology
-- Want to discover unexpected data sources
-- Building understanding of data landscape
 
 ## Prerequisites
 
 - [ ] High-level research question or interest area
 - [ ] Willingness to iterate and refine
 - [ ] Open to discovering unexpected datasets
+- [ ] Basic understanding of EU theme codes
 
-## Time Estimate
+## Time estimate
 
 45-60 minutes for domain exploration
+
+## When to use this workflow
+
+You're exploring an unfamiliar research domain. You don't know exact keywords or terminology. You want to discover unexpected data sources. You're building understanding of the data landscape.
+
+## What you'll accomplish
+
+By following this workflow, you'll:
+- Map the domain landscape (themes, publishers)
+- Identify 3-5 key themes
+- Prioritize 5-10 recommended datasets
+- Explore related dataset connections
+- Document exploration findings
 
 ## Workflow
 
 <Tabs items={['Complete Example', 'Step by Step']} persist groupId="workflow-detail">
   <Tab value="Complete Example">
-    ### Iterative Exploration Script
+    ### Iterative exploration script
 
     ```python
     # Start with broad question
@@ -84,9 +91,9 @@ Explore new research domains by discovering datasets through semantic search and
   <Tab value="Step by Step">
     <Steps>
       <Step>
-        ### Initial Broad Semantic Search
+        ### Step 1: Initial broad semantic search
 
-        Start with natural language question:
+        Start with a natural language question.
 
         ```python
         initial_query = "What data exists about urban sustainability in Vienna?"
@@ -115,15 +122,15 @@ Explore new research domains by discovering datasets through semantic search and
           },
           "results": [
             {
-              "id": "dataset-env-087",
+              "id": "umwelt-indikatoren-wien-2024",
               "title": "Vienna Environmental Indicators 2024"
             },
             {
-              "id": "dataset-ener-042",
+              "id": "erneuerbare-energie-austria",
               "title": "Renewable Energy Statistics Austria"
             },
             {
-              "id": "dataset-transport-019",
+              "id": "oeffentlicher-verkehr-wien",
               "title": "Public Transport Usage Vienna"
             }
           ]
@@ -137,9 +144,9 @@ Explore new research domains by discovering datasets through semantic search and
       </Step>
 
       <Step>
-        ### Analyze Theme Distribution
+        ### Step 2: Analyze theme distribution
 
-        Identify dominant themes in results:
+        Identify dominant themes in results.
 
         ```python
         themes = results['facets']['themes']
@@ -180,9 +187,9 @@ Explore new research domains by discovering datasets through semantic search and
       </Step>
 
       <Step>
-        ### Find Related Datasets
+        ### Step 3: Find related datasets
 
-        Traverse the dataset graph through relationships:
+        Traverse the dataset graph through relationships.
 
         ```python
         # Pick most relevant dataset from initial search
@@ -207,10 +214,10 @@ Explore new research domains by discovering datasets through semantic search and
         **Expected output:**
         ```json
         {
-          "reference_dataset_id": "dataset-env-087",
+          "reference_dataset_id": "umwelt-indikatoren-wien-2024",
           "related_datasets": [
             {
-              "id": "dataset-env-088",
+              "id": "luftqualitaet-wien-2023",
               "title": "Vienna Air Quality Monitoring 2023",
               "similarity_score": 75,
               "match_reasons": {
@@ -220,7 +227,7 @@ Explore new research domains by discovering datasets through semantic search and
               }
             },
             {
-              "id": "dataset-climate-012",
+              "id": "klimaanpassung-wien",
               "title": "Climate Adaptation Strategies Vienna",
               "similarity_score": 60,
               "match_reasons": {
@@ -240,9 +247,9 @@ Explore new research domains by discovering datasets through semantic search and
       </Step>
 
       <Step>
-        ### Iterative Refinement
+        ### Step 4: Iterative refinement
 
-        Refine search based on discoveries:
+        Refine search based on discoveries.
 
         ```python
         # Round 2: Use discovered themes
@@ -292,9 +299,9 @@ Explore new research domains by discovering datasets through semantic search and
       </Step>
 
       <Step>
-        ### Build Dataset Collection
+        ### Step 5: Build dataset collection
 
-        Compile exploration findings:
+        Compile exploration findings.
 
         ```python
         exploration_summary = {
@@ -341,7 +348,7 @@ Explore new research domains by discovering datasets through semantic search and
           "publishers": ["stadt-wien", "magistrat-wien", "umweltbundesamt"],
           "recommended_starting_points": [
             {
-              "id": "dataset-env-087",
+              "id": "umwelt-indikatoren-wien-2024",
               "title": "Vienna Environmental Indicators 2024",
               "quality_score": 92,
               "why_recommended": "High quality"
@@ -368,9 +375,9 @@ Explore new research domains by discovering datasets through semantic search and
   </Tab>
 </Tabs>
 
-## Success Criteria
+## What you accomplished
 
-At completion, you should have:
+After completing this workflow, you have:
 
 - [ ] Domain landscape mapped (themes, publishers)
 - [ ] 3-5 key themes identified
@@ -380,7 +387,7 @@ At completion, you should have:
 
 ## Troubleshooting
 
-### Initial Search Too Broad
+### Initial search too broad
 
 **Symptom:** 100+ results with scattered themes
 
@@ -392,7 +399,7 @@ At completion, you should have:
 - Focus on specific sub-domain
 - Use top theme to refine immediately
 
-### No Clear Theme Patterns
+### No clear theme patterns
 
 **Symptom:** Themes evenly distributed, no dominant focus
 
@@ -404,7 +411,7 @@ At completion, you should have:
 - Review top results to understand spread
 - Split into multiple focused explorations
 
-### Related Datasets Not Helpful
+### Related datasets not helpful
 
 **Symptom:** Related datasets not actually related
 
@@ -416,12 +423,12 @@ At completion, you should have:
 - Explore by publisher instead
 - Use theme-based search for connections
 
-## Related Workflows
+## Related workflows
 
-- **[Dataset Discovery Workflow](/workflows/discovery)** - Focused discovery once domain understood
-- **[Comparative Analysis Workflow](/workflows/comparative-analysis)** - Comparing discovered datasets
+- **[Dataset discovery workflow](/workflows/discovery)** - Focused discovery once domain understood
+- **[Comparative analysis workflow](/workflows/comparative-analysis)** - Comparing discovered datasets
 
-## Related Guides
+## Related guides
 
-- **[Searching Guide](/guides/searching)** - Semantic search techniques
-- **[Quality Metrics Guide](/guides/quality-metrics)** - Related datasets feature
+- **[Searching guide](/guides/searching)** - Semantic search techniques
+- **[Quality metrics guide](/guides/quality-metrics)** - Related datasets feature

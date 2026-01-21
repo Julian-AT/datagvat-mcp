@@ -15,7 +15,7 @@ Before installing, ensure you have:
 - **pip or uv package manager** - uv recommended for faster installs
 - **Claude Desktop** or compatible MCP client - [Download Claude Desktop](https://claude.ai/download)
 
-## How data.gv.at MCP Server Works
+## How data.gv.at MCP Server works
 
 Understanding the data flow helps you troubleshoot issues and optimize your queries:
 
@@ -30,7 +30,7 @@ Understanding the data flow helps you troubleshoot issues and optimize your quer
                    │ MCP Protocol (stdio)
                    ▼
 ┌─────────────────────────────────────────────┐
-│      data.gv.at MCP Server Server receives request   │
+│      data.gv.at MCP Server receives request │
 │                                             │
 │  1. Middleware processing:                 │
 │     • Logging (record request)             │
@@ -66,8 +66,8 @@ Understanding the data flow helps you troubleshoot issues and optimize your quer
       │
       ▼
    User: "Population 2023 datasets:
-          • Vienna Population Statistics (quality: 95)
-          • National Demographics 2023 (quality: 87)
+          • Bevölkerung Wien 2020-2024 (quality: 95)
+          • Bundesweite Demografie 2023 (quality: 87)
           ..."
 ```
 
@@ -80,7 +80,7 @@ The server adds value beyond direct API access:
 - **Error handling** - Retries failed requests with exponential backoff
 - **Rate limiting** - Protects against API throttling
 
-## Project Structure
+## Project structure
 
 After installation, your project directory looks like this:
 
@@ -137,7 +137,7 @@ pip install -e .
 pip install datagvat-mcp
 ```
 
-## Server Directory Layout
+## Server directory layout
 
 The data.gv.at MCP Server server has a well-organized structure:
 
@@ -177,11 +177,11 @@ The data.gv.at MCP Server server has a well-organized structure:
 Key directories:
 - `app/` - Main server code and FastMCP instance
 - `app/tools/` - Tool implementations organized by category
-- `tests/` - Comprehensive test suite
+- `tests/` - Test suite
 
 ## Configuration
 
-### Claude Desktop Setup
+### Claude Desktop setup
 
 Add the data.gv.at MCP Server server to your Claude Desktop configuration:
 
@@ -210,7 +210,7 @@ Add the data.gv.at MCP Server server to your Claude Desktop configuration:
 **Important:** Replace `/absolute/path/to/datagvat-mcp/mcp` with the actual path to the server directory in your cloned repository.
 
 <Callout type="warn">
-**Path Requirements:**
+**Path requirements:**
 - Use absolute paths only (no `~` or relative paths)
 - Windows: Use double backslashes (`C:\\Users\\...`)
 - The path must point to the `mcp/` directory containing the `app/` folder
@@ -273,7 +273,7 @@ If you prefer pip over uv:
 }
 ```
 
-## Environment Variables
+## Environment variables
 
 Optional configuration via `.env` file in the project root:
 
@@ -290,7 +290,7 @@ AUSTRIA_MCP_LOG_FORMAT=json
 AUSTRIA_MCP_DEV_MODE=false
 ```
 
-### Available Environment Variables
+### Available environment variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -300,11 +300,11 @@ AUSTRIA_MCP_DEV_MODE=false
 | `AUSTRIA_MCP_LOG_FORMAT` | `json` | Log format (json, text) |
 | `AUSTRIA_MCP_DEV_MODE` | `false` | Enable development features |
 
-## Test Server Locally
+## Test server locally
 
 Before configuring Claude Desktop, verify the server works correctly:
 
-### 1. Test Server Import
+### 1. Test server import
 
 ```bash
 python -c "from app.server import mcp; print('✅ Server loads successfully')"
@@ -312,7 +312,7 @@ python -c "from app.server import mcp; print('✅ Server loads successfully')"
 
 This confirms all dependencies are installed and the server code is valid.
 
-### 2. Run Development Mode
+### 2. Run development mode
 
 ```bash
 fastmcp dev app.server:mcp
@@ -325,33 +325,33 @@ This starts FastMCP's development server with a web interface at `http://localho
 - View server logs in real-time
 - Verify responses before Claude Desktop integration
 
-### 3. Expected Tools
+### 3. Expected tools
 
 The development UI should show these tool categories:
 
-**Discovery Tools:**
+**Discovery tools:**
 - `list_catalogues` - Browse available data catalogues
 - `search_datasets` - Search for datasets
 - `get_dataset` - Retrieve dataset details
 - `list_dataset_distributions` - Get dataset download links
 
-**Management Tools:**
+**Management tools:**
 - `create_dataset_draft` - Create new dataset drafts
 - `update_dataset` - Update existing datasets
 - `delete_dataset` - Remove datasets
 
-**Analysis Tools:**
+**Analysis tools:**
 - `analyze_dataset_quality` - Calculate metadata quality score
 - `find_related_datasets` - Discover similar datasets
 
-**Vocabulary Tools:**
+**Vocabulary tools:**
 - `list_vocabularies` - Browse EU DCAT-AP vocabularies
 - `search_vocabulary_terms` - Search vocabulary terms
 
-**Preview Tools:**
+**Preview tools:**
 - `preview_dataset_file` - Sample data from CSV/JSON files
 
-### 4. Test Basic Functionality
+### 4. Test basic functionality
 
 In the dev UI, try `list_catalogues` with `limit=3`:
 
@@ -366,7 +366,7 @@ In the dev UI, try `list_catalogues` with `limit=3`:
 
 If you see this response, the server is working correctly and ready for Claude Desktop.
 
-## Verify Installation
+## Verify installation
 
 1. **Restart Claude Desktop** to load the new MCP server configuration
 
@@ -394,7 +394,7 @@ You should see a list of Austrian data catalogues:
 3. **Try a search** to verify full functionality:
 
 ```
-search_datasets(query="population", limit=5)
+search_datasets(query="bevölkerung", limit=5)
 ```
 
 ## Troubleshooting
@@ -407,7 +407,7 @@ search_datasets(query="population", limit=5)
 4. **Check logs** - Look in Claude Desktop logs for MCP server errors
 
 <Callout type="info">
-**Log Locations:**
+**Log locations:**
 - **Windows:** `%APPDATA%\Claude\logs\`
 - **macOS:** `~/Library/Logs/Claude/`
 - **Linux:** `~/.config/Claude/logs/`
@@ -548,13 +548,13 @@ pip install -e . --force-reinstall
 }
 ```
 
-## Next Steps
+## Next steps
 
 - **[Configuration Guide](/guides/configuration)** - Advanced configuration options
 - **[API Reference](/api/tools)** - Explore all available tools
 - **[Resources](/api/resources)** - Direct data access via MCP resources
 
-## Getting Help
+## Getting help
 
 - **GitHub Issues** - [Report bugs or request features](https://github.com/yourusername/datagvat-mcp/issues)
 - **Discussions** - [Ask questions and share tips](https://github.com/yourusername/datagvat-mcp/discussions)

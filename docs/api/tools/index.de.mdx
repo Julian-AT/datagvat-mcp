@@ -8,7 +8,7 @@ import { TypeTable } from 'fumadocs-ui/components/type-table';
 
 # MCP Tools
 
-Der data.gv.at MCP Server Server bietet umfassende Tools zum Entdecken, Analysieren und Verwalten von österreichischen Open Data Datensätzen.
+Der data.gv.at MCP Server bietet Tools zum Entdecken, Analysieren und Verwalten von österreichischen Open Data Datensätzen.
 
 ## Discovery Tools
 
@@ -74,7 +74,7 @@ Der data.gv.at MCP Server Server bietet umfassende Tools zum Entdecken, Analysie
     {
       "id": "stadt-wien",
       "title": "Stadt Wien Open Data",
-      "description": "Umfassende Open Data aus Wien",
+      "description": "Open Data der Stadt Wien",
       "publisher": {...}
     }
     ```
@@ -109,17 +109,17 @@ Der data.gv.at MCP Server Server bietet umfassende Tools zum Entdecken, Analysie
       },
       publishers: {
         type: "string[]",
-        description: "Filtern nach Herausgeber/Organisations-ID",
+        description: "Filtern nach Herausgeber oder Organisations-ID",
         default: "None"
       },
       min_date: {
         type: "string",
-        description: "Filtert Datensätze, die nach diesem Datum geändert/veröffentlicht wurden (YYYY-MM-DD oder ISO 8601)",
+        description: "Filtert Datensätze, die nach diesem Datum geändert oder veröffentlicht wurden (YYYY-MM-DD oder ISO 8601)",
         default: "None"
       },
       max_date: {
         type: "string",
-        description: "Filtert Datensätze, die vor diesem Datum geändert/veröffentlicht wurden (YYYY-MM-DD oder ISO 8601)",
+        description: "Filtert Datensätze, die vor diesem Datum geändert oder veröffentlicht wurden (YYYY-MM-DD oder ISO 8601)",
         default: "None"
       },
       sort_by: {
@@ -129,7 +129,7 @@ Der data.gv.at MCP Server Server bietet umfassende Tools zum Entdecken, Analysie
       },
       boost_quality: {
         type: "boolean",
-        description: "Bevorzugt hochwertige Datensätze in Suchergebnissen (nutzt Vollständigkeits-, Aktualitäts- und Compliance-Metriken)",
+        description: "Bevorzugt hochwertige Datensätze in Suchergebnissen mit Vollständigkeits-, Aktualitäts- und Compliance-Metriken",
         default: false
       },
       limit: {
@@ -163,9 +163,9 @@ Der data.gv.at MCP Server Server bietet umfassende Tools zum Entdecken, Analysie
     {
       "results": [
         {
-          "id": "dataset-123",
-          "title": "Bevölkerungsstatistik 2024",
-          "description": "Jährliche Bevölkerungsdaten...",
+          "id": "bev-stat-wien-2024",
+          "title": "Bevölkerung Wien 2020-2024",
+          "description": "Jährliche Bevölkerungsdaten für Wiener Bezirke...",
           "themes": ["SOCI"],
           "formats": ["CSV", "JSON"]
         }
@@ -215,7 +215,7 @@ Der data.gv.at MCP Server Server bietet umfassende Tools zum Entdecken, Analysie
     **Beispiel:**
 
     ```python
-    get_dataset(dataset_id="dataset-123")
+    get_dataset(dataset_id="bev-stat-wien-2024")
     ```
   </Accordion>
 
@@ -253,7 +253,7 @@ Der data.gv.at MCP Server Server bietet umfassende Tools zum Entdecken, Analysie
     **Beispiel:**
 
     ```python
-    get_dataset_distributions(dataset_id="dataset-123")
+    get_dataset_distributions(dataset_id="bev-stat-wien-2024")
     ```
   </Accordion>
 
@@ -276,7 +276,7 @@ Der data.gv.at MCP Server Server bietet umfassende Tools zum Entdecken, Analysie
     **Beispiel:**
 
     ```python
-    get_catalogue_record(dataset_id="dataset-123")
+    get_catalogue_record(dataset_id="bev-stat-wien-2024")
     ```
   </Accordion>
 
@@ -314,8 +314,8 @@ Der data.gv.at MCP Server Server bietet umfassende Tools zum Entdecken, Analysie
     ```json
     {
       "source": {
-        "id": "dataset-123",
-        "title": "Bevölkerungsstatistik"
+        "id": "bev-stat-wien-2024",
+        "title": "Bevölkerung Wien 2020-2024"
       },
       "related": [
         {
@@ -332,7 +332,7 @@ Der data.gv.at MCP Server Server bietet umfassende Tools zum Entdecken, Analysie
 
     ```python
     find_related_datasets(
-        dataset_id="dataset-123",
+        dataset_id="bev-stat-wien-2024",
         limit=10,
         min_score=30.0
     )
@@ -366,12 +366,12 @@ Der data.gv.at MCP Server Server bietet umfassende Tools zum Entdecken, Analysie
       },
       min_date: {
         type: "string",
-        description: "Filtern nach Änderungs-/Veröffentlichungsdatum (YYYY-MM-DD)",
+        description: "Filtern nach Änderungs- oder Veröffentlichungsdatum (YYYY-MM-DD)",
         default: "None"
       },
       max_date: {
         type: "string",
-        description: "Filtern nach Änderungs-/Veröffentlichungsdatum (YYYY-MM-DD)",
+        description: "Filtern nach Änderungs- oder Veröffentlichungsdatum (YYYY-MM-DD)",
         default: "None"
       },
       sort_by: {
@@ -470,7 +470,7 @@ Der data.gv.at MCP Server Server bietet umfassende Tools zum Entdecken, Analysie
 
     ```python
     get_dataset_metrics(
-        dataset_id="dataset-123",
+        dataset_id="bev-stat-wien-2024",
         include_history=True
     )
     ```
@@ -506,12 +506,12 @@ Der data.gv.at MCP Server Server bietet umfassende Tools zum Entdecken, Analysie
     **Beispiel:**
 
     ```python
-    check_doi_eligibility(dataset_id="dataset-123")
+    check_doi_eligibility(dataset_id="bev-stat-wien-2024")
     ```
   </Accordion>
 
   <Accordion title="analyze_dataset_quality" id="analyze-dataset-quality">
-    Führt eine umfassende Qualitätsanalyse eines Datensatzes durch. Kombiniert Metadaten, Distributionen, Qualitätsmetriken und DOI-Berechtigung in einem einzigen Bericht.
+    Führt eine Qualitätsanalyse eines Datensatzes durch. Kombiniert Metadaten, Distributionen, Qualitätsmetriken und DOI-Berechtigung in einem einzigen Bericht.
 
     **Parameter:**
 
@@ -526,7 +526,7 @@ Der data.gv.at MCP Server Server bietet umfassende Tools zum Entdecken, Analysie
 
     ```json
     {
-      "dataset_id": "dataset-123",
+      "dataset_id": "bev-stat-wien-2024",
       "metadata": {
         "has_title": true,
         "has_description": true,
@@ -549,7 +549,7 @@ Der data.gv.at MCP Server Server bietet umfassende Tools zum Entdecken, Analysie
     **Beispiel:**
 
     ```python
-    analyze_dataset_quality(dataset_id="dataset-123")
+    analyze_dataset_quality(dataset_id="bev-stat-wien-2024")
     ```
   </Accordion>
 </Accordions>
@@ -679,7 +679,7 @@ Der data.gv.at MCP Server Server bietet umfassende Tools zum Entdecken, Analysie
     <TypeTable type={{
       filter_by_provider: {
         type: "boolean",
-        description: "Filtert Entwürfe nach Ihrem Anbieter/Organisation",
+        description: "Filtert Entwürfe nach Ihrem Anbieter oder Organisation",
         default: false
       }
     }} />

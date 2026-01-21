@@ -7,18 +7,20 @@ description: Locate datasets matching your search criteria using text queries an
 
 Discover datasets by searching with natural language, keywords, or structured filters.
 
-## When to Use This Guide
+## When to use this guide
 
-- You need to locate datasets about a specific topic
-- You want to filter by theme, format, or publisher
-- You need to refine broad search results
+Use this guide when you need to:
+
+- Locate datasets about a specific topic
+- Filter by theme, format, or publisher
+- Refine broad search results
 
 ## Prerequisites
 
 - data.gv.at MCP Server connected in Claude Desktop
 - Understanding of your search requirements (topic, format preferences)
 
-## Quick Search
+## Quick search
 
 Ask Claude in natural language:
 
@@ -33,11 +35,11 @@ Claude uses semantic search automatically and shows relevant datasets.
 - Natural language queries
 - Quick discovery
 
-## Filtered Search
+## Filtered search
 
 <Tabs items={['Basic', 'Advanced']} groupId="search-complexity" persist>
   <Tab value="Basic">
-    ### Ask Claude with Requirements
+    ### Ask Claude with requirements
 
     Tell Claude your filters in natural language:
 
@@ -54,11 +56,11 @@ Claude uses semantic search automatically and shows relevant datasets.
   </Tab>
 
   <Tab value="Advanced">
-    ### Direct API Call with Faceted Filters
+    ### Direct API call with faceted filters
 
     ```python
     search_datasets(
-        query="population",
+        query="bevölkerung",
         themes=["SOCI"],
         formats=["CSV", "JSON"],
         publishers=["stadt-wien"],
@@ -115,9 +117,9 @@ Claude uses semantic search automatically and shows relevant datasets.
     {
       "results": [
         {
-          "id": "dataset-123",
-          "title": "Population Statistics 2024",
-          "description": "Annual population data...",
+          "id": "bev-stat-wien-2024",
+          "title": "Bevölkerung Wien 2020-2024",
+          "description": "Quarterly population statistics by district...",
           "quality_score": 87
         }
       ],
@@ -129,11 +131,11 @@ Claude uses semantic search automatically and shows relevant datasets.
     }
     ```
 
-    **Error Handling:**
+    **Error handling:**
 
     ```python
     try:
-        results = search_datasets(query="population")
+        results = search_datasets(query="bevölkerung")
     except ToolError as e:
         print(f"Search failed: {e}")
         # API may be temporarily unavailable
@@ -141,17 +143,17 @@ Claude uses semantic search automatically and shows relevant datasets.
   </Tab>
 </Tabs>
 
-## Semantic Search for Natural Queries
+## Semantic search for natural queries
 
 Semantic search understands the meaning behind your query, not just keywords. It finds conceptually related datasets even when they don't contain exact search terms.
 
-### Visual Example: Semantic Search in Action
+### Visual example: Semantic search in action
 
 The following screenshot demonstrates how semantic search expands natural language queries to find relevant datasets:
 
 ![Claude Desktop showing semantic_search_datasets tool with natural_query parameter set to datasets about public health in Austrian cities. The tool performs language detection identifying English, then expands the query with semantic understanding to include related EU DCAT-AP themes HEAL for health data, SOCI for social statistics, and REGI for regional city data. Results display five datasets: Vienna Health Services with quality score 85, Urban Health Indicators Austria at 82, Public Health Monitoring Salzburg at 79, Healthcare Access Vienna at 76, and Disease Prevention Programs at 74. Each result shows title, description, theme tags, and quality score, demonstrating how semantic expansion discovers datasets relevant to the query concept even without exact keyword matches in titles.](/optimized/screenshots/placeholder.webp)
 
-<Callout type="info" title="Screenshot Placeholder">
+<Callout type="info" title="Screenshot placeholder">
 This is a placeholder image. Real Claude Desktop screenshots showing data.gv.at MCP Server semantic search with query expansion will be added soon. The screenshot will demonstrate actual language detection, theme expansion, and conceptually relevant results.
 </Callout>
 
@@ -163,7 +165,7 @@ Key features of semantic search shown:
 
 <Tabs items={['Basic', 'Advanced']} groupId="search-complexity" persist>
   <Tab value="Basic">
-    ### Natural Language Queries
+    ### Natural language queries
 
     Use complete questions or descriptions:
 
@@ -180,11 +182,11 @@ Key features of semantic search shown:
   </Tab>
 
   <Tab value="Advanced">
-    ### Direct Semantic Search Call
+    ### Direct semantic search call
 
     ```python
     semantic_search_datasets(
-        natural_query="climate data for Vienna",
+        natural_query="Luftqualität Wien Messstationen",
         formats=["CSV"],
         boost_quality=True
     )
@@ -203,14 +205,14 @@ Key features of semantic search shown:
       "results": [...],
       "count": 15,
       "expansion_info": {
-        "detected_language": "en",
+        "detected_language": "de",
         "semantic_themes": ["ENVI"],
         "confidence": 0.85
       }
     }
     ```
 
-    **Error Handling:**
+    **Error handling:**
 
     If semantic expansion fails, falls back to original query:
 
@@ -226,11 +228,11 @@ Key features of semantic search shown:
   </Tab>
 </Tabs>
 
-## Theme-Based Filtering
+## Theme-based filtering
 
 <Tabs items={['Basic', 'Advanced']} groupId="search-complexity" persist>
   <Tab value="Basic">
-    ### Filter by Topic Area
+    ### Filter by topic area
 
     Tell Claude which themes you need:
 
@@ -242,7 +244,7 @@ Key features of semantic search shown:
   </Tab>
 
   <Tab value="Advanced">
-    ### Direct Theme Filtering
+    ### Direct theme filtering
 
     Use EU DCAT-AP theme codes:
 
@@ -276,7 +278,7 @@ Key features of semantic search shown:
 
 ## Troubleshooting
 
-### Search Returns No Results
+### Search returns no results
 
 **Symptom:** Count is 0, no datasets found
 
@@ -291,7 +293,7 @@ Key features of semantic search shown:
 3. Check theme codes (must be uppercase: SOCI not soci)
 4. Use `semantic_search_datasets` for query expansion
 
-### Semantic Search Returns Irrelevant Results
+### Semantic search returns irrelevant results
 
 **Symptom:** Results don't match query intent
 
@@ -303,7 +305,7 @@ Key features of semantic search shown:
 3. Add explicit theme filters to constrain expansion
 4. Use more specific query terms
 
-### Quality Boost Returns No Results
+### Quality boost returns no results
 
 **Symptom:** Search with boost_quality=True returns empty
 
@@ -314,7 +316,7 @@ Key features of semantic search shown:
 2. Review quality scores of all results
 3. Lower quality threshold expectations for niche domains
 
-### Facets Show Unexpected Counts
+### Facets show unexpected counts
 
 **Symptom:** Facet counts don't match expected distribution
 
@@ -325,7 +327,7 @@ Key features of semantic search shown:
 2. Check if datasets have multiple themes (counted in each)
 3. Review filtered vs unfiltered search results
 
-## Next Steps
+## Next steps
 
 - **[Quality Metrics Guide](/guides/quality-metrics)** - Understand quality scoring
 - **[Data Preview Guide](/guides/data-preview)** - Inspect data before downloading

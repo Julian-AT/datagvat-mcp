@@ -1,18 +1,11 @@
 ---
-title: Automated Data Export Pipeline
+title: Automated data export pipeline
 description: Build automated pipelines for scheduled data exports with quality gates
 ---
 
-# Automated Data Export Pipeline
+# Automated data export pipeline
 
 Create production pipelines that search, validate, and export datasets on a schedule.
-
-## Use This Workflow When
-
-- Building automated data ingestion pipelines
-- Need scheduled updates from open data sources
-- Implementing quality gates for production systems
-- Exporting datasets to data warehouses or lakes
 
 ## Prerequisites
 
@@ -21,16 +14,30 @@ Create production pipelines that search, validate, and export datasets on a sche
 - [ ] Quality thresholds established
 - [ ] Export destination configured
 
-## Time Estimate
+## Time estimate
 
 Initial setup: 30-45 minutes
 Maintenance: 5-10 minutes per week
+
+## When to use this workflow
+
+You're building automated data ingestion pipelines. You need scheduled updates from open data sources. You're implementing quality gates for production systems. You're exporting datasets to data warehouses or lakes.
+
+## What you'll accomplish
+
+By following this workflow, you'll:
+- Create an automated pipeline searching and filtering datasets
+- Implement quality gates rejecting low-quality data
+- Add schema validation ensuring compatibility
+- Export successfully to target destination
+- Set up error handling and logging
+- Configure schedule for recurring runs
 
 ## Workflow
 
 <Tabs items={['Complete Example', 'Step by Step']} persist groupId="workflow-detail">
   <Tab value="Complete Example">
-    ### Full Pipeline Script
+    ### Full pipeline script
 
     ```python
     import schedule
@@ -120,9 +127,9 @@ Maintenance: 5-10 minutes per week
   <Tab value="Step by Step">
     <Steps>
       <Step>
-        ### Search and Filter
+        ### Step 1: Search and filter
 
-        Define search criteria for datasets to export:
+        Define search criteria for datasets to export.
 
         ```python
         results = search_datasets(
@@ -139,7 +146,7 @@ Maintenance: 5-10 minutes per week
         {
           "results": [
             {
-              "id": "dataset-123",
+              "id": "bev-stat-wien-2024",
               "title": "Population Statistics 2024",
               "quality_score": 85,
               "modified": "2024-01-15"
@@ -159,9 +166,9 @@ Maintenance: 5-10 minutes per week
       </Step>
 
       <Step>
-        ### Quality Gate Check
+        ### Step 2: Quality gate check
 
-        Filter datasets by quality threshold:
+        Filter datasets by quality threshold.
 
         ```python
         approved_datasets = []
@@ -182,9 +189,9 @@ Maintenance: 5-10 minutes per week
 
         **Expected output:**
         ```
-        ✓ dataset-123: 85
-        ✓ dataset-456: 72
-        ✗ dataset-789: 65 (below threshold)
+        ✓ bev-stat-wien-2024: 85
+        ✓ gesundheit-wien-2024: 72
+        ✗ regional-stats: 65 (below threshold)
 
         Approved: 2/3 datasets passed quality gate
         ```
@@ -196,9 +203,9 @@ Maintenance: 5-10 minutes per week
       </Step>
 
       <Step>
-        ### Schema Validation
+        ### Step 3: Schema validation
 
-        Verify datasets have required columns:
+        Verify datasets have required columns.
 
         ```python
         valid_datasets = []
@@ -235,8 +242,8 @@ Maintenance: 5-10 minutes per week
 
         **Expected output:**
         ```
-        ✓ dataset-123: Schema valid (columns: year, region, value, population)
-        ✗ dataset-456: Missing columns {'region'}
+        ✓ bev-stat-wien-2024: Schema valid (columns: year, region, value, population)
+        ✗ gesundheit-wien-2024: Missing columns {'region'}
 
         Valid: 1/2 datasets passed schema validation
         ```
@@ -248,9 +255,9 @@ Maintenance: 5-10 minutes per week
       </Step>
 
       <Step>
-        ### Data Export
+        ### Step 4: Data export
 
-        Download and save validated datasets:
+        Download and save validated datasets.
 
         ```python
         import os
@@ -284,7 +291,7 @@ Maintenance: 5-10 minutes per week
 
         **Expected output:**
         ```
-        ✓ Exported dataset-123: 2048576 bytes → ./exports/dataset-123_20240119_140530.csv
+        ✓ Exported bev-stat-wien-2024: 2048576 bytes → ./exports/bev-stat-wien-2024_20240119_140530.csv
 
         Export summary:
         - Total exported: 1/1 datasets
@@ -299,9 +306,9 @@ Maintenance: 5-10 minutes per week
       </Step>
 
       <Step>
-        ### Error Handling and Logging
+        ### Step 5: Error handling and logging
 
-        Implement robust error handling and monitoring:
+        Implement error handling and monitoring.
 
         ```python
         import logging
@@ -372,9 +379,9 @@ Maintenance: 5-10 minutes per week
   </Tab>
 </Tabs>
 
-## Success Criteria
+## What you accomplished
 
-At completion, you should have:
+After completing this workflow, you have:
 
 - [ ] Automated pipeline searching and filtering datasets
 - [ ] Quality gates rejecting low-quality data
@@ -385,7 +392,7 @@ At completion, you should have:
 
 ## Troubleshooting
 
-### Pipeline Runs But Exports Nothing
+### Pipeline runs but exports nothing
 
 **Symptom:** Pipeline completes but no files exported
 
@@ -397,7 +404,7 @@ At completion, you should have:
 - Log rejection reasons at each step
 - Test with known-good dataset
 
-### Downloads Timeout
+### Downloads timeout
 
 **Symptom:** Export step fails with timeout errors
 
@@ -409,7 +416,7 @@ At completion, you should have:
 - Use streaming download for large files
 - Schedule during off-peak hours
 
-### Schema Changes Break Pipeline
+### Schema changes break pipeline
 
 **Symptom:** Previously valid datasets now fail schema check
 
@@ -421,7 +428,7 @@ At completion, you should have:
 - Alert on schema changes for manual review
 - Version schema checks per publisher
 
-## Scheduling Options
+## Scheduling options
 
 ### Option 1: Python schedule library
 
@@ -451,12 +458,12 @@ Create scheduled task via Task Scheduler GUI or:
 schtasks /create /tn "DataExportPipeline" /tr "python C:\path\to\pipeline.py" /sc daily /st 02:00
 ```
 
-## Related Workflows
+## Related workflows
 
-- **[Quality Assessment Workflow](/workflows/quality-assessment)** - Quality gate implementation
-- **[Dataset Discovery Workflow](/workflows/discovery)** - Manual discovery process
+- **[Quality assessment workflow](/workflows/quality-assessment)** - Quality gate implementation
+- **[Dataset discovery workflow](/workflows/discovery)** - Manual discovery process
 
-## Related Guides
+## Related guides
 
-- **[Searching Guide](/guides/searching)** - Search criteria configuration
-- **[Data Preview Guide](/guides/data-preview)** - Schema validation techniques
+- **[Searching guide](/guides/searching)** - Search criteria configuration
+- **[Data preview guide](/guides/data-preview)** - Schema validation techniques

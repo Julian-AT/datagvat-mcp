@@ -1,34 +1,41 @@
 ---
-title: Publication Research Workflow
+title: Publication research workflow
 description: Find and validate citation-quality datasets for academic publications
 ---
 
-# Publication Research Workflow
+# Publication research workflow
 
 Identify high-quality, citation-worthy datasets for academic research and publications.
-
-## Use This Workflow When
-
-- Preparing academic papers or theses
-- Need citation-quality data sources
-- Require reproducible research data
-- Publishing in peer-reviewed journals
 
 ## Prerequisites
 
 - [ ] Research topic and keywords defined
 - [ ] Citation requirements known (license, provenance)
 - [ ] Required data characteristics specified
+- [ ] Understanding of academic licensing
 
-## Time Estimate
+## Time estimate
 
 30-45 minutes per research topic
+
+## When to use this workflow
+
+You're preparing academic papers or theses. You need citation-quality data sources. You require reproducible research data. You're publishing in peer-reviewed journals.
+
+## What you'll accomplish
+
+By following this workflow, you'll:
+- Identify 2-3 citation-quality datasets (score ≥85)
+- Verify citation metadata (DOI/citation text)
+- Approve research licenses (CC-BY, CC0, ODbL)
+- Generate bibliography entries (APA, BibTeX)
+- Save publisher contact information
 
 ## Workflow
 
 <Tabs items={['Complete Example', 'Step by Step']} persist groupId="workflow-detail">
   <Tab value="Complete Example">
-    ### Citation-Quality Dataset Search
+    ### Citation-quality dataset search
 
     ```python
     # Search with quality boost
@@ -83,9 +90,9 @@ Identify high-quality, citation-worthy datasets for academic research and public
   <Tab value="Step by Step">
     <Steps>
       <Step>
-        ### Semantic Search with Quality Boost
+        ### Step 1: Semantic search with quality boost
 
-        Use natural language query to find relevant datasets:
+        Use natural language query to find relevant datasets.
 
         ```python
         results = semantic_search_datasets(
@@ -103,13 +110,13 @@ Identify high-quality, citation-worthy datasets for academic research and public
         {
           "results": [
             {
-              "id": "dataset-health-001",
+              "id": "gesundheit-indikatoren-wien-2024",
               "title": "Health Indicators Vienna 2020-2024",
               "quality_score": 92,
               "modified": "2024-01-10"
             },
             {
-              "id": "dataset-demog-045",
+              "id": "soziodemografie-austria",
               "title": "Sociodemographic Statistics Austria",
               "quality_score": 88,
               "modified": "2023-12-15"
@@ -131,9 +138,9 @@ Identify high-quality, citation-worthy datasets for academic research and public
       </Step>
 
       <Step>
-        ### Filter for Citation Quality (≥85)
+        ### Step 2: Filter for citation quality (≥85)
 
-        Apply strict quality threshold for academic use:
+        Apply strict quality threshold for academic use.
 
         ```python
         citation_threshold = 85
@@ -153,15 +160,15 @@ Identify high-quality, citation-worthy datasets for academic research and public
         ```
         Citation-quality datasets: 8/15
 
-          dataset-health-001: 92/100
-          dataset-demog-045: 88/100
-          dataset-enviro-023: 87/100
+          gesundheit-indikatoren-wien-2024: 92/100
+          soziodemografie-austria: 88/100
+          umwelt-stat-austria: 87/100
           ...
         ```
 
         **Quality threshold rationale:**
 
-        | Use Case | Min Score | Why |
+        | Use case | Min score | Why |
         |----------|-----------|-----|
         | Peer-reviewed publications | ≥85 | High metadata completeness required |
         | Theses/Dissertations | ≥80 | Good quality acceptable with caveats |
@@ -173,9 +180,9 @@ Identify high-quality, citation-worthy datasets for academic research and public
       </Step>
 
       <Step>
-        ### Verify Citation Information
+        ### Step 3: Verify citation information
 
-        Check for DOI, citation text, and publisher contact:
+        Check for DOI, citation text, and publisher contact.
 
         ```python
         validated = []
@@ -216,13 +223,13 @@ Identify high-quality, citation-worthy datasets for academic research and public
 
         **Expected output:**
         ```
-        ✓ dataset-health-001: Citation-ready
+        ✓ gesundheit-indikatoren-wien-2024: Citation-ready
           DOI: 10.25365/opendata-vh-2024
           Contact: open@data.wien.gv.at
           Citation: Stadt Wien (2024). Health Indicators Vienna...
 
-        ✗ dataset-demog-045: Missing doi/citation
-        ✓ dataset-enviro-023: Citation-ready
+        ✗ soziodemografie-austria: Missing doi/citation
+        ✓ umwelt-stat-austria: Citation-ready
         ```
 
         **Verify:**
@@ -232,9 +239,9 @@ Identify high-quality, citation-worthy datasets for academic research and public
       </Step>
 
       <Step>
-        ### Check Research License
+        ### Step 4: Check research license
 
-        Verify license permits academic use and citation:
+        Verify license permits academic use and citation.
 
         ```python
         research_licenses = [
@@ -262,15 +269,15 @@ Identify high-quality, citation-worthy datasets for academic research and public
 
         **Expected output:**
         ```
-        ✓ dataset-health-001: CC-BY-4.0 - Academic use approved
+        ✓ gesundheit-indikatoren-wien-2024: CC-BY-4.0 - Academic use approved
           ⚠ Requires attribution in citations
-        ✓ dataset-enviro-023: CC0-1.0 - Academic use approved
+        ✓ umwelt-stat-austria: CC0-1.0 - Academic use approved
           (No attribution required, but recommended)
         ```
 
         **License guide for research:**
 
-        | License | Academic Use | Attribution Required | Modifications OK |
+        | License | Academic use | Attribution required | Modifications OK |
         |---------|--------------|----------------------|------------------|
         | CC-BY | Yes | Yes | Yes |
         | CC0 | Yes | No (but recommended) | Yes |
@@ -284,9 +291,9 @@ Identify high-quality, citation-worthy datasets for academic research and public
       </Step>
 
       <Step>
-        ### Export Citation Metadata
+        ### Step 5: Export citation metadata
 
-        Generate citation bibliography entries:
+        Generate citation bibliography entries.
 
         ```python
         for item in research_approved:
@@ -327,11 +334,11 @@ Identify high-quality, citation-worthy datasets for academic research and public
 
         **Expected output:**
         ```
-        dataset-health-001:
+        gesundheit-indikatoren-wien-2024:
           APA: Stadt Wien. (2024). Health Indicators Vienna 2020-2024. https://doi.org/10.25365/opendata-vh-2024
 
           BibTeX:
-          @dataset{dataset_health_001,
+          @dataset{gesundheit_indikatoren_wien_2024,
             author = {Stadt Wien},
             title = {Health Indicators Vienna 2020-2024},
             year = {2024},
@@ -340,8 +347,8 @@ Identify high-quality, citation-worthy datasets for academic research and public
           }
 
         Citations saved to:
-          - citations_dataset-health-001.txt
-          - citations_dataset-enviro-023.txt
+          - citations_gesundheit-indikatoren-wien-2024.txt
+          - citations_umwelt-stat-austria.txt
         ```
 
         **Verify:**
@@ -354,9 +361,9 @@ Identify high-quality, citation-worthy datasets for academic research and public
   </Tab>
 </Tabs>
 
-## Success Criteria
+## What you accomplished
 
-At completion, you should have:
+After completing this workflow, you have:
 
 - [ ] 2-3 citation-quality datasets identified (score ≥85)
 - [ ] Citation metadata verified (DOI/citation text)
@@ -366,7 +373,7 @@ At completion, you should have:
 
 ## Troubleshooting
 
-### No Datasets Meet Citation Quality Threshold
+### No datasets meet citation quality threshold
 
 **Symptom:** All results < 85 quality score
 
@@ -378,7 +385,7 @@ At completion, you should have:
 - Contact publishers to request DOI assignment
 - Consider combining multiple lower-quality sources with caveats
 
-### DOI Missing from High-Quality Dataset
+### DOI missing from high-quality dataset
 
 **Symptom:** Quality score ≥85 but no DOI
 
@@ -390,7 +397,7 @@ At completion, you should have:
 - Cite using stable URL from dataset
 - Document access date in citation
 
-### License Unclear or Restrictive
+### License unclear or restrictive
 
 **Symptom:** License not in standard list or has NC clause
 
@@ -402,12 +409,12 @@ At completion, you should have:
 - Seek alternative dataset with clear license
 - Consult with institution's legal counsel if high-value data
 
-## Related Workflows
+## Related workflows
 
-- **[Dataset Discovery Workflow](/workflows/discovery)** - Finding initial candidates
-- **[Quality Assessment Workflow](/workflows/quality-assessment)** - Detailed quality verification
+- **[Dataset discovery workflow](/workflows/discovery)** - Finding initial candidates
+- **[Quality assessment workflow](/workflows/quality-assessment)** - Detailed quality verification
 
-## Related Guides
+## Related guides
 
-- **[Quality Metrics Guide](/guides/quality-metrics)** - Understanding quality scores
-- **[Searching Guide](/guides/searching)** - Semantic search techniques
+- **[Quality metrics guide](/guides/quality-metrics)** - Understanding quality scores
+- **[Searching guide](/guides/searching)** - Semantic search techniques

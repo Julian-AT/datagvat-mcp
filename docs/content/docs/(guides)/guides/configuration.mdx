@@ -7,7 +7,16 @@ description: Advanced configuration options for data.gv.at MCP Server server
 
 Advanced configuration options to customize the data.gv.at MCP Server server for your needs.
 
-## Configuration Files
+## When to use this guide
+
+Use this guide when you need to:
+
+- Configure custom API endpoints
+- Adjust performance settings
+- Set up multiple server instances
+- Enable monitoring and metrics
+
+## Configuration files
 
 data.gv.at MCP Server uses these configuration files:
 
@@ -31,11 +40,11 @@ data.gv.at MCP Server uses these configuration files:
 - **`.mcp/config.json`** - Project root, MCP server settings
 - **`claude_desktop_config.json`** - Claude Desktop application directory
 
-## Environment Variables
+## Environment variables
 
 Configure the server behavior using environment variables in a `.env` file or your system environment.
 
-### API Configuration
+### API configuration
 
 ```bash
 # Piveau API base URL
@@ -51,7 +60,7 @@ AUSTRIA_MCP_MAX_RETRIES=3
 AUSTRIA_MCP_RETRY_BACKOFF=1
 ```
 
-### Rate Limiting
+### Rate limiting
 
 The server includes built-in rate limiting to protect the Piveau API:
 
@@ -65,7 +74,7 @@ AUSTRIA_MCP_RATE_BURST=20
 
 **Note:** These defaults are conservative. You can increase them if you have higher rate limits or are running a local Piveau instance.
 
-### Logging Configuration
+### Logging configuration
 
 ```bash
 # Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -82,7 +91,7 @@ AUSTRIA_MCP_LOG_FILE=/var/log/datagvat-mcp.log
 AUSTRIA_MCP_LOG_REQUESTS=false
 ```
 
-### Development Mode
+### Development mode
 
 ```bash
 # Enable development features (default: false)
@@ -94,9 +103,9 @@ AUSTRIA_MCP_DEV_MODE=true
 # - Relaxed validation
 ```
 
-## Claude Desktop Configuration
+## Claude Desktop configuration
 
-### Multiple Server Instances
+### Multiple server instances
 
 You can run multiple instances with different configurations:
 
@@ -105,7 +114,7 @@ You can run multiple instances with different configurations:
   "mcpServers": {
     "datagvat-production": {
       "command": "uv",
-      "args": ["--directory", "/path/to/datagvat-mcp/mcp", "run", "datagvat-mcp"],
+      "args": ["--directory", "/path/to/datagvat-mcp/mcp", "run", "python", "-m", "app.server"],
       "env": {
         "AUSTRIA_MCP_LOG_LEVEL": "WARNING",
         "AUSTRIA_MCP_LOG_FORMAT": "json"
@@ -113,7 +122,7 @@ You can run multiple instances with different configurations:
     },
     "datagvat-development": {
       "command": "uv",
-      "args": ["--directory", "/path/to/datagvat-mcp-dev/mcp", "run", "datagvat-mcp"],
+      "args": ["--directory", "/path/to/datagvat-mcp-dev/mcp", "run", "python", "-m", "app.server"],
       "env": {
         "AUSTRIA_MCP_DEV_MODE": "true",
         "AUSTRIA_MCP_LOG_LEVEL": "DEBUG"
@@ -123,7 +132,7 @@ You can run multiple instances with different configurations:
 }
 ```
 
-### Custom API Endpoint
+### Custom API endpoint
 
 If you're running a local Piveau instance or custom API:
 
@@ -132,7 +141,7 @@ If you're running a local Piveau instance or custom API:
   "mcpServers": {
     "datagvat-local-api": {
       "command": "uv",
-      "args": ["--directory", "/path/to/datagvat-mcp/mcp", "run", "datagvat-mcp"],
+      "args": ["--directory", "/path/to/datagvat-mcp/mcp", "run", "python", "-m", "app.server"],
       "env": {
         "AUSTRIA_MCP_PIVEAU_API_BASE": "http://localhost:8080/api/hub/search",
         "AUSTRIA_MCP_REQUEST_TIMEOUT": "60"
@@ -142,9 +151,9 @@ If you're running a local Piveau instance or custom API:
 }
 ```
 
-## Performance Tuning
+## Performance tuning
 
-### Request Timeout
+### Request timeout
 
 Adjust based on your network conditions:
 
@@ -159,7 +168,7 @@ AUSTRIA_MCP_REQUEST_TIMEOUT=60
 AUSTRIA_MCP_REQUEST_TIMEOUT=120
 ```
 
-### Preview Data Limits
+### Preview data limits
 
 Configure data preview behavior (set in code, not env vars - this is for reference):
 
@@ -175,7 +184,7 @@ MAX_PREVIEW_BYTES = 524288     # 512KB
 MAX_PREVIEW_ROWS = 100
 ```
 
-### Search Result Limits
+### Search result limits
 
 The server enforces limits to prevent overwhelming responses:
 
@@ -185,7 +194,7 @@ The server enforces limits to prevent overwhelming responses:
 
 ## Security
 
-### API Key Management (Future)
+### API key management (Future)
 
 When API keys are required for write operations:
 
@@ -197,7 +206,7 @@ AUSTRIA_MCP_API_KEY=your-api-key-here
 # Use .env files (excluded from git)
 ```
 
-### Network Security
+### Network security
 
 Configure HTTPS settings:
 
@@ -212,7 +221,7 @@ AUSTRIA_MCP_VERIFY_SSL=false
 
 ## Monitoring
 
-### Health Checks
+### Health checks
 
 The server provides health check endpoints (when running as a service):
 
@@ -242,9 +251,9 @@ AUSTRIA_MCP_METRICS_PORT=9090
 
 Access metrics at `http://localhost:9090/metrics`.
 
-## Troubleshooting Configuration
+## Troubleshooting configuration
 
-### Configuration Not Applied
+### Configuration not applied
 
 1. **Check environment variable precedence:**
    - System environment variables
@@ -265,7 +274,7 @@ Access metrics at `http://localhost:9090/metrics`.
    austria_mcp_log_level=INFO  # Wrong
    ```
 
-### Debugging Configuration
+### Debugging configuration
 
 Enable debug logging to see loaded configuration:
 
@@ -284,7 +293,7 @@ Check logs for configuration values:
   RATE_LIMIT: 10/s
 ```
 
-## Configuration Validation
+## Configuration validation
 
 The server validates configuration on startup:
 
@@ -295,9 +304,9 @@ ConfigError: AUSTRIA_MCP_LOG_LEVEL must be one of: DEBUG, INFO, WARNING, ERROR, 
 ConfigError: AUSTRIA_MCP_PIVEAU_API_BASE must be valid URL
 ```
 
-## Example Configurations
+## Example configurations
 
-### Production Setup
+### Production setup
 
 ```bash
 # .env for production
@@ -310,7 +319,7 @@ AUSTRIA_MCP_VERIFY_SSL=true
 AUSTRIA_MCP_METRICS_ENABLED=true
 ```
 
-### Development Setup
+### Development setup
 
 ```bash
 # .env for development
@@ -322,7 +331,7 @@ AUSTRIA_MCP_REQUEST_TIMEOUT=60
 AUSTRIA_MCP_VERIFY_SSL=false
 ```
 
-### Testing Setup
+### Testing setup
 
 ```bash
 # .env for testing
@@ -332,7 +341,7 @@ AUSTRIA_MCP_REQUEST_TIMEOUT=10
 AUSTRIA_MCP_MAX_RETRIES=1
 ```
 
-## Next Steps
+## Next steps
 
 - **[API Reference](/api/tools)** - Explore all available tools
 - **[Resources](/api/resources)** - Direct data access patterns
