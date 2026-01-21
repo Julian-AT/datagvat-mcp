@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-01-20)
 
 Milestone: v2.0 Professional Documentation System
 Phase: 4 of 9 (Documentation Style Guide Compliance)
-Plan: 04-03 of 7 (complete)
-Status: In progress - Batch 3 (Guides) complete
-Last activity: 2026-01-21 - Completed 04-03-PLAN.md (Guides verification)
+Plan: 04-07 of 7 (complete)
+Status: In progress - Batch 7 (Integration, Tutorials, Index) complete
+Last activity: 2026-01-21 - Completed 04-07-PLAN.md (Integration guides, tutorials, landing page)
 
-Progress: ████████░░░░ 75% (9/12 plans complete across all phases)
+Progress: ████████░░░░ 78% (10/12 plans complete across all phases)
 
 ## Performance Metrics
 
@@ -66,16 +66,16 @@ Progress: ████████░░░░ 75% (9/12 plans complete across a
 - Trend: v1.2 milestone complete - comprehensive documentation rebuild achieved
 
 **v2.0 Milestone:**
-- Total plans completed: 9
-- Average duration: 8.2 min
-- Total execution time: 75 min
+- Total plans completed: 10
+- Average duration: 8.0 min
+- Total execution time: 82 min
 - Timeline: 2 days (2026-01-20 → 2026-01-21)
 
 **Recent Trend:**
-- Last 5 plans: 01-05 (23 min), 03-01 (8 min), 04-01 (8 min), 04-02 (12 min), 04-04 (7 min)
+- Last 5 plans: 03-01 (8 min), 04-01 (8 min), 04-02 (12 min), 04-04 (7 min), 04-07 (7 min)
 - Phase 1 (Infrastructure Modernization): 5/5 plans complete - PHASE COMPLETE
 - Phase 3 (Link Validation & Fixes): 1/1 plans complete - PHASE COMPLETE
-- Phase 4 (Style Guide Compliance): 3/7 plans complete - IN PROGRESS
+- Phase 4 (Style Guide Compliance): 4/7 plans complete - IN PROGRESS
 
 ## Accumulated Context
 
@@ -304,6 +304,10 @@ Recent decisions affecting current work:
 - "What you'll accomplish" / "What you accomplished" bookending creates clear expectations (04-02, 2026-01-21)
 - Real dataset IDs (bev-stat-wien-2024, gesundheit-indikatoren-wien-2024) replace generic (dataset-123) (04-02, 2026-01-21)
 - Step headers as "Step 1: Action verb" not "Step 1: Title Case Noun" (04-02, 2026-01-21)
+- Landing page sets professional tone without marketing language (revolutionary, cutting-edge, game-changing) (04-07, 2026-01-21)
+- Integration pages provide OS-specific file paths (macOS, Windows, Linux) for exact configuration (04-07, 2026-01-21)
+- Configuration examples are complete and copy-pasteable (04-07, 2026-01-21)
+- Prescriptive guidance: "Add this", "Use this" instead of "Can be added", "May be used" (04-07, 2026-01-21)
 
 ### Roadmap Evolution
 
@@ -361,15 +365,15 @@ Recent decisions affecting current work:
 - Real Austrian examples present (grep verification)
 - Style compliance confirmed (grep verification)
 
-No other blockers. Phase 4-04 complete. Ready for Phase 4-02 (Workflows rewrite) or Phase 4-05 (Examples rewrite).
+No other blockers. Phase 4-07 complete. Ready for Phase 4-08 (Best Practices, Advanced, API Reference rewrite - final batch).
 
 ## Session Continuity
 
 Last session: 2026-01-21
-Stopped at: Completed 04-04-PLAN.md (Tool Reference rewrite) - Phase 4 batch 4 complete
+Stopped at: Completed 04-07-PLAN.md (Integration, Tutorials, Index rewrite) - Phase 4 batch 7 complete
 Resume file: None
-Next: Execute Phase 4-02 (Workflows rewrite) or Phase 4-05 (Examples rewrite)
+Next: Execute Phase 4-08 (Best Practices, Advanced, API Reference rewrite) - Final batch
 
 ---
 *State initialized: 2026-01-19*
-*Last updated: 2026-01-21 after plan 04-04 execution*
+*Last updated: 2026-01-21 after plan 04-07 execution*
