@@ -92,8 +92,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NAV-02 | Phase 2 | 02-01 to 02-03 | Planned |
 | NAV-03 | Phase 2 | 02-01 to 02-03 | Planned |
 | NAV-04 | Phase 2 | 02-01 to 02-03 | Planned |
-| CONTENT-02 | Phase 3 | - | Pending |
-| CONTENT-03 | Phase 3 | - | Pending |
+| CONTENT-02 | Phase 3 | 03-01 | Planned |
+| CONTENT-03 | Phase 3 | 03-01 | Planned |
 | CONTENT-01 | Phase 4 | - | Pending |
 | CONTENT-05 | Phase 4 | - | Pending |
 | CONTENT-06 | Phase 4 | - | Pending |
@@ -120,7 +120,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 **Phase Distribution:**
 - Phase 1 (Infrastructure): 5 requirements — COMPLETE
 - Phase 2 (Navigation): 4 requirements — PLANNED (3 plans, 2 waves)
-- Phase 3 (Links): 2 requirements
+- Phase 3 (Links): 2 requirements — PLANNED (1 plan)
 - Phase 4 (Documentation): 3 requirements
 - Phase 5 (Code Quality): 1 requirement
 - Phase 6 (CI/CD Enhancement): 2 requirements (shared with Phase 1)
@@ -130,4 +130,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-20*
-*Last updated: 2026-01-21 after Phase 2 planning*
+*Last updated: 2026-01-21 after Phase 3 planning*

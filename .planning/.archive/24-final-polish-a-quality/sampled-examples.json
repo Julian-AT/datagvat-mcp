@@ -1,0 +1,174 @@
+{
+  "totalExamples": 603,
+  "sampledExamples": 20,
+  "strata": {
+    "guides": 5,
+    "workflows": 4,
+    "tutorials": 2,
+    "examples": 4,
+    "advanced": 3,
+    "best-practices": 2
+  },
+  "examples": [
+    {
+      "id": 1,
+      "page": "C:/GitHub/datagvat-mcp//docs/guides/data-preview.mdx",
+      "section": "guides",
+      "language": "python",
+      "code": "# First, get download URL\ndistributions = get_dataset_distributions(dataset_id=\"dataset-123\")\ncsv_url = next(d['downloadURL'] for d in distributions\n               if d.get('format') == 'CSV')\n\n# Preview schema\nschema = preview_schema(url=csv_url, format=\"csv\")",
+      "line": 42
+    },
+    {
+      "id": 2,
+      "page": "C:/GitHub/datagvat-mcp//docs/guides/setup.mdx",
+      "section": "guides",
+      "language": "bash",
+      "code": "python -m app.server",
+      "line": 508
+    },
+    {
+      "id": 3,
+      "page": "C:/GitHub/datagvat-mcp//docs/guides/configuration.mdx",
+      "section": "guides",
+      "language": "bash",
+      "code": "# Fast network\nAUSTRIA_MCP_REQUEST_TIMEOUT=10\n\n# Slow network or large datasets\nAUSTRIA_MCP_REQUEST_TIMEOUT=60\n\n# Very slow network\nAUSTRIA_MCP_REQUEST_TIMEOUT=120",
+      "line": 151
+    },
+    {
+      "id": 4,
+      "page": "C:/GitHub/datagvat-mcp//docs/guides/setup.mdx",
+      "section": "guides",
+      "language": "bash",
+      "code": "fastmcp dev app.server:mcp",
+      "line": 317
+    },
+    {
+      "id": 5,
+      "page": "C:/GitHub/datagvat-mcp//docs/guides/setup.mdx",
+      "section": "guides",
+      "language": "bash",
+      "code": "# API Configuration\nAUSTRIA_MCP_PIVEAU_API_BASE=https://www.data.gv.at/api/hub/search\nAUSTRIA_MCP_REQUEST_TIMEOUT=30\n\n# Logging\nAUSTRIA_MCP_LOG_LEVEL=INFO\nAUSTRIA_MCP_LOG_FORMAT=json\n\n# Development\nAUSTRIA_MCP_DEV_MODE=false",
+      "line": 280
+    },
+    {
+      "id": 6,
+      "page": "C:/GitHub/datagvat-mcp//docs/workflows/data-export.mdx",
+      "section": "workflows",
+      "language": "python",
+      "code": "import schedule\n\nschedule.every().day.at(\"02:00\").do(export_pipeline)\nschedule.every().monday.at(\"08:00\").do(export_pipeline)\nschedule.every(6).hours.do(export_pipeline)",
+      "line": 428
+    },
+    {
+      "id": 7,
+      "page": "C:/GitHub/datagvat-mcp//docs/workflows/publication-research.mdx",
+      "section": "workflows",
+      "language": "python",
+      "code": "results = semantic_search_datasets(\n    natural_query=\"Vienna public health outcomes and social demographics\",\n    boost_quality=True,\n    limit=20\n)\n\nprint(f\"Found {results['count']} datasets\")\nprint(f\"Query expanded to themes: {results.get('expansion_info', {}).get('semantic_themes', [])}\")",
+      "line": 90
+    },
+    {
+      "id": 8,
+      "page": "C:/GitHub/datagvat-mcp//docs/workflows/comparative-analysis.mdx",
+      "section": "workflows",
+      "language": "python",
+      "code": "import pandas as pd\nfrom datetime import datetime\n\nmatrix = []\nfor dataset in candidates:\n    quality = quality_results[dataset['id']]\n    schema = schema_comparison.get(dataset['id'], {})\n\n    # Calculate recency score\n    modified = datetime.fromisoformat(dataset['modified'])\n    age_days = (datetime.now() - modified).days\n    recency_score = max(0, 100 - (age_days / 3.65))  # 1 point per ~3.6 days\n\n    matrix.append({\n        'ID': dataset['id'][-6:],  # Last 6 chars\n        'Title': dataset['title'][:30],\n        'Quality': quality['overall_score'],\n        'Columns': schema.get('column_count', 0),\n        'Recency': int(recency_score),\n        'Modified': dataset['modified']\n    })\n\n# Create DataFrame for clean display\ndf = pd.DataFrame(matrix)\ndf = df.sort_values('Quality', ascending=False)\n\nprint(df.to_string(index=False))",
+      "line": 228
+    },
+    {
+      "id": 9,
+      "page": "C:/GitHub/datagvat-mcp//docs/workflows/discovery.mdx",
+      "section": "workflows",
+      "language": "python",
+      "code": "# 1. Search for datasets\nresults = semantic_search_datasets(\n    natural_query=\"health data from Vienna\",\n    formats=[\"CSV\"],\n    boost_quality=True\n)\n\n# 2. Get top result details\ndataset_id = results['results'][0]['id']\ndataset = get_dataset(dataset_id=dataset_id)\n\n# 3. Analyze quality\nquality = analyze_dataset_quality(dataset_id=dataset_id)\n\nif quality['metrics']['overall_score'] < 70:\n    print(\"⚠️ Quality below threshold\")\n    # Fall back to second result or adjust criteria\n\n# 4. Get download URL\ndistributions = get_dataset_distributions(dataset_id=dataset_id)\ncsv_url = next(d['downloadURL'] for d in distributions\n               if d.get('format') == 'CSV')\n\n# 5. Preview schema\nschema = preview_schema(url=csv_url, format=\"csv\")\n\n# 6. Verify required columns\nrequired_columns = [\"year\", \"region\", \"value\"]\nactual_columns = [c['name'] for c in schema['columns']]\n\nif all(col in actual_columns for col in required_columns):\n    print(\"✓ Schema validated - ready to download\")\n    print(f\"Download URL: {csv_url}\")\nelse:\n    missing = set(required_columns) - set(actual_columns)\n    print(f\"✗ Missing columns: {missing}\")",
+      "line": 84
+    },
+    {
+      "id": 10,
+      "page": "C:/GitHub/datagvat-mcp//docs/getting-started/index.mdx",
+      "section": "tutorials",
+      "language": "python",
+      "code": "search_datasets(\n  query=\"health\",\n  themes=[\"HEAL\"],\n  formats=[\"CSV\"]\n)",
+      "line": 38
+    },
+    {
+      "id": 11,
+      "page": "C:/GitHub/datagvat-mcp//docs/getting-started/installation.de.mdx",
+      "section": "tutorials",
+      "language": "bash",
+      "code": "python --version  # Sollte 3.11 oder höher sein",
+      "line": 529
+    },
+    {
+      "id": 12,
+      "page": "C:/GitHub/datagvat-mcp//docs/examples/search.mdx",
+      "section": "examples",
+      "language": "python",
+      "code": "# Datasets modified in 2024\nsearch_datasets(\n  query=\"\",\n  min_date=\"2024-01-01\",\n  max_date=\"2024-12-31\",\n  limit=10\n)\n\n# Recently updated datasets (last 30 days)\nsearch_datasets(\n  query=\"\",\n  min_date=\"2024-12-15\",\n  limit=10\n)\n\n# Datasets published before 2020\nsearch_datasets(\n  query=\"\",\n  max_date=\"2020-01-01\",\n  limit=10\n)",
+      "line": 292
+    },
+    {
+      "id": 13,
+      "page": "C:/GitHub/datagvat-mcp//docs/examples/workflows.mdx",
+      "section": "examples",
+      "language": "python",
+      "code": "# Verify structure matches expectations\nexpected_columns = [\"year\", \"region\", \"cases\"]\nactual_columns = [c['name'] for c in schema['columns']]\n\nif all(col in actual_columns for col in expected_columns):\n  print(\"✓ Schema validated\")\n  # Proceed with full download using download_url\n  # (Download implementation depends on your environment)\nelse:\n  print(\"✗ Schema mismatch, check dataset\")",
+      "line": 146
+    },
+    {
+      "id": 14,
+      "page": "C:/GitHub/datagvat-mcp//docs/examples/search.mdx",
+      "section": "examples",
+      "language": "python",
+      "code": "# Vienna or Graz data\nsearch_datasets(\n  query=\"traffic\",\n  publishers=[\"Stadt Wien\", \"Stadt Graz\"],\n  limit=10\n)\n\n# Multiple federal sources\nsearch_datasets(\n  query=\"\",\n  publishers=[\"Bundesministerium\", \"Statistik Austria\"],\n  formats=[\"CSV\"],\n  limit=10\n)",
+      "line": 212
+    },
+    {
+      "id": 15,
+      "page": "C:/GitHub/datagvat-mcp//docs/examples/workflows.de.mdx",
+      "section": "examples",
+      "language": "python",
+      "code": "# Schema zuerst prüfen\nschema = preview_schema(url=download_url, format=\"CSV\")\n\nprint(\"Spalten:\")\nfor col in schema['columns']:\n  print(f\"  - {col['name']}: {col['type']}\")\n\n# Beispieldaten in Vorschau anzeigen\nvorschau = preview_data(url=download_url, max_rows=20, format=\"CSV\")\n\nprint(f\"\\nZeige {vorschau['row_count']} Beispielzeilen:\")\nfor row in vorschau['data'][:5]:\n  print(row)",
+      "line": 125
+    },
+    {
+      "id": 16,
+      "page": "C:/GitHub/datagvat-mcp//docs/integration/other-clients.mdx",
+      "section": "advanced",
+      "language": "python",
+      "code": "import pytest\nfrom fastmcp.client import Client\nfrom app.server import mcp\n\n@pytest.mark.asyncio\nasync def test_search_datasets():\n    \"\"\"Test dataset search functionality.\"\"\"\n    async with Client(mcp) as client:\n        # Test basic search\n        result = await client.call_tool(\n            \"search_datasets\",\n            arguments={\"query\": \"population\", \"limit\": 10}\n        )\n\n        assert result[\"count\"] > 0\n        assert len(result[\"results\"]) <= 10\n        assert all(\"title\" in r for r in result[\"results\"])\n\n@pytest.mark.asyncio\nasync def test_tool_validation():\n    \"\"\"Test parameter validation.\"\"\"\n    async with Client(mcp) as client:\n        # Invalid limit should raise ValidationError\n        with pytest.raises(Exception) as exc_info:\n            await client.call_tool(\n                \"search_datasets\",\n                arguments={\"limit\": -1}  # Invalid\n            )\n\n        assert \"validation\" in str(exc_info.value).lower()",
+      "line": 326
+    },
+    {
+      "id": 17,
+      "page": "C:/GitHub/datagvat-mcp//docs/advanced/fastmcp-internals.mdx",
+      "section": "advanced",
+      "language": "python",
+      "code": "from dataclasses import dataclass\nfrom fastmcp import FastMCP, Context\nfrom contextlib import asynccontextmanager\n\n@dataclass\nclass AppState:\n    \"\"\"Application state available to all tools.\"\"\"\n    settings: Settings\n    piveau_client: PiveauClient\n    # Add any shared resources (DB connections, HTTP clients, etc.)\n\n@asynccontextmanager\nasync def lifespan(mcp: FastMCP):\n    \"\"\"Initialize and cleanup application resources.\"\"\"\n    settings = get_settings()\n    client = PiveauClient(base_url=settings.api_url, timeout=30)\n\n    try:\n        yield AppState(settings=settings, piveau_client=client)\n    finally:\n        await client.close()  # Cleanup on shutdown\n\nmcp = FastMCP(\n    name=\"my-server\",\n    lifespan=lifespan,  # Attach lifespan handler\n)\n\n# Access state in tools\n@mcp.tool()\nasync def search(ctx: Context, query: str) -> dict:\n    # Get app state from Context\n    app_state = ctx.request_context.lifespan_context\n    client = app_state.piveau_client\n\n    # Use shared client for API calls\n    results = await client.search(query)\n    return results",
+      "line": 263
+    },
+    {
+      "id": 18,
+      "page": "C:/GitHub/datagvat-mcp//docs/advanced/fastmcp-internals.mdx",
+      "section": "advanced",
+      "language": "python",
+      "code": "from pydantic_settings import BaseSettings\n\nclass Settings(BaseSettings):\n    rate_limit: float = 10.0\n    model_config = SettingsConfigDict(env_prefix=\"MY_SERVER_\")\n\n@asynccontextmanager\nasync def lifespan(mcp: FastMCP):\n    settings = Settings()  # ✅ From environment\n    yield AppState(settings=settings)\n\nsettings = Settings()\nmcp = FastMCP(\n    name=\"my-server\",\n    middleware=[\n        RateLimitingMiddleware(\n            max_requests_per_second=settings.rate_limit  # ✅ Configurable\n        ),\n    ]\n)",
+      "line": 1082
+    },
+    {
+      "id": 19,
+      "page": "C:/GitHub/datagvat-mcp//docs/best-practices/comparison-tables.mdx",
+      "section": "best-practices",
+      "language": "python",
+      "code": "# Use find_similar_datasets - content-based similarity\nsimilar = find_similar_datasets(\n  dataset_id=\"vienna-health-2024\",\n  limit=5,\n  min_score=30\n)",
+      "line": 90
+    },
+    {
+      "id": 20,
+      "page": "C:/GitHub/datagvat-mcp//docs/best-practices/rate-limiting.mdx",
+      "section": "best-practices",
+      "language": "python",
+      "code": "from unittest.mock import patch, MagicMock\n\ndef test_rate_limit_handling():\n  \"\"\"Test that code handles rate limits gracefully.\"\"\"\n\n  # Create mock that raises rate limit error\n  mock_search = MagicMock(side_effect=ToolError(\"Rate limit exceeded\"))\n\n  with patch('app.tools.search_datasets', mock_search):\n    try:\n      results = search_datasets(query=\"test\")\n      assert False, \"Should have raised ToolError\"\n    except ToolError as e:\n      assert \"Rate limit exceeded\" in str(e)\n\n  print(\"Rate limit handling test passed\")\n\n# Run test\ntest_rate_limit_handling()",
+      "line": 523
+    }
+  ]
+}
