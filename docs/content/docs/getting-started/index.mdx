@@ -1,29 +1,29 @@
 ---
-title: Getting Started
+title: Getting started
 description: Your first steps with data.gv.at MCP Server
 ---
 
-# Getting Started
+# Getting started
 
-Learn how to search for Austrian open data in 5 minutes.
+Search Austrian open data in 5 minutes.
 
 ## Prerequisites
 
-Before you begin, ensure you have:
+Before you begin:
 
-- An AI assistant that supports MCP (e.g., Claude Desktop, Cline, or compatible tools)
-- The data.gv.at MCP Server server installed and configured
+- An AI assistant that supports MCP (Claude Desktop, Cline, or compatible tools)
+- Data.gv.at MCP Server installed and configured
 - Basic understanding of how to interact with your AI assistant
 
-## 1. Search for Datasets
+## 1. Search for datasets
 
-The most common operation is searching for datasets. Use `search_datasets` to find data by keywords:
+Use `search_datasets` to find data by keywords:
 
 ```python
 search_datasets(query="population", limit=10)
 ```
 
-This will return up to 10 datasets related to population. The results include:
+The tool returns up to 10 datasets related to population. Results include:
 - Dataset ID and title
 - Description
 - Categories (themes)
@@ -31,9 +31,9 @@ This will return up to 10 datasets related to population. The results include:
 - Publisher information
 - Last modification date
 
-## 2. Filter by Category
+## 2. Filter by category
 
-Narrow your search results using theme filters. Austria uses EU DCAT-AP theme codes:
+Narrow results using theme filters. Austria uses EU DCAT-AP theme codes:
 
 ```python
 search_datasets(
@@ -51,17 +51,17 @@ search_datasets(
 - `ECON` - Economy and finance
 - `GOVE` - Government and public sector
 
-See the [API Reference](/api/tools) for the complete list of 13 EU theme codes.
+See the [API Reference](/api/tools) for all 13 EU theme codes.
 
-## 3. Get Dataset Details
+## 3. Get dataset details
 
-Once you find a dataset, get its complete metadata:
+After finding a dataset, get its complete metadata:
 
 ```python
 get_dataset(dataset_id="17f04f16-1c02-4f94-90e3-e27e92535a83")
 ```
 
-This returns comprehensive information including:
+This returns:
 - Full description in German
 - All available distributions (downloadable files)
 - Keywords and categories
@@ -69,7 +69,7 @@ This returns comprehensive information including:
 - License information
 - Temporal and spatial coverage
 
-## 4. Preview Data
+## 4. Preview data
 
 Check dataset contents before downloading using the two-step preview workflow:
 
@@ -95,9 +95,9 @@ The preview shows:
 
 **Supported formats:** CSV, JSON
 
-## 5. Use Semantic Search
+## 5. Use semantic search
 
-For natural language queries, use semantic search which automatically expands your query with related terms:
+For natural language queries, use semantic search to automatically expand your query with related terms:
 
 ```python
 semantic_search_datasets(
@@ -112,7 +112,7 @@ Semantic search:
 - Applies quality boosting by default
 - Returns highly relevant results
 
-## 6. Find Related Datasets
+## 6. Find related datasets
 
 Discover datasets similar to one you're interested in:
 
@@ -130,31 +130,31 @@ The system scores relationships based on:
 - Same publisher
 - Minimum score threshold filters weak matches
 
-## Next Steps
+## Next steps
 
-Now that you understand the basics, explore these resources:
+Explore these resources:
 
 - **[API Reference](/api/tools)** - Complete tool documentation
 - **[Search Examples](/examples/search)** - Advanced search patterns
 - **[Preview Examples](/examples/preview)** - Data preview workflows
 - **[Best Practices](/best-practices/optimization)** - Performance tips
 
-## Common Workflows
+## Common workflows
 
-### Discovery Workflow
+### Discovery workflow
 1. `search_datasets` or `semantic_search_datasets` - Find datasets
 2. `get_dataset` - Get full metadata
 3. `find_related_datasets` - Discover similar data
 
-### Preview Workflow
+### Preview workflow
 1. `search_datasets` - Find dataset
 2. `get_dataset_distributions` - Get download URLs
 3. `preview_schema` - Check structure
 4. `preview_data` - View sample rows
 
-### Quality Analysis Workflow
+### Quality analysis workflow
 1. `search_datasets` with `quality_boost=true` - Find high-quality data
 2. `analyze_dataset_quality` - Get quality metrics
 3. `get_dataset_metrics` - View DQV metadata quality
 
-Ready to dive deeper? Check out the [example workflows](/examples/workflows) for complete end-to-end scenarios.
+Check out the [example workflows](/examples/workflows) for complete end-to-end scenarios.

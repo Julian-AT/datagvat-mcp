@@ -1,17 +1,17 @@
 ---
-title: Your First Query
+title: Your first query
 description: Complete tutorial from search to data preview with expected outputs
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-# Your First Query
+# Your first query
 
 Learn how to perform a complete dataset discovery workflow with data.gv.at MCP Server - from search to data preview.
 
 ## Prerequisites
 
-Before starting, ensure you have:
+Before starting:
 
 - [ ] Completed the [Quickstart Guide](/getting-started/quickstart)
 - [ ] Claude Desktop running with data.gv.at MCP Server connected
@@ -21,16 +21,16 @@ Before starting, ensure you have:
 **New to data.gv.at MCP Server?** Complete the [Quickstart Guide](/getting-started/quickstart) first for a quick introduction.
 </Callout>
 
-## Step 1: Search for Datasets
+## Step 1: Search for datasets
 
-Let's search for Vienna population data using semantic search:
+Search for Vienna population data using semantic search:
 
 ```
 Find datasets about Vienna population statistics
 ```
 
 **What happens:**
-- data.gv.at MCP Server analyzes "Vienna population statistics"
+- Data.gv.at MCP Server analyzes "Vienna population statistics"
 - Expands query with related terms (demographics, census, inhabitants)
 - Searches data.gv.at catalog
 - Returns results ranked by quality and relevance
@@ -41,9 +41,9 @@ Find datasets about Vienna population statistics
 {
   "results": [
     {
-      "id": "17f04f16-1c02-4f94-90e3-e27e92535a83",
-      "title": "Vienna Population Statistics 2023",
-      "description": "Aktuelle Bevölkerungsstatistik der Stadt Wien...",
+      "id": "bev-wien-2020-2024",
+      "title": "Bevölkerung Wien 2020-2024",
+      "description": "Quarterly population statistics for Vienna districts...",
       "publisher": "Stadt Wien",
       "themes": ["SOCI"],
       "formats": ["CSV", "JSON"],
@@ -51,9 +51,9 @@ Find datasets about Vienna population statistics
       "last_modified": "2024-01-15"
     },
     {
-      "id": "8d2c1e4a-5b7f-4d8c-9e3a-2f1b6c8d4e9a",
-      "title": "Vienna Demographics Historical Data",
-      "description": "Demografische Entwicklung Wien 2000-2023...",
+      "id": "wien-einwohner-altersgruppen",
+      "title": "Einwohnerinnen nach Altersgruppen Wien",
+      "description": "Demographic development Vienna by age group...",
       "publisher": "Statistik Austria",
       "themes": ["SOCI"],
       "formats": ["CSV"],
@@ -74,16 +74,16 @@ Find datasets about Vienna population statistics
 - [ ] Quality scores appear (0-100 range)
 - [ ] Results include publisher and format information
 
-## Step 2: Get Dataset Details
+## Step 2: Get dataset details
 
 Pick a dataset from results and get complete metadata:
 
 ```
-Show me details for dataset 17f04f16-1c02-4f94-90e3-e27e92535a83
+Show me details for dataset bev-wien-2020-2024
 ```
 
 **What happens:**
-- data.gv.at MCP Server calls `get_dataset` tool with dataset ID
+- Data.gv.at MCP Server calls `get_dataset` tool with dataset ID
 - Retrieves full DCAT-AP metadata from data.gv.at
 - Returns structured dataset information
 
@@ -91,9 +91,9 @@ Show me details for dataset 17f04f16-1c02-4f94-90e3-e27e92535a83
 
 ```json
 {
-  "id": "17f04f16-1c02-4f94-90e3-e27e92535a83",
-  "title": "Vienna Population Statistics 2023",
-  "description": "Aktuelle Bevölkerungsstatistik der Stadt Wien nach Bezirken, Geschlecht und Altersgruppen. Die Daten werden monatlich aktualisiert und umfassen alle 23 Wiener Gemeindebezirke.",
+  "id": "bev-wien-2020-2024",
+  "title": "Bevölkerung Wien 2020-2024",
+  "description": "Quarterly population statistics by Vienna district, gender, and age group. Data updated monthly covering all 23 Vienna districts.",
   "publisher": {
     "name": "Stadt Wien",
     "email": "open@post.wien.gv.at"
@@ -102,20 +102,20 @@ Show me details for dataset 17f04f16-1c02-4f94-90e3-e27e92535a83
   "keywords": ["Bevölkerung", "Wien", "Statistik", "Demografie"],
   "license": "CC-BY-4.0",
   "temporal_coverage": {
-    "start": "2023-01-01",
-    "end": "2023-12-31"
+    "start": "2020-01-01",
+    "end": "2024-12-31"
   },
   "spatial_coverage": "Wien, Österreich",
   "distributions": [
     {
       "title": "Population Data CSV",
       "format": "CSV",
-      "access_url": "https://www.data.gv.at/katalog/dataset/population-vienna-2023.csv"
+      "access_url": "https://www.data.gv.at/katalog/dataset/bev-wien-2020-2024.csv"
     },
     {
       "title": "Population Data JSON",
       "format": "JSON",
-      "access_url": "https://www.data.gv.at/katalog/dataset/population-vienna-2023.json"
+      "access_url": "https://www.data.gv.at/katalog/dataset/bev-wien-2020-2024.json"
     }
   ],
   "last_modified": "2024-01-15",
@@ -133,16 +133,16 @@ Show me details for dataset 17f04f16-1c02-4f94-90e3-e27e92535a83
 **Dataset IDs:** Always use exact IDs from search results. IDs are unique identifiers and case-sensitive.
 </Callout>
 
-## Step 3: Get Dataset Distributions
+## Step 3: Get dataset distributions
 
 Before previewing data, get the list of available download formats:
 
 ```
-List distributions for dataset 17f04f16-1c02-4f94-90e3-e27e92535a83
+List distributions for dataset bev-wien-2020-2024
 ```
 
 **What happens:**
-- data.gv.at MCP Server extracts distribution information
+- Data.gv.at MCP Server extracts distribution information
 - Returns all available download formats and URLs
 - Shows file sizes and modification dates
 
@@ -153,14 +153,14 @@ List distributions for dataset 17f04f16-1c02-4f94-90e3-e27e92535a83
   {
     "title": "Population Data CSV",
     "format": "CSV",
-    "access_url": "https://www.data.gv.at/katalog/dataset/population-vienna-2023.csv",
+    "access_url": "https://www.data.gv.at/katalog/dataset/bev-wien-2020-2024.csv",
     "byte_size": 45678,
     "modified": "2024-01-15"
   },
   {
     "title": "Population Data JSON",
     "format": "JSON",
-    "access_url": "https://www.data.gv.at/katalog/dataset/population-vienna-2023.json",
+    "access_url": "https://www.data.gv.at/katalog/dataset/bev-wien-2020-2024.json",
     "byte_size": 67890,
     "modified": "2024-01-15"
   }
@@ -172,16 +172,16 @@ List distributions for dataset 17f04f16-1c02-4f94-90e3-e27e92535a83
 - [ ] Access URLs are provided
 - [ ] File sizes appear in bytes
 
-## Step 4: Preview Data
+## Step 4: Preview data
 
-Now preview the CSV data to see structure and sample rows:
+Preview the CSV data to see structure and sample rows:
 
 ```
-Preview data from https://www.data.gv.at/katalog/dataset/population-vienna-2023.csv
+Preview data from https://www.data.gv.at/katalog/dataset/bev-wien-2020-2024.csv
 ```
 
 **What happens:**
-- data.gv.at MCP Server downloads first 64KB of file
+- Data.gv.at MCP Server downloads first 64KB of file
 - Detects CSV format and delimiter
 - Infers column types from sample rows
 - Returns schema and preview data
@@ -243,7 +243,7 @@ Preview data from https://www.data.gv.at/katalog/dataset/population-vienna-2023.
 **Preview limits:** Default preview is 20 rows, configurable up to 100. Large datasets are estimated from preview sample.
 </Callout>
 
-## Complete Workflow Summary
+## Complete workflow summary
 
 You've completed a full dataset discovery workflow:
 
@@ -252,32 +252,32 @@ You've completed a full dataset discovery workflow:
 3. **List Distributions** → Identified available download formats
 4. **Data Preview** → Inspected schema and sample data
 
-**Verify Success:**
+**Verify success:**
 
-- [ ] You successfully searched for datasets
+- [ ] You searched for datasets
 - [ ] You retrieved full dataset metadata
 - [ ] You listed available distributions
 - [ ] You previewed data structure and sample rows
 - [ ] All expected outputs matched your results
 
-## What You've Learned
+## What you've learned
 
 - **Complete workflow:** Search → Details → Distributions → Preview
 - **Expected outputs:** How to verify success at each step
 - **Data formats:** CSV and JSON are most common
 - **Quality indicators:** Quality scores (0-100) and metadata completeness
-- **Schema inference:** data.gv.at MCP Server automatically detects column types
+- **Schema inference:** Data.gv.at MCP Server automatically detects column types
 
-## Next Steps
+## Next steps
 
-### Deeper Learning
+### Deeper learning
 
 - **[Quick Reference](/getting-started/quick-reference)** - Command cheat sheet
 - **[Searching Guide](/guides/searching)** - Advanced search techniques
 - **[Quality Metrics](/guides/quality-metrics)** - Understanding quality scores
 - **[Data Preview](/guides/data-preview)** - Preview configuration options
 
-### Common Workflows
+### Common workflows
 
 - **[Discovery Workflow](/workflows/discovery)** - Complete search patterns
 - **[Quality Assessment](/workflows/quality-assessment)** - Evaluate dataset reliability

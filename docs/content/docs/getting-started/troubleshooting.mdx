@@ -1,22 +1,22 @@
 ---
-title: Troubleshooting Guide
+title: Troubleshooting
 description: Solutions to common data.gv.at MCP Server installation and usage issues
 ---
 
 import { Tabs, Tab } from "fumadocs-ui/components/tabs";
 import { Callout } from "fumadocs-ui/components/callout";
 
-# Troubleshooting Guide
+# Troubleshooting
 
 Solutions to common problems when installing or using data.gv.at MCP Server.
 
-## Server Not Appearing in Claude Desktop
+## Server not appearing in Claude Desktop
 
-**Symptom:** data.gv.at MCP Server server doesn't show in Claude Desktop toolbar after installation
+**Symptom:** Data.gv.at MCP Server doesn't show in Claude Desktop toolbar after installation
 
 **Common causes and fixes:**
 
-### Fix 1: Check Configuration File Syntax
+### Fix 1: Check configuration file syntax
 
 Invalid JSON prevents Claude Desktop from loading the configuration.
 
@@ -44,7 +44,7 @@ Invalid JSON prevents Claude Desktop from loading the configuration.
 - Unmatched brackets or quotes
 - Missing quotes around keys or values
 
-### Fix 2: Use Absolute Paths
+### Fix 2: Use absolute paths
 
 Relative paths fail in MCP configuration.
 
@@ -70,7 +70,7 @@ Always use absolute paths in MCP configuration. Relative paths and tilde (~) exp
 
 **Windows users:** Remember to escape backslashes (use `\\` instead of `\`)
 
-### Fix 3: Restart Claude Desktop Properly
+### Fix 3: Restart Claude Desktop properly
 
 Configuration is only loaded on startup. Simple window closing doesn't fully quit the application.
 
@@ -105,13 +105,13 @@ Configuration is only loaded on startup. Simple window closing doesn't fully qui
 
 **Verification:** After restart, "datagvat" appears in bottom toolbar with green indicator
 
-## Tools Not Working
+## Tools not working
 
 **Symptom:** Server connected but tool calls fail or return errors
 
-### Fix 1: Check Python Version
+### Fix 1: Check Python version
 
-data.gv.at MCP Server requires Python 3.11 or higher.
+Data.gv.at MCP Server requires Python 3.11 or higher.
 
 **Check version:**
 ```bash
@@ -122,7 +122,7 @@ python --version
 - [Download Python 3.11+](https://www.python.org/downloads/)
 - Reinstall dependencies after upgrade
 
-### Fix 2: Reinstall Dependencies
+### Fix 2: Reinstall dependencies
 
 Corrupted or incomplete installation can cause tools to fail.
 
@@ -149,7 +149,7 @@ python -c "from app.server import mcp; print('✅ OK')"
 
 **Expected output:** `✅ OK`
 
-### Fix 3: Check Virtual Environment
+### Fix 3: Check virtual environment
 
 If using a virtual environment, ensure it's activated before running commands.
 
@@ -177,13 +177,13 @@ where python  # Windows
   </Tab>
 </Tabs>
 
-## Connection Errors When Using Tools
+## Connection errors when using tools
 
 **Symptom:** Tools execute but fail with connection errors or timeout messages
 
-### Fix 1: Check Network Access
+### Fix 1: Check network access
 
-data.gv.at MCP Server needs HTTPS access to data.gv.at API.
+Data.gv.at MCP Server needs HTTPS access to data.gv.at API.
 
 **Test API access:**
 ```bash
@@ -197,7 +197,7 @@ curl https://www.data.gv.at/api/hub/search/catalogues
 - Check corporate proxy configuration
 - Try from different network (mobile hotspot)
 
-### Fix 2: Verify API Endpoint
+### Fix 2: Verify API endpoint
 
 Ensure you can reach the API from your location.
 
@@ -210,11 +210,11 @@ curl -m 10 https://www.data.gv.at/api/hub/search/catalogues
 - Network routing issue or firewall blocking
 - Contact network administrator if on corporate network
 
-## Import Errors
+## Import errors
 
 **Symptom:** `ModuleNotFoundError` or `ImportError` when running server
 
-### Fix: Verify Installation
+### Fix: Verify installation
 
 Ensure all dependencies are installed.
 
@@ -231,11 +231,11 @@ pip list | grep -E "fastmcp|httpx|pydantic"
 pip install -e .
 ```
 
-## Performance Issues
+## Performance issues
 
 **Symptom:** Tools run slowly or timeout
 
-### Fix: Increase Timeout Settings
+### Fix: Increase timeout settings
 
 Some operations may take longer on slower connections.
 
@@ -247,9 +247,9 @@ Default timeout is 30 seconds. If you experience frequent timeouts on large data
 - Instead of: "Show first 1000 rows"
 - Try: "Show first 100 rows"
 
-## Still Having Problems?
+## Still having problems?
 
-### Check Log Files
+### Check log files
 
 Claude Desktop logs contain detailed error messages.
 
@@ -285,7 +285,7 @@ Claude Desktop logs contain detailed error messages.
 - Connection errors or timeout messages
 - Configuration loading errors
 
-### Get Help
+### Get help
 
 If you're still stuck after trying these solutions:
 

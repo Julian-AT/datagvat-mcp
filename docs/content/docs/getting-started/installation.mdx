@@ -1,18 +1,18 @@
 ---
-title: Installation & Setup
-description: Get started with data.gv.at MCP Server server
+title: Installation & setup
+description: Get started with data.gv.at MCP Server
 ---
 
 import { Tabs } from 'fumadocs-ui/components/tabs';
 import { Callout } from 'fumadocs-ui/components/callout';
 
-# Installation & Setup
+# Installation & setup
 
-Get the data.gv.at MCP Server server running in your Claude Desktop environment in minutes.
+Get the data.gv.at MCP Server running in your Claude Desktop environment in minutes.
 
 ## Prerequisites
 
-Before installing, ensure you have:
+Before installing:
 
 - **Python 3.11 or higher** - [Download Python](https://www.python.org/downloads/)
 - **pip or uv package manager** - uv recommended for faster installs
@@ -40,9 +40,9 @@ Before installing, ensure you have:
   </Tabs.Tab>
 </Tabs>
 
-## How data.gv.at MCP Server Works
+## How data.gv.at MCP Server works
 
-Understanding the data flow helps you troubleshoot issues and optimize your queries:
+Understanding the data flow helps you troubleshoot issues and optimize queries:
 
 ```
    User: "Find population datasets from 2023"
@@ -55,7 +55,7 @@ Understanding the data flow helps you troubleshoot issues and optimize your quer
                    │ MCP Protocol (stdio)
                    ▼
 ┌─────────────────────────────────────────────┐
-│      data.gv.at MCP Server Server receives request   │
+│      data.gv.at MCP Server receives request│
 │                                             │
 │  1. Middleware processing:                 │
 │     • Logging (record request)             │
@@ -91,8 +91,8 @@ Understanding the data flow helps you troubleshoot issues and optimize your quer
       │
       ▼
    User: "Population 2023 datasets:
-          • Vienna Population Statistics (quality: 95)
-          • National Demographics 2023 (quality: 87)
+          • Bevölkerung Wien 2023 (quality: 95)
+          • Bundesweite Demografie 2023 (quality: 87)
           ..."
 ```
 
@@ -105,7 +105,7 @@ The server adds value beyond direct API access:
 - **Error handling** - Retries failed requests with exponential backoff
 - **Rate limiting** - Protects against API throttling
 
-## Project Structure
+## Project structure
 
 After installation, your project directory looks like this:
 
@@ -128,7 +128,7 @@ Key files:
 
 ## Installation
 
-### Step 1: Clone Repository
+### Step 1: Clone repository
 
 <Tabs items={['macOS/Linux', 'Windows']} groupId="os" persist>
   <Tabs.Tab value="macOS/Linux">
@@ -146,7 +146,7 @@ Key files:
   </Tabs.Tab>
 </Tabs>
 
-### Step 2: Install Dependencies
+### Step 2: Install dependencies
 
 <Tabs items={['uv (Recommended)', 'pip']} groupId="package-manager" persist>
   <Tabs.Tab value="uv (Recommended)">
@@ -172,16 +172,16 @@ Key files:
   </Tabs.Tab>
 </Tabs>
 
-### From PyPI (Future)
+### From PyPI (future)
 
 ```bash
 # Once published to PyPI
 pip install datagvat-mcp
 ```
 
-## Server Directory Layout
+## Server directory layout
 
-The data.gv.at MCP Server server has a well-organized structure:
+The data.gv.at MCP Server has a well-organized structure:
 
 <Files>
   <Folder name="app" defaultOpen>
@@ -219,13 +219,13 @@ The data.gv.at MCP Server server has a well-organized structure:
 Key directories:
 - `app/` - Main server code and FastMCP instance
 - `app/tools/` - Tool implementations organized by category
-- `tests/` - Comprehensive test suite
+- `tests/` - Test suite
 
 ## Configuration
 
-### Claude Desktop Setup
+### Claude Desktop setup
 
-Add the data.gv.at MCP Server server to your Claude Desktop configuration:
+Add the data.gv.at MCP Server to your Claude Desktop configuration:
 
 <Tabs items={['macOS', 'Linux', 'Windows']} groupId="os" persist>
   <Tabs.Tab value="macOS">
@@ -333,12 +333,12 @@ If you prefer pip over uv:
 }
 ```
 
-## Environment Variables
+## Environment variables
 
 Optional configuration via `.env` file in the project root:
 
 ```bash
-# API Configuration
+# API configuration
 AUSTRIA_MCP_PIVEAU_API_BASE=https://www.data.gv.at/api/hub/search
 AUSTRIA_MCP_REQUEST_TIMEOUT=30
 
@@ -350,7 +350,7 @@ AUSTRIA_MCP_LOG_FORMAT=json
 AUSTRIA_MCP_DEV_MODE=false
 ```
 
-### Available Environment Variables
+### Available environment variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -360,11 +360,11 @@ AUSTRIA_MCP_DEV_MODE=false
 | `AUSTRIA_MCP_LOG_FORMAT` | `json` | Log format (json, text) |
 | `AUSTRIA_MCP_DEV_MODE` | `false` | Enable development features |
 
-## Test Server Locally
+## Test server locally
 
-Before configuring Claude Desktop, verify the server works correctly:
+Before configuring Claude Desktop, verify the server works:
 
-### 1. Test Server Import
+### 1. Test server import
 
 ```bash
 python -c "from app.server import mcp; print('✅ Server loads successfully')"
@@ -384,7 +384,7 @@ python -c "from app.server import mcp; print('✅ Server loads successfully')"
 This test confirms all dependencies are installed and the server code is valid.
 </Callout>
 
-### 2. Run Development Mode
+### 2. Run development mode
 
 ```bash
 fastmcp dev app.server:mcp
@@ -397,33 +397,33 @@ This starts FastMCP's development server with a web interface at `http://localho
 - View server logs in real-time
 - Verify responses before Claude Desktop integration
 
-### 3. Expected Tools
+### 3. Expected tools
 
 The development UI should show these tool categories:
 
-**Discovery Tools:**
+**Discovery tools:**
 - `list_catalogues` - Browse available data catalogues
 - `search_datasets` - Search for datasets
 - `get_dataset` - Retrieve dataset details
 - `list_dataset_distributions` - Get dataset download links
 
-**Management Tools:**
+**Management tools:**
 - `create_dataset_draft` - Create new dataset drafts
 - `update_dataset` - Update existing datasets
 - `delete_dataset` - Remove datasets
 
-**Analysis Tools:**
+**Analysis tools:**
 - `analyze_dataset_quality` - Calculate metadata quality score
 - `find_related_datasets` - Discover similar datasets
 
-**Vocabulary Tools:**
+**Vocabulary tools:**
 - `list_vocabularies` - Browse EU DCAT-AP vocabularies
 - `search_vocabulary_terms` - Search vocabulary terms
 
-**Preview Tools:**
+**Preview tools:**
 - `preview_dataset_file` - Sample data from CSV/JSON files
 
-### 4. Test Basic Functionality
+### 4. Test basic functionality
 
 In the dev UI, try `list_catalogues` with `limit=3`:
 
@@ -436,9 +436,9 @@ In the dev UI, try `list_catalogues` with `limit=3`:
 ]
 ```
 
-If you see this response, the server is working correctly and ready for Claude Desktop.
+If you see this response, the server is working and ready for Claude Desktop.
 
-## Verify Installation
+## Verify installation
 
 ### Step 1: Restart Claude Desktop
 
@@ -452,7 +452,7 @@ Configuration is only loaded on startup. Restart properly:
   </Tabs.Tab>
 
   <Tabs.Tab value="Linux">
-    1. Quit Claude Desktop completely:
+    1. Quit Claude Desktop:
        ```bash
        killall claude-desktop
        ```
@@ -468,7 +468,7 @@ Configuration is only loaded on startup. Restart properly:
   </Tabs.Tab>
 </Tabs>
 
-### Step 2: Test Connection
+### Step 2: Test connection
 
 Run a simple command in Claude Desktop to verify the server is connected:
 
@@ -495,7 +495,7 @@ list_catalogues(limit=5)
 **Success!** If you see catalogue results, data.gv.at MCP Server is connected and working.
 </Callout>
 
-### Step 3: Try a Search
+### Step 3: Try a search
 
 Verify full functionality with a search query:
 
@@ -515,7 +515,7 @@ You should see dataset results with titles, descriptions, and quality scores.
 4. **Check logs** - Look in Claude Desktop logs for MCP server errors
 
 <Callout type="info">
-**Log Locations:**
+**Log locations:**
 - **Windows:** `%APPDATA%\Claude\logs\`
 - **macOS:** `~/Library/Logs/Claude/`
 - **Linux:** `~/.config/Claude/logs/`
@@ -529,7 +529,7 @@ You should see dataset results with titles, descriptions, and quality scores.
 
 **Fix:** Ensure your config points to the directory containing the `app/` folder.
 
-The correct directory structure looks like this:
+The correct directory structure:
 
 ```
 datagvat-mcp/                    ❌ cwd="..." (too high - repo root)
@@ -656,7 +656,7 @@ pip install -e . --force-reinstall
 }
 ```
 
-## Next Steps
+## Next steps
 
 Now that data.gv.at MCP Server is installed:
 
@@ -665,7 +665,7 @@ Now that data.gv.at MCP Server is installed:
 - **[Configuration Guide](/guides/configuration)** - Advanced configuration options
 - **[API Reference](/api/tools)** - Explore all available tools
 
-## Getting Help
+## Getting help
 
 - **GitHub Issues** - [Report bugs or request features](https://github.com/yourusername/datagvat-mcp/issues)
 - **Discussions** - [Ask questions and share tips](https://github.com/yourusername/datagvat-mcp/discussions)

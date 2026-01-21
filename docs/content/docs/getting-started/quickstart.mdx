@@ -1,78 +1,78 @@
 ---
-title: Quickstart Guide
+title: Quickstart
 description: Get your first data.gv.at MCP Server query results in under 5 minutes
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
 
-# Quickstart Guide
+# Quickstart
 
 Search for Austrian open datasets and see results in under 5 minutes.
 
 ## Prerequisites
 
-Before starting, ensure you have:
+Before starting:
 
 - [ ] Claude Desktop installed ([Download](https://claude.ai/download))
-- [ ] data.gv.at MCP Server server installed ([Installation Guide](/getting-started/installation))
+- [ ] Data.gv.at MCP Server installed ([Installation Guide](/getting-started/installation))
 - [ ] Claude Desktop restarted after configuration
 
 <Callout type="info">
 **First time?** Follow the [Installation Guide](/getting-started/installation) to set up data.gv.at MCP Server.
 </Callout>
 
-## Step 1: Verify Connection
+## Step 1: Verify connection
 
 Open Claude Desktop and look for the MCP server indicator in the bottom toolbar:
 
 - ✅ **Connected:** "datagvat" or "datagvat-local" shows green status
 - ❌ **Not connected:** [Troubleshooting Guide](/getting-started/troubleshooting#server-not-appearing)
 
-## Step 2: Run Your First Search
+## Step 2: Run your first search
 
-Ask Claude this exact question:
+Ask Claude this question:
 
 ```
 Find datasets about Vienna population
 ```
 
-Claude will use the data.gv.at MCP Server `semantic_search_datasets` tool.
+Claude uses the data.gv.at MCP Server `semantic_search_datasets` tool.
 
-**What happens behind the scenes:**
+**What happens:**
 1. Claude analyzes your natural language query
-2. data.gv.at MCP Server expands query with related terms
+2. Data.gv.at MCP Server expands query with related terms
 3. Server searches data.gv.at catalog
 4. Results ranked by relevance and quality
 
 **Expected output:**
 
-Claude will respond with dataset information like:
+Claude responds with dataset information:
 
 > I found several population datasets for Vienna:
 >
-> 1. **Vienna Population Statistics 2023** (ID: abc-123)
->    - Description: Demographic data for Vienna districts
+> 1. **Bevölkerung Wien 2020-2024** (ID: bev-stat-wien-2024)
+>    - Description: Quarterly population statistics by district
 >    - Quality Score: 95/100
 >    - Format: CSV, JSON
 >    - Publisher: Stadt Wien
 >
-> 2. **Vienna Demographics Historical Data** (ID: def-456)
->    - Description: Population trends 2000-2023
+> 2. **Einwohnerinnen und Einwohner Wien** (ID: wien-einwohner-bezirk)
+>    - Description: Current residents by district and age group
 >    - Quality Score: 87/100
 >    - Format: CSV
->    - Publisher: Statistik Austria
+>    - Publisher: Magistrat Wien
 
-## Step 3: Get Dataset Details
+## Step 3: Get dataset details
 
 Pick a dataset from results and ask for details:
 
 ```
-Show me details for dataset abc-123
+Show me details for dataset bev-stat-wien-2024
 ```
 
 **Expected output:**
 
-Claude provides complete metadata including:
+Claude provides complete metadata:
 - Full description (German)
 - All available download formats
 - Publisher information
@@ -80,9 +80,9 @@ Claude provides complete metadata including:
 - License (typically CC-BY-4.0)
 - Keywords and themes
 
-## Verify Success
+## Verify success
 
-You've successfully completed the quickstart if:
+You've completed the quickstart if:
 
 - [ ] Claude responded with dataset titles and descriptions
 - [ ] Results included dataset IDs
@@ -91,22 +91,22 @@ You've successfully completed the quickstart if:
 
 ✅ **Congratulations!** You've completed your first data.gv.at MCP Server workflow.
 
-## What You've Learned
+## What you've learned
 
 - **Semantic search:** Natural language queries work (no need for exact keywords)
-- **Quality scores:** data.gv.at MCP Server rates dataset quality automatically
+- **Quality scores:** Data.gv.at MCP Server rates dataset quality automatically
 - **Dataset IDs:** Unique identifiers for accessing specific datasets
 - **Tool execution:** Claude uses MCP tools transparently
 
-## Next Steps
+## Next steps
 
-### Learn More
+### Learn more
 
 - **[First Query Tutorial](/getting-started/first-query)** - Deeper walkthrough with data preview
 - **[Quick Reference](/getting-started/quick-reference)** - Common commands cheat sheet
 - **[Searching Guide](/guides/searching)** - Advanced search techniques
 
-### Common Workflows
+### Common workflows
 
 - **[Preview Data](/guides/data-preview)** - Inspect dataset contents before download
 - **[Quality Assessment](/workflows/quality-assessment)** - Evaluate dataset reliability
