@@ -4,27 +4,58 @@ description: Comprehensive documentation for Austria MCP
 icon: Book
 ---
 
-# Documentation
+# data.gv.at MCP Server documentation
 
-Welcome to the Austria MCP documentation. Explore the guides, API references, and examples to get started.
+The data.gv.at MCP Server connects AI assistants like Claude to Austria's open government data catalog. You can search datasets, analyze quality, preview data, and build workflows—all through natural language.
 
-## Getting Started
+## What you can do
+
+Search 30,000+ Austrian government datasets by keywords, themes, or natural language queries. Get instant quality scores based on metadata completeness. Preview CSV and JSON data without downloading. Find related datasets by topic or publisher.
+
+## Quick start
 
 <Cards>
-  <Card title="Getting Started" href="/docs/getting-started" icon="Rocket">
-    Your first steps with data.gv.at MCP Server
+  <Card title="Getting started" href="/docs/getting-started" icon="Rocket">
+    Install and configure the server in 5 minutes
   </Card>
   <Card title="Guides" href="/docs/guides" icon="BookOpen">
-    Comprehensive how-to guides
+    Step-by-step instructions for common tasks
   </Card>
-  <Card title="API Reference"   href="/docs/reference/tools" icon="Code">
-    Complete API documentation
+  <Card title="Tool reference" href="/docs/reference/tools" icon="Code">
+    Complete API documentation for all 12 tools
   </Card>
   <Card title="Examples" href="/docs/examples" icon="Lightbulb">
-    Real-world examples and use cases
+    Real workflows with Austrian government data
   </Card>
 </Cards>
 
-## Explore Documentation
+## Features
+
+**Search and discovery**
+Find datasets using keyword search, category filters, or semantic search with automatic query expansion.
+
+**Data preview**
+Inspect CSV and JSON data before downloading. View structure, types, and sample rows.
+
+**Quality analysis**
+Get quality scores (0-100) based on metadata completeness using DQV standards.
+
+**Related datasets**
+Discover similar datasets by shared themes, keywords, or publisher.
+
+## Example queries
+
+Ask Claude in natural language:
+
+- "Find health datasets from Vienna published in 2024"
+- "Show me the top 5 quality datasets about population statistics"
+- "Preview the first 20 rows of dataset abc-123"
+- "What datasets are related to Bevölkerung Wien 2020-2024?"
+
+## Technology
+
+Built with FastMCP (Python) for the Model Context Protocol. Uses the Piveau API to access Austria's data.gv.at catalog. Provides 12 tools and resource access through MCP 1.0.
+
+## Explore documentation
 
 <DocsCategory />

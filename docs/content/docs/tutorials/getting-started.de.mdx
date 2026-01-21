@@ -11,13 +11,13 @@ In 5 Minuten zur ersten Datenabfrage.
 
 Was du brauchst:
 
-- Einen KI-Assistenten mit MCP-Unterstützung (z.B. Claude Desktop, Cline oder kompatible Tools)
-- Den data.gv.at MCP Server Server installiert und konfiguriert
+- Einen KI-Assistenten mit MCP-Unterstützung (Claude Desktop, Cline oder kompatible Tools)
+- data.gv.at MCP Server installiert und konfiguriert
 - Grundlegendes Verständnis für die Interaktion mit deinem KI-Assistenten
 
 ## 1. Nach Datensätzen suchen
 
-Die häufigste Operation ist die Suche nach Datensätzen. Verwende `search_datasets`, um Daten über Schlüsselwörter zu finden:
+Verwende `search_datasets`, um Daten über Schlüsselwörter zu finden:
 
 ```python
 search_datasets(query="Bevölkerung", limit=10)
@@ -33,7 +33,7 @@ Dies gibt bis zu 10 Datensätze zum Thema Bevölkerung zurück. Die Ergebnisse u
 
 ## 2. Nach Kategorie filtern
 
-Grenze deine Suchergebnisse mit Themenfiltern ein. Österreich verwendet EU DCAT-AP Themencodes:
+Grenze deine Suchergebnisse mit EU DCAT-AP Themencodes ein:
 
 ```python
 search_datasets(
@@ -51,17 +51,17 @@ search_datasets(
 - `ECON` - Wirtschaft und Finanzen
 - `GOVE` - Regierung und öffentlicher Sektor
 
-Siehe [API-Referenz](/api/tools) für die vollständige Liste der 13 EU-Themencodes.
+Siehe [Tool-Referenz](/reference/tools) für die vollständige Liste der 13 EU-Themencodes.
 
 ## 3. Datensatz-Details abrufen
 
-Sobald du einen Datensatz gefunden hast, rufe seine vollständigen Metadaten ab:
+Hole vollständige Metadaten für einen bestimmten Datensatz:
 
 ```python
-get_dataset(dataset_id="17f04f16-1c02-4f94-90e3-e27e92535a83")
+get_dataset(dataset_id="bev-stat-wien-2024")
 ```
 
-Dies gibt umfassende Informationen zurück, einschließlich:
+Dies gibt umfassende Informationen zurück:
 - Vollständige Beschreibung auf Deutsch
 - Alle verfügbaren Distributionen (herunterladbare Dateien)
 - Schlüsselwörter und Kategorien
@@ -76,7 +76,7 @@ Dies gibt umfassende Informationen zurück, einschließlich:
 ```python
 # Schritt 1: Datensatz-Distributionen abrufen, um Download-URLs zu finden
 distributions = get_dataset_distributions(
-  dataset_id="17f04f16-1c02-4f94-90e3-e27e92535a83"
+  dataset_id="bev-stat-wien-2024"
 )
 
 # Schritt 2: Vorschau der Daten von einer Distributions-URL
@@ -97,7 +97,7 @@ Die Vorschau zeigt:
 
 ## 5. Semantische Suche verwenden
 
-Für natürlichsprachliche Abfragen verwende die semantische Suche, die deine Abfrage automatisch um verwandte Begriffe erweitert:
+Für natürlichsprachliche Abfragen verwende die semantische Suche mit automatischer Abfrageerweiterung:
 
 ```python
 semantic_search_datasets(
@@ -114,11 +114,11 @@ Semantische Suche:
 
 ## 6. Verwandte Datensätze finden
 
-Entdecken Sie Datensätze, die einem interessanten Datensatz ähnlich sind:
+Entdecke Datensätze, die einem interessanten Datensatz ähnlich sind:
 
 ```python
 find_related_datasets(
-  dataset_id="17f04f16-1c02-4f94-90e3-e27e92535a83",
+  dataset_id="bev-stat-wien-2024",
   limit=5,
   min_score=20
 )
@@ -134,7 +134,7 @@ Das System bewertet Beziehungen basierend auf:
 
 Nachdem du die Grundlagen kennst, erkunde diese Ressourcen:
 
-- **[API-Referenz](/api/tools)** - Vollständige Tool-Dokumentation
+- **[Tool-Referenz](/reference/tools)** - Vollständige Dokumentation für alle 12 Tools
 - **[Suchbeispiele](/examples/search)** - Erweiterte Suchmuster
 - **[Vorschau-Beispiele](/examples/preview)** - Daten-Vorschau-Workflows
 - **[Best Practices](/best-practices/optimization)** - Performance-Tipps

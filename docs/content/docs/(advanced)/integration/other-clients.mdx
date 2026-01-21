@@ -3,30 +3,32 @@ title: Other MCP Clients
 description: Use data.gv.at MCP Server with other MCP-compatible clients
 ---
 
-# Other MCP Clients
+# Other MCP clients
 
-data.gv.at MCP Server works with any MCP 1.0-compatible client. This guide covers integration with popular alternatives to Claude Desktop.
+data.gv.at MCP Server works with any MCP 1.0-compatible client. This guide shows configuration for Continue (VS Code), Cline (terminal), and FastMCP client libraries.
 
-## Supported Clients
+## Supported clients
 
-data.gv.at MCP Server is compatible with:
-
-- **Claude Desktop** - Anthropic's official client ([Setup Guide](/integration/claude-desktop))
+- **Claude Desktop** - Anthropic's official client ([Setup guide](/integration/claude-desktop))
 - **Continue** - VS Code extension for AI coding assistance
 - **Cline** - Terminal-based MCP client
-- **Custom MCP Clients** - Any client implementing MCP 1.0 spec
+- **FastMCP Client** - Python library for custom integrations
+- **Custom clients** - Any client implementing MCP 1.0 specification
 
-## Continue (VS Code Extension)
+## Continue (VS Code extension)
 
-Continue is a VS Code extension that brings AI assistance directly into your editor.
+Continue brings AI assistance into VS Code through an extension.
 
 ### Installation
 
-1. Install Continue from VS Code marketplace
-2. Open Continue settings (`.continue/config.json`)
-3. Add data.gv.at MCP Server server configuration
+1. Open VS Code Extensions (Ctrl+Shift+X or Cmd+Shift+X)
+2. Search for "Continue"
+3. Click Install
+4. Open Continue settings panel
 
 ### Configuration
+
+Add data.gv.at MCP Server to Continue's config file (`.continue/config.json`):
 
 ```json
 {
@@ -47,19 +49,21 @@ Continue is a VS Code extension that brings AI assistance directly into your edi
 }
 ```
 
+Replace `/absolute/path/to/datagvat-mcp/mcp` with your installation path.
+
 ### Usage
 
-In VS Code with Continue:
+In VS Code with Continue active, prefix queries with the server name:
 
 ```
-@austria-data search for population datasets
+@austria-data search for population datasets in Vienna
 ```
 
-The `@austria-data` prefix tells Continue to use your data.gv.at MCP Server server.
+The `@austria-data` prefix tells Continue which MCP server to use.
 
-## Cline (Terminal Client)
+## Cline (terminal client)
 
-Cline is a terminal-based MCP client for command-line workflows.
+Cline provides MCP access from the command line.
 
 ### Installation
 
@@ -69,7 +73,7 @@ npm install -g @modelcontextprotocol/cline
 
 ### Configuration
 
-Create `~/.cline/config.json`:
+Create configuration file at `~/.cline/config.json`:
 
 ```json
 {
@@ -86,16 +90,20 @@ Create `~/.cline/config.json`:
 }
 ```
 
+Replace `/absolute/path/to/datagvat-mcp/mcp` with your installation path.
+
 ### Usage
+
+Connect to the server and call tools:
 
 ```bash
 cline connect austria-data
 > list_catalogues(limit=5)
 ```
 
-## FastMCP Client Library
+## FastMCP client library
 
-data.gv.at MCP Server uses FastMCP for both server and client. Using the FastMCP client library simplifies custom integrations by abstracting protocol details and providing type-safe APIs.
+FastMCP provides Python client libraries for in-memory, subprocess, and HTTP connections. Use these libraries to build custom integrations without implementing the MCP protocol yourself.
 
 ### Installation
 
@@ -103,26 +111,25 @@ data.gv.at MCP Server uses FastMCP for both server and client. Using the FastMCP
 pip install fastmcp>=2.14.0
 ```
 
-### In-Memory Client Pattern
+### In-memory client pattern
 
-For testing, embedded usage, or applications that need direct access without subprocess overhead:
+Connect directly to the server without subprocess overhead. Best for testing and embedded usage.
 
 ```python
 from fastmcp import FastMCP
 from fastmcp.client import Client
 
-# Import data.gv.at MCP Server server instance
+# Import server instance
 from app.server import mcp
 
 async def use_austria_mcp():
-    """Direct in-memory connection to data.gv.at MCP Server server."""
-    # Connect to server without subprocess
+    """Direct in-memory connection to server."""
     async with Client(mcp) as client:
         # List available tools
         tools = await client.list_tools()
         print(f"Available tools: {[t.name for t in tools]}")
 
-        # Call tool with type-safe arguments
+        # Call tool with arguments
         result = await client.call_tool(
             "search_datasets",
             arguments={"query": "population", "limit": 10}
@@ -130,29 +137,27 @@ async def use_austria_mcp():
 
         print(result)
 
-        # List resources
+        # Access resources
         resources = await client.list_resources()
-
-        # Read resource
-        dataset = await client.read_resource("piveau://dataset/abc-123")
+        dataset = await client.read_resource("piveau://dataset/bev-stat-wien-2024")
 ```
 
-**Benefits:**
-- **No subprocess management** - Direct function calls
-- **No stdio parsing** - Native Python objects
-- **Type-safe tool calls** - Pydantic validation
-- **10-100x faster** - No IPC overhead (ideal for testing)
-- **Simplified debugging** - Single process, full stack traces
-
-**Use cases:**
+**When to use in-memory client:**
 - Unit testing MCP tools
-- Jupyter notebooks / data science workflows
+- Jupyter notebooks and data science workflows
 - Embedded applications (desktop apps, CLI tools)
 - Development and debugging
 
-### Subprocess Client Pattern
+**Benefits:**
+- No subprocess management required
+- No stdio parsing overhead
+- Type-safe tool calls with Pydantic validation
+- 10-100x faster than subprocess (no IPC overhead)
+- Full stack traces for debugging
 
-For production use with process isolation:
+### Subprocess client pattern
+
+Run the server in a separate process with full isolation. Recommended for production.
 
 ```python
 from fastmcp.client import SubprocessClient
@@ -164,7 +169,7 @@ async def use_austria_mcp_isolated():
         args=["run", "--directory", "/path/to/mcp", "python", "-m", "app.server"],
         env={
             "AUSTRIA_MCP_LOG_LEVEL": "INFO",
-            "AUSTRIA_MCP_PIVEAU_API_KEY": "your-api-key"
+            "AUSTRIA_MCP_REQUEST_TIMEOUT": "60"
         }
     )
 
@@ -180,21 +185,33 @@ async def use_austria_mcp_isolated():
         print(result)
 ```
 
-**Benefits:**
-- **Process isolation** - Server crashes don't affect client
-- **Resource limits** - OS-level memory/CPU constraints
-- **Different Python versions** - Client and server can use different Python
-- **Standard MCP protocol** - Compatible with any MCP server
-
-**When to use:**
+**When to use subprocess client:**
 - Production deployments
 - Long-running services
 - Untrusted code isolation
 - Cross-platform compatibility
 
-### HTTP Client Pattern (SSE)
+**Benefits:**
+- Server crashes don't affect client
+- OS-level resource limits (memory, CPU)
+- Client and server can use different Python versions
+- Standard MCP protocol over stdio
 
-For web applications and remote access:
+### HTTP client pattern (SSE)
+
+Access the server remotely over HTTP using Server-Sent Events. Enables web applications and distributed systems.
+
+**Start the SSE server:**
+
+```bash
+# Development server with hot reload
+fastmcp dev app.server:mcp --host 0.0.0.0 --port 8080
+
+# Production server with uvicorn
+uvicorn app.sse_server:app --host 0.0.0.0 --port 8080 --workers 4
+```
+
+**Connect from client:**
 
 ```python
 from fastmcp.client import HTTPClient
@@ -204,7 +221,6 @@ async def use_austria_mcp_remote():
     client = HTTPClient(url="http://localhost:8080/sse")
 
     async with client:
-        # Same API as other clients
         result = await client.call_tool(
             "semantic_search_datasets",
             arguments={"natural_query": "health data from Vienna"}
@@ -213,30 +229,21 @@ async def use_austria_mcp_remote():
         print(result)
 ```
 
-**Starting SSE server:**
-```bash
-# Development server with hot reload
-fastmcp dev app.server:mcp --host 0.0.0.0 --port 8080
-
-# Production server with uvicorn
-uvicorn app.sse_server:app --host 0.0.0.0 --port 8080 --workers 4
-```
-
-**Benefits:**
-- **Remote access** - Client and server on different machines
-- **Multiple clients** - Many clients can connect to one server
-- **Web browser support** - Use from JavaScript/TypeScript
-- **Load balancing** - Scale with reverse proxies
-
-**Use cases:**
-- Web applications
-- Distributed systems
+**When to use HTTP client:**
+- Web applications (JavaScript/TypeScript frontends)
+- Distributed systems with remote servers
 - Multi-tenant deployments
 - Browser-based tools
 
-### Error Handling
+**Benefits:**
+- Remote access across network
+- Multiple clients connect to one server
+- Load balancing with reverse proxies
+- Web browser support via EventSource API
 
-FastMCP client automatically handles protocol errors:
+### Error handling
+
+Handle errors with try-except blocks:
 
 ```python
 from fastmcp.client import Client
@@ -250,42 +257,42 @@ async def robust_client():
                 arguments={"query": "population"}
             )
     except ToolError as e:
-        # Tool execution failed (e.g., invalid params, API error)
+        # Tool execution failed (invalid parameters, API error)
         print(f"Tool error: {e.message}")
     except ConnectionError as e:
-        # Server connection failed
+        # Cannot connect to server
         print(f"Connection error: {e}")
     except TimeoutError as e:
-        # Request timed out
+        # Request exceeded timeout
         print(f"Timeout: {e}")
 ```
 
 **Error types:**
-- `ToolError` - Tool execution failed (invalid parameters, API errors)
-- `ConnectionError` - Cannot connect to server
-- `TimeoutError` - Request exceeded timeout
-- `ValidationError` - Client-side parameter validation failed
+- `ToolError` - Invalid parameters or API failures
+- `ConnectionError` - Server not reachable
+- `TimeoutError` - Request exceeded deadline
+- `ValidationError` - Client-side validation failed
 
-### Progress Tracking
+### Progress tracking
 
-Monitor long-running operations using progress callbacks:
+Monitor long-running operations with progress callbacks:
 
 ```python
 from fastmcp.client import Client
 
 async def track_progress():
     async with Client(mcp) as client:
-        # Register progress callback
+        # Define progress callback
         def on_progress(current: int, total: int, message: str):
             percent = (current / total) * 100
             print(f"[{percent:.0f}%] {message}")
 
         client.on_progress = on_progress
 
-        # Long-running operation with progress updates
+        # Call tool with progress updates
         result = await client.call_tool(
             "analyze_dataset_quality",
-            arguments={"dataset_id": "abc-123"}
+            arguments={"dataset_id": "bev-stat-wien-2024"}
         )
 ```
 
@@ -298,9 +305,9 @@ async def track_progress():
 [100%] Analysis complete
 ```
 
-### Batch Operations
+### Batch operations
 
-Execute multiple tool calls efficiently:
+Execute multiple tool calls in parallel:
 
 ```python
 import asyncio
@@ -308,7 +315,7 @@ from fastmcp.client import Client
 
 async def batch_search():
     async with Client(mcp) as client:
-        # Parallel tool calls
+        # Parallel tool calls using asyncio.gather
         results = await asyncio.gather(
             client.call_tool("search_datasets", {"query": "health"}),
             client.call_tool("search_datasets", {"query": "education"}),
@@ -319,9 +326,9 @@ async def batch_search():
             print(f"{query}: {result['count']} datasets")
 ```
 
-### Testing with FastMCP Client
+### Testing with FastMCP client
 
-FastMCP client is ideal for unit testing:
+FastMCP client simplifies unit testing:
 
 ```python
 import pytest
@@ -356,9 +363,9 @@ async def test_tool_validation():
         assert "validation" in str(exc_info.value).lower()
 ```
 
-### Client Configuration
+### Client configuration
 
-Configure client behavior:
+Configure timeout, environment, and logging:
 
 ```python
 from fastmcp.client import SubprocessClient
@@ -372,8 +379,7 @@ client = SubprocessClient(
         "AUSTRIA_MCP_LOG_LEVEL": "DEBUG",
         "AUSTRIA_MCP_REQUEST_TIMEOUT": "30",
     },
-    # Capture server logs
-    capture_stderr=True,
+    capture_stderr=True,  # Capture server logs
 )
 
 async with client:
@@ -383,9 +389,9 @@ async with client:
         print(logs)
 ```
 
-### Custom Client Implementation
+### Custom client implementation
 
-For advanced use cases, implement a custom client:
+For advanced use cases, extend `BaseClient`:
 
 ```python
 from fastmcp.client.base import BaseClient
@@ -409,27 +415,27 @@ class CustomClient(BaseClient):
         pass
 ```
 
-**See also:** [FastMCP Internals](/advanced/fastmcp-internals) for detailed patterns and middleware development.
+See [FastMCP internals](/advanced/fastmcp-internals) for detailed patterns and middleware development.
 
-## Custom MCP Clients
+## Custom MCP client implementation
 
-To integrate data.gv.at MCP Server with your own MCP client:
+Build your own MCP client by implementing the protocol directly.
 
-### MCP Protocol Requirements
+### MCP protocol requirements
 
 Your client must implement:
 
-1. **stdio Transport** - Communicate via stdin/stdout
+1. **stdio transport** - Communicate via stdin/stdout
 2. **JSON-RPC 2.0** - Message format
-3. **MCP 1.0 Messages** - Initialize, tools/call, resources/list, etc.
+3. **MCP 1.0 messages** - Initialize, tools/call, resources/list, etc.
 
-### Connection Flow
+### Connection flow
 
 ```python
 import subprocess
 import json
 
-# 1. Start data.gv.at MCP Server server
+# 1. Start server process
 process = subprocess.Popen(
     ["python", "-m", "app.server"],
     cwd="/path/to/mcp",
@@ -478,11 +484,11 @@ result = json.loads(process.stdout.readline())
 print(result["result"])
 ```
 
-## Environment-Specific Configuration
+## Environment-specific configuration
 
-### Development Environment
+### Development environment
 
-Use separate configuration for dev/prod:
+Use debug logging and dev mode:
 
 ```json
 {
@@ -500,9 +506,9 @@ Use separate configuration for dev/prod:
 }
 ```
 
-### Production Environment
+### Production environment
 
-Production configuration with optimizations:
+Optimize for production with reduced logging:
 
 ```json
 {
@@ -521,9 +527,9 @@ Production configuration with optimizations:
 }
 ```
 
-## Transport Options
+## Transport options
 
-### stdio (Default)
+### stdio (default)
 
 Default transport using standard input/output:
 
@@ -536,7 +542,7 @@ Default transport using standard input/output:
 ```
 
 **Pros:**
-- Simple, widely supported
+- Simple and widely supported
 - No network configuration needed
 - Works across all platforms
 
@@ -569,39 +575,40 @@ Client configuration:
 
 **Cons:**
 - Requires network setup
-- Additional security considerations
+- Additional security considerations (HTTPS, authentication)
 
 ## Troubleshooting
 
-### Client Can't Find Server
+### Client can't find server
 
 **Symptom:** Connection timeout or "command not found"
 
-**Solutions:**
+**Fix:**
 - Use absolute paths in configuration
-- Verify Python is in PATH
-- Check working directory is correct
+- Verify Python is in PATH with `which python` (macOS/Linux) or `where python` (Windows)
+- Check working directory points to `mcp/` folder
 
-### Tools Not Visible
+### Tools not visible
 
 **Symptom:** Client connects but shows no tools
 
-**Solutions:**
-- Ensure initialize handshake completed
-- Check client implements tools/list method
-- Verify MCP protocol version compatibility
+**Fix:**
+- Ensure initialize handshake completed successfully
+- Check client implements `tools/list` method
+- Verify MCP protocol version compatibility (client and server must both use MCP 1.0)
 
-### Performance Issues
+### Performance issues
 
 **Symptom:** Slow responses or timeouts
 
-**Solutions:**
+**Fix:**
 - Increase request timeout in client config
-- Check network latency (if using SSE)
+- Check network latency if using SSE transport
 - Monitor server logs for bottlenecks
+- Use in-memory client pattern for local testing (eliminates IPC overhead)
 
-## Next Steps
+## Next steps
 
-- **[Claude Desktop Integration](/integration/claude-desktop)** - Detailed Claude Desktop setup
-- **[Production Deployment](/deployment/production)** - Deploy for production use
+- **[Claude Desktop integration](/integration/claude-desktop)** - Detailed Claude Desktop setup
 - **[Architecture](/advanced/architecture)** - Understand MCP protocol implementation
+- **[FastMCP internals](/advanced/fastmcp-internals)** - Deep dive into middleware and patterns
