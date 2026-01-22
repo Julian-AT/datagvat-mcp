@@ -101,11 +101,11 @@ By following this workflow, you'll:
     actual_columns = [c['name'] for c in schema['columns']]
 
     if all(col in actual_columns for col in required_columns):
-        print("✓ Schema validated - ready to download")
+        print("Success: Schema validated - ready to download")
         print(f"Download URL: {csv_url}")
     else:
         missing = set(required_columns) - set(actual_columns)
-        print(f"✗ Missing columns: {missing}")
+        print(f"Error: Missing columns: {missing}")
     ```
   </Tab>
 
@@ -339,9 +339,9 @@ By following this workflow, you'll:
 
         missing = set(required_columns) - set(actual_columns)
         if missing:
-            print(f"✗ Missing columns: {missing}")
+            print(f"Error: Missing columns: {missing}")
         else:
-            print("✓ All required columns present")
+            print("Success: All required columns present")
 
         # Check types
         year_col = next(c for c in schema['columns'] if c['name'] == 'year')
@@ -378,12 +378,12 @@ By following this workflow, you'll:
         ])
 
         if validation_passed:
-            print("✓ All validations passed")
+            print("Success: All validations passed")
             print(f"Download URL: {csv_url}")
             # Use your preferred download method
             # (requests, urllib, wget, etc.)
         else:
-            print("✗ Validation failed - review dataset")
+            print("Error: Validation failed - review dataset")
             print(f"Quality score: {quality['metrics']['overall_score']}")
             print(f"Schema valid: {not missing}")
         ```

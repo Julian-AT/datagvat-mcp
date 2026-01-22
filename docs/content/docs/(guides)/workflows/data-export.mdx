@@ -68,9 +68,9 @@ By following this workflow, you'll:
 
                 if quality['metrics']['overall_score'] >= 70:
                     approved_datasets.append(dataset)
-                    logger.info(f"✓ {dataset['id']} passed quality gate")
+                    logger.info(f"Success: {dataset['id']} passed quality gate")
                 else:
-                    logger.warning(f"✗ {dataset['id']} failed quality gate")
+                    logger.warning(f"Error: {dataset['id']} failed quality gate")
 
             # Step 3: Schema validation
             valid_datasets = []
@@ -89,7 +89,7 @@ By following this workflow, you'll:
                             'dataset': dataset,
                             'download_url': csv_dist['downloadURL']
                         })
-                        logger.info(f"✓ {dataset['id']} schema valid")
+                        logger.info(f"Success: {dataset['id']} schema valid")
 
             # Step 4: Export
             export_dir = "./exports"
@@ -104,9 +104,9 @@ By following this workflow, you'll:
                     filename = f"{export_dir}/{dataset_id}_{datetime.now().strftime('%Y%m%d')}.csv"
                     with open(filename, 'wb') as f:
                         f.write(response.content)
-                    logger.info(f"✓ Exported {dataset_id}")
+                    logger.info(f"Success: Exported {dataset_id}")
                 else:
-                    logger.error(f"✗ Download failed for {dataset_id}: {response.status_code}")
+                    logger.error(f"Error: Download failed for {dataset_id}: {response.status_code}")
 
             logger.info(f"Pipeline complete: {len(valid_datasets)} datasets exported")
 
@@ -182,9 +182,9 @@ By following this workflow, you'll:
                     'dataset': dataset,
                     'quality': quality
                 })
-                print(f"✓ {dataset['id']}: {quality['metrics']['overall_score']}")
+                print(f"Success: {dataset['id']}: {quality['metrics']['overall_score']}")
             else:
-                print(f"✗ {dataset['id']}: {quality['metrics']['overall_score']} (below threshold)")
+                print(f"Error: {dataset['id']}: {quality['metrics']['overall_score']} (below threshold)")
         ```
 
         **Expected output:**
@@ -219,7 +219,7 @@ By following this workflow, you'll:
             csv_dist = next((d for d in distributions if d['format'] == 'CSV'), None)
 
             if not csv_dist:
-                print(f"✗ {dataset['id']}: No CSV format available")
+                print(f"Error: {dataset['id']}: No CSV format available")
                 continue
 
             # Preview schema
@@ -235,9 +235,9 @@ By following this workflow, you'll:
                     'download_url': csv_dist['downloadURL'],
                     'schema': schema
                 })
-                print(f"✓ {dataset['id']}: Schema valid")
+                print(f"Success: {dataset['id']}: Schema valid")
             else:
-                print(f"✗ {dataset['id']}: Missing columns {missing}")
+                print(f"Error: {dataset['id']}: Missing columns {missing}")
         ```
 
         **Expected output:**
@@ -283,10 +283,10 @@ By following this workflow, you'll:
                     f.write(response.content)
 
                 file_size = len(response.content)
-                print(f"✓ Exported {dataset_id}: {file_size} bytes → {filename}")
+                print(f"Success: Exported {dataset_id}: {file_size} bytes → {filename}")
 
             except requests.exceptions.RequestException as e:
-                print(f"✗ Export failed for {dataset_id}: {e}")
+                print(f"Error: Export failed for {dataset_id}: {e}")
         ```
 
         **Expected output:**

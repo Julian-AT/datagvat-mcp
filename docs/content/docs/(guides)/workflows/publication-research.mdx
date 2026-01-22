@@ -213,12 +213,12 @@ By following this workflow, you'll:
 
             if citation_ready:
                 validated.append(citation_info)
-                print(f"✓ {dataset['id']}: Citation-ready")
+                print(f"Success: {dataset['id']}: Citation-ready")
             else:
                 missing = []
                 if not has_contact: missing.append('contact')
                 if not (has_doi or has_citation): missing.append('doi/citation')
-                print(f"✗ {dataset['id']}: Missing {', '.join(missing)}")
+                print(f"Error: {dataset['id']}: Missing {', '.join(missing)}")
         ```
 
         **Expected output:**
@@ -257,14 +257,14 @@ By following this workflow, you'll:
 
             if license in research_licenses:
                 research_approved.append(item)
-                print(f"✓ {item['id']}: {license} - Academic use approved")
+                print(f"Success: {item['id']}: {license} - Academic use approved")
 
                 # Check attribution requirements
                 requires_attribution = 'BY' in license or 'ODbL' in license
                 if requires_attribution:
                     print(f"  Note: Requires attribution in citations")
             else:
-                print(f"✗ {item['id']}: {license} - Verify restrictions")
+                print(f"Error: {item['id']}: {license} - Verify restrictions")
         ```
 
         **Expected output:**

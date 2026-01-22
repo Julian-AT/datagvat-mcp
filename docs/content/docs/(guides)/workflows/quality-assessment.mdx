@@ -73,9 +73,9 @@ By following this workflow, you'll:
     }
 
     if all(approval.values()):
-        print("✓ Dataset approved for production use")
+        print("Success: Dataset approved for production use")
     else:
-        print("✗ Dataset fails quality requirements")
+        print("Error: Dataset fails quality requirements")
         print(f"Failed: {[k for k, v in approval.items() if not v]}")
     ```
   </Tab>
@@ -177,7 +177,7 @@ By following this workflow, you'll:
         if missing:
             print(f"Missing required fields: {missing}")
         else:
-            print("✓ All required metadata present")
+            print("Success: All required metadata present")
         ```
 
         **Use case-specific requirements:**
@@ -216,13 +216,13 @@ By following this workflow, you'll:
 
         # Timeliness requirements
         if age_days <= 90:
-            print("✓ Very fresh (< 3 months)")
+            print("Success: Very fresh (< 3 months)")
         elif age_days <= 365:
-            print("✓ Acceptable (< 1 year)")
+            print("Success: Acceptable (< 1 year)")
         elif age_days <= 730:
             print("Warning: Aging (1-2 years old)")
         else:
-            print("✗ Stale (> 2 years old)")
+            print("Error: Stale (> 2 years old)")
         ```
 
         **Expected output:**
@@ -256,9 +256,9 @@ By following this workflow, you'll:
             if dist.get('format') in ['CSV', 'JSON', 'XML']:
                 response = requests.head(dist['downloadURL'], timeout=10)
                 if response.status_code == 200:
-                    print("✓ URL accessible")
+                    print("Success: URL accessible")
                 else:
-                    print(f"✗ URL returns {response.status_code}")
+                    print(f"Error: URL returns {response.status_code}")
         ```
 
         **Expected output:**
@@ -298,15 +298,15 @@ By following this workflow, you'll:
         print("Quality Assessment Summary:")
         print("=" * 40)
         for check, passed in approval_checklist.items():
-            status = "✓" if passed else "✗"
-            print(f"{status} {check}: {passed}")
+            status = "Success" if passed else "Error"
+            print(f"{status}: {check}: {passed}")
 
         if all(approval_checklist.values()):
-            print("\n✓ Dataset approved for use")
+            print("\nSuccess: Dataset approved for use")
             print("Ready for production integration")
         else:
             failed = [k for k, v in approval_checklist.items() if not v]
-            print(f"\n✗ Dataset fails quality requirements")
+            print(f"\nError: Dataset fails quality requirements")
             print(f"Failed checks: {', '.join(failed)}")
             print("Review failures and determine if acceptable for use case")
         ```
