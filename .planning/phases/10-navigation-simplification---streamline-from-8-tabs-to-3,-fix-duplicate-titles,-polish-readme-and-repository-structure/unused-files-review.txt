@@ -1,0 +1,73 @@
+UNUSED FILE DETECTION REPORT
+Generated: 2026-01-22
+Script: docs/scripts/find-unused-files.ts
+
+Total files detected: 11
+
+ANALYSIS:
+=========
+
+GROUP 1: German Translation Files (.de.mdx)
+--------------------------------------------
+Files: 9 files
+- docs/best-practices/optimization.de.mdx
+- docs/examples/preview.de.mdx
+- docs/examples/search.de.mdx
+- docs/examples/workflows.de.mdx
+- docs/getting-started/index.de.mdx
+- docs/getting-started/installation.de.mdx
+- docs/getting-started/tutorial.de.mdx
+- docs/guides/configuration.de.mdx
+- docs/guides/setup.de.mdx
+
+Status: FALSE POSITIVE - KEEP ALL
+Reason: Fumadocs i18n system uses file naming convention (.de.mdx for German, .en.mdx for English)
+        These files are automatically detected and linked by Fumadocs, not referenced in meta.json
+Decision: NO ACTION - These are valid i18n translations
+
+GROUP 2: Orphaned Guide Files (English)
+-----------------------------------------
+Files: 2 files
+- docs/guides/configuration.mdx
+- docs/guides/setup.mdx
+
+Status: GENUINELY ORPHANED - REVIEW FOR DELETION
+Reason: Not referenced in docs/guides/meta.json pages array
+
+Analysis of configuration.mdx:
+- Title: "Configuration"
+- Content: Advanced configuration options (env vars, Claude Desktop config, performance tuning, monitoring)
+- Size: 7,774 bytes (substantial content, 347 lines)
+- Quality: Well-structured, comprehensive
+- Duplicate check: Installation page covers basic setup, but this covers advanced config
+- Decision: KEEP - Add to guides/meta.json navigation
+- Rationale: Valuable content for advanced users, complements basic installation guide
+
+Analysis of setup.mdx:
+- Title: "Installation & Setup"
+- Content: Prerequisites, installation steps, configuration
+- Size: 15,686 bytes (large file, 500+ lines)
+- Duplicate check: getting-started/installation.mdx exists (19,173 bytes) covering same content
+- Decision: DELETE - Duplicative content
+- Rationale: getting-started/installation.mdx is the canonical installation guide, already in navigation
+            Keeping both creates confusion and maintenance burden
+
+SUMMARY OF DECISIONS:
+=====================
+
+KEEP (No action needed):
+- All 9 German translation files (.de.mdx) - Valid i18n content
+
+ADD TO NAVIGATION:
+- docs/guides/configuration.mdx → Add to guides/meta.json pages array
+
+DELETE:
+- docs/guides/setup.mdx (duplicates getting-started/installation.mdx)
+- docs/guides/setup.de.mdx (German translation of deleted file)
+
+FINAL STATS:
+- Files reviewed: 11
+- False positives (i18n): 9
+- Added to navigation: 1
+- Deleted: 2
+- Net reduction: 1 unused file

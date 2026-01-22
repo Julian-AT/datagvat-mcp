@@ -1,0 +1,8 @@
+docs\best-practices\optimization.de.mdx
+docs\examples\preview.de.mdx
+docs\examples\search.de.mdx
+docs\examples\workflows.de.mdx
+docs\getting-started\index.de.mdx
+docs\getting-started\installation.de.mdx
+docs\getting-started\tutorial.de.mdx
+docs\guides\configuration.de.mdx
