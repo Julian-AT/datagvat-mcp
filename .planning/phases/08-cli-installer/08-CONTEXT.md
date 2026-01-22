@@ -26,7 +26,7 @@ Build a shadcn-like one-command installer (`npx @datagvat/mcp-installer init`) t
 - Additional commands: `add <tool>` (alias for `init --tool <name>`)
 - Flags: `--yes` (skip prompts), `--tool <name>` (configure specific tool)
 - Default behavior: Interactive prompts with checkbox selection
-- Output style: Simple text-based with prefixes (Success:, Error:, Info:)
+- Output style: Rich formatting with modern libraries (chalk for colors, ora for spinners, inquirer for prompts) — shadcn-like professional appearance
 
 ### Tool detection strategy
 - Filesystem-based detection (check if config file or parent directory exists)
