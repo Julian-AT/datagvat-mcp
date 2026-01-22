@@ -140,12 +140,12 @@ Plans:
 - Interactive init command
 - Platform installers
 
-**Tasks:**
-1. Create packages/cli/ structure
-2. Implement tool detection
-3. Create installers for each platform
-4. Test installation flow
-5. Publish to npm
+**Plans:** 3 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — Create CLI package structure and implement tool detection
+- [ ] 08-02-PLAN.md — Build interactive CLI interface and configuration writers
+- [ ] 08-03-PLAN.md — Add post-install messages, test installation flow, prepare for publishing
 
 ---
 
@@ -174,8 +174,8 @@ Plans:
 **Time spent:** ~14-19 hours
 **Remaining:** 2 phases (~5-7 hours)
 
-**Current:** Phase 7 (OpenAPI Integration) - COMPLETE
-**Next:** Phase 8 (CLI Installer)
+**Current:** Phase 8 (CLI Installer) - PLANNED
+**Next:** Execute Phase 8
 **Final:** AI Assistant
 
 ---
@@ -217,3 +217,4 @@ Plans:
 - Phase 7 foundation exists: fumadocs-openapi v10.2.5, lib/openapi.ts, components/api-page.tsx
 - Phase 7 uses virtual pages pattern (openapiSource) for frequent schema updates
 - OpenAPI schema: https://qs.data.gv.at/api/hub/repo/openapi.yaml
+- Phase 8 planned: 3 plans in 3 waves (foundation + detection → CLI interface + config writers → post-install + testing)
