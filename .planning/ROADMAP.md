@@ -130,7 +130,7 @@ Plans:
 
 ---
 
-## Phase 8: CLI Installer
+## Phase 8: CLI Installer COMPLETE
 **Time:** 3-4 hours
 **Goal:** shadcn-like one-command installer
 
@@ -140,12 +140,20 @@ Plans:
 - Interactive init command
 - Platform installers
 
-**Plans:** 3 plans
+**Plans:** 3 plans (all complete)
 
 Plans:
-- [ ] 08-01-PLAN.md — Create CLI package structure and implement tool detection
-- [ ] 08-02-PLAN.md — Build interactive CLI interface and configuration writers
-- [ ] 08-03-PLAN.md — Add post-install messages, test installation flow, prepare for publishing
+- [x] 08-01-PLAN.md — Create CLI package structure and implement tool detection
+- [x] 08-02-PLAN.md — Build interactive CLI interface and configuration writers
+- [x] 08-03-PLAN.md — Add post-install messages, test installation flow, prepare for publishing
+
+**Deliverables:**
+- [x] @datagvat/mcp-installer package with shadcn-level visual polish
+- [x] Tool detection for Claude Desktop, Continue, Cline on all platforms
+- [x] Interactive checkbox prompts with --yes and --tool flags
+- [x] Configuration writers with merge strategy (preserve existing configs)
+- [x] Post-install guidance (restart instructions, example queries, docs link)
+- [x] Production-ready package (12.4 kB compressed, npm publish ready)
 
 ---
 
@@ -170,13 +178,13 @@ Plans:
 
 ## Progress Tracking
 
-**Completed:** 7/9 phases (78%)
-**Time spent:** ~14-19 hours
-**Remaining:** 2 phases (~5-7 hours)
+**Completed:** 8/9 phases (89%)
+**Time spent:** ~15-20 hours
+**Remaining:** 1 phase (~2-3 hours)
 
-**Current:** Phase 8 (CLI Installer) - PLANNED
-**Next:** Execute Phase 8
-**Final:** AI Assistant
+**Current:** Phase 8 (CLI Installer) - COMPLETE
+**Next:** Phase 9 (AI Assistant)
+**Final:** AI Assistant (last phase)
 
 ---
 
@@ -189,7 +197,7 @@ Plans:
 - [x] Zero lint errors (Phase 5 complete)
 - [x] CI/CD pipeline (Phase 6 complete)
 - [x] Auto-generated API docs (Phase 7 complete)
-- [ ] Working CLI installer (Phase 8)
+- [x] Working CLI installer (Phase 8 complete)
 - [ ] Live AI assistant (Phase 9)
 - [x] `bun run build` succeeds (Phase 5 complete)
 
@@ -217,4 +225,4 @@ Plans:
 - Phase 7 foundation exists: fumadocs-openapi v10.2.5, lib/openapi.ts, components/api-page.tsx
 - Phase 7 uses virtual pages pattern (openapiSource) for frequent schema updates
 - OpenAPI schema: https://qs.data.gv.at/api/hub/repo/openapi.yaml
-- Phase 8 planned: 3 plans in 3 waves (foundation + detection → CLI interface + config writers → post-install + testing)
+- Phase 8 complete: 3 plans in 55 minutes, shadcn-level visual polish, npm-ready package (12.4 kB)
