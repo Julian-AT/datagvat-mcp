@@ -1,5 +1,5 @@
-import { readdirSync, readFileSync, statSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 interface MetaJson {
   pages?: string[];
@@ -60,8 +60,8 @@ for (const metaFile of metaFiles) {
       }
 
       // Add possible file paths
-      referencedFiles.add(join(dir, page + '.mdx'));
-      referencedFiles.add(join(dir, page + '.md'));
+      referencedFiles.add(join(dir, `${page}.mdx`));
+      referencedFiles.add(join(dir, `${page}.md`));
       referencedFiles.add(join(dir, page, 'index.mdx'));
       referencedFiles.add(join(dir, page, 'index.md'));
     }
@@ -77,12 +77,16 @@ const unusedFiles: string[] = [];
 for (const mdxFile of allMdxFiles) {
   if (!referencedFiles.has(mdxFile)) {
     // Check if it's an index file that might be implicit
-    if (mdxFile.endsWith('/index.mdx') || mdxFile.endsWith('/index.md') ||
-        mdxFile.endsWith('\\index.mdx') || mdxFile.endsWith('\\index.md')) {
+    if (
+      mdxFile.endsWith('/index.mdx') ||
+      mdxFile.endsWith('/index.md') ||
+      mdxFile.endsWith('\\index.mdx') ||
+      mdxFile.endsWith('\\index.md')
+    ) {
       continue;
     }
 
-    unusedFiles.push(mdxFile.replace(contentDir + '/', '').replace(contentDir + '\\', ''));
+    unusedFiles.push(mdxFile.replace(`${contentDir}/`, '').replace(`${contentDir}\\`, ''));
   }
 }
 
@@ -91,7 +95,7 @@ if (unusedFiles.length === 0) {
   console.log('✓ No unused MDX files found');
 } else {
   console.log(`Found ${unusedFiles.length} potentially unused files:\n`);
-  unusedFiles.forEach(file => console.log(`  - ${file}`));
+  unusedFiles.forEach((file) => console.log(`  - ${file}`));
 
   console.log('\n⚠️  Review these files before deletion:');
   console.log('  - May be referenced dynamically');
