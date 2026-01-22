@@ -10,6 +10,17 @@ async function prebuild() {
   console.log('=== Pre-build Validation ===\n');
 
   try {
+    console.log('0. Ensuring OpenAPI schema exists...');
+    const schemaPath = './data.gv.at-openapi.yaml';
+    const schemaFile = Bun.file(schemaPath);
+
+    if (!(await schemaFile.exists())) {
+      console.log('⚠️  Schema not found, downloading...');
+      await $`bun run scripts/download-openapi.ts`;
+    } else {
+      console.log('✓ Schema found\n');
+    }
+
     console.log('1. Running Biome checks...');
     // Check only source directories to avoid scanning node_modules and Bun cache
     await $`biome check app components lib scripts --files-ignore-unknown=true`;
