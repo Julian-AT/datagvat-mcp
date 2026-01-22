@@ -1,0 +1,12 @@
+{
+  "$schema": "../../../.source/json-schema/docs.meta.json",
+  "title": "API Reference",
+  "description": "Complete MCP tools reference and OpenAPI documentation",
+  "icon": "Code",
+  "root": true,
+  "defaultOpen": false,
+  "pages": [
+    "tools",
+    "openapi"
+  ]
+}
