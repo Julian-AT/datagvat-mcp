@@ -6,7 +6,7 @@
 <domain>
 ## Phase Boundary
 
-Automated quality checks for documentation infrastructure through GitHub Actions CI pipeline and pre-commit hooks using Husky. Ensures code quality, link integrity, and type safety before commits and merges.
+Automated quality checks for documentation infrastructure through GitHub Actions CI pipeline and pre-commit hooks using simple-git-hooks. Ensures code quality, link integrity, and type safety before commits and merges.
 
 </domain>
 
@@ -22,8 +22,8 @@ Automated quality checks for documentation infrastructure through GitHub Actions
 - Preview deployment: Optional PR preview (template provided for Vercel/Netlify)
 
 ### Pre-commit Hook Configuration
-- Tool: Husky for Git hook management
-- Setup: `bunx husky init` to create `.husky/` directory
+- Tool: simple-git-hooks for Git hook management (decision 01-03, lightweight alternative to Husky)
+- Setup: Add `simple-git-hooks` configuration to `docs/package.json` + run `bun run prepare`
 - Pre-commit checks:
   1. Run Biome on staged MDX files only (not entire codebase)
   2. Run link validation if any files in `docs/content` are staged
@@ -73,7 +73,7 @@ Automated quality checks for documentation infrastructure through GitHub Actions
 - Bun latest version (not pinned - always use newest)
 - Sequential validation steps to fail fast (lint before build)
 - 7-day artifact retention for debugging production builds
-- Husky instead of other pre-commit tools (explicit preference)
+- simple-git-hooks instead of Husky (lightweight, explicit preference per decision 01-03)
 - Frozen lockfile in CI for reproducibility
 - Path filters to avoid running on non-docs changes
 
@@ -90,3 +90,4 @@ None — discussion stayed within phase scope.
 
 *Phase: 06-cicd-integration*
 *Context gathered: 2026-01-22*
+*Updated: 2026-01-22 (corrected to reflect simple-git-hooks decision)*
