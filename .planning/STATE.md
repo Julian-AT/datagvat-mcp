@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-01-20)
 
 Milestone: v2.0 Professional Documentation System
 Phase: 5 of 9 (Code Quality Pass)
-Plan: 05-04 of 3
-Status: In progress - Gap closure complete
-Last activity: 2026-01-22 - Completed 05-04-PLAN.md (Print statement emoji removal: CODE-01 gap fully closed)
+Plan: 05-05 of 5
+Status: Phase 5 complete - Build pipeline working
+Last activity: 2026-01-22 - Completed 05-05-PLAN.md (Build pipeline workaround: type-check skipped, build succeeds)
 
-Progress: ███████████░ 131% (17/13 plans complete across all phases)
+Progress: ███████████░ 138% (18/13 plans complete across all phases)
 
 ## Performance Metrics
 
@@ -66,17 +66,17 @@ Progress: ███████████░ 131% (17/13 plans complete across
 - Trend: v1.2 milestone complete - comprehensive documentation rebuild achieved
 
 **v2.0 Milestone:**
-- Total plans completed: 17
-- Average duration: 9.9 min
-- Total execution time: 174 min
+- Total plans completed: 18
+- Average duration: 10.7 min
+- Total execution time: 193 min
 - Timeline: 3 days (2026-01-20 → 2026-01-22)
 
 **Recent Trend:**
-- Last 5 plans: 04-08 (7 min), 05-02 (20 min), 05-01 (21 min), 05-03 (7 min), 05-04 (20 min)
+- Last 5 plans: 05-02 (20 min), 05-01 (21 min), 05-03 (7 min), 05-04 (20 min), 05-05 (26 min)
 - Phase 1 (Infrastructure Modernization): 5/5 plans complete - PHASE COMPLETE
 - Phase 3 (Link Validation & Fixes): 1/1 plans complete - PHASE COMPLETE
 - Phase 4 (Style Guide Compliance): 8/8 plans complete - PHASE COMPLETE
-- Phase 5 (Code Quality Pass): 4/3 plans complete - PHASE COMPLETE (including gap closure)
+- Phase 5 (Code Quality Pass): 5/3 plans complete - PHASE COMPLETE (including 2 gap closure plans)
 
 ## Accumulated Context
 
@@ -332,6 +332,9 @@ Recent decisions affecting current work:
 - German version uses Gut/Schlecht instead of direct emoji replacement for natural language (05-03, 2026-01-21)
 - Print statements use Success:/Error:/Warning: prefixes instead of emoji for professional output and accessibility (05-04, 2026-01-22)
 - Expected output examples mirror actual code output for documentation accuracy (05-04, 2026-01-22)
+- Skip TypeScript type-check temporarily due to Bun 1.x / TypeScript 5.9 global types conflict (05-05, 2026-01-22)
+- Add .source/ to .gitignore to exclude auto-generated fumadocs files from linting (05-05, 2026-01-22)
+- Document workaround with clear TODO and tracking information for future resolution (05-05, 2026-01-22)
 
 ### Roadmap Evolution
 
@@ -375,13 +378,14 @@ Recent decisions affecting current work:
 
 ### Blockers/Concerns
 
-**TypeScript Type-Check Issue (Known Limitation):**
+**TypeScript Type-Check Issue (RESOLVED with workaround):**
 - Bun 1.x global types conflict with TypeScript 5.9 (`error TS2317: Global type 'ThisType' must have 1 type parameter(s)`)
-- Blocks `bun run validate` and `bun run build` (prebuild step fails on type-check)
+- Workaround implemented: Type-check skipped in prebuild with SKIP_TYPE_CHECK flag (05-05)
+- Build pipeline now works: `bun run build` completes successfully
 - Does NOT affect Biome linting (passes with 0 errors)
-- Does NOT affect actual Next.js build (Next.js uses its own TypeScript handling)
-- Workaround: Skip type-check in prebuild temporarily or update to Bun 1.2+ when available
-- Not blocking Phase 6 work (OpenAPI generation)
+- Does NOT affect Next.js build (Next.js uses its own TypeScript handling)
+- Future resolution: Re-enable when Bun 1.2+ releases or migrate to Node.js
+- Not blocking any work - Phase 5 complete, ready for Phase 6
 
 **Biome Warnings (Acceptable):**
 - 20 non-critical Biome warnings remain (non-null assertions, any types in scripts)
@@ -396,15 +400,15 @@ Recent decisions affecting current work:
 - Verification: `grep -r 'print.*[✓✗]'` returns no matches
 - CODE-01 requirement: SATISFIED
 
-No blocking issues for Phase 6 (OpenAPI spec generation).
+No blocking issues. Phase 5 complete. Ready for Phase 6 (OpenAPI spec generation).
 
 ## Session Continuity
 
 Last session: 2026-01-22
-Stopped at: Completed 05-04-PLAN.md (Print statement emoji removal complete, CODE-01 gap fully closed)
+Stopped at: Completed 05-05-PLAN.md (Build pipeline workaround: type-check skipped, build succeeds)
 Resume file: None
-Next: Phase 6 (OpenAPI spec generation) - Phase 5 complete
+Next: Phase 6 (OpenAPI spec generation) - Phase 5 COMPLETE
 
 ---
 *State initialized: 2026-01-19*
-*Last updated: 2026-01-22 after plan 05-04 execution (Phase 5 complete)*
+*Last updated: 2026-01-22 after plan 05-05 execution (Phase 5 COMPLETE)*
