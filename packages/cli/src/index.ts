@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import { initCommand } from './commands/init';
+import { initCommand } from './commands/init.js';
 
 const program = new Command();
 
@@ -35,4 +35,4 @@ process.on('uncaughtException', (error: Error) => {
 program.parse(process.argv);
 
 // Re-export types for use in other modules
-export type { DetectionResult, ToolInfo, ToolName, Platform } from './types';
+export type { DetectionResult, ToolInfo, ToolName, Platform } from './types.js';
