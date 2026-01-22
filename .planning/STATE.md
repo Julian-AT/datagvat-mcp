@@ -11,9 +11,9 @@ See: .planning/PROJECT.md (updated 2026-01-20)
 
 Milestone: v2.0 Professional Documentation System
 Phase: 7 of 9 (OpenAPI Integration)
-Plan: 07-03 of 3
-Status: Phase complete - Automated OpenAPI updates configured
-Last activity: 2026-01-22 - Completed 07-03-PLAN.md (Automated weekly OpenAPI updates via GitHub Actions)
+Plan: 07-02 of 3
+Status: In progress - API documentation configuration
+Last activity: 2026-01-22 - Completed 07-02-PLAN.md (Configure API documentation with fumadocs-openapi)
 
 Progress: ████████████▒ 169% (22/13 plans complete across all phases)
 
@@ -357,6 +357,10 @@ Recent decisions affecting current work:
 - Manual workflow trigger enabled for testing and 60-day inactivity workaround (07-03, 2026-01-22)
 - Change detection with git diff prevents empty PRs when schema unchanged (07-03, 2026-01-22)
 - peter-evans/create-pull-request@v6 for automated PR creation (industry standard) (07-03, 2026-01-22)
+- fumadocs-openapi input accepts SchemaMap function not raw YAML strings (07-02, 2026-01-22)
+- Parse YAML to object and pass as () => { 'schema-id': schemaObject } pattern (07-02, 2026-01-22)
+- Line-by-line indentation comparison for empty content detection over regex (07-02, 2026-01-22)
+- Add placeholder application/json schemas when all RDF media types filtered (07-02, 2026-01-22)
 
 ### Roadmap Evolution
 
