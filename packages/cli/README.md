@@ -6,12 +6,15 @@ Automatically detects your AI tools and configures the Austrian Open Data MCP Se
 
 ## Features
 
-- **Zero-config installation** - Works out of the box with automatic tool detection
-- **Beautiful CLI** - shadcn-inspired design with box drawing and clear visual hierarchy
-- **Multi-tool support** - Claude Desktop, Continue, and Cline
-- **Interactive prompts** - Choose which tools to configure with checkbox selection
-- **Smart configuration** - Preserves existing configs, merges safely
-- **Cross-platform** - Works on macOS, Windows, and Linux
+- ✨ **One-command setup** - Works out of the box with automatic tool detection
+- 🔍 **Automatic tool detection** - Finds Claude Desktop, Continue, and Cline automatically
+- ✅ **Schema validation** - Zod validation with helpful error messages
+- 🔄 **Update command** - Update configurations with diff preview
+- 🏥 **Health check diagnostics** - Doctor command with fix suggestions
+- 🤖 **Full CI/CD support** - Non-interactive mode for automated pipelines
+- 🎨 **Beautiful terminal UI** - shadcn-inspired design with progress indicators
+- 🔧 **Smart configuration** - Preserves existing configs, merges safely
+- 🌍 **Cross-platform** - Works on macOS, Windows, and Linux
 
 ## Installation
 
@@ -63,6 +66,103 @@ npx @datagvat/mcp-installer add continue
 ```
 
 Shorthand for `init --tool continue`.
+
+## Commands
+
+### `init` - Initialize MCP Server
+
+Configure data.gv.at MCP Server in your AI tools.
+
+```bash
+# Interactive mode (prompts for tool selection)
+datagvat-mcp init
+
+# Configure all detected tools (skip prompts)
+datagvat-mcp init --yes
+
+# Configure specific tool only
+datagvat-mcp init --tool claude-desktop
+
+# CI/CD mode (requires --yes flag)
+CI=true datagvat-mcp init --yes
+```
+
+**Options:**
+- `--yes` - Skip prompts and configure all detected tools
+- `--tool <name>` - Configure specific tool (claude-desktop, continue, or cline)
+
+### `add` - Add to Specific Tool
+
+Shorthand for `init --tool`.
+
+```bash
+datagvat-mcp add claude-desktop
+datagvat-mcp add continue
+datagvat-mcp add cline
+```
+
+### `update` - Update Configuration
+
+Update MCP Server configuration with diff preview.
+
+```bash
+# Interactive mode (shows diff, asks for confirmation)
+datagvat-mcp update
+
+# Skip confirmation and apply all updates
+datagvat-mcp update --yes
+
+# Update specific tool only
+datagvat-mcp update --tool claude-desktop
+```
+
+**Options:**
+- `--yes` - Skip diff preview and apply updates
+- `--tool <name>` - Update specific tool only
+
+### `doctor` - Health Check
+
+Run diagnostics to check configuration health.
+
+```bash
+# Run all health checks
+datagvat-mcp doctor
+```
+
+**Checks:**
+- Config files exist and are valid JSON
+- MCP server entry is present
+- MCP server paths are valid
+- Node.js is available (18+)
+- Python is available (3.11+, for MCP server)
+- uv is available (recommended)
+
+**Exit codes:**
+- `0` - All checks passed or warnings only
+- `1` - Critical issues found
+
+## CI/CD Usage
+
+The installer detects CI environments automatically and requires `--yes` flag:
+
+```yaml
+# GitHub Actions
+- name: Setup MCP Server
+  run: npx @datagvat/mcp-installer init --yes
+```
+
+Supported CI platforms: GitHub Actions, GitLab CI, CircleCI, Travis CI, Jenkins, and 50+ others via [ci-info](https://github.com/watson/ci-info).
+
+## Error Messages
+
+All errors include actionable fix suggestions:
+
+```
+✗ Error: Interactive prompts not available in CI environment
+  Detected: GITHUB_ACTIONS
+  Fix: Add --yes flag to use defaults
+  Example: datagvat-mcp init --yes
+```
 
 ## Supported Tools
 
