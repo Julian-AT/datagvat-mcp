@@ -96,10 +96,11 @@ Plans:
 - Link validation in CI
 - Frozen lockfile in CI
 
-**Plans:** 1 plan
+**Plans:** 2 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Configure simple-git-hooks, enhance CI workflow, create CONTRIBUTING.md
+- [x] 06-01-PLAN.md — Configure simple-git-hooks, enhance CI workflow, create CONTRIBUTING.md
+- [ ] 06-02-PLAN.md — Fix CI path filtering with job-level conditionals [GAP CLOSURE]
 
 ---
 
@@ -169,8 +170,8 @@ Plans:
 **Time spent:** ~12-16 hours
 **Remaining:** 4 phases (~8-13 hours)
 
-**Current:** Phase 6 (CI/CD Integration) - Planning complete
-**Next:** Execute Phase 6
+**Current:** Phase 6 (CI/CD Integration) - Gap closure plan created
+**Next:** Execute Phase 6 gap closure (06-02)
 **Then:** Phase 7 (OpenAPI Integration)
 **Final:** AI Assistant
 
@@ -183,7 +184,7 @@ Plans:
 - [x] Real dataset examples
 - [x] Professional documentation
 - [x] Zero lint errors (Phase 5 complete)
-- [ ] CI/CD pipeline (Phase 6)
+- [ ] CI/CD pipeline (Phase 6 - gap closure in progress)
 - [ ] Auto-generated API docs (Phase 7)
 - [ ] Working CLI installer (Phase 8)
 - [ ] Live AI assistant (Phase 9)
@@ -208,5 +209,6 @@ Plans:
 - Phase 5 plan 05-03 removed emojis from best-practices code comments
 - Phase 5 gap closure plans address remaining print statement emojis and TypeScript type-check
 - Phase 5 complete: Zero errors, builds pass cleanly
-- Phase 6: Uses simple-git-hooks (not Husky) per decision 01-03
+- Phase 6 plan 06-01: Pre-commit hooks, path-filtered CI, CONTRIBUTING.md
+- Phase 6 gap closure 06-02: Fix CI path filtering inefficiency with dorny/paths-filter@v2
 - OpenAPI schema: https://qs.data.gv.at/api/hub/repo/openapi.yaml
