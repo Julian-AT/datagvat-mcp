@@ -942,21 +942,6 @@ paths:
             application/json:
               schema:
                 type: string
-            application/rdf+xml:
-              schema:
-                type: string
-            text/turtle:
-              schema:
-                type: string
-            text/n3:
-              schema:
-                type: string
-            application/trig:
-              schema:
-                type: string
-            application/n-triples:
-              schema:
-                type: string
         '400':
           description: Invalid request.
     post:
@@ -1008,25 +993,7 @@ paths:
         '200':
           description: Request accepted.
           content:
-            application/ld+json:
-              schema:
-                type: string
-            application/rdf+xml:
-              schema:
-                type: string
-            text/turtle:
-              schema:
-                type: string
-            text/n3:
-              schema:
-                type: string
             text/plain:
-              schema:
-                type: string
-            application/trig:
-              schema:
-                type: string
-            application/n-triples:
               schema:
                 type: string
         '400':
@@ -1433,21 +1400,6 @@ paths:
             application/json:
               schema:
                 type: string
-            application/rdf+xml:
-              schema:
-                type: string
-            text/turtle:
-              schema:
-                type: string
-            text/n3:
-              schema:
-                type: string
-            application/trig:
-              schema:
-                type: string
-            application/n-triples:
-              schema:
-                type: string
         '400':
           description: Invalid request.
 
@@ -1477,21 +1429,6 @@ paths:
             application/json:
               schema:
                 type: string
-            application/rdf+xml:
-              schema:
-                type: string
-            text/turtle:
-              schema:
-                type: string
-            text/n3:
-              schema:
-                type: string
-            application/trig:
-              schema:
-                type: string
-            application/n-triples:
-              schema:
-                type: string
         '400':
           description: Invalid request.
     post:
@@ -1519,21 +1456,10 @@ paths:
         description: Model of the new Resource
         required: true
         content:
-          application/rdf+xml:
+          application/json:
             schema:
-              type: string
-          application/n-triples:
-            schema:
-              type: string
-          application/trig:
-            schema:
-              type: string
-          text/turtle:
-            schema:
-              type: string
-          text/n3:
-            schema:
-              type: string
+              type: object
+              description: "RDF format data (original schema contained only RDF media types not supported by documentation generator)"
       responses:
         '201':
           description: Resource created.
@@ -1572,21 +1498,10 @@ paths:
         description: Model of the new Resource
         required: true
         content:
-          application/rdf+xml:
+          application/json:
             schema:
-              type: string
-          application/n-triples:
-            schema:
-              type: string
-          application/trig:
-            schema:
-              type: string
-          text/turtle:
-            schema:
-              type: string
-          text/n3:
-            schema:
-              type: string
+              type: object
+              description: "RDF format data (original schema contained only RDF media types not supported by documentation generator)"
       responses:
         '204':
           description: Resource updated.
@@ -1625,25 +1540,7 @@ paths:
         '200':
           description: Request accepted.
           content:
-            application/ld+json:
-              schema:
-                type: string
-            application/rdf+xml:
-              schema:
-                type: string
-            text/turtle:
-              schema:
-                type: string
-            text/n3:
-              schema:
-                type: string
             text/plain:
-              schema:
-                type: string
-            application/trig:
-              schema:
-                type: string
-            application/n-triples:
               schema:
                 type: string
         '400':
@@ -1806,31 +1703,10 @@ components:
     RDFBody:
       required: true
       content:
-        application/rdf+xml:
-          schema:
-            $ref: '#/components/schemas/RDFXML'
-        application/ld+json:
+        application/json:
           schema:
             type: object
-        application/n-triples:
-          schema:
-            type: string
-        application/n-quads:
-          schema:
-            type: string
-        application/trig:
-          schema:
-            type: string
-        application/trix:
-          schema:
-            type: string
-        text/turtle:
-          schema:
-            type: string
-        text/n3:
-          schema:
-            type: string
-
+            description: "RDF format data (original schema contained only RDF media types not supported by documentation generator)"
   responses:
     RDFLIST200:
       description: The list of resource(s)
@@ -1840,59 +1716,13 @@ components:
             type: array
             items:
               type: string
-        application/rdf+xml:
-          schema:
-            $ref: '#/components/schemas/RDFXML'
-        application/ld+json:
-          schema:
-            type: object
-        application/n-triples:
-          schema:
-            type: string
-        application/n-quads:
-          schema:
-            type: string
-        application/trig:
-          schema:
-            type: string
-        application/trix:
-          schema:
-            type: string
-        text/turtle:
-          schema:
-            type: string
-        text/n3:
-          schema:
-            type: string
-
     RDF200:
       description: The resource graph(s)
       content:
-        application/rdf+xml:
-          schema:
-            $ref: '#/components/schemas/RDFXML'
-        application/ld+json:
+        application/json:
           schema:
             type: object
-        application/n-triples:
-          schema:
-            type: string
-        application/n-quads:
-          schema:
-            type: string
-        application/trig:
-          schema:
-            type: string
-        application/trix:
-          schema:
-            type: string
-        text/turtle:
-          schema:
-            type: string
-        text/n3:
-          schema:
-            type: string
-
+            description: "RDF format data (original schema contained only RDF media types not supported by documentation generator)"
   headers:
     LocationURIRef:
       description: The final URIRef
