@@ -1,26 +1,36 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import { detectTools } from './detect';
+import { initCommand } from './commands/init';
 
 const program = new Command();
 
 program
   .name('datagvat-mcp')
-  .description('CLI installer for data.gv.at MCP Server')
+  .description('shadcn-like installer for data.gv.at MCP Server')
   .version('0.1.0');
 
 program
   .command('init')
   .description('Initialize data.gv.at MCP Server in AI tools')
-  .action(async () => {
-    const result = await detectTools();
-    console.log('Platform:', result.platform);
-    console.log('Detected tools:');
-    for (const tool of result.tools) {
-      console.log(`  - ${tool.name}: ${tool.detected ? 'detected' : 'not detected'}`);
-      console.log(`    Path: ${tool.configPath}`);
-    }
-  });
+  .option('--yes', 'skip prompts and configure all detected tools')
+  .option('--tool <name>', 'configure specific tool only')
+  .action(initCommand);
+
+program
+  .command('add <tool>')
+  .description('Add data.gv.at MCP Server to specific tool')
+  .action((tool: string) => initCommand({ tool }));
+
+// Handle uncaught errors with professional error messages
+process.on('unhandledRejection', (error: Error) => {
+  console.error('\nUnexpected error:', error.message);
+  process.exit(1);
+});
+
+process.on('uncaughtException', (error: Error) => {
+  console.error('\nUnexpected error:', error.message);
+  process.exit(1);
+});
 
 program.parse(process.argv);
 
