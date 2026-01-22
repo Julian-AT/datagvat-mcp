@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-01-20)
 
 Milestone: v2.0 Professional Documentation System
 Phase: 6 of 9 (CI/CD Integration)
-Plan: 06-01 of 1
-Status: Phase 6 complete - CI/CD validation pipeline active
-Last activity: 2026-01-22 - Completed 06-01-PLAN.md (Pre-commit hooks, path-filtered CI, CONTRIBUTING.md)
+Plan: 06-02 of 2
+Status: Phase 6 complete - CI/CD validation pipeline optimized
+Last activity: 2026-01-22 - Completed 06-02-PLAN.md (Job-level path filtering optimization)
 
-Progress: ████████████ 146% (19/13 plans complete across all phases)
+Progress: ████████████ 154% (20/13 plans complete across all phases)
 
 ## Performance Metrics
 
@@ -66,18 +66,18 @@ Progress: ████████████ 146% (19/13 plans complete across
 - Trend: v1.2 milestone complete - comprehensive documentation rebuild achieved
 
 **v2.0 Milestone:**
-- Total plans completed: 19
-- Average duration: 10.5 min
-- Total execution time: 200 min
+- Total plans completed: 20
+- Average duration: 10.4 min
+- Total execution time: 206 min
 - Timeline: 3 days (2026-01-20 → 2026-01-22)
 
 **Recent Trend:**
-- Last 5 plans: 05-01 (21 min), 05-03 (7 min), 05-04 (20 min), 05-05 (26 min), 06-01 (7 min)
+- Last 5 plans: 05-03 (7 min), 05-04 (20 min), 05-05 (26 min), 06-01 (7 min), 06-02 (6 min)
 - Phase 1 (Infrastructure Modernization): 5/5 plans complete - PHASE COMPLETE
 - Phase 3 (Link Validation & Fixes): 1/1 plans complete - PHASE COMPLETE
 - Phase 4 (Style Guide Compliance): 8/8 plans complete - PHASE COMPLETE
 - Phase 5 (Code Quality Pass): 5/3 plans complete - PHASE COMPLETE (including 2 gap closure plans)
-- Phase 6 (CI/CD Integration): 1/1 plans complete - PHASE COMPLETE
+- Phase 6 (CI/CD Integration): 2/1 plans complete - PHASE COMPLETE (including 1 gap closure plan)
 
 ## Accumulated Context
 
@@ -340,6 +340,10 @@ Recent decisions affecting current work:
 - CI path filters trigger docs job only on docs/** or .github/workflows/ci.yml changes (06-01, 2026-01-22)
 - Frozen lockfile enforcement (bun ci) ensures reproducible CI builds (06-01, 2026-01-22)
 - Artifact upload on main branch only (7-day retention) for production debugging (06-01, 2026-01-22)
+- Use dorny/paths-filter@v2 as standard GitHub Actions path filtering action (06-02, 2026-01-22)
+- Centralize filter logic in single filter job with explicit outputs (06-02, 2026-01-22)
+- Remove workflow-level path filters in favor of job-level conditionals (06-02, 2026-01-22)
+- Apply symmetric filtering to both docs and test jobs (06-02, 2026-01-22)
 - Preview deployment template added but commented out (platform not chosen yet) (06-01, 2026-01-22)
 - Type-check documented as temporarily skipped due to Bun 1.x/TypeScript 5.9 compatibility (06-01, 2026-01-22)
 
@@ -413,10 +417,10 @@ No blocking issues. Phase 6 complete. Ready for Phase 7 (OpenAPI spec generation
 ## Session Continuity
 
 Last session: 2026-01-22
-Stopped at: Completed 06-01-PLAN.md (CI/CD validation pipeline: pre-commit hooks, path-filtered CI, CONTRIBUTING.md)
+Stopped at: Completed 06-02-PLAN.md (CI path filtering optimization: job-level conditionals with dorny/paths-filter@v2)
 Resume file: None
 Next: Phase 7 (OpenAPI spec generation) - Phase 6 COMPLETE
 
 ---
 *State initialized: 2026-01-19*
-*Last updated: 2026-01-22 after plan 06-01 execution (Phase 6 COMPLETE)*
+*Last updated: 2026-01-22 after plan 06-02 execution (Phase 6 COMPLETE)*
