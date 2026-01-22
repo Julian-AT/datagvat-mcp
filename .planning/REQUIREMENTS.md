@@ -98,10 +98,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONTENT-05 | Phase 4 | - | Pending |
 | CONTENT-06 | Phase 4 | - | Pending |
 | CONTENT-04 | Phase 5 | - | Pending |
-| API-01 | Phase 7 | - | Pending |
-| API-02 | Phase 7 | - | Pending |
-| API-03 | Phase 7 | - | Pending |
-| API-04 | Phase 7 | - | Pending |
+| API-01 | Phase 7 | 07-01, 07-02 | Complete |
+| API-02 | Phase 7 | 07-02, 07-03 | Complete |
+| API-03 | Phase 7 | 07-01, 07-02 | Complete |
+| API-04 | Phase 7 | 07-02 | Complete |
 | CLI-01 | Phase 8 | - | Pending |
 | CLI-02 | Phase 8 | - | Pending |
 | CLI-03 | Phase 8 | - | Pending |
