@@ -87,20 +87,19 @@ Plans:
 
 ## Phase 6: CI/CD Integration
 **Time:** 1-2 hours
-**Goal:** Automated quality checks
+**Goal:** Automated quality checks through pre-commit hooks and CI pipeline
 
 **Requirements:**
-- GitHub Actions workflow
-- Pre-commit hooks with Husky
+- GitHub Actions workflow with path filters
+- Pre-commit hooks with simple-git-hooks
 - Automated linting on PR
 - Link validation in CI
-- Type checking in CI
+- Frozen lockfile in CI
 
-**Tasks:**
-1. Create .github/workflows/docs-ci.yml
-2. Install and configure Husky
-3. Create pre-commit hook
-4. Test CI pipeline
+**Plans:** 1 plan
+
+Plans:
+- [ ] 06-01-PLAN.md — Configure simple-git-hooks, enhance CI workflow, create CONTRIBUTING.md
 
 ---
 
@@ -166,12 +165,13 @@ Plans:
 
 ## Progress Tracking
 
-**Completed:** 4/9 phases (44%)
+**Completed:** 5/9 phases (56%)
 **Time spent:** ~12-16 hours
-**Remaining:** 5 phases (~9-14 hours)
+**Remaining:** 4 phases (~8-13 hours)
 
-**Current:** Phase 6 (CI/CD Integration)
-**Next:** Phase 7 (OpenAPI Integration)
+**Current:** Phase 6 (CI/CD Integration) - Planning complete
+**Next:** Execute Phase 6
+**Then:** Phase 7 (OpenAPI Integration)
 **Final:** AI Assistant
 
 ---
@@ -194,7 +194,7 @@ Plans:
 ## Dependencies
 
 **Phase 5** requires: Phases 1-4 complete (done)
-**Phase 6** requires: Phase 5 complete
+**Phase 6** requires: Phase 5 complete (done)
 **Phase 7** requires: Phase 1 complete (done)
 **Phase 8** requires: None (can run in parallel)
 **Phase 9** requires: Phase 1 complete (done)
@@ -207,5 +207,6 @@ Plans:
 - Phase 5 plan 05-01 reduced to 0 errors, 20 acceptable warnings
 - Phase 5 plan 05-03 removed emojis from best-practices code comments
 - Phase 5 gap closure plans address remaining print statement emojis and TypeScript type-check
-- After Phase 5, all builds will pass cleanly
+- Phase 5 complete: Zero errors, builds pass cleanly
+- Phase 6: Uses simple-git-hooks (not Husky) per decision 01-03
 - OpenAPI schema: https://qs.data.gv.at/api/hub/repo/openapi.yaml
