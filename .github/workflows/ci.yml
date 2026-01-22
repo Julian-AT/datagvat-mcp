@@ -79,6 +79,8 @@ jobs:
           fail_ci_if_error: false
 
   docs:
+    needs: filter
+    if: needs.filter.outputs.docs == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
