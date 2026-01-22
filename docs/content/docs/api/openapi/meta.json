@@ -1,0 +1,5 @@
+{
+  "$schema": "../../../../.source/json-schema/docs.meta.json",
+  "title": "API Reference",
+  "description": "Auto-generated API documentation from data.gv.at OpenAPI schema"
+}

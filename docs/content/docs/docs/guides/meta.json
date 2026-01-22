@@ -1,9 +1,8 @@
 {
-  "$schema": "../../.source/json-schema/docs.meta.json",
+  "$schema": "../../../../.source/json-schema/docs.meta.json",
   "title": "How-To Guides",
   "description": "Step-by-step guides for common tasks",
   "icon": "BookOpen",
-  "root": true,
   "pages": [
     "---[Search]Discovery---",
     "searching",

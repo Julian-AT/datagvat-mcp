@@ -1,9 +1,8 @@
 {
-  "$schema": "../.source/json-schema/docs.meta.json",
+  "$schema": "../../../../.source/json-schema/docs.meta.json",
   "title": "Getting Started",
   "description": "Set up and start using data.gv.at MCP Server",
   "icon": "Rocket",
-  "root": true,
   "defaultOpen": true,
   "pages": [
     "index",
@@ -13,6 +12,7 @@
     "first-query",
     "---[HelpCircle]Support---",
     "quick-reference",
-    "troubleshooting"
+    "troubleshooting",
+    "tutorial"
   ]
 }

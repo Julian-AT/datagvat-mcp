@@ -1,8 +1,0 @@
-{
-  "$schema": "../.source/json-schema/docs.meta.json",
-  "title": "Reference",
-  "description": "Complete API and tools reference",
-  "icon": "Library",
-  "root": true,
-  "pages": ["---[Wrench]Tools---", "...tools"]
-}

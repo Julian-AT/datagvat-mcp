@@ -1,9 +1,8 @@
 {
-  "$schema": "../../.source/json-schema/docs.meta.json",
+  "$schema": "../../../../.source/json-schema/docs.meta.json",
   "title": "Workflows",
   "description": "Complete end-to-end workflows",
   "icon": "Workflow",
-  "root": true,
   "pages": [
     "---[Compass]Exploration---",
     "discovery",

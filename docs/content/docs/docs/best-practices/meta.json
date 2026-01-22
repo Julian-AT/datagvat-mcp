@@ -1,9 +1,8 @@
 {
-  "$schema": "../../.source/json-schema/docs.meta.json",
+  "$schema": "../../../../.source/json-schema/docs.meta.json",
   "title": "Best Practices",
   "description": "Performance optimization, quality metrics interpretation, tool selection guidance, and production deployment best practices",
   "icon": "Lightbulb",
-  "root": true,
   "pages": [
     "optimization",
     "quality-interpretation",
