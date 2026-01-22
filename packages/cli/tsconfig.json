@@ -3,9 +3,9 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    "module": "ESNext",
+    "module": "Node16",
     "target": "ES2022",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node16",
     "types": ["node", "bun"],
     "noEmit": false
   },

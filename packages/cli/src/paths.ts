@@ -1,6 +1,6 @@
 import * as os from 'node:os';
 import * as path from 'node:path';
-import type { Platform, ToolName } from './types';
+import type { Platform, ToolName } from './types.js';
 
 export function getToolPaths(platform: Platform): Record<ToolName, string> {
   const homeDir = os.homedir();
