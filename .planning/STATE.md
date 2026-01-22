@@ -2,20 +2,20 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-01-20)
+See: .planning/PROJECT.md (updated 2026-01-22)
 
 **Core value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
-**Current focus:** v2.1+ (Next milestone - to be defined)
+**Current focus:** v2.1 Documentation Excellence & AI Features
 
 ## Current Position
 
-Milestone: v2.1+ (Next milestone - planning phase)
-Phase: Not started
-Plan: Not started
-Status: Ready to start next milestone
-Last activity: 2026-01-22 - v2.0 milestone complete and shipped
+Milestone: v2.1 Documentation Excellence & AI Features
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-01-22 — Milestone v2.1 started
 
-Progress: v2.0 COMPLETE - 28/28 plans shipped (100%)
+Progress: Ready to research and plan
 
 ## Performance Metrics
 
@@ -467,4 +467,4 @@ Next: /gsd:new-milestone to start v2.1+
 
 ---
 *State initialized: 2026-01-19*
-*Last updated: 2026-01-22 after v2.0 milestone completion*
+*Last updated: 2026-01-22 after v2.1 milestone initialization*
