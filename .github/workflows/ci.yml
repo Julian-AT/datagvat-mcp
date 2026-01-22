@@ -19,6 +19,25 @@ on:
       - 'setup.py'
 
 jobs:
+  filter:
+    runs-on: ubuntu-latest
+    outputs:
+      docs: ${{ steps.filter.outputs.docs }}
+      python: ${{ steps.filter.outputs.python }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            docs:
+              - 'docs/**'
+              - '.github/workflows/ci.yml'
+            python:
+              - 'mcp/**'
+              - 'pyproject.toml'
+              - 'setup.py'
+
   test:
     runs-on: ubuntu-latest
     strategy:
