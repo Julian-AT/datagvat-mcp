@@ -1,8 +1,9 @@
 import { checkbox } from '@inquirer/prompts';
 import { detectTools } from '../detect';
 import { configureTools } from '../configure';
+import { displayPostInstall } from '../messages';
 import * as ui from '../ui';
-import type { ToolInfo } from '../types';
+import type { ToolInfo, ToolName } from '../types';
 
 interface InitCommandOptions {
   yes?: boolean;
@@ -88,10 +89,10 @@ export async function initCommand(options: InitCommandOptions = {}): Promise<voi
       ui.error(`Failed to configure ${configResult.failed} tool(s)`);
     }
 
+    // Display post-install guidance if at least one tool was configured
     if (configResult.configured > 0) {
-      console.log('');
-      ui.info('✓ Configuration complete!');
-      ui.info('Restart your AI tools to use the data.gv.at MCP Server.');
+      const configuredToolNames = toolsToConfigureList.map(tool => tool.name);
+      displayPostInstall(configuredToolNames);
     }
 
   } catch (err) {
