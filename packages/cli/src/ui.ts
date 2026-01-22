@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import ora, { type Ora } from 'ora';
+import type { ZodError } from 'zod';
 
 /**
  * Create a spinner with the given text
@@ -131,4 +132,48 @@ export function separator(): void {
 export function listItem(text: string, checked: boolean = false): void {
   const bullet = checked ? chalk.green('●') : chalk.dim('○');
   console.log(`  ${bullet} ${text}`);
+}
+
+/**
+ * Format a generic error with consistent styling
+ * Includes error message and help link
+ */
+export function formatError(error: Error): string {
+  const lines = [
+    '',
+    chalk.red.bold('✗ Error'),
+    '',
+    error.message,
+    '',
+    chalk.dim('For more help: https://datagvat-mcp-docs.vercel.app'),
+    ''
+  ];
+  return lines.join('\n');
+}
+
+/**
+ * Format Zod validation errors with clear, actionable messages
+ * Extracts all validation issues and formats them nicely
+ */
+export function formatValidationError(zodError: ZodError): string {
+  const lines = [
+    '',
+    chalk.red.bold('✗ Validation Error'),
+    ''
+  ];
+
+  // Format each validation issue
+  for (const issue of zodError.issues) {
+    const path = issue.path.length > 0
+      ? chalk.cyan(issue.path.join('.'))
+      : chalk.cyan('input');
+    const message = issue.message;
+    lines.push(`  ${chalk.dim('•')} ${path}: ${message}`);
+  }
+
+  lines.push('');
+  lines.push(chalk.dim('For more help: https://datagvat-mcp-docs.vercel.app'));
+  lines.push('');
+
+  return lines.join('\n');
 }
