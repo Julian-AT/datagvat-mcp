@@ -1,8 +1,43 @@
-# Contributing to data.gv.at MCP Server Documentation
+# Contributing to data.gv.at MCP Server
 
-Thank you for your interest in contributing to the data.gv.at MCP Server documentation. This guide will help you set up your development environment and understand our validation pipeline.
+Thank you for considering contributing to data.gv.at MCP Server! This guide covers contributing to both the MCP server (Python) and documentation (Next.js/Fumadocs).
+
+## Ways to Contribute
+
+- **Report bugs** - File issues with reproduction steps
+- **Suggest features** - Propose new capabilities or improvements
+- **Improve documentation** - Fix typos, clarify explanations, add examples
+- **Submit code** - Fix bugs, add features, improve performance
+- **Write tests** - Increase test coverage
 
 ## Setup
+
+### MCP Server Development (Python)
+
+1. **Fork and clone:**
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/datagvat-mcp.git
+   cd datagvat-mcp/mcp
+   ```
+
+2. **Set up Python environment:**
+   ```bash
+   uv venv
+   source .venv/bin/activate  # Windows: .venv\Scripts\activate
+   uv pip install -e ".[dev]"
+   ```
+
+3. **Run tests:**
+   ```bash
+   pytest
+   ```
+
+4. **Type checking:**
+   ```bash
+   mypy app/
+   ```
+
+### Documentation Development (Next.js)
 
 1. **Install Bun:** Download and install from https://bun.sh
 2. **Install dependencies:**
@@ -22,6 +57,20 @@ Thank you for your interest in contributing to the data.gv.at MCP Server documen
    Open http://localhost:3000 to view the documentation.
 
 ## Writing Documentation
+
+### Code Standards
+
+**Python Code:**
+- Follow PEP 8 style guide
+- Use type hints (mypy --strict compliance)
+- Write docstrings for all public functions
+- Keep functions focused and testable
+- Mock external API calls in tests
+
+**TypeScript/MDX:**
+- Use Biome for formatting
+- Follow Microsoft Writing Style Guide
+- Test all code examples
 
 ### Style Guide
 
@@ -49,6 +98,80 @@ Find real dataset IDs and details at https://www.data.gv.at/katalog/dataset. Goo
 - `bev-stat-wien-2024` - Population statistics for Vienna
 - `luftqualitat-wien` - Air quality measurements
 - `gesundheit-indikatoren-wien-2024` - Health indicators
+
+## Pull Request Process
+
+1. **Create feature branch:**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+2. **Make changes:**
+   - Follow code standards
+   - Add tests for new functionality
+   - Update documentation if needed
+
+3. **Commit changes:**
+   ```bash
+   git add .
+   git commit -m "feat: add feature description"
+   ```
+
+   Use conventional commits:
+   - `feat:` - New feature
+   - `fix:` - Bug fix
+   - `docs:` - Documentation changes
+   - `test:` - Test additions or fixes
+   - `refactor:` - Code refactoring
+   - `chore:` - Maintenance tasks
+
+4. **Push and create PR:**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+   Open pull request on GitHub with:
+   - Clear description of changes
+   - Link to related issues
+   - Screenshots for UI changes
+   - Test results
+
+5. **Code review:**
+   - Respond to feedback
+   - Make requested changes
+   - Keep commits atomic and focused
+
+6. **Merge:**
+   - PRs require maintainer approval
+   - All CI checks must pass
+   - Squash or rebase as requested
+
+## Reporting Issues
+
+### Bug Reports
+
+Include:
+- Clear description of the problem
+- Steps to reproduce
+- Expected vs actual behavior
+- Environment (Python version, OS, MCP client)
+- Error messages and stack traces
+
+### Feature Requests
+
+Include:
+- Use case and motivation
+- Proposed solution
+- Alternative approaches considered
+- Impact on existing functionality
+
+## Community Guidelines
+
+- Be respectful and inclusive
+- Assume good intentions
+- Provide constructive feedback
+- Focus on the code, not the person
+- Help others learn
 
 ## Validation Pipeline
 
