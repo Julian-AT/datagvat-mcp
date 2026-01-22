@@ -85,7 +85,7 @@ Plans:
 
 ---
 
-## Phase 6: CI/CD Integration
+## Phase 6: CI/CD Integration COMPLETE
 **Time:** 1-2 hours
 **Goal:** Automated quality checks through pre-commit hooks and CI pipeline
 
@@ -96,33 +96,34 @@ Plans:
 - Link validation in CI
 - Frozen lockfile in CI
 
-**Plans:** 2 plans
+**Plans:** 2 plans (all complete)
 
 Plans:
 - [x] 06-01-PLAN.md — Configure simple-git-hooks, enhance CI workflow, create CONTRIBUTING.md
-- [ ] 06-02-PLAN.md — Fix CI path filtering with job-level conditionals [GAP CLOSURE]
+- [x] 06-02-PLAN.md — Fix CI path filtering with job-level conditionals [GAP CLOSURE]
 
 ---
 
 ## Phase 7: OpenAPI Integration
 **Time:** 2-3 hours
-**Goal:** Auto-generate API reference from data.gv.at
+**Goal:** Auto-generate API reference from data.gv.at OpenAPI schema
 
 **Requirements:**
-- Install fumadocs-openapi
-- Download OpenAPI schema from https://qs.data.gv.at/api/hub/repo/openapi.yaml
-- Configure OpenAPI source
-- Generate API documentation
-- Update navigation
-- Weekly auto-update GitHub Action
+- API-01: OpenAPI specification generated from data.gv.at endpoints
+- API-02: API documentation updates automatically from OpenAPI spec
+- API-03: API docs include request/response examples
+- API-04: API docs integrated into main navigation
 
-**Tasks:**
-1. Install dependencies
-2. Create fetch-openapi.ts script
-3. Create generate-openapi.ts script
-4. Configure lib/openapi-source.ts
-5. Generate API docs
-6. Create GitHub Action for weekly updates
+**Plans:** 3 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Download and validate OpenAPI schema with prebuild integration
+- [ ] 07-02-PLAN.md — Configure OpenAPI source and navigation, verify build
+- [ ] 07-03-PLAN.md — Create weekly GitHub Actions workflow for automated updates
+
+**Wave Structure:**
+- Wave 1: Plan 01 (schema download foundation)
+- Wave 2: Plans 02 + 03 (parallel: config update, automation)
 
 ---
 
@@ -166,13 +167,13 @@ Plans:
 
 ## Progress Tracking
 
-**Completed:** 5/9 phases (56%)
-**Time spent:** ~12-16 hours
-**Remaining:** 4 phases (~8-13 hours)
+**Completed:** 6/9 phases (67%)
+**Time spent:** ~12-18 hours
+**Remaining:** 3 phases (~6-10 hours)
 
-**Current:** Phase 6 (CI/CD Integration) - Gap closure plan created
-**Next:** Execute Phase 6 gap closure (06-02)
-**Then:** Phase 7 (OpenAPI Integration)
+**Current:** Phase 7 (OpenAPI Integration) - Plans created, ready for execution
+**Next:** Execute Phase 7 (3 plans, 2 waves)
+**Then:** Phase 8 (CLI Installer)
 **Final:** AI Assistant
 
 ---
@@ -184,7 +185,7 @@ Plans:
 - [x] Real dataset examples
 - [x] Professional documentation
 - [x] Zero lint errors (Phase 5 complete)
-- [ ] CI/CD pipeline (Phase 6 - gap closure in progress)
+- [x] CI/CD pipeline (Phase 6 complete)
 - [ ] Auto-generated API docs (Phase 7)
 - [ ] Working CLI installer (Phase 8)
 - [ ] Live AI assistant (Phase 9)
@@ -211,4 +212,6 @@ Plans:
 - Phase 5 complete: Zero errors, builds pass cleanly
 - Phase 6 plan 06-01: Pre-commit hooks, path-filtered CI, CONTRIBUTING.md
 - Phase 6 gap closure 06-02: Fix CI path filtering inefficiency with dorny/paths-filter@v2
+- Phase 7 foundation exists: fumadocs-openapi v10.2.5, lib/openapi.ts, components/api-page.tsx
+- Phase 7 uses virtual pages pattern (openapiSource) for frequent schema updates
 - OpenAPI schema: https://qs.data.gv.at/api/hub/repo/openapi.yaml
