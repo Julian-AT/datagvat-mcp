@@ -97,9 +97,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 11-01: Implement interactive prompts with @clack/prompts and validation feedback
-- [ ] 11-02: Add diff preview, health check, and update commands
-- [ ] 11-03: Non-interactive mode, semantic versioning, and build verification
+- [ ] 11-01-PLAN.md — Interactive prompts with validation feedback and CI detection
+- [ ] 11-02-PLAN.md — Diff preview, health check, and update commands
+- [ ] 11-03-PLAN.md — Semantic versioning, documentation, and build verification
 
 ### Phase 12: RAG Documentation Chat
 **Goal**: Users ask natural language questions about documentation and receive accurate answers with source citations, streaming responses, and code examples
