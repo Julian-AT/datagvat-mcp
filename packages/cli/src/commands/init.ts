@@ -13,10 +13,15 @@ interface InitCommandOptions {
 export async function initCommand(options: InitCommandOptions = {}): Promise<void> {
   try {
     // Display header
-    ui.header('\ndata.gv.at MCP Installer\n');
+    ui.header(
+      'data.gv.at MCP Installer',
+      'One-command setup for Austrian Open Data MCP Server'
+    );
 
-    // Start detection spinner
-    const detectionSpinner = ui.spinner('Detecting AI tools...').start();
+    // Step 1: Tool detection
+    ui.step(1, 3, 'Scanning for AI tools');
+    console.log('');
+    const detectionSpinner = ui.spinner('  Checking for Claude Desktop, Continue, and Cline...').start();
     const result = await detectTools();
     detectionSpinner.stop();
 
@@ -25,29 +30,42 @@ export async function initCommand(options: InitCommandOptions = {}): Promise<voi
 
     // Handle no tools detected
     if (detectedTools.length === 0) {
-      ui.warning('No AI tools detected on this system.');
-      console.log('\nSupported tools:');
-      console.log('  - Claude Desktop: https://claude.ai/download');
-      console.log('  - Continue: https://continue.dev');
-      console.log('  - Cline: https://marketplace.visualstudio.com/items?itemName=saoudrizwan.claude-dev');
-      console.log('\nInstall one of these tools and run the installer again.');
+      console.log('');
+      ui.warning('No AI tools detected on this system');
+      console.log('');
+      console.log(ui.dim('Supported tools:'));
+      ui.listItem('Claude Desktop: https://claude.ai/download');
+      ui.listItem('Continue: https://continue.dev');
+      ui.listItem('Cline: https://marketplace.visualstudio.com/items?itemName=saoudrizwan.claude-dev');
+      console.log('');
+      console.log(ui.dim('Install one of these tools and run the installer again.'));
+      console.log('');
       return;
     }
 
-    ui.success(`Found ${detectedTools.length} tool(s): ${detectedTools.map(t => t.name).join(', ')}`);
+    ui.success(`Found ${detectedTools.length} tool(s)`);
+    console.log('');
+    for (const tool of detectedTools) {
+      ui.listItem(`${ui.cyan(tool.name)} ${ui.dim('(' + tool.configPath + ')')}`, true);
+    }
+    console.log('');
 
     let toolsToConfigureList: ToolInfo[];
+
+    // Step 2: Tool selection
+    ui.step(2, 3, 'Select tools to configure');
+    console.log('');
 
     // Handle --tool flag
     if (options.tool) {
       const specificTool = detectedTools.find(t => t.name === options.tool);
       if (!specificTool) {
-        ui.error(`Tool '${options.tool}' not detected on this system.`);
+        ui.error(`Tool '${options.tool}' not detected on this system`);
         ui.info('Detected tools: ' + detectedTools.map(t => t.name).join(', '));
         process.exit(1);
       }
       toolsToConfigureList = [specificTool];
-      ui.info(`Configuring specific tool: ${options.tool}`);
+      ui.info(`Configuring specific tool: ${ui.cyan(options.tool)}`);
     }
     // Handle --yes flag
     else if (options.yes) {
@@ -57,13 +75,13 @@ export async function initCommand(options: InitCommandOptions = {}): Promise<voi
     // Interactive checkbox selection
     else {
       const choices = detectedTools.map(tool => ({
-        name: `${tool.name} (${tool.configPath})`,
+        name: `${tool.name}  ${ui.dim(tool.configPath)}`,
         value: tool.name,
         checked: true // All checked by default
       }));
 
       const selectedToolNames = await checkbox({
-        message: 'Select tools to configure:',
+        message: 'Which tools would you like to configure?',
         choices,
         required: true
       });
@@ -73,14 +91,19 @@ export async function initCommand(options: InitCommandOptions = {}): Promise<voi
       );
     }
 
-    // Configure selected tools
-    console.log('\nConfiguring tools...');
+    console.log('');
+
+    // Step 3: Configuration
+    ui.step(3, 3, 'Writing configuration');
+    console.log('');
+    const configSpinner = ui.spinner('  Updating configuration files...').start();
     const configResult = await configureTools(toolsToConfigureList);
+    configSpinner.stop();
 
     // Display summary
     console.log('');
     if (configResult.configured > 0) {
-      ui.success(`Configured ${configResult.configured} tool(s)`);
+      ui.success(`Configured ${configResult.configured} tool(s) successfully`);
     }
     if (configResult.skipped > 0) {
       ui.info(`Skipped ${configResult.skipped} tool(s) (already configured)`);
@@ -99,13 +122,18 @@ export async function initCommand(options: InitCommandOptions = {}): Promise<voi
     if (err instanceof Error) {
       // Handle Ctrl+C gracefully
       if (err.name === 'ExitPromptError') {
-        console.log('\n');
-        ui.warning('Installation cancelled.');
+        console.log('');
+        ui.warning('Installation cancelled');
+        console.log('');
         process.exit(0);
       }
+      console.log('');
       ui.error(`Installation failed: ${err.message}`);
+      console.log('');
     } else {
+      console.log('');
       ui.error('Installation failed with unknown error');
+      console.log('');
     }
     process.exit(1);
   }
