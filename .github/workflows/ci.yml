@@ -39,6 +39,8 @@ jobs:
               - 'setup.py'
 
   test:
+    needs: filter
+    if: needs.filter.outputs.python == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
