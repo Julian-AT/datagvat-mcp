@@ -1,0 +1,62 @@
+name: Update OpenAPI Schema
+
+on:
+  schedule:
+    # Run every Monday at 09:00 UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch: # Allow manual trigger for testing
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Download latest OpenAPI schema
+        run: |
+          cd docs
+          bun run scripts/download-openapi.ts
+
+      - name: Check for changes
+        id: check
+        run: |
+          cd docs
+          if git diff --quiet data.gv.at-openapi.yaml; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        if: steps.check.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            docs: update data.gv.at OpenAPI schema
+
+            Automated weekly update from https://qs.data.gv.at/api/hub/repo/openapi.yaml
+          branch: update-openapi-schema
+          delete-branch: true
+          title: 'docs: Update data.gv.at OpenAPI schema'
+          body: |
+            ## Automated OpenAPI Schema Update
+
+            This PR updates the OpenAPI schema from data.gv.at.
+
+            **Source:** https://qs.data.gv.at/api/hub/repo/openapi.yaml
+            **Triggered:** Weekly schedule (Monday 09:00 UTC)
+
+            ### Review Checklist
+            - [ ] Verify no breaking changes in schema structure
+            - [ ] Check that new endpoints are documented correctly
+            - [ ] Ensure removed endpoints don't break existing links
+            - [ ] Test build locally: `cd docs && bun run build`
+
+            ### Changes
+            View the diff to see what changed in the OpenAPI schema.
