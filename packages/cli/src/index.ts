@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import { initCommand } from './commands/init.js';
+import { updateCommand } from './commands/update.js';
+import { doctorCommand } from './commands/doctor.js';
 
 const program = new Command();
 
@@ -20,6 +22,19 @@ program
   .command('add <tool>')
   .description('Add data.gv.at MCP Server to specific tool')
   .action((tool: string) => initCommand({ tool }));
+
+program
+  .command('update')
+  .description('Update data.gv.at MCP Server configuration')
+  .option('--yes', 'skip diff preview and apply all updates')
+  .option('--tool <name>', 'update specific tool only')
+  .action(updateCommand);
+
+program
+  .command('doctor')
+  .description('Check configuration health and diagnose issues')
+  .option('--fix', 'attempt automatic fixes (show instructions)')
+  .action(doctorCommand);
 
 // Handle uncaught errors with professional error messages
 process.on('unhandledRejection', (error: Error) => {
