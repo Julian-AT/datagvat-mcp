@@ -1,6 +1,6 @@
 {
   "name": "@datagvat/mcp-installer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "shadcn-like one-command installer for data.gv.at MCP Server",
   "type": "module",
   "main": "dist/index.js",
@@ -58,8 +58,9 @@
     "execa": "^9.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
     "@types/bun": "latest",
+    "@types/diff": "^8.0.0",
+    "@types/node": "^20.0.0",
     "typescript": "^5.0.0"
   }
 }
