@@ -1,750 +1,1141 @@
-# Architecture Research: Advanced Search, Sampling, and File Handling
+# Architecture Integration Patterns
 
-**Researched:** 2026-01-16
-**Domain:** MCP Server Architecture / FastMCP Patterns
-**Confidence:** MEDIUM
+**Project:** datagvat-mcp v2.1
+**Researched:** 2026-01-22
+**Confidence:** HIGH
 
 ## Executive Summary
 
-The existing Austria MCP server has a well-structured layered architecture that provides clear integration points for advanced features. The architecture follows the pattern: **MCP Interface (FastMCP) -> Middleware -> Dependencies -> Client -> Models**. New features (search service, sampling, file handling, retry logic) should integrate at their appropriate layers without disrupting this structure.
+This document describes how v2.1 features (RAG chat, Remotion videos, navigation restructuring, CLI enhancements) integrate with the existing Next.js 16.1.3 + Fumadocs platform. The architecture leverages existing infrastructure (Vercel AI SDK, Fumadocs page tree, Bun tooling) while adding new API routes, components, and build-time processes.
 
-The MCP protocol supports sampling through a request/response pattern where servers can request LLM completions from clients. File handling follows the MCP resources pattern with URI-based identification and content negotiation. Search functionality naturally fits into the existing tools/client layer, while retry and rate limiting belong in middleware or the HTTP client layer.
+**Key architectural decisions:**
+1. **RAG Chat:** Server-side API route (`/api/chat/rag`) + client component (repurpose existing search button) + server-side vector DB
+2. **Remotion Videos:** Build-time generation via Bun scripts + static hosting + MDX embed component
+3. **Navigation:** Meta.json restructuring using Fumadocs `root: true` pattern for 3-tab layout
+4. **CLI:** Enhanced with `add` command following shadcn patterns (registry + interactive selection)
 
-**Primary recommendation:** Add new components at their natural architectural boundaries - search as a service abstraction over the client, retry as middleware or client enhancement, sampling as a new capability layer, and file handling as an extension of the resources system.
+## Current Architecture Baseline
 
-## Current Architecture Analysis
+### Existing Infrastructure
 
-### Existing Layer Structure
+| Layer | Technology | Location | Purpose |
+|-------|-----------|----------|---------|
+| Framework | Next.js 16.1.3 App Router | `docs/` | SSR, routing, API routes |
+| Docs Engine | Fumadocs 16.4.7 | Integrated | MDX rendering, page tree, search |
+| Runtime | Bun | Root | Scripts, dev server, build |
+| Linting | Biome 2.3.11 | Root | Code quality, formatting |
+| CI/CD | GitHub Actions | `.github/` | Build, deploy, validation |
+| AI Integration | Vercel AI SDK 6.0.41 | `/try` page | Chat streaming (existing) |
 
-```
-app/
-├── server.py          # FastMCP setup, lifespan, middleware registration
-├── config.py          # Settings via pydantic-settings
-├── middleware.py      # AuditMiddleware, AuthMiddleware
-├── dependencies.py    # Context accessors (get_piveau_client, get_settings)
-├── client.py          # PiveauClient - HTTP client with error handling
-├── models.py          # Pydantic models (Dataset, Catalogue, etc.)
-├── resources.py       # MCP Resources (piveau:// URIs)
-├── prompts.py         # MCP Prompts (workflow templates)
-└── tools/
-    ├── discovery.py   # list_catalogues, search_datasets, get_dataset
-    ├── management.py  # CRUD operations on drafts
-    ├── analysis.py    # Metrics, eligibility checks
-    └── vocabularies.py# Vocabulary lookup tools
-```
-
-### Data Flow Pattern
+### Existing Components
 
 ```
-[MCP Client Request]
-        |
-        v
-  [FastMCP Server]
-        |
-        v
-  [Middleware Chain]
-    - AuditMiddleware (logging, timing)
-    - AuthMiddleware (API key validation)
-        |
-        v
-  [Tool/Resource/Prompt Handler]
-        |
-        v
-  [Dependencies] -> get_piveau_client(ctx)
-        |
-        v
-  [PiveauClient] -> HTTP requests to Piveau API
-        |
-        v
-  [Response parsing] -> JSON/RDF handling
-        |
-        v
-  [Return to client]
+docs/
+├── app/
+│   ├── [lang]/
+│   │   ├── docs/[[...slug]]/page.tsx    # MDX page renderer
+│   │   ├── docs/layout.tsx              # DocsLayout with sidebar/tabs
+│   │   └── try/page.tsx                 # ChatInterface (existing)
+│   ├── layout.tsx                       # Root layout
+│   └── provider.tsx                     # Theme/context providers
+├── components/
+│   ├── chat/
+│   │   ├── chat-interface.tsx           # useChat hook integration
+│   │   ├── chat-input.tsx               # Input with streaming controls
+│   │   └── message-list.tsx             # Message rendering
+│   ├── search.tsx                       # Search dialog (Orama)
+│   └── mdx/                             # MDX components
+├── content/docs/                        # MDX files organized by section
+└── lib/
+    └── source/
+        └── navigation.ts                # Section detection logic
 ```
 
-### Current Strengths
+### Existing Data Flow
 
-1. **Clear separation of concerns** - Each module has a single responsibility
-2. **Dependency injection via Context** - Tools access services through `get_piveau_client(ctx)`
-3. **Middleware pattern** - Cross-cutting concerns (audit, auth) isolated
-4. **Async throughout** - All I/O operations are async
-5. **Lifespan management** - Client lifecycle tied to server lifecycle
+1. **MDX Rendering:** Fumadocs server → `.source/server.ts` → page tree → DocsLayout → MDX component
+2. **Chat Streaming:** Client (useChat) → `/api/chat` → Vercel AI SDK → streaming response
+3. **Search:** Client (SearchDialog) → Orama index → fuzzy search results
+4. **Navigation:** `meta.json` files → Fumadocs page tree → sidebar rendering
 
-### Current Gaps
+---
 
-1. **No retry logic** - Client fails immediately on transient errors
-2. **No rate limiting** - No protection against API abuse
-3. **No search abstraction** - Search is basic list filtering, not full-text
-4. **No sampling support** - Cannot request LLM completions
-5. **No file download/content handling** - Only metadata, not actual file contents
+## Feature 1: RAG Chat Integration
 
-## Integration Points
+### Architecture Overview
 
-### Where New Features Fit
-
-| Feature | Layer | Rationale |
-|---------|-------|-----------|
-| Advanced Search | New Service + Tools | Search logic abstracted from HTTP details |
-| Retry Logic | PiveauClient or Middleware | HTTP-level concern, wrap requests |
-| Rate Limiting | Middleware | Cross-cutting, applies to all requests |
-| Sampling | New Capability Module | MCP protocol feature, parallel to tools |
-| File Handling | Resources + New Tools | Extends existing resource pattern |
-
-### Integration Diagram
+**Pattern:** API Route + Server-Side Vector DB + Client Component + Streaming
 
 ```
-                    NEW COMPONENTS
-
-[FastMCP Server] -----> [SamplingCapability]  NEW
-        |                       |
-        v                       v
-[Middleware Chain]        [Sampling Context]  NEW
-  + RateLimitMiddleware   NEW
-  + RetryMiddleware       NEW (or in client)
-        |
-        v
-[Tool/Resource Handlers]
-  + search_datasets_advanced  NEW
-  + download_distribution     NEW
-        |
-        v
-[Dependencies]
-  + get_search_service()  NEW
-        |
-        v
-[Services Layer]  NEW
-  + SearchService         NEW
-        |
-        v
-[PiveauClient]
-  + with retry decorator  ENHANCED
-  + with timeout config   ENHANCED
+User Query → SearchButton (repurposed) → /api/chat/rag → Vector DB → embed() → similarity search → streamText() with context → Client
 ```
 
-## New Components
+### Component Structure
 
-| Component | Layer | Purpose | Dependencies |
-|-----------|-------|---------|--------------|
-| `SearchService` | services/ | Advanced search with facets, pagination | PiveauClient, Settings |
-| `RateLimitMiddleware` | middleware.py | Request throttling per tool/client | Settings (rate config) |
-| `RetryMiddleware` | middleware.py | Retry failed requests with backoff | Settings (retry config) |
-| `SamplingHandler` | sampling.py | Request LLM completions via MCP | FastMCP Context |
-| `FileHandler` | tools/files.py | Download and process distribution files | PiveauClient, temp storage |
-| `ContentService` | services/ | Parse/validate file contents | File handlers per format |
+#### New Components
 
-### Detailed Component Specifications
+| Component | Type | Location | Responsibility |
+|-----------|------|----------|----------------|
+| `/api/chat/rag/route.ts` | API Route (POST) | `docs/app/api/chat/rag/` | RAG orchestration, vector search, streaming |
+| `<RAGChatDialog />` | Client Component | `docs/components/chat/rag-dialog.tsx` | Modal chat UI, useChat hook |
+| `<RAGTrigger />` | Client Component | `docs/components/chat/rag-trigger.tsx` | Bottom-right search button replacement |
+| `lib/rag/embeddings.ts` | Server Utility | `docs/lib/rag/` | Embedding generation (AI SDK embed) |
+| `lib/rag/vector-store.ts` | Server Utility | `docs/lib/rag/` | Vector storage interface |
+| `lib/rag/indexer.ts` | Build Script | `docs/lib/rag/` | Documentation indexing pipeline |
 
-#### SearchService
+#### Modified Components
 
-**Purpose:** Abstract advanced search capabilities with faceting, filtering, and pagination.
+| Component | Change | Reason |
+|-----------|--------|--------|
+| `app/[lang]/docs/layout.tsx` | Remove `<AISearch>` components | Replace with RAGTrigger |
+| `components/search.tsx` | Keep for legacy Orama search | Backward compatibility |
 
-**Location:** `app/services/search.py`
+### API Route Architecture
 
-**Interface:**
-```python
-class SearchService:
-    def __init__(self, client: PiveauClient, settings: Settings): ...
+**File:** `docs/app/api/chat/rag/route.ts`
 
-    async def search(
-        self,
-        query: str | None = None,
-        filters: dict[str, Any] | None = None,
-        facets: list[str] | None = None,
-        page: int = 1,
-        page_size: int = 20,
-        sort_by: str = "relevance",
-    ) -> SearchResult: ...
+```typescript
+// Implements Vercel AI SDK streaming pattern
+export async function POST(req: Request) {
+  const { messages } = await req.json();
 
-    async def suggest(self, prefix: str, field: str) -> list[str]: ...
+  // 1. Extract last user message
+  const query = messages[messages.length - 1].content;
+
+  // 2. Generate query embedding (server-side)
+  const embedding = await embed({
+    model: openai.embedding('text-embedding-3-small'),
+    value: query,
+  });
+
+  // 3. Vector similarity search
+  const relevantDocs = await vectorStore.search(embedding.embedding, {
+    topK: 5,
+    threshold: 0.7,
+  });
+
+  // 4. Build context from retrieved docs
+  const context = relevantDocs.map(doc => doc.content).join('\n\n');
+
+  // 5. Stream response with context
+  const result = await streamText({
+    model: openai('gpt-4o-mini'),
+    messages: [
+      { role: 'system', content: `Answer based on: ${context}` },
+      ...messages,
+    ],
+  });
+
+  return result.toDataStreamResponse();
+}
 ```
 
-**Dependencies:** PiveauClient, Settings
-**Used by:** search_datasets_advanced tool
+**Key architectural decisions:**
+- **Server-side only:** Embedding generation and vector search never exposed to client
+- **Streaming response:** Uses `streamText()` + `toDataStreamResponse()` for incremental UI updates
+- **Context injection:** Retrieved docs injected into system message, not exposed to client
 
-#### RateLimitMiddleware
+### Vector Database Integration
 
-**Purpose:** Prevent abuse by limiting request rates per tool or globally.
+**Recommended stack:** In-memory vector store → PostgreSQL pgvector → Pinecone/Weaviate (scale path)
 
-**Location:** `app/middleware.py` (extend existing)
+#### Phase 1: In-Memory (MVP)
 
-**Pattern:**
-```python
-class RateLimitMiddleware(Middleware):
-    def __init__(self, requests_per_minute: int = 60, burst: int = 10): ...
+```typescript
+// lib/rag/vector-store.ts
+class InMemoryVectorStore {
+  private vectors: Array<{ id: string; embedding: number[]; content: string; metadata: any }> = [];
 
-    async def on_call_tool(self, context: MiddlewareContext, call_next):
-        # Check rate limit
-        # Either proceed or raise ToolError with retry-after
+  async add(id: string, embedding: number[], content: string, metadata: any) {
+    this.vectors.push({ id, embedding, content, metadata });
+  }
+
+  async search(queryEmbedding: number[], options: { topK: number; threshold: number }) {
+    // Cosine similarity search
+    const scores = this.vectors.map(v => ({
+      ...v,
+      score: cosineSimilarity(queryEmbedding, v.embedding),
+    }));
+
+    return scores
+      .filter(s => s.score >= options.threshold)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, options.topK);
+  }
+}
 ```
 
-**Configuration via Settings:**
-- `rate_limit_rpm: int` - Requests per minute
-- `rate_limit_burst: int` - Burst allowance
+**Pros:** Zero setup, fast for <10K docs, good for MVP
+**Cons:** RAM usage (approx 1MB per 1000 docs), lost on restart, no persistence
+**When to migrate:** When docs exceed 10K or multi-instance deployment needed
 
-#### RetryMiddleware vs Client-Level Retry
+#### Phase 2: PostgreSQL pgvector (Production)
 
-Two valid approaches:
-
-**Option A: Middleware (recommended for simplicity)**
-```python
-class RetryMiddleware(Middleware):
-    async def on_call_tool(self, context, call_next):
-        for attempt in range(max_retries):
-            try:
-                return await call_next(context)
-            except RetryableError:
-                await asyncio.sleep(backoff)
-        raise
+```typescript
+// lib/rag/vector-store.ts
+class PostgresVectorStore {
+  async search(queryEmbedding: number[], options: { topK: number; threshold: number }) {
+    const result = await sql`
+      SELECT id, content, metadata,
+             1 - (embedding <=> ${queryEmbedding}::vector) as similarity
+      FROM document_embeddings
+      WHERE 1 - (embedding <=> ${queryEmbedding}::vector) >= ${options.threshold}
+      ORDER BY embedding <=> ${queryEmbedding}::vector
+      LIMIT ${options.topK}
+    `;
+    return result.rows;
+  }
+}
 ```
 
-**Option B: Client-Level (recommended for granularity)**
-```python
-# In PiveauClient
-@retry(
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=1, min=1, max=10),
-    retry=retry_if_exception_type((httpx.TimeoutException, httpx.NetworkError))
-)
-async def _request(self, method, path, ...): ...
+**Migration trigger:** When docs >10K or need persistence
+**Dependencies:** `pg`, `@neondatabase/serverless`, `pgvector` extension
+
+### Documentation Indexing Pipeline
+
+**When:** Build-time (prebuild script) + optional runtime reindex endpoint
+
+**File:** `docs/lib/rag/indexer.ts`
+
+```typescript
+// Build-time indexer (run in prebuild script)
+export async function indexDocumentation() {
+  const vectorStore = getVectorStore();
+
+  // 1. Load all MDX files from content/docs/
+  const docs = await loadAllMDXFiles('content/docs');
+
+  // 2. Chunk documents (split on headings, max 1000 tokens)
+  const chunks = docs.flatMap(doc => chunkDocument(doc, {
+    maxTokens: 1000,
+    splitOn: ['##', '###'], // Split on H2, H3
+  }));
+
+  // 3. Batch embed chunks
+  const embeddings = await embedMany({
+    model: openai.embedding('text-embedding-3-small'),
+    values: chunks.map(c => c.content),
+  });
+
+  // 4. Store in vector DB
+  for (let i = 0; i < chunks.length; i++) {
+    await vectorStore.add(
+      chunks[i].id,
+      embeddings.embeddings[i],
+      chunks[i].content,
+      { title: chunks[i].title, url: chunks[i].url }
+    );
+  }
+}
 ```
 
-**Recommendation:** Use client-level retry with `tenacity` library for HTTP-specific retry logic. This keeps retry close to the I/O operation and allows different retry policies for different endpoints.
+**Chunking strategy:**
+- **Split on headings:** Preserves semantic boundaries (H2/H3 = logical sections)
+- **Max 1000 tokens:** Fits embedding model context + leaves room for query
+- **Overlap 200 tokens:** Prevents context loss at boundaries
+- **Metadata preservation:** Store title, URL, section for display in chat
 
-#### SamplingHandler
-
-**Purpose:** Enable tools to request LLM completions from the MCP client.
-
-**MCP Sampling Protocol (from official docs):**
-- Server sends `sampling/createMessage` request to client
-- Client handles LLM interaction, returns completion
-- Human-in-the-loop for approval
-
-**Location:** `app/sampling.py`
-
-**Interface:**
-```python
-class SamplingHandler:
-    def __init__(self, ctx: Context): ...
-
-    async def create_message(
-        self,
-        messages: list[Message],
-        model_preferences: ModelPreferences | None = None,
-        system_prompt: str | None = None,
-        max_tokens: int = 1000,
-    ) -> SamplingResult: ...
+**Build integration:**
+```json
+// package.json
+{
+  "scripts": {
+    "prebuild": "bun run scripts/prebuild.ts && bun run lib/rag/indexer.ts",
+    "rag:reindex": "bun run lib/rag/indexer.ts"
+  }
+}
 ```
 
-**Usage in tools:**
-```python
-@mcp.tool()
-async def analyze_with_llm(ctx: Context, dataset_id: str):
-    dataset = await get_piveau_client(ctx).get_dataset(dataset_id)
+### Client Component Architecture
 
-    sampling = SamplingHandler(ctx)
-    result = await sampling.create_message(
-        messages=[{"role": "user", "content": f"Analyze: {dataset}"}],
-        model_preferences={"intelligencePriority": 0.8},
-    )
-    return result.content
+**File:** `docs/components/chat/rag-dialog.tsx`
+
+```tsx
+'use client';
+import { useChat } from '@ai-sdk/react';
+
+export function RAGChatDialog() {
+  const { messages, sendMessage, status } = useChat({
+    api: '/api/chat/rag',
+    onError: (err) => console.error('RAG error:', err),
+  });
+
+  return (
+    <Dialog>
+      <MessageList messages={messages} />
+      <ChatInput onSend={sendMessage} disabled={status !== 'ready'} />
+    </Dialog>
+  );
+}
 ```
 
-**Note:** Sampling requires client capability declaration. Server should check `ctx.client_capabilities.sampling` before using.
+**Integration with existing search button:**
 
-#### FileHandler / ContentService
+Replace bottom-right search button in `app/[lang]/docs/layout.tsx`:
 
-**Purpose:** Download distribution files and process their contents.
+```tsx
+// OLD (Orama search)
+<AISearch>
+  <AISearchPanel />
+  <AISearchTrigger />
+</AISearch>
 
-**Location:** `app/tools/files.py`, `app/services/content.py`
-
-**Approach:**
-1. Get distribution metadata (existing)
-2. Download file to temp storage
-3. Parse based on content type
-4. Return structured content or summary
-
-**Supported formats (prioritized):**
-- CSV -> pandas DataFrame summary
-- JSON/JSON-LD -> parsed dict
-- XML -> parsed dict
-- PDF -> text extraction (optional, requires dependency)
-
-**Tool interface:**
-```python
-@mcp.tool()
-async def download_distribution(
-    ctx: Context,
-    dataset_id: str,
-    distribution_index: int = 0,
-    preview_rows: int = 10,
-) -> dict[str, Any]:
-    """Download and preview a dataset distribution."""
+// NEW (RAG chat)
+<RAGChat>
+  <RAGChatDialog />
+  <RAGTrigger /> {/* Bottom-right button */}
+</RAGChat>
 ```
 
-**Security considerations:**
-- Validate download URLs (no local file access)
-- Limit file size
-- Timeout downloads
-- Sanitize content before returning
+### Performance Considerations
 
-## Data Flow
+| Concern | Impact | Mitigation |
+|---------|--------|------------|
+| Embedding latency | 200-500ms per query | Use fast model (text-embedding-3-small), cache common queries |
+| Vector search time | O(n) for in-memory | Migrate to pgvector (uses HNSW index, O(log n)) |
+| Streaming latency | TTFB <1s critical | Edge deployment, vector search first (parallel with model call) |
+| Build-time indexing | +30s to build | Run in background, cache embeddings, incremental reindex |
+| Token costs | $0.0001/1K tokens (embed) | Batch embed (embedMany), cache embeddings, reuse across builds |
 
-### Search Query Flow
-
-```
-[search_datasets_advanced tool]
-        |
-        v
-[get_search_service(ctx)]
-        |
-        v
-[SearchService.search()]
-        |
-        v
-[PiveauClient._request()] -- with retry
-        |
-        v
-[Piveau Search API]
-        |
-        v
-[Parse response, extract facets]
-        |
-        v
-[Return SearchResult to tool]
-```
-
-### Sampling Request Flow
+### Data Flow Diagram
 
 ```
-[Tool needs LLM analysis]
-        |
-        v
-[SamplingHandler.create_message()]
-        |
-        v
-[Check client capabilities]
-        |
-        v
-[Send sampling/createMessage via MCP]
-        |
-        v
-[Client presents to user for approval]
-        |
-        v
-[Client sends to LLM]
-        |
-        v
-[Return SamplingResult to tool]
+┌─────────────────────────────────────────────────────────────┐
+│ Build Time                                                  │
+├─────────────────────────────────────────────────────────────┤
+│ MDX Files → Chunker → embedMany() → Vector Store           │
+│                         (batch)        (persistence)        │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ Runtime (Query)                                             │
+├─────────────────────────────────────────────────────────────┤
+│ User → RAGTrigger → RAGDialog → useChat                    │
+│                                     ↓                       │
+│                            POST /api/chat/rag               │
+│                                     ↓                       │
+│                      embed(query) → Vector Search           │
+│                                     ↓                       │
+│                      streamText(context + query)            │
+│                                     ↓                       │
+│                      Stream → RAGDialog → User              │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### File Download Flow
+---
+
+## Feature 2: Remotion Video Generation
+
+### Architecture Overview
+
+**Pattern:** Build-Time Rendering + Static Hosting + MDX Component
 
 ```
-[download_distribution tool]
-        |
-        v
-[Get distribution metadata]
-        |
-        v
-[Validate download URL]
-        |
-        v
-[Download with streaming + size limit]
-        |
-        v
-[ContentService.parse(content, mime_type)]
-        |
-        v
-[Return preview/summary]
+Bun Script → Remotion renderMedia() → MP4 files → public/ → MDX <Video /> component → Next.js static serving
 ```
 
-## Build Order
+### Component Structure
 
-Based on dependencies and complexity, recommended implementation order:
+| Component | Type | Location | Responsibility |
+|-----------|------|----------|----------------|
+| `scripts/render-videos.ts` | Build Script | `docs/scripts/` | Video generation orchestration |
+| `remotion/` | Remotion Project | `docs/remotion/` | Video compositions (React) |
+| `components/mdx/video.tsx` | MDX Component | `docs/components/mdx/` | Video embed with player |
+| `public/videos/` | Static Assets | `docs/public/` | Rendered MP4 files |
 
-### Phase 1: Foundation (No new dependencies)
+### Video Generation Workflow
 
-1. **Retry logic in PiveauClient**
-   - Add `tenacity` to dependencies
-   - Wrap `_request` with retry decorator
-   - Configure via Settings
-   - **Why first:** Improves reliability immediately, no API changes
+**Decision:** Build-time generation (not runtime) for performance and cost
 
-2. **Rate limiting middleware**
-   - Simple token bucket implementation
-   - Configure via Settings
-   - **Why early:** Protects API, simple to implement
+**Rationale:**
+- **Build-time:** Videos generated once, served as static files (fast, CDN-friendly)
+- **Runtime (rejected):** API route triggers renderMedia() on-demand (slow, expensive, compute-heavy)
 
-### Phase 2: Search Enhancement
+#### Build Script Architecture
 
-3. **SearchService abstraction**
-   - New `app/services/` directory
-   - SearchService class
-   - Dependency injection pattern
-   - **Depends on:** Retry logic (for reliable search)
+**File:** `docs/scripts/render-videos.ts`
 
-4. **Advanced search tools**
-   - `search_datasets_advanced` tool
-   - Faceted search, sorting, suggestions
-   - **Depends on:** SearchService
+```typescript
+import { renderMedia } from '@remotion/renderer';
+import { bundle } from '@remotion/bundler';
 
-### Phase 3: File Handling
+// List of videos to generate
+const videos = [
+  { id: 'quickstart', composition: 'Quickstart', duration: 30 },
+  { id: 'tool-search', composition: 'ToolSearchDemo', duration: 45 },
+  { id: 'workflow-discovery', composition: 'WorkflowDiscovery', duration: 60 },
+];
 
-5. **ContentService for parsing**
-   - CSV, JSON, XML parsers
-   - Size limits, sanitization
-   - **Why before tool:** Logic reusable across tools
+export async function renderAllVideos() {
+  // 1. Bundle Remotion project once
+  const bundleLocation = await bundle({
+    entryPoint: path.resolve('./remotion/index.ts'),
+    webpackOverride: (config) => config, // Next.js compat
+  });
 
-6. **File download tools**
-   - `download_distribution` tool
-   - `preview_distribution` tool
-   - **Depends on:** ContentService
+  // 2. Render each video composition
+  for (const video of videos) {
+    console.log(`Rendering ${video.id}...`);
 
-### Phase 4: Sampling Integration
+    await renderMedia({
+      composition: {
+        id: video.composition,
+        durationInFrames: video.duration * 30, // 30fps
+        fps: 30,
+        width: 1920,
+        height: 1080,
+      },
+      serveUrl: bundleLocation,
+      codec: 'h264',
+      outputLocation: path.join('./public/videos', `${video.id}.mp4`),
+      onProgress: ({ progress }) => {
+        console.log(`  ${video.id}: ${(progress * 100).toFixed(0)}%`);
+      },
+    });
 
-7. **SamplingHandler**
-   - MCP sampling protocol implementation
-   - Client capability checking
-   - **Why last:** Most complex, requires client support
+    console.log(`✓ ${video.id} complete`);
+  }
+}
+```
 
-8. **Sampling-powered tools**
-   - `analyze_dataset_with_llm` tool
-   - `suggest_improvements` tool
-   - **Depends on:** SamplingHandler
+**Build integration:**
+
+```json
+// package.json
+{
+  "scripts": {
+    "prebuild": "bun run scripts/prebuild.ts && bun run scripts/render-videos.ts",
+    "videos:render": "bun run scripts/render-videos.ts",
+    "videos:preview": "remotion studio remotion/index.ts"
+  },
+  "dependencies": {
+    "remotion": "^4.0.x",
+    "@remotion/bundler": "^4.0.x",
+    "@remotion/renderer": "^4.0.x",
+    "@remotion/player": "^4.0.x"
+  }
+}
+```
+
+### Remotion Project Structure
+
+```
+docs/remotion/
+├── index.ts                     # Remotion root (registers compositions)
+├── compositions/
+│   ├── Quickstart.tsx           # Quickstart video composition
+│   ├── ToolSearchDemo.tsx       # Tool search demo
+│   └── WorkflowDiscovery.tsx    # Workflow discovery demo
+├── components/
+│   ├── CodeEditor.tsx           # Animated code editor component
+│   ├── Terminal.tsx             # Animated terminal component
+│   └── Browser.tsx              # Animated browser window
+└── assets/
+    ├── fonts/                   # Custom fonts for branding
+    └── images/                  # Static images for compositions
+```
+
+**Example composition:**
+
+```tsx
+// remotion/compositions/Quickstart.tsx
+import { AbsoluteFill, useCurrentFrame } from 'remotion';
+
+export const Quickstart: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: '#0A0A0A' }}>
+      {/* Animated terminal showing installation */}
+      <Terminal
+        lines={[
+          { frame: 30, text: '$ npx datagvat-mcp init' },
+          { frame: 60, text: '✓ Found Claude Desktop' },
+          { frame: 90, text: '✓ Configuration written' },
+        ]}
+      />
+
+      {/* Animated browser showing Claude chat */}
+      <Browser url="claude.ai" startFrame={120}>
+        <ChatAnimation />
+      </Browser>
+    </AbsoluteFill>
+  );
+};
+```
+
+### MDX Video Component
+
+**File:** `docs/components/mdx/video.tsx`
+
+```tsx
+'use client';
+import { Player } from '@remotion/player';
+import { lazy, Suspense } from 'react';
+
+interface VideoProps {
+  id: string;           // e.g., 'quickstart'
+  composition?: string; // Optional: if different from id
+  width?: number;
+  height?: number;
+}
+
+export function Video({ id, composition, width = 1920, height = 1080 }: VideoProps) {
+  // Load video file statically
+  const videoSrc = `/videos/${id}.mp4`;
+
+  return (
+    <div className="my-8 rounded-lg overflow-hidden border">
+      <video
+        src={videoSrc}
+        controls
+        width={width}
+        height={height}
+        className="w-full h-auto"
+        preload="metadata"
+      >
+        Your browser does not support video playback.
+      </video>
+    </div>
+  );
+}
+
+// Alternative: Use Remotion Player for interactive playback
+export function VideoPlayer({ id, composition }: VideoProps) {
+  const Composition = lazy(() => import(`@/remotion/compositions/${composition ?? id}`));
+
+  return (
+    <Suspense fallback={<div>Loading video...</div>}>
+      <Player
+        component={Composition}
+        durationInFrames={900} // 30s at 30fps
+        compositionWidth={1920}
+        compositionHeight={1080}
+        fps={30}
+        controls
+      />
+    </Suspense>
+  );
+}
+```
+
+**Usage in MDX:**
+
+```mdx
+---
+title: Quickstart
+---
+
+# Quickstart Guide
+
+Watch the installation process:
+
+<Video id="quickstart" />
+
+See it in action:
+
+<Video id="tool-search" />
+```
+
+### Asset Management
+
+**Strategy:** Static hosting in public/ directory (not CDN for MVP)
+
+| Approach | Pros | Cons | Recommendation |
+|----------|------|------|----------------|
+| `public/videos/` | Simple, works with SSG, no CDN config | Large repo size, slow clones | **Use for MVP** (3-5 videos ~50MB total) |
+| Vercel Blob | CDN, no repo bloat, URL stability | Additional service, API calls | Migrate when >10 videos or >100MB |
+| Git LFS | Keeps repo clean, CDN-compatible | Git LFS cost, complex setup | Not recommended (team friction) |
+
+**Decision:** Start with `public/videos/`, migrate to Vercel Blob when hitting limits
+
+### Build-Time vs Runtime Comparison
+
+| Aspect | Build-Time (Recommended) | Runtime (Not Recommended) |
+|--------|--------------------------|---------------------------|
+| **Performance** | Instant (static file) | 10-60s wait per render |
+| **Cost** | Free (CI minutes) | $0.50-$2 per render (serverless compute) |
+| **Complexity** | Simple (bun script) | Complex (API route, queue, storage) |
+| **Caching** | Built-in (static files) | Manual (S3/Blob + cache headers) |
+| **When to use** | Videos rarely change, <10 compositions | Videos personalized per-user, >100 variations |
+
+**For this project:** Build-time is correct choice (videos are static documentation assets, not user-generated)
+
+### CI Integration
+
+```yaml
+# .github/workflows/build.yml
+- name: Install Remotion dependencies
+  run: |
+    # Remotion requires Chrome/Chromium for rendering
+    sudo apt-get update
+    sudo apt-get install -y chromium-browser
+
+- name: Render videos
+  run: bun run scripts/render-videos.ts
+  env:
+    REMOTION_DISABLE_HARDWARE_ACCELERATION: 1 # CI compatibility
+
+- name: Upload videos as artifacts
+  uses: actions/upload-artifact@v3
+  with:
+    name: videos
+    path: docs/public/videos/*.mp4
+```
+
+---
+
+## Feature 3: Navigation Restructuring
+
+### Architecture Overview
+
+**Pattern:** Meta.json Root Tabs + Fumadocs Page Tree Transform
+
+**Objective:** 3-tab layout (Documentation, Reference, Tutorials) with sidebar within each tab
+
+### Current Navigation Structure
+
+**Problem:** Flat sidebar with separator-based sections (not true tabs)
+
+```json
+// docs/content/docs/meta.json (current)
+{
+  "pages": [
+    "getting-started",
+    "---[BookOpen]Documentation---",
+    "(guides)",
+    "---[Library]Reference---",
+    "reference",
+    "---[Settings]Advanced Topics---",
+    "(advanced)"
+  ]
+}
+```
+
+**Issues:**
+1. All content in single sidebar (long scrolling)
+2. Separators (`---`) are not interactive tabs
+3. No clear top-level navigation
+
+### Target Navigation Structure
+
+**Solution:** Root-level meta.json entries with `root: true`
+
+```json
+// docs/content/docs/meta.json (new)
+{
+  "pages": [
+    "getting-started",
+    "documentation",   // → Root tab 1
+    "reference",       // → Root tab 2
+    "tutorials"        // → Root tab 3
+  ]
+}
+
+// docs/content/docs/documentation/meta.json
+{
+  "title": "Documentation",
+  "icon": "BookOpen",
+  "root": true,
+  "pages": [
+    "guides",
+    "workflows",
+    "examples"
+  ]
+}
+
+// docs/content/docs/reference/meta.json
+{
+  "title": "Reference",
+  "icon": "Library",
+  "root": true,
+  "pages": [
+    "tools",
+    "api",
+    "cli"
+  ]
+}
+
+// docs/content/docs/tutorials/meta.json
+{
+  "title": "Tutorials",
+  "icon": "GraduationCap",
+  "root": true,
+  "pages": [
+    "quickstart",
+    "integration",
+    "advanced"
+  ]
+}
+```
+
+### Implementation Strategy
+
+**Step 1: Restructure content/docs/ directory**
+
+```
+docs/content/docs/
+├── meta.json                         # Root nav (links to tabs)
+├── index.mdx                         # Home page
+├── getting-started/
+│   ├── meta.json
+│   ├── index.mdx
+│   └── ...
+├── documentation/                    # NEW: Tab 1
+│   ├── meta.json                     # { "root": true }
+│   ├── guides/
+│   │   ├── meta.json
+│   │   └── ...
+│   ├── workflows/
+│   └── examples/
+├── reference/                        # NEW: Tab 2 (exists, add root: true)
+│   ├── meta.json                     # { "root": true }
+│   ├── tools/
+│   ├── api/
+│   └── cli/
+└── tutorials/                        # NEW: Tab 3
+    ├── meta.json                     # { "root": true }
+    ├── quickstart/
+    └── ...
+```
+
+**Step 2: Update layout to use tabs**
+
+**File:** `docs/app/[lang]/docs/layout.tsx`
+
+```tsx
+// Already supports tabs via Fumadocs
+<DocsLayout
+  tree={source.getPageTree(lang)}
+  sidebar={{
+    tabs: {
+      transform(option, node) {
+        const meta = source.getNodeMeta(node);
+        if (!meta || !node.icon) return option;
+
+        // Apply custom tab styling
+        const color = `var(--${getSection(meta.path)}-color, var(--color-fd-foreground))`;
+        return {
+          ...option,
+          icon: (
+            <div className="rounded-lg" style={{ color }}>
+              {node.icon}
+            </div>
+          ),
+        };
+      },
+    },
+  }}
+>
+  {children}
+</DocsLayout>
+```
+
+**How it works:**
+1. Fumadocs detects `root: true` in meta.json
+2. Automatically creates tab navigation at top of sidebar
+3. Each tab shows its own page tree when selected
+4. URL structure: `/docs/documentation/guides/setup` (tab is part of path)
+
+### Migration Path
+
+**Phase 1:** Create new directory structure without breaking existing URLs
+
+```
+1. Create documentation/ directory
+2. Move (guides)/, (workflows)/, examples/ into documentation/
+3. Update meta.json with root: true
+4. Add redirects for old URLs → new URLs
+```
+
+**Phase 2:** Update all internal links
+
+```
+OLD: [Setup Guide](/docs/guides/setup)
+NEW: [Setup Guide](/docs/documentation/guides/setup)
+```
+
+**Phase 3:** Remove old directory structure
+
+### Handling Duplicate Titles
+
+**Problem:** Page title in frontmatter vs H1 in content
+
+**Current behavior:** Fumadocs uses frontmatter `title`, then page renders H1 (duplication)
+
+**Solution:** Use frontmatter title only (remove H1 from MDX content)
+
+```mdx
+---
+title: Installation Guide
+description: How to install the MCP server
+---
+
+<!-- OLD: # Installation Guide (duplicate) -->
+<!-- NEW: Start directly with content -->
+
+The data.gv.at MCP Server can be installed...
+```
+
+**Why:** Fumadocs DocsPage component already renders `<h1>{page.data.title}</h1>` (see `page.tsx:72`)
+
+### Tab-Specific Styling
+
+**File:** `docs/lib/source/navigation.ts` (already exists, extend for new tabs)
+
+```typescript
+export function getSection(path: string | undefined) {
+  if (!path) return 'framework';
+
+  const [dir] = path.split('/', 1);
+
+  return {
+    'documentation': 'documentation',  // NEW
+    'reference': 'reference',          // NEW
+    'tutorials': 'tutorials',          // NEW
+    'getting-started': 'framework',
+  }[dir] ?? 'framework';
+}
+```
+
+**CSS Variables:** Define tab-specific colors in `globals.css`
+
+```css
+:root {
+  --documentation-color: hsl(220, 90%, 56%);
+  --reference-color: hsl(142, 76%, 36%);
+  --tutorials-color: hsl(262, 83%, 58%);
+}
+```
+
+---
+
+## Feature 4: CLI Package Enhancement
+
+### Architecture Overview
+
+**Pattern:** Shadcn-Style Registry + Interactive Selection + Config Management
+
+**Goal:** Add `datagvat-mcp add <component>` command for adding MCP tools/configs
+
+### Current CLI Architecture
+
+```
+packages/cli/
+├── src/
+│   ├── index.ts                    # Commander entry point
+│   ├── commands/
+│   │   └── init.ts                 # Init command (exists)
+│   ├── detect.ts                   # Tool detection
+│   ├── configure.ts                # Config file management
+│   ├── paths.ts                    # Platform-specific paths
+│   ├── templates.ts                # MCP config templates
+│   ├── ui.ts                       # Terminal UI (chalk, ora)
+│   └── types.ts                    # Type definitions
+└── package.json
+```
+
+### Enhanced CLI Architecture
+
+**New command:** `datagvat-mcp add <tool>` (shadcn-style component addition)
+
+```
+packages/cli/
+├── src/
+│   ├── commands/
+│   │   ├── init.ts                 # Existing
+│   │   └── add.ts                  # NEW: Add components/tools
+│   ├── registry/
+│   │   ├── index.ts                # Registry loader
+│   │   ├── tools.json              # Tool registry (metadata)
+│   │   └── templates/              # Component templates
+│   │       ├── search-tool.json
+│   │       ├── preview-tool.json
+│   │       └── quality-tool.json
+│   ├── prompts.ts                  # NEW: Interactive prompts (@inquirer/prompts)
+│   ├── config.ts                   # NEW: Config file management (datagvat.config.json)
+│   └── installer.ts                # NEW: Template installation logic
+```
+
+### Shadcn Pattern Comparison
+
+| shadcn/ui | datagvat-mcp | Purpose |
+|-----------|--------------|---------|
+| `npx shadcn@latest init` | `npx datagvat-mcp init` | Initialize project config |
+| `npx shadcn@latest add button` | `npx datagvat-mcp add search` | Add single component |
+| `npx shadcn@latest add` | `npx datagvat-mcp add` | Interactive component selection |
+| `components.json` | `datagvat.config.json` | Project configuration file |
+| Registry (GitHub) | Registry (NPM package) | Component source |
+
+### Add Command Architecture
+
+**File:** `packages/cli/src/commands/add.ts`
+
+```typescript
+import { select, checkbox } from '@inquirer/prompts';
+import { getRegistry, installTool } from '../registry/index.js';
+
+interface AddCommandOptions {
+  yes?: boolean;    // Skip prompts
+  all?: boolean;    // Add all tools
+}
+
+export async function addCommand(toolName?: string, options: AddCommandOptions = {}) {
+  // 1. Load project config (datagvat.config.json)
+  const config = await loadConfig();
+  if (!config) {
+    ui.error('No datagvat.config.json found. Run `datagvat-mcp init` first.');
+    process.exit(1);
+  }
+
+  // 2. Load registry
+  const registry = await getRegistry();
+
+  // 3. Determine which tools to add
+  let toolsToAdd: string[];
+
+  if (toolName) {
+    // Specific tool: datagvat-mcp add search
+    if (!registry.tools[toolName]) {
+      ui.error(`Tool '${toolName}' not found in registry.`);
+      ui.info(`Available tools: ${Object.keys(registry.tools).join(', ')}`);
+      process.exit(1);
+    }
+    toolsToAdd = [toolName];
+  } else if (options.all) {
+    // All tools: datagvat-mcp add --all
+    toolsToAdd = Object.keys(registry.tools);
+  } else {
+    // Interactive selection: datagvat-mcp add
+    toolsToAdd = await checkbox({
+      message: 'Which tools would you like to add?',
+      choices: Object.entries(registry.tools).map(([id, tool]) => ({
+        name: `${tool.name} - ${tool.description}`,
+        value: id,
+        checked: false,
+      })),
+    });
+  }
+
+  // 4. Install selected tools
+  for (const toolId of toolsToAdd) {
+    ui.step(`Installing ${toolId}...`);
+    await installTool(toolId, registry.tools[toolId], config);
+    ui.success(`✓ ${toolId} installed`);
+  }
+
+  // 5. Update config file
+  await saveConfig(config);
+}
+```
+
+### Registry Architecture
+
+**File:** `packages/cli/src/registry/tools.json`
+
+```json
+{
+  "tools": {
+    "search": {
+      "name": "Search Tool",
+      "description": "Enhanced search with filters and semantic search",
+      "version": "1.0.0",
+      "dependencies": {
+        "mcp": ["ckan_package_search"]
+      },
+      "config": {
+        "template": "search-tool.json",
+        "envVars": []
+      }
+    },
+    "preview": {
+      "name": "Data Preview Tool",
+      "description": "Interactive data previews with CSV/JSON support",
+      "version": "1.0.0",
+      "dependencies": {
+        "mcp": ["get_resource_preview"]
+      },
+      "config": {
+        "template": "preview-tool.json",
+        "envVars": []
+      }
+    },
+    "quality": {
+      "name": "Quality Assessment Tool",
+      "description": "Data quality metrics and validation",
+      "version": "1.0.0",
+      "dependencies": {
+        "mcp": ["get_resource_quality"]
+      },
+      "config": {
+        "template": "quality-tool.json",
+        "envVars": []
+      }
+    }
+  }
+}
+```
+
+**File:** `packages/cli/src/registry/templates/search-tool.json`
+
+```json
+{
+  "name": "search",
+  "enabled": true,
+  "features": {
+    "semantic_search": true,
+    "filters": ["format", "license", "organization"],
+    "facets": true
+  },
+  "limits": {
+    "max_results": 100,
+    "default_page_size": 20
+  }
+}
+```
+
+### Config File Management
+
+**File:** `datagvat.config.json` (generated by `init` command)
+
+```json
+{
+  "$schema": "https://datagvat-mcp.dev/schema.json",
+  "version": "1.0.0",
+  "tools": {
+    "search": {
+      "enabled": true,
+      "features": { "semantic_search": true }
+    },
+    "preview": {
+      "enabled": true,
+      "formats": ["csv", "json", "xml"]
+    }
+  },
+  "ai_clients": ["claude-desktop", "continue"],
+  "preferences": {
+    "auto_update": true
+  }
+}
+```
+
+**Purpose:**
+- **Project-level configuration:** Which tools/features are enabled
+- **Installation state:** Tracks what's been added via CLI
+- **Customization:** User-specific preferences (rate limits, API keys)
+
+**Location:** `~/.config/datagvat-mcp/datagvat.config.json` (user-level) or `./datagvat.config.json` (project-level)
+
+---
+
+## Integration Dependencies & Build Order
 
 ### Dependency Graph
 
 ```
-[Settings Extensions]
-        |
-        v
-[Retry in Client] -----> [RateLimitMiddleware]
-        |
-        v
-[SearchService] -------> [ContentService]
-        |                       |
-        v                       v
-[Search Tools]           [File Tools]
-        |                       |
-        +----------+------------+
-                   |
-                   v
-           [SamplingHandler]
-                   |
-                   v
-           [Sampling Tools]
+1. Foundation (Parallel)
+   ├── Navigation restructuring (meta.json changes)
+   └── CLI registry structure (tools.json, templates)
+
+2. RAG Chat (Sequential)
+   ├── Vector store implementation
+   ├── Documentation indexer
+   ├── API route (/api/chat/rag)
+   └── Client components (RAGDialog, RAGTrigger)
+
+3. Remotion Videos (Parallel with RAG)
+   ├── Remotion project setup
+   ├── Video compositions
+   ├── Build script (render-videos.ts)
+   └── MDX component (<Video />)
+
+4. CLI Enhancement (Depends on registry)
+   ├── Add command implementation
+   ├── Config file management
+   └── Interactive prompts
 ```
 
-## Middleware Patterns
+### Recommended Build Order
 
-### Recommended Middleware Stack Order
+**Phase 1: Foundation (Week 1)**
+- Navigation restructuring (can break URLs, do early)
+- CLI registry structure (needed for add command)
 
-```python
-mcp = FastMCP(
-    name="austria-data",
-    middleware=[
-        RateLimitMiddleware(rpm=60, burst=10),  # First: reject early
-        AuditMiddleware(),                       # Second: log everything
-        AuthMiddleware(),                        # Third: auth check
-        # RetryMiddleware() if using middleware approach
-    ],
-)
-```
+**Phase 2: RAG Chat (Week 2-3)**
+- Vector store (in-memory MVP)
+- Documentation indexer
+- API route + client components
+- Integration with existing search button
 
-### Error Handling Pattern
+**Phase 3: Videos (Week 2-3, parallel with Phase 2)**
+- Remotion project setup
+- First video composition (quickstart)
+- Build script integration
+- MDX component
 
-**Layer-appropriate errors:**
+**Phase 4: CLI Enhancement (Week 4)**
+- Add command
+- Config file management
+- Update command
 
-| Layer | Error Type | Handling |
-|-------|------------|----------|
-| HTTP Client | `PiveauApiError` | Retry transient, propagate permanent |
-| Middleware | `ToolError` | Return to client with message |
-| Tool | Return with `isError: true` | MCP protocol error response |
+### Critical Path
 
-**Example error hierarchy:**
-```python
-# client.py - HTTP errors
-class PiveauApiError(Exception): ...
-class PiveauNotFoundError(PiveauApiError): ...
-class PiveauRateLimitError(PiveauApiError): ...  # NEW
+**Blocking dependencies:**
+1. **Navigation restructuring blocks:** All documentation updates (new page URLs)
+2. **Vector store blocks:** RAG API route (can't search without storage)
+3. **Remotion setup blocks:** Video rendering (can't generate videos without Remotion)
 
-# middleware.py - MCP errors
-from fastmcp.exceptions import ToolError
+**Non-blocking (can be parallel):**
+- RAG chat + Remotion videos (independent features)
+- CLI enhancement + documentation updates (independent workflows)
 
-class RateLimitExceeded(ToolError):
-    def __init__(self, retry_after: int):
-        super().__init__(f"Rate limit exceeded. Retry after {retry_after}s")
-        self.retry_after = retry_after
-```
+---
 
-### Retry Configuration Pattern
+## Summary & Recommendations
 
-```python
-# config.py additions
-class Settings(BaseSettings):
-    # Existing...
+### Integration Strategy
 
-    # Retry settings
-    retry_max_attempts: int = Field(default=3, ge=1, le=10)
-    retry_base_delay: float = Field(default=1.0, ge=0.1, le=30.0)
-    retry_max_delay: float = Field(default=30.0, ge=1.0, le=120.0)
-    retry_exponential_base: float = Field(default=2.0, ge=1.5, le=4.0)
+1. **RAG Chat:** Server-side API route pattern with Vercel AI SDK streaming (proven, existing)
+2. **Remotion Videos:** Build-time generation pattern (simple, cost-effective)
+3. **Navigation:** Meta.json root tabs pattern (Fumadocs-native)
+4. **CLI:** Shadcn registry pattern (familiar, extensible)
 
-    # Rate limit settings
-    rate_limit_rpm: int = Field(default=60, ge=1, le=1000)
-    rate_limit_burst: int = Field(default=10, ge=1, le=100)
-```
+### Technology Decisions
 
-### Rate Limiting Implementation Pattern
+| Feature | Technology | Why |
+|---------|-----------|-----|
+| RAG Embeddings | OpenAI text-embedding-3-small | Fast, cheap, good quality |
+| Vector Store (MVP) | In-memory | Zero setup, sufficient for <10K docs |
+| Video Rendering | Remotion @4.0.x | React-based, great DX, active development |
+| CLI Framework | Commander + @inquirer/prompts | Standard, good UX, type-safe |
 
-```python
-import asyncio
-import time
+### Phased Rollout
 
-class RateLimitMiddleware(Middleware):
-    def __init__(self, requests_per_minute: int = 60, burst: int = 10):
-        self.rpm = requests_per_minute
-        self.burst = burst
-        self.tokens = burst
-        self.last_update = time.monotonic()
-        self._lock = asyncio.Lock()
+**Phase 1 (MVP):** RAG chat + first video + navigation restructure
+**Phase 2 (Polish):** More videos + CLI add command + vector DB migration
+**Phase 3 (Scale):** CDN for videos + advanced CLI features + RAG improvements
 
-    async def on_call_tool(self, context: MiddlewareContext, call_next):
-        async with self._lock:
-            now = time.monotonic()
-            elapsed = now - self.last_update
-            self.tokens = min(self.burst, self.tokens + elapsed * (self.rpm / 60))
-            self.last_update = now
+### Key Success Metrics
 
-            if self.tokens < 1:
-                wait_time = (1 - self.tokens) * (60 / self.rpm)
-                raise ToolError(f"Rate limit exceeded. Retry after {wait_time:.1f}s")
+- **RAG:** <1s TTFB, >80% relevant results
+- **Videos:** <500ms load time, <10min build time per video
+- **Navigation:** <100ms tab switch, zero URL breakage
+- **CLI:** <5s install time, >90% auto-detection rate
 
-            self.tokens -= 1
-
-        return await call_next(context)
-```
-
-## Sampling Integration Architecture
-
-### MCP Sampling Protocol Summary
-
-From official MCP documentation:
-
-1. **Capability negotiation:** Client declares `sampling` capability
-2. **Request format:** Server sends `sampling/createMessage` with messages, preferences
-3. **Human-in-the-loop:** Client should allow user review/approval
-4. **Response:** Client returns LLM completion result
-
-### FastMCP Sampling Pattern
-
-```python
-# sampling.py
-from dataclasses import dataclass
-from typing import Any
-from fastmcp import Context
-
-@dataclass
-class SamplingResult:
-    content: str
-    model: str
-    stop_reason: str
-
-class SamplingHandler:
-    def __init__(self, ctx: Context):
-        self.ctx = ctx
-
-    def is_available(self) -> bool:
-        """Check if client supports sampling."""
-        try:
-            caps = self.ctx.client_capabilities
-            return caps is not None and hasattr(caps, 'sampling')
-        except Exception:
-            return False
-
-    async def create_message(
-        self,
-        messages: list[dict[str, Any]],
-        model_preferences: dict[str, Any] | None = None,
-        system_prompt: str | None = None,
-        max_tokens: int = 1000,
-    ) -> SamplingResult:
-        if not self.is_available():
-            raise ToolError("Sampling not supported by client")
-
-        # Use FastMCP's sampling API
-        result = await self.ctx.sample(
-            messages=messages,
-            model_preferences=model_preferences,
-            system_prompt=system_prompt,
-            max_tokens=max_tokens,
-        )
-
-        return SamplingResult(
-            content=result.content,
-            model=result.model,
-            stop_reason=result.stop_reason,
-        )
-```
-
-### Sampling Tool Pattern
-
-```python
-# tools/analysis.py - extended
-@mcp.tool(
-    name="analyze_dataset_quality_llm",
-    description="Use LLM to analyze dataset quality and suggest improvements.",
-)
-async def analyze_dataset_quality_llm(
-    ctx: Context,
-    dataset_id: str,
-) -> dict[str, Any]:
-    sampling = SamplingHandler(ctx)
-    if not sampling.is_available():
-        return {"error": "LLM analysis requires sampling capability"}
-
-    # Gather dataset info
-    client = get_piveau_client(ctx)
-    dataset = await client.get_dataset(dataset_id)
-    metrics = await client.get_metrics(dataset_id)
-
-    # Request LLM analysis
-    result = await sampling.create_message(
-        messages=[{
-            "role": "user",
-            "content": f"""Analyze this dataset for quality issues:
-
-Dataset: {dataset.get('title')}
-Description: {dataset.get('description')}
-Metrics: {metrics}
-
-Provide specific recommendations for improvement."""
-        }],
-        model_preferences={
-            "intelligencePriority": 0.8,
-            "speedPriority": 0.5,
-        },
-        max_tokens=500,
-    )
-
-    return {
-        "dataset_id": dataset_id,
-        "analysis": result.content,
-        "model_used": result.model,
-    }
-```
-
-## File Handling Architecture
-
-### Resource Pattern Extension
-
-Extend existing resources to support file content:
-
-```python
-# resources.py - extended
-@mcp.resource("piveau://datasets/{dataset_id}/distributions/{dist_id}/content")
-async def distribution_content_resource(
-    ctx: Context,
-    dataset_id: str,
-    dist_id: str,
-) -> dict[str, Any]:
-    """Distribution file content (preview)."""
-    content_service = get_content_service(ctx)
-    return await content_service.get_preview(dataset_id, dist_id)
-```
-
-### Content Service Pattern
-
-```python
-# services/content.py
-import httpx
-from io import BytesIO
-
-class ContentService:
-    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
-    PREVIEW_ROWS = 10
-
-    def __init__(self, client: PiveauClient, settings: Settings):
-        self.client = client
-        self.settings = settings
-
-    async def download(
-        self,
-        url: str,
-        max_size: int | None = None,
-    ) -> tuple[bytes, str]:
-        """Download file with size limit."""
-        max_size = max_size or self.MAX_FILE_SIZE
-
-        async with httpx.AsyncClient() as http:
-            async with http.stream("GET", url) as response:
-                response.raise_for_status()
-
-                content_type = response.headers.get("content-type", "")
-                chunks = []
-                size = 0
-
-                async for chunk in response.aiter_bytes():
-                    size += len(chunk)
-                    if size > max_size:
-                        raise ValueError(f"File exceeds {max_size} byte limit")
-                    chunks.append(chunk)
-
-                return b"".join(chunks), content_type
-
-    async def parse(
-        self,
-        content: bytes,
-        content_type: str,
-    ) -> dict[str, Any]:
-        """Parse file content based on type."""
-        if "csv" in content_type:
-            return self._parse_csv(content)
-        elif "json" in content_type:
-            return self._parse_json(content)
-        elif "xml" in content_type:
-            return self._parse_xml(content)
-        else:
-            return {"raw": content[:1000].decode("utf-8", errors="replace")}
-```
+---
 
 ## Sources
 
-### Primary (HIGH confidence)
-- Existing codebase analysis: `app/server.py`, `app/middleware.py`, `app/client.py`
-- MCP Official Documentation: https://modelcontextprotocol.io/docs/concepts/architecture
-- MCP Sampling Specification: https://modelcontextprotocol.io/docs/concepts/sampling
-- MCP Resources Specification: https://modelcontextprotocol.io/docs/concepts/resources
-- MCP Tools Specification: https://modelcontextprotocol.io/docs/concepts/tools
+This architecture research is based on:
 
-### Secondary (MEDIUM confidence)
-- FastMCP library patterns (inferred from existing middleware implementation)
-- httpx async patterns (from existing PiveauClient)
-- pydantic-settings patterns (from existing config.py)
+- **Vercel AI SDK Documentation:** [API Route Patterns](https://ai-sdk.dev/docs/ai-sdk-ui/chatbot) - Chat streaming architecture
+- **Vercel AI SDK Documentation:** [Embeddings API](https://ai-sdk.dev/docs/ai-sdk-core/embeddings) - Vector embedding patterns
+- **Remotion Documentation:** [Renderer API](https://remotion.dev/docs/renderer) - Server-side video rendering
+- **Fumadocs Documentation:** [Layout Configuration](https://fumadocs.dev/docs/ui/layouts) - Navigation and tab patterns
+- **Existing Codebase:** Current implementation patterns verified from:
+  - `docs/app/[lang]/try/page.tsx` - Existing Vercel AI SDK integration
+  - `docs/components/chat/chat-interface.tsx` - useChat hook usage
+  - `packages/cli/src/commands/init.ts` - CLI command patterns
+  - `docs/app/[lang]/docs/layout.tsx` - Fumadocs DocsLayout with tabs
 
-### Tertiary (LOW confidence - needs validation)
-- Tenacity retry patterns (common Python pattern, not verified against FastMCP)
-- Token bucket rate limiting (standard algorithm, implementation details may vary)
-- Sampling handler interface (based on MCP spec, FastMCP API may differ)
-
-## Open Questions
-
-1. **FastMCP Sampling API:** Exact Context.sample() API needs verification against FastMCP 2.3+ documentation. The pattern shown is based on MCP spec, but FastMCP may have different method names.
-
-2. **Rate Limiting Scope:** Should rate limiting be global, per-tool, or per-client? Current design is global. May need adjustment based on actual usage patterns.
-
-3. **File Size Limits:** 10MB default may be too small for some datasets. Consider making configurable or implementing streaming for large files.
-
-4. **Search API Capabilities:** Actual Piveau search API capabilities need verification. Current SearchService interface assumes faceted search support.
-
-## Metadata
-
-**Confidence breakdown:**
-- Existing architecture analysis: HIGH - Direct code inspection
-- Integration points: HIGH - Follows established patterns
-- New component interfaces: MEDIUM - Based on MCP spec, FastMCP details unverified
-- Build order: HIGH - Based on dependency analysis
-- Middleware patterns: MEDIUM - Patterns are standard but FastMCP specifics unverified
-
-**Research date:** 2026-01-16
-**Valid until:** 2026-02-16 (30 days - stable architecture, FastMCP may update)
+**Confidence Level:** HIGH for all patterns (based on official documentation and existing working code)

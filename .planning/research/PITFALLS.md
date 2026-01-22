@@ -1,634 +1,1513 @@
-# Pitfalls Research
+# Domain Pitfalls: v2.1 Feature Additions
 
-**Researched:** 2026-01-16
-**Scope:** MCP server advanced features, FastMCP sampling/files/progress, government data API integration
-**Confidence:** HIGH for MCP protocol pitfalls (official docs), MEDIUM for FastMCP-specific (code analysis), MEDIUM for DCAT-AP (training + codebase)
+**Domain:** Adding RAG chat, video tutorials, and CLI enhancements to existing documentation platform
+**Researched:** 2026-01-22
+**Context:** Subsequent milestone — enhancing live production documentation site (Fumadocs + Next.js)
+**Confidence:** HIGH for integration patterns (existing codebase analysis), MEDIUM for RAG/video (training data + ecosystem knowledge), HIGH for CLI/navigation (established patterns)
 
 ## Executive Summary
 
-This document identifies common mistakes when adding advanced features to MCP servers and integrating with government data APIs like Piveau Hub (DCAT-AP). The research covers three risk domains: (1) MCP protocol compliance issues that break interoperability, (2) FastMCP-specific misuse of sampling, progress reporting, and file handling, and (3) DCAT-AP/RDF parsing edge cases that cause data quality degradation.
+This research identifies critical pitfalls when adding RAG documentation chat, programmatic video tutorials, CLI enhancements, and navigation restructuring to an existing production documentation platform. The analysis focuses on integration risks with the current Fumadocs/Next.js stack, cost and performance implications, and user-facing breaking changes.
 
-**Critical risk areas for Austria MCP v1.1+:**
-- Sampling misuse can create security vulnerabilities and poor UX
-- Progress reporting without proper completion handling causes client confusion
-- JSON-LD `@graph` extraction has multiple failure modes already present in codebase
-- Search implementations often fail on multilingual content and special characters
+**Highest-risk areas for v2.1:**
+1. **RAG hallucinations citing non-existent docs** — can severely damage trust
+2. **Navigation restructuring breaking existing links** — production site with external references
+3. **Video rendering blocking CI/CD** — current build time constraint < 5 minutes
+4. **CLI breaking changes for existing users** — @datagvat/mcp-installer already in production
+5. **Vector DB costs spiraling** — small project budget constraints
+
+---
 
 ## Critical Pitfalls
 
-| Pitfall | Warning Signs | Prevention | Phase | Severity |
-|---------|---------------|------------|-------|----------|
-| Sampling without human-in-the-loop | Server initiates LLM calls autonomously | Always design for user approval; use `modelPreferences` not hardcoded models | FastMCP Features | Critical |
-| Missing `isError: true` on tool failures | Users see success with error messages in text | Return `isError: true` in result for all business logic failures | Enterprise Error Handling | Critical |
-| JSON-LD `@graph` extraction assumes list | Runtime errors on single-object graphs | Handle both `@graph` as list and direct object; current `_extract_list` is partial | Search Phase | High |
-| Hardcoded API timeouts without retries | Transient failures become permanent errors | Implement exponential backoff; current 30s timeout has no retry | Enterprise Error Handling | High |
-| Multilingual search ignores user locale | German queries return English-only results | Extract and prioritize `de` locale from DCAT-AP multilingual fields | Search Phase | High |
+Mistakes that cause rewrites, production outages, or major user trust issues.
 
-## MCP Protocol Pitfalls
+### Pitfall 1: RAG Hallucinations with Confident Citations
 
-### 1. Two-Tier Error Handling Confusion
+**What goes wrong:** LLM generates plausible but non-existent documentation pages and cites them confidently. User clicks citation link → 404 → trust destroyed.
 
-**What goes wrong:** The MCP protocol has two distinct error handling mechanisms that are often conflated:
-1. **Protocol errors** (JSON-RPC level): Unknown tools, invalid arguments, server errors
-2. **Tool execution errors** (`isError: true`): API failures, business logic errors, invalid data
+**Why it happens:**
+- Vector search returns low-similarity chunks but system proceeds anyway
+- LLM fills gaps when context is insufficient
+- No validation that cited pages actually exist
+- Similarity threshold set too low (< 0.7 often problematic)
 
-**Current codebase issue:** The `PiveauApiError` exceptions bubble up but may not consistently set `isError: true` in MCP responses. FastMCP may convert some to protocol errors incorrectly.
+**Consequences:**
+- Users lose trust in AI chat feature
+- Support burden increases ("AI told me to do X but it doesn't exist")
+- Reputation damage ("their AI just makes things up")
 
 **Warning signs:**
-- Users report "tool succeeded but showed an error"
-- LLM retries tools that actually failed
-- Audit logs show errors without corresponding MCP isError responses
+- User reports "AI recommended a page that doesn't exist"
+- Citation URLs in chat responses return 404s
+- Low similarity scores (< 0.7) in vector search results
+- Generic answers that don't reference specific docs sections
 
 **Prevention:**
-```python
-# WRONG: Return error as text content without isError
-return {"error": "API rate limit exceeded"}
+```typescript
+// WRONG: Use results without similarity threshold
+const results = await vectorDB.query(embedding, { limit: 5 });
 
-# RIGHT: FastMCP's ToolError or explicit isError handling
-from fastmcp.exceptions import ToolError
-raise ToolError("API rate limit exceeded")
+// RIGHT: Filter by similarity threshold and validate URLs
+const results = await vectorDB.query(embedding, { limit: 5 });
+const filtered = results.filter(r => r.similarity > 0.75);
+
+if (filtered.length === 0) {
+  return {
+    type: 'NO_RESULTS',
+    message: "I couldn't find relevant information in the documentation."
+  };
+}
+
+// Validate all cited URLs exist before returning
+const validatedResults = await Promise.all(
+  filtered.map(async r => {
+    const pageExists = await validatePageExists(r.url);
+    return pageExists ? r : null;
+  })
+).then(r => r.filter(Boolean));
 ```
 
-**Phase:** Enterprise Error Handling (structured error responses)
+**Phase implications:**
+- Phase 01: Must implement similarity threshold + fallback messaging
+- Phase 01: Add URL validation before citation
+- Testing: Verify low-quality queries return "I don't know" not hallucinations
 
 **Severity:** Critical
 
 ---
 
-### 2. Progress Reporting Without Completion Guarantee
+### Pitfall 2: Navigation Restructuring Breaks Production Links
 
-**What goes wrong:** Progress reporting starts but operation fails mid-stream, leaving clients in indeterminate state.
+**What goes wrong:** Consolidating 8 tabs → 3 tabs changes URLs. External sites, bookmarks, Google search results all break. Users encounter 404s, SEO rankings drop.
 
-**Current codebase issue:** `list_catalogues` calls `ctx.report_progress(0, 1, "Fetching...")` then `ctx.report_progress(1, 1, "Retrieved N")` but if `list_catalogues` raises between these calls, client may never see completion.
+**Why it happens:**
+- Moving content changes Fumadocs-generated URLs
+- No redirect mapping created
+- Restructuring happens in one phase without staged rollout
+- External references unknown (can't test all inbound links)
+
+**Current codebase risk:**
+- `content/docs/meta.json` defines 8 section separators (7 navigable groups)
+- Groups like `(guides)` and `(advanced)` use Next.js route groups
+- URLs like `/docs/getting-started/installation` are public and indexed
+- `/try` page is externally referenced
+
+**Consequences:**
+- Broken links from external sites (Medium posts, Stack Overflow, GitHub repos)
+- SEO penalty from 404s
+- User frustration and bounces
+- Support burden from "link doesn't work"
 
 **Warning signs:**
-- Progress bars stuck at intermediate values
-- Clients timeout waiting for completion
-- Operations appear hung but have actually failed
+- 404 errors in Next.js logs after deployment
+- Google Search Console shows crawl errors
+- Social media shares stop working
+- Users report broken bookmarks
 
 **Prevention:**
-```python
-# WRONG: Progress without exception handling
-async def list_catalogues(ctx: Context, ...):
-    await ctx.report_progress(0, 1, "Starting...")
-    result = await client.list_catalogues()  # Can raise!
-    await ctx.report_progress(1, 1, "Done")
-    return result
-
-# RIGHT: Ensure progress completes on all paths
-async def list_catalogues(ctx: Context, ...):
-    await ctx.report_progress(0, 1, "Starting...")
-    try:
-        result = await client.list_catalogues()
-        await ctx.report_progress(1, 1, f"Retrieved {len(result)} items")
-        return result
-    except Exception as e:
-        await ctx.report_progress(1, 1, f"Failed: {e}")
-        raise
+```typescript
+// Create comprehensive redirect map BEFORE restructuring
+// File: docs/next.config.mjs
+export default {
+  async redirects() {
+    return [
+      // Old navigation structure → New
+      { source: '/docs/tutorials/:slug*', destination: '/docs/getting-started/:slug*', permanent: true },
+      { source: '/docs/guides/:slug*', destination: '/docs/:slug*', permanent: true },
+      { source: '/docs/advanced/:slug*', destination: '/docs/:slug*', permanent: true },
+      // Keep comprehensive list of ALL moved URLs
+    ];
+  }
+};
 ```
 
-**Phase:** FastMCP Features (progress reporting)
+**Additional prevention:**
+- Audit all existing URLs before restructuring (fumadocs-cli can help)
+- Test redirects with `curl -I` for all old URLs
+- Keep redirects for minimum 6-12 months (SEO best practice)
+- Add "this page moved" banner during transition
 
-**Severity:** High
+**Phase implications:**
+- Phase 02: Must create full redirect map before any restructuring
+- Phase 02: Audit all current URLs and external references
+- Phase 02: Add redirect testing to CI/CD
+- Phase 02: Deploy redirects first, restructure second
 
----
-
-### 3. Missing outputSchema in Tool Definitions
-
-**What goes wrong:** Without `outputSchema`, clients and LLMs cannot validate or properly parse structured responses. This causes:
-- Inconsistent response handling
-- LLM parsing errors on complex structures
-- Poor developer experience
-
-**Current codebase issue:** Tools return `dict[str, Any]` without schema. FastMCP may not enforce or generate output schemas automatically.
-
-**Warning signs:**
-- LLMs ask "what format is this in?" after tool calls
-- Client-side parsing errors on valid responses
-- Documentation gaps for tool outputs
-
-**Prevention:**
-- Define Pydantic response models for all tools
-- Use FastMCP's schema generation from return type annotations
-- Document expected response structure in tool descriptions
-
-**Phase:** Enterprise Error Handling (schema validation)
-
-**Severity:** Medium
+**Severity:** Critical
 
 ---
 
-### 4. Tool Annotation Misuse
+### Pitfall 3: Video Rendering Blocks CI/CD Pipeline
 
-**What goes wrong:** Tool annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`) are informational hints, not enforcement mechanisms. Servers trust them to guide LLM behavior but they cannot prevent misuse.
+**What goes wrong:** Remotion renders videos during `next build`. With multiple videos, build time exceeds 5-minute constraint, CI/CD fails, deployments blocked.
 
-**Current codebase issue:** Uses annotations correctly but AuthMiddleware enforcement is custom, not protocol-standard.
+**Why it happens:**
+- Remotion renders are CPU-intensive (30-120 seconds per video)
+- Default configuration renders all videos on every build
+- Multiple videos multiply build time linearly
+- No caching of unchanged videos
 
-**Warning signs:**
-- LLMs call destructive tools without user confirmation
-- Read-only tools somehow modify state
-- Idempotent tools behave differently on retry
+**Example calculation:**
+- 5 video tutorials × 60 seconds each = 5 minutes rendering alone
+- Plus Next.js build time (2-3 minutes) = 7-8 minutes total
+- Exceeds constraint, breaks deployment
 
-**Prevention:**
-- Never rely solely on annotations for security
-- Implement server-side enforcement (as AuthMiddleware does)
-- Annotations guide LLM behavior, not replace access control
-
-**Phase:** N/A (already handled)
-
-**Severity:** Medium
-
----
-
-## Sampling-Specific Pitfalls
-
-### 5. Hardcoding Model Names in Sampling Requests
-
-**What goes wrong:** Server requests `claude-3-sonnet` specifically but client uses OpenAI or a different provider. Request fails or returns unexpected results.
+**Consequences:**
+- CI/CD pipeline fails on every commit
+- Deploys blocked until rendering completes
+- Development velocity drops (can't iterate quickly)
+- Vercel build timeouts (free tier: 15 min, can still be problematic)
 
 **Warning signs:**
-- Sampling works in dev, fails in production
-- "Model not found" errors in sampling responses
-- Different behavior across MCP client implementations
+- Build time suddenly jumps after adding videos
+- Vercel/CI logs show long "Compiling" phases
+- Timeouts in GitHub Actions
+- Local `npm run build` takes >5 minutes
 
 **Prevention:**
-```python
-# WRONG: Hardcoded model
-sampling_params = {
-    "modelPreferences": {
-        "hints": [{"name": "claude-3-5-sonnet-20241022"}]
-    }
+```typescript
+// WRONG: Render videos during Next.js build
+// pages/videos/[slug].tsx - generates videos at build time
+
+// RIGHT: Pre-render videos separately, treat as static assets
+// Package.json
+{
+  "scripts": {
+    "videos:render": "remotion render --config remotion.config.ts",
+    "videos:render-if-changed": "tsx scripts/render-changed-videos.ts",
+    "prebuild": "bun run videos:render-if-changed"
+  }
 }
 
-# RIGHT: Flexible hints with priority signals
-sampling_params = {
-    "modelPreferences": {
-        "hints": [
-            {"name": "claude"},
-            {"name": "gpt"}
-        ],
-        "intelligencePriority": 0.7,  # Need capable model
-        "speedPriority": 0.5,
-        "costPriority": 0.3
-    }
+// scripts/render-changed-videos.ts
+import { checkVideoSourcesChanged } from './check-changes';
+if (await checkVideoSourcesChanged()) {
+  // Only render if video source files changed
+  await renderVideos();
+} else {
+  console.log('Videos unchanged, skipping render');
 }
 ```
 
-**Phase:** FastMCP Features (sampling for recommendations)
+**Additional prevention:**
+- Render videos separately from documentation build
+- Cache rendered video files (e.g., upload to R2/S3)
+- Use Remotion Lambda for heavy rendering (not local CI)
+- Implement incremental rendering (only changed videos)
+- Add `SKIP_VIDEO_RENDER` environment variable for quick iterations
 
-**Severity:** High
+**Phase implications:**
+- Phase 04: Must design video build architecture before implementing
+- Phase 04: Set up caching/storage for rendered videos
+- Phase 04: Add separate video render step outside Next.js build
+- Phase 04: Test build time stays under constraint
+
+**Severity:** Critical
 
 ---
 
-### 6. Sampling Without User Approval Handling
+### Pitfall 4: CLI Breaking Changes for Existing Users
 
-**What goes wrong:** Server assumes sampling will succeed, doesn't handle rejection. User denies sampling request, server crashes or hangs.
+**What goes wrong:** Improving CLI changes command signatures or behavior. Existing users' scripts and workflows break without warning.
+
+**Why it happens:**
+- No semantic versioning strategy
+- CLI flags renamed or removed
+- Output format changes (breaking parsers)
+- Interactive prompts added where automation expected
+
+**Current codebase risk:**
+- `@datagvat/mcp-installer` already published and in use
+- Users have scripts depending on current CLI behavior
+- No version checking or migration path implemented
+
+**Consequences:**
+- User automation breaks (CI/CD scripts fail)
+- Support burden from "it stopped working"
+- Negative reputation ("breaking changes without notice")
+- Users hesitant to update
 
 **Warning signs:**
-- Unhandled exceptions when users deny sampling
-- Features broken for users who disable sampling
-- No fallback behavior when sampling unavailable
+- Issue reports "CLI doesn't work after update"
+- Users pin to old versions in package.json
+- Scripts fail with new CLI version
+- Different behavior in CI vs local (version mismatch)
 
 **Prevention:**
-```python
-try:
-    recommendation = await ctx.sample(messages=[...])
-except SamplingDeniedError:
-    # Graceful degradation
-    return {"recommendation": "Unable to provide AI recommendation", "fallback": True}
-except SamplingError as e:
-    logger.warning(f"Sampling failed: {e}")
-    return {"recommendation": "Recommendation unavailable", "error": str(e)}
+```typescript
+// WRONG: Change command signature without versioning
+// Before: cli install <package>
+// After:  cli add <package>  // Breaking change!
+
+// RIGHT: Maintain backward compatibility with deprecation warnings
+if (command === 'install') {
+  console.warn('⚠️  `install` is deprecated, use `add` instead');
+  command = 'add';  // Redirect to new command
+}
+
+// Semantic versioning: Major bump for breaking changes
+// 1.2.3 → 2.0.0 when changing signatures
+
+// Add --version flag and check in users' scripts
+if (cliVersion < requiredVersion) {
+  throw new Error(`CLI v${requiredVersion}+ required, found v${cliVersion}`);
+}
 ```
 
-**Phase:** FastMCP Features (sampling for recommendations)
+**Additional prevention:**
+- Follow semantic versioning strictly (major.minor.patch)
+- Maintain deprecated commands for 1-2 major versions
+- Add changelog with migration guides
+- Test CLI in non-interactive mode (CI simulation)
+- Never change output format in minor versions
+- Add `--json` flag for stable machine-readable output
 
-**Severity:** High
+**Phase implications:**
+- Phase 05: Audit all proposed CLI changes for backward compatibility
+- Phase 05: Add deprecation warnings before removing features
+- Phase 05: Implement version checking and migration prompts
+- Phase 05: Test existing user scripts still work
+
+**Severity:** Critical
 
 ---
 
-### 7. Nested Sampling Chains Without Visibility
+### Pitfall 5: Vector DB Costs Spiral Out of Control
 
-**What goes wrong:** Tool A calls sampling, which triggers Tool B, which calls sampling again. Users cannot see the full chain, costs escalate, latency compounds.
+**What goes wrong:** Every page load queries vector DB. With growing traffic, costs escalate from $5/month → $500/month. Small project budget exhausted.
+
+**Why it happens:**
+- No query caching implemented
+- Embedding generation for every user query (expensive)
+- High-dimensional embeddings (1536+ dims) increase storage costs
+- No rate limiting on chat feature
+
+**Example calculation:**
+```
+Traffic: 1000 users/day × 3 queries each = 3000 queries/day
+Embedding cost: $0.0001/1K tokens × 50 tokens avg = $0.005/query
+Vector DB: $0.0004/1K queries (Pinecone pricing)
+Monthly: 3000 × 30 = 90K queries
+Cost: 90K × ($0.005 + $0.0004) = $486/month
+
+With caching (80% hit rate):
+Actual queries: 90K × 0.2 = 18K
+Cost: $97/month (5x cheaper)
+```
+
+**Consequences:**
+- Unexpected bills kill project budget
+- Must disable feature to control costs
+- Poor performance without optimizations
+- Small project can't sustain feature
 
 **Warning signs:**
-- Unexpectedly high latency for simple operations
-- Token usage much higher than expected
-- User approval fatigue (multiple prompts for single action)
+- Vector DB usage metrics climbing rapidly
+- Monthly bills increasing unexpectedly
+- Every query hits embedding API (check logs)
+- No cache hit metrics
 
 **Prevention:**
-- Limit sampling depth (no sampling from within sampled responses)
-- Surface all sampling requests to user in single approval
-- Log sampling chain for debugging
-- Consider caching sampling results for repeated patterns
+```typescript
+// WRONG: Query vector DB on every request
+async function searchDocs(query: string) {
+  const embedding = await generateEmbedding(query);
+  return vectorDB.query(embedding);
+}
 
-**Phase:** FastMCP Features
+// RIGHT: Multi-layer caching strategy
+import { LRUCache } from 'lru-cache';
 
-**Severity:** Medium
+const queryCache = new LRUCache({
+  max: 1000,  // Cache 1000 recent queries
+  ttl: 1000 * 60 * 60,  // 1 hour TTL
+});
+
+const embeddingCache = new LRUCache({
+  max: 5000,
+  ttl: 1000 * 60 * 60 * 24,  // 24 hour TTL
+});
+
+async function searchDocs(query: string) {
+  const normalizedQuery = query.toLowerCase().trim();
+
+  // Check query cache first (full result)
+  const cached = queryCache.get(normalizedQuery);
+  if (cached) return cached;
+
+  // Check embedding cache
+  let embedding = embeddingCache.get(normalizedQuery);
+  if (!embedding) {
+    embedding = await generateEmbedding(query);
+    embeddingCache.set(normalizedQuery, embedding);
+  }
+
+  const result = await vectorDB.query(embedding);
+  queryCache.set(normalizedQuery, result);
+  return result;
+}
+```
+
+**Additional prevention:**
+- Use lower-dimensional embeddings if accuracy permits (768 vs 1536 dims)
+- Implement query deduplication (many users ask same questions)
+- Add rate limiting per user (5 queries/minute)
+- Consider free-tier vector DBs (Weaviate Cloud, Qdrant Cloud)
+- Pre-compute embeddings for common queries
+- Monitor costs with alerts (e.g., >$50/month warning)
+
+**Phase implications:**
+- Phase 01: Must implement caching before RAG launch
+- Phase 01: Set up cost monitoring and alerts
+- Phase 01: Add rate limiting to chat endpoint
+- Phase 01: Budget review and cost projections
+
+**Severity:** Critical
 
 ---
 
-## API Integration Pitfalls (Piveau Hub / DCAT-AP)
+## High-Severity Pitfalls
 
-### 8. JSON-LD `@graph` Extraction Fails on Edge Cases
+Mistakes that cause significant issues but are recoverable.
 
-**What goes wrong:** DCAT-AP responses can return:
-- `{"@graph": [...]}` (array of objects)
-- `{"@graph": {...}}` (single object, rare but valid)
-- Direct object without `@graph` wrapper
-- Empty responses
+### Pitfall 6: Duplicate Title Rendering (Frontmatter + H1)
 
-**Current codebase issue:** `_extract_list()` handles list and `@graph` but may fail on edge cases:
-```python
-def _extract_list(self, result: Any) -> list[dict[str, Any]]:
-    if isinstance(result, list):
-        return result
-    if isinstance(result, dict) and "@graph" in result:
-        return result["@graph"]  # Assumes list!
-    return []
-```
+**What goes wrong:** Page shows title twice: once from Fumadocs layout (frontmatter), once from MDX H1. Looks unprofessional, hurts SEO (duplicate H1).
 
-**Warning signs:**
-- Empty results when API has data
-- Type errors on certain datasets
-- Inconsistent behavior across different catalogues
-
-**Prevention:**
-```python
-def _extract_list(self, result: Any) -> list[dict[str, Any]]:
-    if isinstance(result, list):
-        return result
-    if isinstance(result, dict):
-        graph = result.get("@graph")
-        if graph is not None:
-            if isinstance(graph, list):
-                return graph
-            elif isinstance(graph, dict):
-                return [graph]  # Single object in graph
-        # Maybe the dict itself is the result
-        if "@id" in result or "@type" in result:
-            return [result]
-    return []
-```
-
-**Phase:** Search Phase (data extraction reliability)
-
-**Severity:** High
-
----
-
-### 9. RDF Parsing Silently Falls Back to Raw Content
-
-**What goes wrong:** `_parse_rdf()` catches all exceptions and returns `{"_raw": content}`. Caller doesn't know parsing failed, proceeds with corrupted data structure.
+**Why it happens:**
+- Fumadocs DocsPage component renders `page.data.title` from frontmatter (line 72 in page.tsx)
+- MDX content includes `# Title` heading
+- Both render without deduplication
 
 **Current codebase issue:**
-```python
-def _parse_rdf(self, content: str, content_type: str) -> dict[str, Any]:
-    try:
-        graph = Graph()
-        graph.parse(data=content, format=rdf_format)
-        return json.loads(graph.serialize(format="json-ld"))
-    except Exception as e:
-        logger.warning(f"RDF parse failed: {e}")
-        return {"_raw": content}  # Silent degradation!
+```tsx
+// docs/app/[lang]/docs/[[...slug]]/page.tsx:72
+<h1 className="text-[1.75em] font-semibold">{page.data.title}</h1>
+{/* Then MDX body also contains # Title */}
+<Mdx components={...} />
 ```
 
-**Warning signs:**
-- Tools return `{"_raw": "..."}` instead of structured data
-- Downstream code fails on missing expected keys
-- Inconsistent response formats
-
-**Prevention:**
-- Make RDF parse failures explicit (raise or return error structure)
-- Add `_parse_success: bool` field to response
-- Log parse failures at ERROR level, not WARNING
-- Consider separate code paths for RDF vs JSON responses
-
-**Phase:** Enterprise Error Handling
-
-**Severity:** Medium
-
----
-
-### 10. Multilingual Fields Handled Inconsistently
-
-**What goes wrong:** DCAT-AP fields like `dct:title` can be:
-- String: `"My Dataset"`
-- Language map: `{"de": "Mein Datensatz", "en": "My Dataset"}`
-- RDF literal with language tag
-- Array of above
-
-**Current codebase issue:** Models define `title: dict[str, str] | str` but extraction logic varies. `search_vocabulary_terms` handles this, other tools may not.
+**Consequences:**
+- Unprofessional appearance
+- SEO penalty (multiple H1 tags)
+- Inconsistent spacing
+- User confusion
 
 **Warning signs:**
-- Search returns fewer results than expected
-- Titles display as `{"de": "...", "en": "..."}` instead of localized string
-- German users see English content or vice versa
+- Visual inspection shows double titles
+- Lighthouse SEO audit flags multiple H1s
+- Users report "title appears twice"
 
 **Prevention:**
-- Create standardized `extract_localized(data, field, locale="de")` helper
-- Always extract user's preferred locale with fallback chain: `de` -> `en` -> first available
-- Apply consistently across all tools and resources
+```tsx
+// Option 1: Remove H1 from Fumadocs layout, rely on MDX
+// (May break pages without H1 in content)
 
-**Phase:** Search Phase
+// Option 2: Strip H1 from MDX content during rendering
+import { visit } from 'unist-util-visit';
 
-**Severity:** Medium
+function stripFirstH1() {
+  return (tree) => {
+    let found = false;
+    visit(tree, 'heading', (node, index, parent) => {
+      if (!found && node.depth === 1) {
+        parent.children.splice(index, 1);
+        found = true;
+        return [visit.SKIP, index];
+      }
+    });
+  };
+}
 
----
+// Add to MDX compilation pipeline
+// fumadocs.config.ts or rehype plugins
 
-### 11. Rate Limiting Without Backoff Causes Cascading Failures
-
-**What goes wrong:** Piveau Hub may rate-limit requests. Without backoff, rapid retries hit limits harder, causing longer outages.
-
-**Current codebase issue:** No retry logic. Single 30s timeout, no backoff.
-
-**Warning signs:**
-- Errors spike then persist for minutes
-- All users affected simultaneously
-- API returns 429 but server keeps hammering
-
-**Prevention:**
-```python
-# Use tenacity or custom retry logic
-from tenacity import retry, stop_after_attempt, wait_exponential
-
-@retry(
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=1, min=1, max=10),
-    retry=retry_if_exception_type(httpx.HTTPStatusError)
-)
-async def _request(self, ...):
-    ...
+// Option 3: Convention to not include H1 in MDX
+// (Requires linting all content files)
 ```
 
-**Phase:** Enterprise Error Handling
+**Phase implications:**
+- Phase 02: Choose deduplication strategy
+- Phase 02: Implement remark/rehype plugin or layout change
+- Phase 02: Audit all MDX files for H1 presence
+- Phase 02: Add linting rule to prevent future duplicates
 
-**Severity:** High
+**Severity:** High (visible quality issue, SEO impact)
 
 ---
 
-### 12. DCAT-AP URI vs ID Confusion
+### Pitfall 7: RAG Returns Off-Topic Answers
 
-**What goes wrong:** DCAT-AP uses `@id` with full URIs like `https://data.gv.at/katalog/my-dataset`. API paths use short IDs like `my-dataset`. Mixing these causes 404s.
+**What goes wrong:** User asks about Austria MCP features, RAG answers with generic Next.js or Fumadocs advice pulled from dependencies' documentation.
 
-**Current codebase issue:** Tools accept `dataset_id: str` but don't validate or extract short ID from URI.
+**Why it happens:**
+- Vector DB indexed node_modules documentation
+- Similarity search doesn't filter by source
+- Generic documentation has high similarity to query
+- No domain scoping in retrieval
+
+**Consequences:**
+- Unhelpful answers frustrate users
+- Users distrust AI chat feature
+- Support burden increases
 
 **Warning signs:**
-- "Not found" errors for datasets that exist
-- Users copy `@id` from one tool, paste into another, it fails
-- Inconsistent ID formats in responses
+- Answers mention framework internals not project features
+- Citations point to dependency docs not project docs
+- Users say "answer is generic, doesn't address my question"
 
 **Prevention:**
-```python
-def normalize_id(id_or_uri: str) -> str:
-    """Extract short ID from full URI or return as-is if already short."""
-    if id_or_uri.startswith("http"):
-        return id_or_uri.rstrip("/").split("/")[-1]
-    return id_or_uri
+```typescript
+// WRONG: Index everything, no filtering
+await vectorDB.index(allMarkdownFiles);
+
+// RIGHT: Index only project documentation, filter retrieval
+const PROJECT_DOCS_PREFIX = '/docs/';
+
+// During indexing
+for (const file of markdownFiles) {
+  if (file.path.startsWith('content/docs/')) {
+    await vectorDB.index({
+      content: file.content,
+      metadata: {
+        source: 'project',
+        url: file.url,
+      }
+    });
+  }
+}
+
+// During retrieval
+const results = await vectorDB.query(embedding, {
+  filter: { source: 'project' },
+  limit: 5
+});
+
+// In system prompt
+const systemPrompt = `You are a documentation assistant for Austria MCP Server.
+ONLY answer questions using the provided documentation context.
+If the context doesn't contain relevant information, say so.
+DO NOT provide generic advice about Next.js, Fumadocs, or other frameworks.`;
 ```
 
-**Phase:** Search Phase (robustness)
+**Phase implications:**
+- Phase 01: Implement source filtering in vector DB schema
+- Phase 01: Add domain-specific system prompt
+- Phase 01: Test with off-topic queries to verify rejection
 
-**Severity:** Medium
+**Severity:** High (quality and trust issue)
 
 ---
 
-## Search Implementation Pitfalls
+### Pitfall 8: Video Tutorials Become Outdated Quickly
 
-### 13. Client-Side Search Without Index Causes O(n) Scans
+**What goes wrong:** Videos show old UI, deprecated commands, or incorrect workflows. Documentation text is updated but videos lag behind.
 
-**What goes wrong:** `search_vocabulary_terms` fetches entire vocabulary, then filters in Python. With large vocabularies, this is slow and doesn't scale.
+**Why it happens:**
+- Videos are expensive to re-render (time/effort)
+- No automated detection of outdated content
+- Text documentation updates don't trigger video updates
+- No versioning strategy for videos
 
-**Current codebase issue:**
-```python
-async def search_vocabulary_terms(...):
-    vocab_data = await client.get_vocabulary(vocabulary_id)  # Fetch all
-    # ... loop through all terms checking query ...
+**Consequences:**
+- User confusion (video contradicts text)
+- Support burden ("I followed video, didn't work")
+- Poor onboarding experience
+- Wasted effort maintaining stale content
+
+**Warning signs:**
+- Users report "video shows different interface"
+- Video demonstrates deprecated commands
+- Comments like "this doesn't work anymore"
+- Video view count drops (users prefer text)
+
+**Prevention:**
+```typescript
+// Strategy 1: Videos show concepts, not exact UI
+// Focus on concepts/architecture (slower to change)
+// Avoid screen recordings of UI (fast-changing)
+
+// Strategy 2: Programmatic videos with version checking
+// remotion/QuickstartVideo.tsx
+import { VIDEO_VERSION } from './version';
+import { CLI_VERSION } from '../../../packages/mcp-installer/package.json';
+
+export const QuickstartVideo = () => {
+  // If CLI version changed, video needs re-render
+  // This forces awareness of version mismatches
+};
+
+// Strategy 3: Banner for outdated videos
+// components/video-player.tsx
+const videoDate = metadata.recordedDate;
+const daysSinceRecorded = daysSince(videoDate);
+
+if (daysSinceRecorded > 90) {
+  return (
+    <Banner type="warning">
+      This video was recorded {daysSinceRecorded} days ago.
+      Some details may have changed. Check the text documentation for latest information.
+    </Banner>
+  );
+}
+
+// Strategy 4: Version videos explicitly
+// - "Quickstart (v2.0)" clearly dated
+// - Maintain multiple versions or redirect to latest
 ```
 
-**Warning signs:**
-- Search latency grows with vocabulary size
-- High memory usage during search
-- Timeouts on large vocabularies
+**Additional prevention:**
+- Limit video scope (focus on stable features)
+- Add video versioning to frontmatter
+- Implement "last verified" date in video metadata
+- Periodically audit videos vs current state (quarterly)
+- Consider linking to video timestamps with notes
 
-**Prevention:**
-- Use API-side search if available (`?q=` parameter)
-- If client-side required, implement pagination
-- Consider caching vocabulary data with TTL
-- Add `limit` parameter to cap results early
+**Phase implications:**
+- Phase 04: Define video versioning strategy
+- Phase 04: Add "last verified" metadata to videos
+- Phase 04: Implement outdated video warnings
+- Phase 04: Document video maintenance process
 
-**Phase:** Search Phase
-
-**Severity:** Medium
-
----
-
-### 14. Fuzzy Search Matches Too Broadly or Too Narrowly
-
-**What goes wrong:** Simple `query.lower() in label.lower()` matches:
-- "data" matches "Metadata" (too broad)
-- "Umwelt" doesn't match "Umweltdaten" typo (too narrow)
-
-**Warning signs:**
-- Users complain results are irrelevant
-- Exact matches buried under partial matches
-- Typos return zero results
-
-**Prevention:**
-- Implement ranking: exact > prefix > contains > fuzzy
-- Use established fuzzy matching (rapidfuzz, thefuzz)
-- Add minimum score threshold
-- Weight title matches higher than description matches
-
-**Phase:** Search Phase (relevance)
-
-**Severity:** High
+**Severity:** High (impacts onboarding and trust)
 
 ---
 
-### 15. Search Ignores DCAT-AP Controlled Vocabularies
+### Pitfall 9: RAG Chunking Loses Context
 
-**What goes wrong:** User searches for "environment" but datasets use EU vocabulary URI `http://publications.europa.eu/resource/authority/data-theme/ENVI`. Text search finds nothing.
+**What goes wrong:** Documentation split into chunks loses critical context. Vector search returns chunk about "installation" but missing prerequisite "requires Node.js 18+". User follows incomplete instructions, fails.
 
-**Current codebase issue:** No vocabulary-aware search. Theme filtering would need URI mapping.
+**Why it happens:**
+- Chunking by fixed character count (e.g., 1000 chars) splits mid-section
+- No semantic boundary detection
+- No overlap between chunks
+- Cross-references lost
 
-**Warning signs:**
-- Theme/category filters return no results
-- Users must know exact vocabulary URIs
-- Natural language queries miss categorized datasets
+**Example:**
+```markdown
+# Installation
 
-**Prevention:**
-- Build theme label -> URI mapping from vocabulary API
-- Expand search queries with vocabulary synonyms
-- Support both labels and URIs in filter parameters
+Prerequisites:
+- Node.js 18+
+- Python 3.11+
 
-**Phase:** Search Phase (filtering)
+... 800 characters ...
 
-**Severity:** Medium
+## Install with npx
 
----
-
-### 16. Special Characters Break Search
-
-**What goes wrong:** Searches containing `&`, `+`, `%`, quotes, or Unicode cause:
-- URL encoding errors
-- Regex injection (if using regex)
-- Empty results due to escaping issues
-
-**Warning signs:**
-- Certain searches always fail
-- Users report "search is broken"
-- Errors in logs with encoded characters
-
-**Prevention:**
-- Sanitize and escape all search inputs
-- Use parameterized queries not string interpolation
-- Test with: `"Gewässer & Umwelt"`, `"50% Förderung"`, `"Nötig"`
-
-**Phase:** Search Phase
-
-**Severity:** Medium
-
----
-
-## FastMCP-Specific Pitfalls
-
-### 17. Lifespan Context Access Race Conditions
-
-**What goes wrong:** Tools access `ctx.request_context.lifespan_context` but lifespan may not be fully initialized, especially in edge cases or tests.
-
-**Current codebase issue:** `get_app_state()` assumes lifespan_context is always an `AppState`. No None check.
-
-**Warning signs:**
-- `AttributeError: 'NoneType' has no attribute 'piveau_client'`
-- Intermittent failures on server startup
-- Tests fail without proper fixture setup
-
-**Prevention:**
-```python
-def get_app_state(ctx: Context) -> "AppState":
-    state = ctx.request_context.lifespan_context
-    if state is None:
-        raise RuntimeError("Server not fully initialized")
-    return state
+Run the following command:
+[CHUNK BOUNDARY]
 ```
 
-**Phase:** Enterprise Error Handling
+User gets "Install with npx" chunk without prerequisites → failure.
 
-**Severity:** Medium
-
----
-
-### 18. Middleware Order Affects Behavior
-
-**What goes wrong:** Middleware executes in registration order. If AuditMiddleware logs before AuthMiddleware rejects, logs show "started" for unauthorized requests.
-
-**Current codebase issue:** Order is `[AuditMiddleware(), AuthMiddleware()]`. Audit logs unauthorized attempts which may be desired, but execution order matters.
+**Consequences:**
+- Incomplete/incorrect answers
+- Users miss critical requirements
+- Support burden from "followed docs, didn't work"
 
 **Warning signs:**
-- Unexpected log entries for rejected requests
-- Auth checks appear to run after other middleware
-- Debugging middleware interactions is confusing
+- Answers missing prerequisites or context
+- Users report instructions incomplete
+- High similarity but low user satisfaction
+- Many follow-up questions for clarification
 
 **Prevention:**
-- Document middleware order explicitly
-- Test middleware interaction scenarios
-- Consider: Auth before Audit (fewer logs) vs Audit before Auth (security audit trail)
+```typescript
+// WRONG: Fixed character chunking
+function chunk(text: string): string[] {
+  const chunkSize = 1000;
+  const chunks = [];
+  for (let i = 0; i < text.length; i += chunkSize) {
+    chunks.push(text.slice(i, i + chunkSize));
+  }
+  return chunks;
+}
 
-**Phase:** N/A (design decision, document it)
+// RIGHT: Semantic chunking with overlap
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 
-**Severity:** Low
+const splitter = new RecursiveCharacterTextSplitter({
+  chunkSize: 1000,
+  chunkOverlap: 200,  // 20% overlap captures context
+  separators: ['\n## ', '\n### ', '\n\n', '\n', ' '],  // Semantic boundaries
+});
 
----
-
-### 19. Resource Limits Hidden in Hardcoded Values
-
-**What goes wrong:** Resources like `catalogues_resource` hardcode `limit=1000`. If > 1000 catalogues exist, users get truncated results silently.
-
-**Current codebase issue:**
-```python
-@mcp.resource("piveau://catalogues")
-async def catalogues_resource(ctx: Context) -> list[dict[str, Any]]:
-    return await client.list_catalogues(limit=1000)  # Hardcoded!
+// Even better: Section-aware chunking
+function chunkBySection(mdxContent: string) {
+  const sections = parseSections(mdxContent);  // Parse by H2/H3
+  return sections.map(section => ({
+    content: section.content,
+    metadata: {
+      title: section.title,
+      parent: section.parent,  // H2 context for H3 sections
+      url: section.url,
+    }
+  }));
+}
 ```
 
-**Warning signs:**
-- Resources return exactly 1000/100 items
-- Users report missing data
-- No pagination in resource responses
+**Additional prevention:**
+- Include section titles in chunk metadata
+- Add parent section context to chunks
+- Test retrieval with partial queries (do they get full context?)
+- Prefer larger chunks if quality improves (test 1000 vs 1500 vs 2000)
 
-**Prevention:**
-- Resources should return reasonable defaults but document limits
-- Consider adding pagination to resource URIs: `piveau://catalogues?page=2`
-- Or implement MCP resource pagination if protocol supports
+**Phase implications:**
+- Phase 01: Research optimal chunking strategy before indexing
+- Phase 01: Implement semantic splitter with overlap
+- Phase 01: Test retrieval quality with various chunk sizes
+- Phase 01: Add metadata for context preservation
 
-**Phase:** FastMCP Features
-
-**Severity:** Medium
+**Severity:** High (quality of answers suffers)
 
 ---
 
-## Observability Pitfalls
+### Pitfall 10: Video File Sizes Too Large
 
-### 20. Correlation IDs Not Propagated to External APIs
+**What goes wrong:** 10MB+ video files slow page loads, hurt mobile users, increase hosting costs.
 
-**What goes wrong:** Request has `request_id` from MCP client but HTTP calls to Piveau don't include it. When API errors occur, cannot correlate with client request.
+**Why it happens:**
+- High resolution rendering (1080p default)
+- Uncompressed or poorly compressed output
+- Long videos (>5 minutes) without splitting
+- No adaptive bitrate streaming
 
-**Current codebase issue:** `AuditMiddleware` extracts request_id but `PiveauClient` doesn't send it in headers.
+**Consequences:**
+- Slow page loads (especially mobile)
+- High bandwidth costs
+- Poor UX for slow connections
+- Hosting storage costs
 
 **Warning signs:**
-- Cannot trace requests end-to-end
-- API errors logged without context
-- Debugging requires timestamp correlation
+- Video files >5MB each
+- Page load times spike with videos
+- Mobile users report slow loading
+- High CDN bandwidth bills
 
 **Prevention:**
-```python
-# Add correlation header to external requests
-headers["X-Request-ID"] = correlation_id
-headers["X-Correlation-ID"] = correlation_id
+```typescript
+// Remotion config: remotion.config.ts
+export default {
+  codec: 'h264',
+  videoBitrate: '2M',  // Not default 5M+
+  audioBitrate: '128k',
+  pixelFormat: 'yuv420p',
+  // Optimize for web
+  outputOptions: [
+    '-movflags', '+faststart',  // Enable progressive streaming
+  ],
+};
+
+// Or use WebM (better compression)
+export default {
+  codec: 'vp9',
+  videoBitrate: '1M',  // Better compression than h264
+};
+
+// Resolution: 720p sufficient for docs, not 1080p
+export const VIDEO_WIDTH = 1280;
+export const VIDEO_HEIGHT = 720;
+
+// Split long videos into chapters
+// "Quickstart Part 1: Installation" (2 min)
+// "Quickstart Part 2: Configuration" (2 min)
+// Better than single 5-minute video
 ```
 
-**Phase:** Enterprise Error Handling (logging)
+**Additional prevention:**
+- Serve videos from CDN with compression (Cloudflare R2 + Transform)
+- Add lazy loading for videos (only load when scrolled into view)
+- Provide fallback: thumbnail links to external hosting (YouTube) if file size an issue
+- Monitor video file sizes in CI (fail if >3MB)
 
-**Severity:** Medium
+**Phase implications:**
+- Phase 04: Define video resolution/bitrate standards
+- Phase 04: Set file size limits and monitoring
+- Phase 04: Optimize encoding settings for web delivery
+- Phase 04: Consider external hosting for large videos
+
+**Severity:** High (UX and costs)
+
+---
+
+### Pitfall 11: RAG Slow Response Times Kill UX
+
+**What goes wrong:** User sends query, waits 5-10 seconds for response. Streaming chat appears frozen. User closes window thinking it's broken.
+
+**Why it happens:**
+- No streaming implementation (waits for full response)
+- Vector search + LLM call done serially (no parallelization)
+- Cold starts in serverless functions
+- No loading indicators
+
+**Consequences:**
+- Poor user experience
+- Users abandon feature
+- Appears broken/unresponsive
+- Low adoption
+
+**Warning signs:**
+- Time to first token >3 seconds
+- Users report "chat is slow/broken"
+- No visual feedback during processing
+- High abandonment rate (analytics)
+
+**Prevention:**
+```typescript
+// WRONG: Serial processing, no streaming
+async function handleChat(query: string) {
+  const embedding = await generateEmbedding(query);  // 500ms
+  const context = await vectorDB.query(embedding);    // 1000ms
+  const response = await llm.complete(prompt);        // 3000ms
+  return response;  // Total: 4.5s before user sees anything
+}
+
+// RIGHT: Parallel + streaming + immediate feedback
+import { streamText } from 'ai';
+
+export async function POST(req: Request) {
+  const { messages } = await req.json();
+  const query = messages[messages.length - 1].content;
+
+  // Immediately return stream
+  const result = streamText({
+    model: openai('gpt-4'),
+    system: 'You are a documentation assistant...',
+    messages,
+    async onStart() {
+      // Parallel processing while streaming starts
+      const [embedding] = await Promise.all([
+        generateEmbedding(query),
+        // Could pre-warm other resources
+      ]);
+
+      const context = await vectorDB.query(embedding);
+      // Inject context into prompt
+    },
+  });
+
+  return result.toDataStreamResponse();
+}
+
+// Frontend: Show immediate feedback
+function ChatInterface() {
+  const { messages, input, handleSubmit, isLoading } = useChat();
+
+  return (
+    <>
+      {isLoading && <LoadingIndicator>Searching documentation...</LoadingIndicator>}
+      {/* Streaming responses appear immediately */}
+    </>
+  );
+}
+```
+
+**Additional prevention:**
+- Target <1s time to first token
+- Use SSE/streaming for all responses
+- Show progress: "Searching docs..." → "Generating answer..."
+- Pre-warm serverless functions (periodic pings)
+- Consider edge functions for lower latency
+
+**Phase implications:**
+- Phase 01: Implement streaming from day 1
+- Phase 01: Add loading states and progress indicators
+- Phase 01: Measure and optimize time to first token
+- Phase 01: Test on slow connections (throttled network)
+
+**Severity:** High (critical UX issue)
+
+---
+
+### Pitfall 12: CLI Interactive Prompts Break Automation
+
+**What goes wrong:** Added interactive prompts for better UX. User CI/CD scripts now hang waiting for input that never comes.
+
+**Why it happens:**
+- No detection of non-interactive environments (CI/CD)
+- Interactive prompts added without `--yes` flag
+- Assuming terminal is always available
+
+**Consequences:**
+- CI/CD pipelines hang or timeout
+- Automated scripts break
+- Users forced to pin old versions
+
+**Warning signs:**
+- CI logs show "waiting for input" indefinitely
+- GitHub Actions timeout
+- Users request `--non-interactive` flag
+- Scripts work locally, fail in CI
+
+**Prevention:**
+```typescript
+// WRONG: Always prompt interactively
+const confirm = await prompts({
+  type: 'confirm',
+  name: 'value',
+  message: 'Install dependencies?',
+});
+
+// RIGHT: Detect environment and respect flags
+import { isCI } from 'ci-info';
+import { program } from 'commander';
+
+program
+  .option('-y, --yes', 'Skip interactive prompts')
+  .option('--non-interactive', 'Run in non-interactive mode');
+
+const isInteractive = !isCI && !program.opts().yes && !program.opts().nonInteractive;
+
+if (isInteractive) {
+  const confirm = await prompts({
+    type: 'confirm',
+    name: 'value',
+    message: 'Install dependencies?',
+  });
+} else {
+  // Use sensible defaults
+  console.log('Running in non-interactive mode, using defaults');
+}
+
+// Provide environment variable option too
+if (process.env.CI || process.env.NON_INTERACTIVE) {
+  // Skip prompts
+}
+```
+
+**Phase implications:**
+- Phase 05: Audit all new prompts for CI compatibility
+- Phase 05: Add `--yes` / `--non-interactive` flags
+- Phase 05: Test in actual CI environment (GitHub Actions)
+- Phase 05: Document non-interactive usage
+
+**Severity:** High (breaks automation)
+
+---
+
+## Medium-Severity Pitfalls
+
+Issues that cause friction but are manageable.
+
+### Pitfall 13: Poor RAG Source Attribution
+
+**What goes wrong:** RAG provides answer but doesn't cite sources. User can't verify information or dive deeper. Trust issues emerge.
+
+**Why it happens:**
+- LLM system prompt doesn't enforce citations
+- Metadata not passed to LLM context
+- No UI for displaying sources
+- Citations in wrong format (not clickable links)
+
+**Consequences:**
+- Users can't verify answers
+- Can't explore topics further
+- Trust issues ("where did this come from?")
+- Missed opportunity to drive docs engagement
+
+**Prevention:**
+```typescript
+// System prompt must enforce citations
+const systemPrompt = `You are a documentation assistant for Austria MCP Server.
+
+CRITICAL: You MUST cite your sources using the [Source: <URL>] format at the end of each claim.
+
+Example:
+"The MCP server requires Node.js 18 or later [Source: /docs/getting-started/installation].
+You can install it using npm or npx [Source: /docs/getting-started/installation#installation-methods]."
+
+If you cannot find relevant information in the provided context, say "I don't have information about this in the documentation."
+`;
+
+// Pass source URLs in context
+const contextWithSources = results.map(r =>
+  `Content: ${r.content}\nSource: ${r.metadata.url}`
+).join('\n\n');
+
+// Parse citations from response
+function parseCitations(text: string): { text: string; citations: string[] } {
+  const citationRegex = /\[Source: ([^\]]+)\]/g;
+  const citations = [...text.matchAll(citationRegex)].map(m => m[1]);
+  return { text, citations };
+}
+
+// Display in UI
+function ChatMessage({ content }: { content: string }) {
+  const { text, citations } = parseCitations(content);
+
+  return (
+    <div>
+      <Markdown>{text}</Markdown>
+      {citations.length > 0 && (
+        <div className="mt-4 border-t pt-2">
+          <p className="text-sm text-muted-foreground">Sources:</p>
+          <ul>
+            {citations.map(url => (
+              <li key={url}>
+                <Link href={url}>{url}</Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+**Phase implications:**
+- Phase 01: Enforce citation format in system prompt
+- Phase 01: Build citation parsing and display UI
+- Phase 01: Test that all answers include sources
+
+**Severity:** Medium (quality/trust issue, not critical failure)
+
+---
+
+### Pitfall 14: Videos Lack Accessibility
+
+**What goes wrong:** Videos don't have captions, transcripts, or keyboard navigation. Excludes deaf/hard-of-hearing users, hurts SEO, violates accessibility standards.
+
+**Why it happens:**
+- Captions not generated during render
+- No transcript provided alongside video
+- Keyboard controls not implemented
+- Accessibility often afterthought
+
+**Consequences:**
+- Excludes significant user population
+- SEO penalty (no searchable text)
+- Potential legal issues (WCAG compliance)
+- Poor discoverability (can't search video content)
+
+**Prevention:**
+```typescript
+// Generate captions during video creation
+// remotion/QuickstartVideo.tsx with captions
+import { Captions } from './components/Captions';
+
+export const QuickstartVideo = () => {
+  return (
+    <>
+      <VideoContent />
+      <Captions>
+        <Caption start={0} end={5}>Welcome to Austria MCP Server</Caption>
+        <Caption start={5} end={10}>In this tutorial, we'll install...</Caption>
+      </Captions>
+    </>
+  );
+};
+
+// Generate WebVTT captions file
+// scripts/generate-captions.ts
+export function generateVTT(captions: Caption[]) {
+  return `WEBVTT
+
+  ${captions.map(c => `
+  ${formatTimestamp(c.start)} --> ${formatTimestamp(c.end)}
+  ${c.text}
+  `).join('\n')}`;
+}
+
+// Include transcript in page
+<article>
+  <VideoPlayer src="/videos/quickstart.mp4" captions="/videos/quickstart.vtt" />
+
+  <details className="mt-4">
+    <summary>Video Transcript</summary>
+    <Transcript>{transcript}</Transcript>
+  </details>
+</article>
+```
+
+**Additional prevention:**
+- Auto-generate captions from script/narration
+- Provide keyboard controls (spacebar = play/pause)
+- Add audio descriptions for visual-only elements
+- Test with screen readers
+- Include searchable transcript text
+
+**Phase implications:**
+- Phase 04: Generate captions for all videos
+- Phase 04: Provide downloadable transcripts
+- Phase 04: Test accessibility with screen readers
+- Phase 04: Add WCAG compliance checklist
+
+**Severity:** Medium (accessibility and SEO, legal risk)
+
+---
+
+### Pitfall 15: Repository Cleanup Breaks Dependencies
+
+**What goes wrong:** Deleting "unused" files that are actually imported somewhere. Build breaks after cleanup.
+
+**Why it happens:**
+- Dynamic imports hard to detect statically
+- Files used in CI/CD scripts not obvious
+- MDX components imported via registry
+- Type definitions referenced indirectly
+
+**Current codebase risk:**
+- `docs/components/registry.ts` dynamically loads components
+- Scripts in `docs/scripts/*.ts` may reference files
+- `.source` directory has generated files
+
+**Consequences:**
+- Build breaks after cleanup
+- Production deployment fails
+- Features silently broken
+- Time wasted debugging
+
+**Warning signs:**
+- Build errors after "cleanup" commit
+- Missing imports
+- Dynamic imports fail at runtime
+- Type errors in CI
+
+**Prevention:**
+```bash
+# WRONG: Delete files based on assumption
+rm -rf docs/unused/
+
+# RIGHT: Analyze before deleting
+# 1. Check for imports
+bun run scripts/find-unused-files.ts
+
+# scripts/find-unused-files.ts
+import { Project } from 'ts-morph';
+
+const project = new Project({ tsConfigFilePath: 'tsconfig.json' });
+const sourceFiles = project.getSourceFiles();
+
+// Find all imports
+const importedPaths = new Set();
+sourceFiles.forEach(file => {
+  file.getImportDeclarations().forEach(imp => {
+    importedPaths.add(imp.getModuleSpecifierValue());
+  });
+});
+
+// Find files not imported
+const allFiles = glob.sync('**/*.{ts,tsx,js,jsx}');
+const unused = allFiles.filter(f => !importedPaths.has(f));
+
+console.log('Potentially unused files:', unused);
+// Manual review before deletion!
+
+# 2. Test build after cleanup
+bun run build && bun run validate
+```
+
+**Additional prevention:**
+- Commit cleanup incrementally (file by file or small batches)
+- Run full build + validation after each cleanup
+- Use `git grep` to find references before deleting
+- Keep deleted files in git history (revert if needed)
+- Test deployed site after cleanup
+
+**Phase implications:**
+- Phase 07: Use static analysis before deletions
+- Phase 07: Delete incrementally with testing between
+- Phase 07: Build must pass before cleanup commits
+- Phase 07: Deploy to preview environment first
+
+**Severity:** Medium (breaks build, but recoverable via git)
+
+---
+
+### Pitfall 16: Fumadocs Tab State Leaks Between Pages
+
+**What goes wrong:** User selects "Advanced" tab on page A, navigates to page B, "Advanced" tab is pre-selected but page B has different tabs. Content mismatch or error.
+
+**Why it happens:**
+- Fumadocs uses persistent tab state (localStorage)
+- Tab IDs not namespaced by page
+- Tabs component shares global state
+
+**Current codebase risk:**
+- Uses `<Tabs>` throughout docs
+- Progressive disclosure pattern depends on tab state
+- State shared across navigation
+
+**Consequences:**
+- Wrong tab selected on page load
+- User confusion
+- Content mismatch (showing wrong variant)
+
+**Warning signs:**
+- Users report "page shows wrong content"
+- Tab selection doesn't match page default
+- Tabs component errors in console
+
+**Prevention:**
+```tsx
+// Namespace tab IDs by page
+<Tabs defaultValue="basic" id={`${page.url}-example`}>
+  <Tab value="basic">Basic</Tab>
+  <Tab value="advanced">Advanced</Tab>
+</Tabs>
+
+// Or use page-scoped state
+const [selectedTab, setSelectedTab] = useState('basic');
+// Resets on page navigation (not persisted)
+
+// Or clear tab state on navigation
+useEffect(() => {
+  // Clear any persistent tab state for new page
+  return () => {
+    localStorage.removeItem('fumadocs-tabs');
+  };
+}, [pathname]);
+```
+
+**Phase implications:**
+- Phase 02: Audit tab ID namespacing
+- Phase 02: Test tab state across navigation
+- Phase 02: Fix any global state leaks
+
+**Severity:** Medium (UX issue, not critical)
+
+---
+
+### Pitfall 17: RAG Context Window Exceeded
+
+**What goes wrong:** Too many/large chunks retrieved, exceed LLM context window (e.g., 128K tokens). API call fails, user sees error.
+
+**Why it happens:**
+- Retrieving top 10-20 chunks without size checking
+- Large documentation chunks
+- System prompt + context + conversation exceeds limit
+
+**Example calculation:**
+```
+System prompt: 500 tokens
+Conversation history (10 messages): 2000 tokens
+Retrieved context (10 chunks × 1000 tokens): 10,000 tokens
+Total: 12,500 tokens (fits in GPT-4)
+
+But:
+Long conversation: 5000 tokens
+Retrieved context (20 chunks × 1500 tokens): 30,000 tokens
+Total: 35,500 tokens (exceeds some models)
+```
+
+**Consequences:**
+- API errors ("context too long")
+- Truncated responses
+- Poor UX (chat stops working)
+
+**Prevention:**
+```typescript
+const MAX_CONTEXT_TOKENS = 100000;  // Safety margin below model limit
+const SYSTEM_PROMPT_TOKENS = 500;
+const MAX_MESSAGE_HISTORY_TOKENS = 10000;
+
+// Calculate token budget
+const availableTokens = MAX_CONTEXT_TOKENS
+  - SYSTEM_PROMPT_TOKENS
+  - estimateTokens(messages);
+
+// Retrieve and truncate context to fit
+let context = await vectorDB.query(embedding, { limit: 20 });
+let contextText = context.map(c => c.content).join('\n\n');
+let contextTokens = estimateTokens(contextText);
+
+while (contextTokens > availableTokens && context.length > 1) {
+  context.pop();  // Remove lowest-similarity chunk
+  contextText = context.map(c => c.content).join('\n\n');
+  contextTokens = estimateTokens(contextText);
+}
+
+// Or intelligent summarization
+if (contextTokens > availableTokens) {
+  contextText = await summarizeContext(contextText, availableTokens);
+}
+```
+
+**Phase implications:**
+- Phase 01: Implement context window management
+- Phase 01: Add token counting and truncation
+- Phase 01: Test with long conversations
+- Phase 01: Handle truncation gracefully (no errors)
+
+**Severity:** Medium (causes errors but rare)
+
+---
+
+### Pitfall 18: Video Rendering Differences Local vs CI
+
+**What goes wrong:** Videos render correctly locally but fail or look different in CI. Fonts missing, timing off, rendering artifacts.
+
+**Why it happens:**
+- Font dependencies not installed in CI
+- Different Chrome/Puppeteer versions
+- Timing-dependent animations
+- Missing system libraries
+
+**Consequences:**
+- CI builds fail unpredictably
+- Videos look different than expected
+- Debugging difficult (can't reproduce locally)
+
+**Prevention:**
+```yaml
+# .github/workflows/render-videos.yml
+- name: Install system dependencies
+  run: |
+    # Fonts for consistent rendering
+    apt-get install -y fonts-liberation fonts-noto-color-emoji
+    # Chrome/Puppeteer dependencies
+    apt-get install -y chromium-browser
+
+- name: Use exact Node/Bun version
+  uses: actions/setup-node@v4
+  with:
+    node-version: '20.x'  # Match local version exactly
+
+- name: Render videos
+  env:
+    # Ensure consistent rendering
+    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'false'
+    CI: 'true'
+  run: bun run videos:render
+```
+
+**Additional prevention:**
+- Lock dependency versions (package-lock.json)
+- Use Docker for consistent environment
+- Avoid timing-dependent animations (use frame-based)
+- Test videos in CI before merging
+- Document all system dependencies
+
+**Phase implications:**
+- Phase 04: Set up video rendering in CI early
+- Phase 04: Match local and CI environments exactly
+- Phase 04: Test rendering consistency
+- Phase 04: Document all dependencies
+
+**Severity:** Medium (affects CI reliability)
+
+---
+
+### Pitfall 19: CLI Error Messages Don't Help Users Fix Issues
+
+**What goes wrong:** CLI fails with cryptic error like "Error: ENOENT" without context. User doesn't know what to do.
+
+**Why it happens:**
+- Catching errors without contextualizing
+- Technical error messages shown to users
+- No actionable suggestions
+- Missing error recovery guidance
+
+**Consequences:**
+- User frustration
+- Support burden
+- Users give up
+- Poor CLI reputation
+
+**Prevention:**
+```typescript
+// WRONG: Technical error bubbled up
+try {
+  await installPackage(name);
+} catch (error) {
+  console.error(error);  // "Error: ENOENT: no such file or directory"
+  process.exit(1);
+}
+
+// RIGHT: Contextual, actionable errors
+try {
+  await installPackage(name);
+} catch (error) {
+  if (error.code === 'ENOENT') {
+    console.error(`
+❌ Could not find package.json in current directory.
+
+Make sure you're running this command in your project root.
+
+Current directory: ${process.cwd()}
+
+Run this instead:
+  cd /path/to/your/project
+  npx @datagvat/mcp-installer add ${name}
+    `);
+  } else if (error.code === 'EACCES') {
+    console.error(`
+❌ Permission denied writing to node_modules.
+
+Try running with sudo (not recommended) or fix permissions:
+  sudo chown -R $(whoami) node_modules
+    `);
+  } else {
+    console.error(`
+❌ Failed to install ${name}
+
+Error: ${error.message}
+
+Need help? Open an issue:
+  https://github.com/datagvat/datagvat-mcp/issues
+    `);
+  }
+  process.exit(1);
+}
+```
+
+**Phase implications:**
+- Phase 05: Audit all error messages
+- Phase 05: Add context and suggestions
+- Phase 05: Test error paths (simulate failures)
+- Phase 05: User test CLI error UX
+
+**Severity:** Medium (UX issue)
+
+---
+
+### Pitfall 20: Deep Navigation Nesting Makes Content Hard to Find
+
+**What goes wrong:** Consolidating 8 tabs → 3 tabs moves content deeper. `/docs/guides/examples/workflows` becomes 4 levels deep. Users can't find pages.
+
+**Why it happens:**
+- Flattening tabs without flattening structure
+- Nested groups preserved
+- More clicks to reach content
+- Hidden under collapsed sections
+
+**Current structure risk:**
+```
+OLD (8 tabs):
+- Getting Started
+- Documentation (3 subsections)
+- Reference
+- API Reference
+- Advanced Topics
+- Try
+- Resources
+
+Consolidating to 3 tabs might create:
+- Docs (collapsed: getting-started, guides, examples, workflows, best-practices, etc.)
+- API (reference, api-reference)
+- Try
+
+Now "workflows" is: Docs > Guides > Examples > Workflows (4 clicks)
+```
+
+**Consequences:**
+- Users can't find content
+- Search becomes only discovery method
+- Popular pages lose visibility
+- Frustration and bounces
+
+**Prevention:**
+```json
+// WRONG: Deep nesting after consolidation
+{
+  "pages": [
+    "docs",  // Contains everything
+  ]
+}
+
+// RIGHT: Flatten hierarchy, use separators
+{
+  "pages": [
+    "getting-started",
+    "---Core Guides---",
+    "searching",
+    "data-preview",
+    "quality-metrics",
+    "---Workflows---",
+    "discovery-workflow",
+    "quality-workflow",
+    "---Reference---",
+    "tools",
+    "api"
+  ]
+}
+
+// Or promote important pages to top level
+{
+  "pages": [
+    "quickstart",  // Most important - top level
+    "workflows",   // Frequently accessed - top level
+    "---Guides---",
+    "guides",
+    "---Reference---",
+    "reference"
+  ]
+}
+```
+
+**Additional prevention:**
+- Audit user analytics (most visited pages)
+- Promote high-traffic pages to top level
+- Use "popular pages" section
+- Add breadcrumbs for deep pages
+- Improve search discoverability
+
+**Phase implications:**
+- Phase 02: Analyze current page traffic before restructuring
+- Phase 02: Promote important content to top level
+- Phase 02: Test navigation with fresh users
+- Phase 02: Measure "time to find page" before/after
+
+**Severity:** Medium (discoverability issue)
 
 ---
 
 ## Phase Mapping Summary
 
-| Phase | Pitfalls to Address |
-|-------|---------------------|
-| **Search Phase** | #8 JSON-LD extraction, #10 Multilingual fields, #12 URI vs ID, #13 O(n) search, #14 Fuzzy matching, #15 Vocabulary awareness, #16 Special characters |
-| **Enterprise Error Handling** | #1 Two-tier errors, #2 Progress completion, #3 Output schemas, #9 RDF fallback, #11 Rate limiting, #17 Lifespan races, #20 Correlation IDs |
-| **FastMCP Features** | #5 Model hardcoding, #6 Sampling rejection, #7 Nested sampling, #19 Resource limits |
+| Phase | Critical Pitfalls | High-Severity Pitfalls | Medium-Severity Pitfalls |
+|-------|-------------------|------------------------|--------------------------|
+| **Phase 01: RAG Chat** | #1 Hallucinations, #5 Vector DB costs | #7 Off-topic answers, #9 Chunking context loss, #11 Slow responses | #13 Source attribution, #17 Context window |
+| **Phase 02: Navigation** | #2 Broken links | #6 Duplicate titles | #16 Tab state leaks, #20 Deep nesting |
+| **Phase 04: Videos** | #3 Rendering blocks CI/CD | #8 Videos outdated, #10 File sizes | #14 Accessibility, #18 CI rendering differences |
+| **Phase 05: CLI** | #4 Breaking changes | #12 Interactive prompts break automation | #19 Poor error messages |
+| **Phase 07: Cleanup** | None | None | #15 Breaking dependencies |
+
+## Confidence Assessment
+
+| Area | Confidence | Justification |
+|------|------------|---------------|
+| RAG Integration | MEDIUM | Based on training data (embeddings, LLM patterns) + existing Vercel AI SDK in codebase. Specific pitfalls from general RAG knowledge, not Austria MCP specific testing. |
+| Video Generation | MEDIUM | Based on training data (Remotion, video optimization) + build performance patterns. Haven't tested Remotion with this specific stack. |
+| CLI Patterns | HIGH | Strong existing patterns (shadcn CLI style), semantic versioning best practices, automation concerns well-documented. Current @datagvat/mcp-installer in codebase analyzed. |
+| Navigation/Fumadocs | HIGH | Existing codebase analysis (meta.json structure, Fumadocs version in use). Specific to this project's setup. |
+| Next.js Integration | HIGH | Current build pipeline analyzed, package.json dependencies verified, existing constraints understood. |
+| Repository Cleanup | HIGH | Standard patterns, existing codebase structure analyzed, dependency analysis tools known. |
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- MCP Protocol Specification - Tools: https://modelcontextprotocol.io/docs/concepts/tools
-  - Two-tier error handling, outputSchema, annotations, protocol compliance
-- MCP Protocol Specification - Sampling: https://modelcontextprotocol.io/docs/concepts/sampling
-  - Human-in-the-loop, model preferences, security considerations
+- Existing codebase analysis (`docs/package.json`, `docs/app/[lang]/docs/[[...slug]]/page.tsx`, `docs/content/docs/meta.json`)
+- Current navigation structure and build configuration
+- Fumadocs patterns from installed version (v16.4.7)
+- Vercel AI SDK v6.0.41 patterns from package.json
 
-### Secondary (MEDIUM confidence)
-- Current codebase analysis (`app/client.py`, `app/tools/*.py`, `app/middleware.py`)
-  - Identified existing patterns and gaps
-- DCAT-AP specification knowledge (training data)
-  - JSON-LD structures, multilingual handling, controlled vocabularies
+### Secondary (MEDIUM confidence - training data)
+- RAG best practices (chunking, embeddings, retrieval)
+- Remotion rendering patterns and optimization
+- CLI design patterns (semantic versioning, non-interactive mode)
+- Vector database cost optimization strategies
 
 ### Tertiary (LOW confidence - needs validation)
-- FastMCP-specific behavior inferred from code patterns
-  - Progress reporting semantics, lifespan context access
-- Search relevance patterns from general knowledge
-  - Fuzzy matching strategies, ranking algorithms
+- Specific vector DB pricing (varies by provider)
+- Exact token limits for latest models (check docs)
+- Fumadocs tab state persistence behavior (version-dependent)
 
 ## Metadata
 
-**Confidence breakdown:**
-- MCP Protocol: HIGH - Official documentation fetched
-- API Integration: MEDIUM - Codebase analysis + DCAT-AP knowledge
-- FastMCP Specifics: MEDIUM - Inferred from code patterns
-- Search Implementation: MEDIUM - General patterns, not project-specific testing
+**Research date:** 2026-01-22
+**Target milestone:** v2.1 Documentation Excellence & AI Features
+**Valid until:** 2026-02-22 (30 days - technologies evolving)
+**Recommended updates:** After Vercel AI SDK major version, Fumadocs updates, or Remotion breaking changes
 
-**Research date:** 2026-01-16
-**Valid until:** 2026-02-16 (30 days - stable domain, protocol unlikely to change)
+---
+
+## Quick Reference: Top 5 Must-Address Pitfalls
+
+1. **RAG Hallucinations (#1)** - Implement similarity threshold >0.75, validate citations, fallback messaging
+2. **Broken Links (#2)** - Create comprehensive redirect map before navigation restructuring
+3. **Video CI/CD (#3)** - Separate video rendering from Next.js build, implement caching
+4. **CLI Breaking Changes (#4)** - Semantic versioning, backward compatibility, deprecation warnings
+5. **Vector DB Costs (#5)** - Multi-layer caching, rate limiting, cost monitoring

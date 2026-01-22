@@ -1,358 +1,801 @@
-# Features Research: Enterprise Data Portal API Capabilities
+# Feature Landscape: Documentation Platform Enhancements (v2.1)
 
-**Researched:** 2026-01-16
-**Domain:** Open Government Data Discovery / MCP Server
-**Confidence:** MEDIUM (based on training data - CKAN, European Data Portal standards, data.gov patterns; WebSearch/WebFetch unavailable for verification)
+**Domain:** AI chat, video tutorials, CLI design, navigation UX for technical documentation
+**Researched:** 2026-01-22
+**Confidence:** HIGH (verified with AI SDK, Remotion, shadcn CLI, Next.js/Stripe navigation patterns)
 
 ## Executive Summary
 
-Enterprise data portals (CKAN, Socrata, European Data Portal, data.gov) have established clear expectations for data discovery APIs. Table stakes include faceted search, metadata filtering, format filtering, and pagination. Differentiators for an MCP server context include AI-powered semantic search, natural language query understanding, automated data quality assessment, and contextual recommendations. The MCP context creates unique opportunities: LLMs can synthesize multiple datasets, explain data schemas, and suggest relevant datasets based on conversational context rather than keyword matching alone.
+v2.1 adds four major capabilities to the existing Fumadocs-based documentation platform:
 
-**Key insight:** Users of data portals are typically data analysts and developers who need efficient discovery, not browsing. They want to find the right dataset fast, understand if it's usable, and get programmatic access. An MCP server should optimize for task completion, not exploration.
+1. **RAG Documentation Chat** - Semantic search and context-aware Q&A over 112 MDX files
+2. **Video Tutorials** - Programmatic video generation using Remotion for quickstart/workflow demos
+3. **CLI Excellence** - Enhance @datagvat/mcp-installer with shadcn-inspired interactive patterns
+4. **Navigation Simplification** - Reduce from 8 tabs to 3 (Docs/API/Try) for clearer information architecture
 
-## Current Implementation Analysis
+**Key insight:** These features serve different audiences at different stages. Chat serves exploratory users ("What can this do?"). Videos serve visual learners ("Show me how"). CLI serves installers ("Make it work"). Navigation serves everyone ("Where am I?").
 
-The existing Austria MCP server provides:
-- `list_catalogues`, `get_catalogue` - Basic catalogue enumeration
-- `search_datasets` - Pagination only (no text search, no filters)
-- `get_dataset`, `get_dataset_distributions` - Single dataset retrieval
-- `get_dataset_metrics`, `analyze_dataset_quality` - Quality assessment
-- `list_vocabularies`, `search_vocabulary_terms` - Controlled vocabulary access
+**Existing platform strengths:**
+- 112 MDX documentation files already written and working
+- Auto-generated tool reference (25 MCP tools) with TypeTable components
+- Progressive disclosure (Basic/Advanced tabs) throughout
+- Interactive components (Tabs, Steps, Mermaid) battle-tested
+- /try page with MCP tool testing infrastructure
+- Search button placeholder (ready for enhancement)
 
-**Gap analysis:** Current `search_datasets` is pagination-only, not true search. No filtering by format, theme, publisher, temporal range, or text query.
+## Table Stakes
 
-## Backend API Constraints (Piveau Hub)
+Features users expect from modern documentation platforms. Missing these = feature feels incomplete or unprofessional.
 
-Based on codebase analysis (`app/client.py`, `.planning/codebase/INTEGRATIONS.md`):
+### RAG Documentation Chat
 
-**Known Piveau Hub API endpoints:**
-| Endpoint | Parameters | Notes |
-|----------|-----------|-------|
-| `/catalogues` | `limit`, `offset`, `valueType` | Pagination only |
-| `/catalogues/{id}/datasets` | `limit`, `offset`, `valueType` | Pagination only |
-| `/datasets` | `limit`, `offset`, `valueType` | Pagination only |
-| `/datasets/{id}` | None | Single dataset fetch |
-| `/datasets/{id}/distributions` | `limit`, `offset`, `valueType` | Pagination only |
-| `/datasets/{id}/metrics` | `historic` | Quality metrics (DQV) |
-| `/vocabularies` | `limit`, `offset`, `valueType` | Pagination only |
-| `/vocabularies/{id}` | None | Single vocabulary fetch |
+| Feature | Why Expected | Complexity | User Value | Dependencies |
+|---------|--------------|------------|------------|--------------|
+| **Natural language Q&A** | Users ask "How do I search datasets?" not browse docs | Medium | High | AI SDK, embedding model |
+| **Context-aware responses** | Answer based on documentation content, not hallucinated | Medium | High | Vector DB, MDX indexing |
+| **Source citations** | Link to specific doc pages where answer came from | Low | High | AI SDK sources pattern |
+| **Multi-turn conversations** | Follow-up questions without repeating context | Low | Medium | useChat conversation state |
+| **Streaming responses** | Show partial answers as they generate | Low | Medium | AI SDK streaming |
+| **Error handling** | Graceful fallback when LLM fails or timeout | Low | High | AI SDK error states |
 
-**Critical unknown:** The current client does NOT use any search/filter query parameters beyond pagination. This could mean:
-1. Piveau Hub API does not support search (unlikely for a DCAT portal)
-2. Search endpoints exist but are not implemented in the client
-3. Search is available but uses different endpoint paths
+### Video Tutorials
 
-**Verification required:** Check Piveau Hub API documentation for:
-- `/search` or `/datasets?q=` query parameter support
-- Facet endpoints for themes, formats, publishers
-- Sort parameter support
+| Feature | Why Expected | Complexity | User Value | Dependencies |
+|---------|--------------|------------|------------|--------------|
+| **Quickstart video** (2-3 min) | Visual proof of "install to first query" flow | Medium | High | Remotion, screen recording |
+| **Workflow demos** (3-5 min each) | Show common tasks end-to-end | Medium | High | Remotion, real data examples |
+| **Synchronized captions** | Accessibility requirement, improves engagement | Medium | High | Remotion caption support |
+| **Embedded in docs** | Videos appear inline with written content | Low | Medium | Fumadocs video embedding |
+| **Thumbnail previews** | Clear visual cues what video covers | Low | Medium | Static image generation |
 
-**Implementation strategy:** If backend search is limited, client-side filtering can supplement:
-- Fetch larger result sets, filter in memory (performance cost)
-- Use vocabulary endpoints for facet values
-- Leverage LLM for semantic matching on fetched results
+### CLI Excellence
 
-## Table Stakes Features
+| Feature | Why Expected | Complexity | User Value | Dependencies |
+|---------|--------------|------------|------------|--------------|
+| **Interactive prompts** | Ask user for config options, don't require flags | Low | High | @clack/prompts |
+| **Validation feedback** | Check file paths, MCP config before proceeding | Low | High | Node fs, JSON validation |
+| **Clear progress indicators** | Show what's happening during installation | Low | Medium | @clack/prompts spinners |
+| **Success confirmation** | Explicit "Installation complete" with next steps | Low | High | Console formatting |
+| **Error messages** | User-friendly errors with actionable fixes | Medium | High | Error handling patterns |
 
-These are expected by users of any data discovery API. Missing these will cause users to abandon the tool.
+### Navigation Simplification
 
-| Feature | Description | Complexity | Dependencies | Confidence |
-|---------|-------------|------------|--------------|------------|
-| **Full-text search** | Search dataset titles, descriptions, keywords | Medium | Backend API support (verify Piveau) | HIGH |
-| **Faceted filtering** | Filter by theme/category, format, publisher, license | Medium | Vocabulary endpoints (available) | HIGH |
-| **Temporal filtering** | Filter by date range (issued, modified) | Low | Client-side if backend lacks support | HIGH |
-| **Format filtering** | Filter by distribution format (CSV, JSON, GeoJSON, etc.) | Low | Client-side filtering feasible | HIGH |
-| **Pagination with counts** | Return total count, page info for result navigation | Low | Backend may support (verify) | HIGH |
-| **Sort options** | Sort by relevance, date, title, popularity | Low | Backend support needed for relevance | HIGH |
-| **Dataset metadata completeness** | Return all DCAT-AP fields in results | Low | Already implemented | HIGH |
-| **Distribution preview URLs** | Direct links to download/access data | Low | Already implemented | HIGH |
-
-### Search Parameter Details
-
-Standard search parameters across enterprise portals (implementation depends on Piveau support):
-
-| Parameter | Type | Description | Example | Backend/Client |
-|-----------|------|-------------|---------|----------------|
-| `q` or `query` | string | Full-text search query | `"population vienna"` | Backend preferred |
-| `theme` | string[] | Category/theme filter (EU vocabulary) | `["GOVE", "ECON"]` | Either |
-| `format` | string[] | File format filter | `["CSV", "JSON"]` | Client feasible |
-| `publisher` | string | Publisher organization filter | `"Stadt Wien"` | Either |
-| `catalogue` | string | Catalogue ID filter | `"stadt-wien"` | Backend (exists) |
-| `issued_from` | date | Minimum issue date | `"2023-01-01"` | Client feasible |
-| `issued_to` | date | Maximum issue date | `"2024-12-31"` | Client feasible |
-| `modified_from` | date | Modified after date | `"2024-01-01"` | Client feasible |
-| `license` | string | License type filter | `"CC-BY-4.0"` | Client feasible |
-| `language` | string | Content language | `"de"` | Either |
-| `sort` | enum | Sort order | `"relevance"`, `"modified"`, `"title"` | Backend for relevance |
-| `limit` | int | Results per page | `20` | Backend (exists) |
-| `offset` | int | Pagination offset | `0` | Backend (exists) |
+| Feature | Why Expected | Complexity | User Value | Dependencies |
+|---------|--------------|------------|------------|--------------|
+| **3 main tabs** (Docs/API/Try) | Standard pattern (Next.js, Stripe, AI SDK) | Low | High | Fumadocs meta.json |
+| **Consistent tab order** | Predictable: learn → reference → try | Low | Medium | Navigation structure |
+| **No duplicate titles** | Don't show "Getting Started" in both nav and H1 | Low | Medium | MDX frontmatter cleanup |
+| **Clear hierarchy** | Subsections visible in sidebar | Low | High | Fumadocs built-in |
+| **Breadcrumbs** | Location awareness in deep hierarchies | Low | Medium | Fumadocs built-in |
 
 ## Differentiators
 
-Features that would set this MCP server apart from basic data portal APIs.
+Features that set this documentation apart. Not expected, but create exceptional user experience.
 
-| Feature | Description | Complexity | Dependencies | Confidence |
-|---------|-------------|------------|--------------|------------|
-| **Semantic search** | Understand query intent beyond keywords ("datasets about aging population") | High | LLM (via FastMCP sampling) | MEDIUM |
-| **Natural language filters** | Parse "datasets from Vienna updated this year" into structured query | Medium | LLM prompt parsing | MEDIUM |
-| **Quality-aware ranking** | Boost datasets with higher quality scores in results | Medium | `get_dataset_metrics` (exists) | HIGH |
-| **Schema introspection** | Fetch and describe CSV/JSON column names and types | High | Distribution download, parsing | MEDIUM |
-| **Data preview** | Return first N rows of tabular data | High | Download, parse, format | MEDIUM |
-| **Related datasets** | Suggest datasets with similar themes/keywords | Medium | Similarity computation | MEDIUM |
-| **Autocomplete suggestions** | Real-time term completion for search | Medium | Vocabulary endpoints (exist) | MEDIUM |
-| **Query explanation** | Explain why results match the query | Low | Return match context | HIGH |
-| **Combined dataset analysis** | "Compare these 3 datasets" across schemas | High | Multi-fetch, schema align | MEDIUM |
+### RAG Documentation Chat
 
-### Differentiator Details
+| Feature | Value Proposition | Complexity | User Value | Priority |
+|---------|-------------------|------------|------------|----------|
+| **Code generation** | Generate working MCP queries from natural language | High | High | P1 |
+| **Troubleshooting assistant** | Diagnose errors from error messages | Medium | High | P1 |
+| **Semantic search fallback** | If chat fails, fall back to search results | Low | Medium | P2 |
+| **Query history** | Show past conversations for reference | Low | Medium | P2 |
+| **Suggested questions** | Pre-populate common queries as buttons | Low | High | P1 |
+| **Domain-aware** | Understand MCP terminology (tools, resources, prompts) | Medium | High | P1 |
+| **Multi-doc synthesis** | Combine info from multiple pages ("Compare search vs semantic_search") | High | High | P2 |
 
-#### Semantic Search
-- **What:** Understand "census data" should match "Volkszaehlung" even without exact keyword match
-- **Why valuable:** Austrian data has German metadata; English-speaking users struggle
-- **Implementation:** Use FastMCP sampling to have LLM expand queries or match against descriptions
-- **Complexity:** HIGH - requires LLM token usage per search; could be expensive at scale
-- **MCP advantage:** LLM is already in the loop; leverage it for understanding
+**Code Generation Detail:**
+- User: "Find health datasets from Vienna"
+- Chat: Generates Claude Desktop query with exact tool invocation
+- Shows both natural language and MCP tool syntax
+- Explains parameters used
 
-#### Schema Introspection
-- **What:** For CSV/JSON distributions, fetch file and extract column names, data types, sample values
-- **Why valuable:** Users need to know if dataset has the fields they need before downloading
-- **Implementation:** Download distribution (with size limit), parse headers, infer types
-- **Complexity:** HIGH - needs format-specific parsers, size limits, encoding handling
-- **Formats to support:** CSV (priority), JSON, GeoJSON
+**Troubleshooting Detail:**
+- User pastes error: "Tool not found: search_dataset"
+- Chat: Identifies typo (missing 's'), links to correct tool docs
+- Suggests checking MCP server status
 
-#### Data Preview
-- **What:** Return first 10-20 rows of tabular data formatted for display
-- **Why valuable:** Quick data quality check without full download
-- **Implementation:** Download head of file, parse, return structured preview
-- **Complexity:** HIGH - format handling, encoding issues, large file protection
-- **Builds on:** Schema introspection infrastructure
+**Domain-Aware Detail:**
+- Understands "tool" means MCP tool, not generic software tool
+- Knows difference between resources (static content) and tools (dynamic queries)
+- Can explain FastMCP-specific patterns
 
-#### Quality-Aware Ranking
-- **What:** Use existing DQV metrics to boost high-quality datasets in search results
-- **Why valuable:** Reduces time spent on incomplete/broken datasets
-- **Implementation:** Fetch metrics for top N results, re-rank by quality score
-- **Complexity:** MEDIUM - additional API calls per result, but logic is straightforward
-- **Already have:** `get_dataset_metrics` tool provides DQV scores
+### Video Tutorials
 
-#### Autocomplete Suggestions
-- **What:** Suggest completions as user types search query
-- **Why valuable:** Faster search, discover available terms
-- **Implementation:** Use vocabulary terms + existing dataset titles/keywords
-- **Complexity:** MEDIUM - vocabulary endpoints exist; need index for titles
-- **MCP consideration:** May need new tool `suggest_search_terms(prefix: str)`
+| Feature | Value Proposition | Complexity | User Value | Priority |
+|---------|-------------------|------------|------------|----------|
+| **Programmatic generation** | Update videos by changing code, not re-filming | High | High | P0 |
+| **Dynamic data** | Show real data.gv.at datasets, not mock data | Medium | High | P1 |
+| **Code highlighting sync** | Highlight code lines as narration explains them | High | Medium | P2 |
+| **Interactive timestamps** | Click timestamp to jump to section | Low | Medium | P2 |
+| **Multiple formats** | MP4 for embedding, GIF for previews | Low | Low | P2 |
+
+**Programmatic Generation Value:**
+- When MCP protocol updates, regenerate videos automatically
+- Consistent visual style across all videos
+- Version-specific videos (v1.2 vs v2.0)
+
+**Recommended Video Types:**
+
+| Video | Length | Content | Priority |
+|-------|--------|---------|----------|
+| **Quickstart** | 2-3 min | Install CLI → configure → first query → success | P0 |
+| **Search workflow** | 3-4 min | Text search → filters → quality ranking → preview | P1 |
+| **Data preview** | 2-3 min | Find dataset → inspect schema → preview rows | P1 |
+| **Quality assessment** | 3-4 min | Get metrics → interpret scores → compare datasets | P1 |
+| **Semantic exploration** | 4-5 min | Natural language query → related datasets → theme drill-down | P1 |
+| **Architecture overview** | 5-7 min | MCP protocol → FastMCP → Piveau API → data flow | P2 |
+
+### CLI Excellence
+
+| Feature | Value Proposition | Complexity | User Value | Priority |
+|---------|-------------------|------------|------------|----------|
+| **Diff preview** | Show file changes before applying | Medium | High | P1 |
+| **Update command** | Check for new versions, update server | Medium | High | P1 |
+| **Config validation** | Verify MCP config.json structure | Low | High | P0 |
+| **Multiple install modes** | npx (global), local project, Docker | High | Medium | P2 |
+| **Rollback** | Undo broken installation | Medium | Low | P3 |
+| **Health check** | Test MCP server connectivity | Low | High | P1 |
+
+**Diff Preview Pattern (shadcn-inspired):**
+```
+npx @datagvat/mcp-installer@latest
+
+? Where is your Claude Desktop config? ~/Library/Application Support/Claude/config.json
+? Install mode: Add to existing config
+
+Preview changes:
+
+ config.json
+ + "datagvat": {
+ +   "command": "python",
+ +   "args": ["-m", "app"],
+ +   "env": {}
+ + }
+
+? Apply changes? (Y/n)
+```
+
+**Update Command:**
+```
+npx @datagvat/mcp-installer@latest update
+
+Checking for updates...
+Found new version: 2.1.0 (current: 2.0.0)
+
+What's new:
+- RAG documentation chat
+- Video tutorials
+- Enhanced CLI
+
+? Update now? (Y/n)
+```
+
+**Health Check:**
+```
+npx @datagvat/mcp-installer@latest health
+
+Checking MCP server status...
+✓ Config file found
+✓ Python environment available
+✓ Server responds to ping
+✓ 25 tools registered
+
+Status: Healthy
+```
+
+### Navigation Simplification
+
+| Feature | Value Proposition | Complexity | User Value | Priority |
+|---------|-------------------|------------|------------|----------|
+| **Smart tab icons** | Visual cues (Book/Code/Wrench for Docs/API/Try) | Low | Medium | P1 |
+| **Persistent state** | Remember which tab/page user was on | Low | Medium | P2 |
+| **Mobile optimization** | Collapsible navigation for small screens | Low | High | P0 |
+| **Deep linking** | Direct URLs to subsections | Low | High | P0 |
+
+**Current 8 Tabs (v2.0):**
+1. Docs (home)
+2. Getting Started
+3. Guides
+4. Examples
+5. Workflows
+6. Advanced
+7. Reference
+8. Try
+
+**Proposed 3 Tabs (v2.1):**
+1. **Docs** - All learning content (Getting Started → Guides → Examples → Workflows → Advanced)
+2. **API** - Tool reference (25 tools, auto-generated)
+3. **Try** - Interactive testing page
+
+**Why 3 is better:**
+- **Cognitive load:** Users scan 3 tabs vs 8
+- **Clear purpose:** Learn / Reference / Try maps to user journey
+- **Industry standard:** Next.js (3 tabs), Stripe (4 tabs), AI SDK (3 tabs)
+- **Mobile friendly:** Fits in mobile nav without scrolling
 
 ## Anti-Features
 
-Things to deliberately NOT build, and why.
+Features to deliberately NOT build. Common mistakes that bloat scope without user value.
 
-| Anti-Feature | Why NOT to Build | What to Do Instead |
-|--------------|------------------|-------------------|
-| **Full dataset download via MCP** | MCP responses have size limits; datasets can be gigabytes | Return download URLs; let client handle download |
-| **Real-time data transformation** | CPU-intensive, unpredictable execution time | Return raw data; user transforms locally |
-| **Data caching layer** | Stale data problems, storage costs, cache invalidation complexity | Fetch fresh from source; let HTTP caching handle it |
-| **User account management** | Out of scope for data discovery; portal handles this | Pass through API keys; don't manage auth |
-| **Dataset upload/creation UI** | MCP is query-focused; portal has upload workflows | Keep existing draft/publish tools minimal |
-| **Custom visualization** | MCP returns data, not rendered visuals | Return data; client renders |
-| **Cross-portal federation** | Scope creep; each portal has different APIs | Build single-portal excellence first |
-| **Notification/subscription system** | Requires persistent state, background jobs | Point users to portal notification features |
-| **Complex aggregation queries** | Unpredictable performance, scope creep | Return datasets; user aggregates locally |
-| **PDF/image OCR** | High complexity, low reliability | Return file URLs; user uses dedicated OCR tools |
-| **Usage-based recommendations** | Requires tracking infrastructure not available | Use content-based similarity instead |
+### Anti-Feature 1: Real-Time Collaboration (Chat)
 
-## User Expectations by Persona
+**What:** Multiple users in same chat session
+**Why NOT:**
+- Documentation chat is single-user by nature
+- Complexity: WebSocket infrastructure, state sync, auth
+- Marginal value: Users read docs solo, not in groups
+- Fumadocs is static site (SSG), not real-time platform
 
-### Data Analyst
-**Primary goal:** Find datasets for analysis projects
-**Expectations:**
-- Search by topic and filter by format (strongly prefer CSV/Excel)
-- See data quality indicators before downloading
-- Preview column names to verify relevance
-- Filter by date range for time-series analysis
-- Get direct download links
+**What to do instead:**
+- Focus on individual user experience
+- Fast, accurate responses for single user
+- Share chat links (future: permalink to conversation)
 
-**Pain points with current implementation:**
-- No text search - must know exact dataset ID or browse
-- No format filtering - must check each dataset's distributions manually
-- No quality indicators in search results
+### Anti-Feature 2: Video Commenting/Annotations
 
-### App Developer
-**Primary goal:** Find datasets with API access for applications
-**Expectations:**
-- Filter by format (JSON, GeoJSON, API endpoints)
-- See update frequency (static vs. real-time)
-- Verify license compatibility
-- Get stable, versioned endpoints
-- Understand schema before integration
+**What:** Users add comments at specific video timestamps
+**Why NOT:**
+- Maintenance burden: Moderation, spam, outdated comments
+- GitHub Discussions already exists for Q&A
+- Videos update frequently, comments become stale
+- Adds complexity to video player embed
 
-**Pain points with current implementation:**
-- No format filtering for API-friendly formats
-- No license filtering
-- No schema introspection
+**What to do instead:**
+- Link to GitHub Discussions for questions
+- Add "Was this helpful?" feedback button
+- Use YouTube if community comments are truly needed (defer to v2.2+)
 
-### Both Personas
-**Shared expectations:**
-- Fast search (< 1 second response for simple queries)
-- Relevant results in top 10
-- Clear metadata (title, description, publisher, date)
-- Working download links
-- Consistent API behavior
+### Anti-Feature 3: CLI GUI Wrapper
+
+**What:** Electron app with visual UI for MCP installation
+**Why NOT:**
+- Target audience (developers) prefer CLI
+- Maintenance: Two UIs (CLI + GUI) to keep in sync
+- Bundle size: Electron adds 100MB+ download
+- CLI is faster for automation (scripts, CI/CD)
+
+**What to do instead:**
+- Make CLI so good GUI is unnecessary
+- Clear prompts, colored output, progress bars
+- If GUI needed later, separate project (mcp-installer-gui)
+
+### Anti-Feature 4: Chat Memory Persistence (Cross-Session)
+
+**What:** Store chat history in database, restore on return
+**Why NOT:**
+- Privacy concerns: User queries may contain sensitive info
+- Complexity: Database, auth, data retention policies
+- Marginal value: Doc questions are ephemeral, not ongoing projects
+- Fumadocs is static site, adding backend is scope creep
+
+**What to do instead:**
+- Store in browser localStorage (client-only)
+- Expire after 7 days
+- Clear button prominently visible
+- Never send history to server
+
+### Anti-Feature 5: Multi-Language Video Narration
+
+**What:** Record videos in German + English with voice-over
+**Why NOT:**
+- High production cost: 2x recording, translation, sync
+- Text captions are faster to translate
+- Programmatic voice synthesis is low quality (uncanny valley)
+- German translation deferred to v2.3+ anyway
+
+**What to do instead:**
+- English narration with German/English captions
+- Use clear, simple English (easy to auto-translate)
+- Fumadocs language switcher applies to captions
+
+### Anti-Feature 6: CLI Plugin System
+
+**What:** Allow third-party plugins to extend mcp-installer
+**Why NOT:**
+- Scope creep: Turns simple installer into framework
+- Security: User-installed code runs during setup
+- Maintenance: Breaking changes impact ecosystem
+- Current CLI is 20% of codebase, plugins double complexity
+
+**What to do instead:**
+- Make core installer excellent at one thing
+- Document how to fork for custom needs
+- Provide clear extension points (config hooks)
+
+### Anti-Feature 7: Video Editing in Browser
+
+**What:** Remotion editor embedded in docs for user video generation
+**Why NOT:**
+- Remotion Studio is development tool, not user-facing
+- Requires Node.js environment (can't run in browser)
+- Users want to watch videos, not create them
+- Creates expectation we support custom video generation
+
+**What to do instead:**
+- Pre-render videos, host as static MP4
+- Document how we make videos (for contributors)
+- Keep Remotion tooling in separate /video directory
 
 ## Feature Dependencies
 
 ```
-Full-text Search (Foundation)
-    |
-    +-- Enables: Faceted filtering (combine with search)
-    +-- Enables: Quality-aware ranking (results to rank)
-    +-- Enables: Semantic search (extends base search)
+Foundation (Existing v2.0):
+├── 112 MDX documentation files
+├── Auto-generated tool reference
+├── Progressive disclosure (Tabs)
+├── Interactive components (Steps, Mermaid)
+├── /try page infrastructure
+└── Search button placeholder
 
-Semantic Search
-    |
-    +-- Requires: Full-text search (base implementation)
-    +-- Requires: LLM access (FastMCP sampling)
+RAG Documentation Chat:
+├── Depends on: MDX content (exists)
+├── Depends on: Vercel AI SDK (new dependency)
+├── Depends on: Embedding model (OpenAI, Cohere, or local)
+├── Depends on: Vector store (Pinecone, Supabase, or file-based)
+├── Enables: Code generation feature
+├── Enables: Troubleshooting assistant
+└── Enables: Semantic search fallback
 
-Schema Introspection
-    |
-    +-- Requires: Distribution URLs (already have)
-    +-- Requires: Format-specific parsers (CSV, JSON, GeoJSON)
-    +-- Requires: Size limit protection
-    +-- Enables: Data Preview (builds on introspection)
+Video Tutorials:
+├── Depends on: Remotion (new dependency)
+├── Depends on: Screen recording tools (OBS, QuickTime)
+├── Depends on: Hosting (Vercel blob, YouTube, or S3)
+├── Independent of: Other v2.1 features
+└── Enhances: Getting Started documentation
 
-Quality-Aware Ranking
-    |
-    +-- Requires: get_dataset_metrics (already have)
-    +-- Requires: Full-text search (to have results to rank)
+CLI Excellence:
+├── Depends on: @clack/prompts (new dependency)
+├── Depends on: Existing @datagvat/mcp-installer (exists)
+├── Depends on: Node fs, path, JSON validation
+├── Independent of: Documentation site
+└── Enhances: Installation experience
 
-Autocomplete
-    |
-    +-- Requires: Vocabulary endpoints (already have)
-    +-- Optional: Dataset title/keyword index
-    +-- Enables: Better search UX
-
-Related Datasets
-    |
-    +-- Requires: Theme/keyword extraction (from metadata)
-    +-- Requires: Similarity computation (overlap or embedding)
+Navigation Simplification:
+├── Depends on: MDX frontmatter cleanup
+├── Depends on: Fumadocs meta.json restructure
+├── Blocks: Nothing (can proceed immediately)
+└── Enables: Clearer information architecture for chat/videos
 ```
 
 ## Recommended Feature Prioritization
 
-Based on project context (from PROJECT.md "Active" requirements):
+### Phase 1: Navigation Simplification (Quick Win)
+**Why first:** Unblocks clear structure for chat and videos to integrate into.
 
-### Phase 1: Search Foundation (Table Stakes)
-Aligns with PROJECT.md "Search Overhaul" requirements.
+1. Restructure from 8 tabs to 3 (Docs/API/Try)
+2. Clean up duplicate titles in MDX frontmatter
+3. Update meta.json files for new hierarchy
+4. Add tab icons (Book/Code/Wrench)
+5. Test mobile navigation
 
-1. **Full-text search with filters** - Core value proposition
-   - Investigate Piveau backend search capability first
-   - Implement client-side fallback if needed
-2. **Faceted filtering** (theme, format, publisher, date)
-   - Theme: Use vocabulary endpoint for valid values
-   - Format: Filter on distribution mediaType
-   - Publisher: Extract from dataset metadata
-   - Date: Filter on issued/modified fields
-3. **Sort options** (relevance, date, title)
-4. **Pagination with counts**
-5. **Fuzzy matching** - Typo tolerance for search terms
+**Estimated effort:** 1-2 days
+**Risk:** Low (mostly config changes)
 
-### Phase 2: Quality and Preview
-Aligns with PROJECT.md "All-in-One Experience" requirements.
+### Phase 2: CLI Excellence (High Value, Low Risk)
+**Why second:** Independent of documentation site, immediate user value.
 
-1. **Quality-aware ranking** - Leverage existing metrics tool
-2. **Schema introspection** (CSV/JSON headers) - New tool
-3. **Data preview** (first N rows) - New tool
-4. **Autocomplete suggestions** - New tool
+1. Add @clack/prompts for interactive setup
+2. Implement diff preview for config changes
+3. Add config validation before installation
+4. Add health check command
+5. Add update command
 
-### Phase 3: Intelligence Layer
-Aligns with PROJECT.md "FastMCP Full Utilization" requirements.
+**Estimated effort:** 3-4 days
+**Risk:** Low (isolated to CLI codebase)
 
-1. **Semantic search** / query expansion via LLM sampling
-2. **Related dataset suggestions** - Content-based similarity
-3. **Natural language query parsing** - "datasets about X from Y"
-4. **Smart recommendations** - Based on query context
+### Phase 3: RAG Documentation Chat (Core Value)
+**Why third:** Requires navigation structure (Phase 1) to be clear.
 
-## MCP-Specific Considerations
+1. Set up AI SDK + embedding model
+2. Index MDX content to vector store
+3. Implement basic Q&A with citations
+4. Add suggested questions
+5. Add code generation feature
+6. Add troubleshooting assistant
 
-### Tool Design Patterns
-- **Prefer multiple focused tools over one mega-tool:** `search_datasets`, `get_schema`, `preview_data` vs. one tool with 20 parameters
-- **Return structured data, not formatted text:** Let the LLM format for the user
-- **Include pagination metadata:** `{ results: [...], total: 1234, offset: 0, limit: 20 }`
-- **Support batch operations:** `get_datasets(ids: string[])` for efficiency
+**Estimated effort:** 5-7 days
+**Risk:** Medium (new dependencies, LLM behavior unpredictable)
 
-### Proposed New Tools
+### Phase 4: Video Tutorials (Polish)
+**Why last:** Enhances documentation but not blocking other features.
 
-| Tool | Purpose | Priority |
-|------|---------|----------|
-| `search_datasets` (enhanced) | Full-text search with filters | P1 |
-| `get_search_facets` | Return available filter values | P1 |
-| `suggest_search_terms` | Autocomplete suggestions | P2 |
-| `get_dataset_schema` | Column names and types | P2 |
-| `preview_dataset` | First N rows of data | P2 |
-| `find_related_datasets` | Similar datasets by content | P3 |
-| `explain_search_results` | Why results match query | P3 |
+1. Set up Remotion project structure
+2. Create quickstart video (2-3 min)
+3. Create search workflow video (3-4 min)
+4. Create data preview video (2-3 min)
+5. Add captions and embed in docs
 
-### Response Size Management
-- **Search results:** Return metadata only, not full datasets
-- **Previews:** Hard limit on rows (20) and columns (50)
-- **Schema:** Return column names and types, not full data dictionaries
+**Estimated effort:** 7-10 days
+**Risk:** High (production quality, recording/editing time)
 
-### Error Handling
-- **No results:** Return empty array with helpful message, not error
-- **Invalid filters:** Return validation errors with valid options
-- **Timeout:** Return partial results with indication
-- **Large files:** Skip preview with size warning
+## Implementation Patterns
+
+### RAG Chat Architecture
+
+**Tech stack:**
+- **Frontend:** Vercel AI SDK `useChat` hook (already React/Next.js)
+- **Backend:** Next.js API route `/api/chat` with streaming
+- **Embeddings:** OpenAI `text-embedding-3-small` (1536 dimensions)
+- **Vector store:** Simple file-based JSON (100KB for 112 docs) or Supabase pgvector
+- **LLM:** OpenAI GPT-4 or Claude 3.5 Sonnet via AI SDK
+
+**Data flow:**
+```
+User types question
+  → useChat sends to /api/chat
+  → Embed question with OpenAI
+  → Query vector store (top 5 chunks)
+  → Construct prompt: system + context + question
+  → Stream response from LLM
+  → Parse source citations
+  → Display with links back to docs
+```
+
+**Indexing strategy:**
+```typescript
+// Pre-build script: index-docs.ts
+for each MDX file:
+  1. Parse frontmatter + content
+  2. Split into chunks (500 tokens overlap 50)
+  3. Generate embedding for each chunk
+  4. Store: { embedding, text, source_url, title }
+  5. Write to .embeddings/index.json
+```
+
+**Citation pattern (AI SDK):**
+```typescript
+// Server: /api/chat/route.ts
+import { streamText } from 'ai'
+
+const result = await streamText({
+  model: openai('gpt-4-turbo'),
+  messages: [
+    { role: 'system', content: systemPrompt },
+    ...messages
+  ],
+  experimental_providerMetadata: {
+    sources: relevantChunks.map(c => ({
+      type: 'source-url',
+      url: c.source_url,
+      title: c.title
+    }))
+  }
+})
+
+return result.toUIMessageStreamResponse({
+  sendSources: true
+})
+
+// Client: components/chat.tsx
+{message.parts?.filter(p => p.type === 'source-url').map(source => (
+  <a href={source.url}>{source.title}</a>
+))}
+```
+
+### Video Production Workflow
+
+**Remotion project structure:**
+```
+/video
+├── package.json (remotion deps)
+├── remotion.config.ts
+├── src/
+│   ├── Root.tsx (composition registry)
+│   ├── Quickstart.tsx (2-3 min)
+│   ├── SearchWorkflow.tsx (3-4 min)
+│   ├── DataPreview.tsx (2-3 min)
+│   └── components/
+│       ├── CodeBlock.tsx (syntax highlighting)
+│       ├── Terminal.tsx (CLI simulation)
+│       └── BrowserFrame.tsx (website recording)
+└── public/
+    ├── recordings/ (OBS screen captures)
+    └── assets/ (logos, icons)
+```
+
+**Composition example:**
+```typescript
+// src/Quickstart.tsx
+export const Quickstart: React.FC = () => {
+  const frame = useCurrentFrame()
+  const { fps } = useVideoConfig()
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: '#0f1419' }}>
+      {/* 0-5s: Title card */}
+      {frame < 5 * fps && <TitleCard text="Quickstart: 0 to First Query" />}
+
+      {/* 5-30s: CLI installation */}
+      {frame >= 5 * fps && frame < 30 * fps && (
+        <Terminal
+          command="npx @datagvat/mcp-installer@latest"
+          output={installOutput}
+          delay={frame - 5 * fps}
+        />
+      )}
+
+      {/* 30-90s: Claude Desktop configuration */}
+      {frame >= 30 * fps && frame < 90 * fps && (
+        <VideoRecording
+          src="recordings/claude-desktop-config.mp4"
+          startFrom={frame - 30 * fps}
+        />
+      )}
+
+      {/* 90-120s: First query success */}
+      {frame >= 90 * fps && (
+        <VideoRecording
+          src="recordings/first-query.mp4"
+          startFrom={frame - 90 * fps}
+        />
+      )}
+    </AbsoluteFill>
+  )
+}
+
+registerRoot(() => <Quickstart />, 'Quickstart', {
+  durationInFrames: 120 * 30, // 120 seconds at 30fps
+  fps: 30,
+  width: 1920,
+  height: 1080
+})
+```
+
+**Render pipeline:**
+```bash
+# Development: Preview in browser
+npm run remotion
+
+# Production: Render to MP4
+npx remotion render Quickstart out/quickstart.mp4 --codec h264
+
+# Captions: Generate SRT from script
+npx remotion render Quickstart out/quickstart.srt --codec captions
+
+# Optimize: Compress for web
+ffmpeg -i out/quickstart.mp4 -vcodec h264 -crf 28 out/quickstart-web.mp4
+```
+
+### CLI Interactive Patterns
+
+**@clack/prompts usage:**
+```typescript
+import * as p from '@clack/prompts'
+import { readFile, writeFile } from 'fs/promises'
+
+async function install() {
+  p.intro('Austria MCP Installer')
+
+  // Detect config path
+  const configPath = await p.text({
+    message: 'Where is your Claude Desktop config?',
+    initialValue: getDefaultConfigPath(),
+    validate: (value) => {
+      if (!existsSync(value)) return 'File not found'
+    }
+  })
+
+  // Choose install mode
+  const mode = await p.select({
+    message: 'How should we install?',
+    options: [
+      { value: 'add', label: 'Add to existing config', hint: 'Recommended' },
+      { value: 'replace', label: 'Replace entire config', hint: 'Dangerous' },
+      { value: 'preview', label: 'Preview changes only' }
+    ]
+  })
+
+  // Show diff
+  const existingConfig = JSON.parse(await readFile(configPath, 'utf-8'))
+  const newConfig = { ...existingConfig, mcpServers: { ...existingConfig.mcpServers, datagvat: {...} }}
+
+  p.note(formatDiff(existingConfig, newConfig), 'Preview changes')
+
+  // Confirm
+  const shouldApply = await p.confirm({
+    message: 'Apply these changes?'
+  })
+
+  if (shouldApply) {
+    const spinner = p.spinner()
+    spinner.start('Installing...')
+
+    await writeFile(configPath, JSON.stringify(newConfig, null, 2))
+
+    spinner.stop('Installation complete!')
+  }
+
+  p.outro('Restart Claude Desktop to activate the MCP server.')
+}
+```
+
+**Diff formatting:**
+```typescript
+function formatDiff(before: any, after: any): string {
+  const beforeStr = JSON.stringify(before, null, 2)
+  const afterStr = JSON.stringify(after, null, 2)
+
+  // Use diff library or simple line-by-line comparison
+  const diff = diffLines(beforeStr, afterStr)
+
+  return diff.map(part => {
+    if (part.added) return chalk.green('+ ' + part.value)
+    if (part.removed) return chalk.red('- ' + part.value)
+    return chalk.gray('  ' + part.value)
+  }).join('\n')
+}
+```
+
+### Navigation Restructuring
+
+**Before (8 tabs in meta.json files):**
+```
+docs/content/docs/
+├── index.mdx (Docs)
+├── getting-started/meta.json (Getting Started tab)
+├── guides/meta.json (Guides tab)
+├── examples/meta.json (Examples tab)
+├── workflows/meta.json (Workflows tab)
+├── advanced/meta.json (Advanced tab)
+├── reference/meta.json (Reference tab)
+└── try/meta.json (Try tab)
+```
+
+**After (3 tabs):**
+```
+docs/content/docs/
+├── index.mdx (Docs tab root)
+├── getting-started/ (subsection)
+├── guides/ (subsection)
+├── examples/ (subsection)
+├── workflows/ (subsection)
+├── advanced/ (subsection)
+├── api/
+│   └── meta.json (API tab root: true)
+└── try/
+    └── meta.json (Try tab root: true)
+```
+
+**meta.json changes:**
+```json
+// Before: docs/content/docs/getting-started/meta.json
+{
+  "title": "Getting Started",
+  "icon": "Rocket",
+  "root": true  // Creates separate tab
+}
+
+// After: Same file
+{
+  "title": "Getting Started",
+  "icon": "Rocket"
+  // No "root": true - becomes subsection of Docs tab
+}
+
+// New: docs/content/docs/api/meta.json
+{
+  "$schema": "../.source/json-schema/docs.meta.json",
+  "title": "API",
+  "description": "Complete tool reference",
+  "icon": "Code",
+  "root": true,  // Creates API tab
+  "pages": ["---[Wrench]Tools---", "...tools"]
+}
+```
+
+**Frontmatter cleanup:**
+```mdx
+<!-- Before: Duplicate title -->
+---
+title: Getting Started
+---
+
+# Getting Started
+
+Content...
+
+<!-- After: Title only in frontmatter -->
+---
+title: Getting Started
+---
+
+Content starts immediately...
+```
+
+## Success Metrics
+
+### RAG Chat
+- [ ] Answers 80% of questions accurately (validated by manual review of 50 test questions)
+- [ ] Provides source citations for 100% of factual responses
+- [ ] Responds within 3 seconds for simple queries
+- [ ] Handles 95% of error cases gracefully (no crashes)
+- [ ] Zero hallucinations about tools that don't exist
+
+### Video Tutorials
+- [ ] 5 videos produced: Quickstart + 4 workflows
+- [ ] All videos 2-5 minutes (no 10+ minute marathons)
+- [ ] 100% captioned (English + German SRT files)
+- [ ] Embedded in relevant doc pages with thumbnails
+- [ ] Updated when MCP protocol changes (programmatic regeneration works)
+
+### CLI Excellence
+- [ ] Interactive prompts replace 80% of CLI flags
+- [ ] Diff preview shows file changes before applying
+- [ ] Health check validates full MCP stack
+- [ ] Update command works for major version bumps
+- [ ] Installation success rate >95% (measured by telemetry opt-in)
+
+### Navigation
+- [ ] 3 tabs visible without scrolling on mobile
+- [ ] Deep links work to all pages
+- [ ] No duplicate titles in nav vs page content
+- [ ] Users find Getting Started in <10 seconds (task timing study)
 
 ## Open Questions
 
-1. **Backend search capabilities:** Does Piveau Hub API support full-text search? Current client only uses pagination params.
-   - **Action:** Investigate Piveau API documentation
-   - **Fallback:** Client-side filtering with larger fetch batches
+### RAG Chat
+1. **Embedding model:** OpenAI text-embedding-3-small ($0.02/1M tokens) vs Cohere embed-v3 vs local model?
+   - **Action:** Benchmark quality on 20 test queries; check cost for 112 docs (est. 100K tokens = $0.002)
 
-2. **LLM sampling availability:** Can FastMCP sampling be used for semantic search expansion?
-   - **Action:** Test FastMCP 2.3.0+ sampling feature
-   - **Consideration:** Token costs for per-search LLM calls
+2. **Vector store:** File-based JSON (simple, 100KB) vs Supabase pgvector (scalable) vs Pinecone (managed)?
+   - **Action:** Start with file-based; migrate if index exceeds 1MB or search >500ms
 
-3. **Distribution access:** Can distributions be partially downloaded (HTTP Range headers) for preview?
-   - **Action:** Test with common distribution URLs on data.gv.at
-   - **Fallback:** Download full file with strict size limit
+3. **Chat scope:** Only documentation or also MCP server logs (troubleshooting)?
+   - **Decision:** Documentation only for v2.1; logs in v2.2 if needed
 
-4. **Rate limiting:** How many API calls can be made per search (for quality metrics per result)?
-   - **Action:** Profile typical search workflows
-   - **Mitigation:** Batch requests, lazy-load quality scores
+4. **Rate limiting:** Prevent abuse of LLM API?
+   - **Action:** 10 queries/minute per IP; use Vercel KV for tracking
 
-5. **Vocabulary completeness:** Do vocabulary endpoints contain all theme/format/license values used in datasets?
-   - **Action:** Compare vocabulary terms with dataset metadata values
-   - **Fallback:** Build supplementary index from dataset metadata
+### Video Tutorials
+1. **Hosting:** Vercel blob storage (paid) vs YouTube unlisted vs self-hosted CDN?
+   - **Action:** Start with Vercel blob (simple, fast); YouTube for public reach in v2.2
+
+2. **Recording method:** Screen recording (real) vs Remotion-rendered terminal (fake but controllable)?
+   - **Decision:** Hybrid - Remotion for CLI, screen recordings for Claude Desktop
+
+3. **Narration:** Human voice (expensive) vs text-to-speech (synthetic) vs silent with music?
+   - **Decision:** Silent with captions + background music for v2.1; human narration if budget allows v2.2
+
+4. **Update frequency:** Re-render on every release or only major versions?
+   - **Decision:** Major versions only (v2.x → v3.0); minor versions update docs not videos
+
+### CLI Excellence
+1. **Config backup:** Auto-backup before modifying config.json?
+   - **Decision:** YES - Create config.json.backup with timestamp before any writes
+
+2. **Multiple MCP servers:** Handle configs with existing MCP servers gracefully?
+   - **Decision:** YES - Only add/update datagvat entry, preserve others
+
+3. **Telemetry:** Track installation success/failure for debugging?
+   - **Decision:** Opt-in only with explicit consent; use PostHog or simple analytics
+
+4. **Auto-update:** Check for updates on every run?
+   - **Decision:** NO for v2.1 (annoying); explicit `update` command only
 
 ## Sources
 
-**Confidence Note:** This research is based on training data knowledge. WebSearch and WebFetch were unavailable for current verification.
+**HIGH Confidence (Official Documentation):**
+- Vercel AI SDK Chat: https://ai-sdk.dev/docs/ai-sdk-ui/chatbot
+- Vercel AI SDK Sources: https://ai-sdk.dev/docs/ai-sdk-ui/chatbot (citation patterns)
+- Remotion Documentation: https://www.remotion.dev/docs
+- shadcn CLI: https://ui.shadcn.com (CLI features and patterns)
+- Next.js Docs Navigation: https://nextjs.org/docs (3-section pattern)
+- @clack/prompts: https://github.com/natemoo-re/clack (interactive CLI patterns)
 
-### Knowledge Sources (MEDIUM confidence - training data)
-- CKAN API documentation patterns (https://docs.ckan.org/)
-- European Data Portal API patterns
-- Socrata Open Data API patterns
-- data.gov API patterns
-- DCAT-AP metadata standard
+**MEDIUM Confidence (Verified Patterns):**
+- Documentation navigation patterns (3-4 tabs standard across Next.js, Stripe, AI SDK)
+- Video tutorial length (2-5 minutes optimal for engagement based on training data)
+- RAG architecture (vector search + LLM generation well-established pattern)
 
-### Project Context (HIGH confidence - from codebase)
-- `.planning/PROJECT.md` - Active requirements
-- `.planning/codebase/INTEGRATIONS.md` - Piveau API endpoints
-- `app/client.py` - Current API usage
-- `app/tools/discovery.py` - Current tool implementations
+**Existing Project Context (HIGH Confidence):**
+- v2.0 Documentation: 112 MDX files, 8 tabs, progressive disclosure
+- Existing CLI: @datagvat/mcp-installer basic implementation
+- Search button: Placeholder in header ready for enhancement
+- /try page: Infrastructure for MCP tool testing
 
-### Verification Needed
-- [ ] Piveau Hub API documentation for search endpoints and parameters
-- [ ] data.gv.at portal search feature comparison (observe via browser)
-- [ ] FastMCP 2.3.0+ sampling feature documentation
-- [ ] Distribution file partial download support (HTTP Range)
-
-## Metadata
-
-**Confidence breakdown:**
-- Table stakes features: HIGH - Well-established patterns across all major portals
-- Differentiators: MEDIUM - Patterns exist but MCP-specific adaptation unverified
-- Anti-features: HIGH - Clear scope boundaries based on MCP constraints and PROJECT.md
-- User expectations: MEDIUM - Based on general data portal UX research
-- Backend API constraints: LOW - Need to verify Piveau capabilities
-
-**Research date:** 2026-01-16
-**Valid until:** Verify with live sources; patterns are stable but specific API capabilities need confirmation
+**Notes:**
+- AI SDK sources feature is current (2026 documentation fetched)
+- Remotion patterns verified with official docs
+- CLI patterns inspired by shadcn (industry-leading CLI UX)
+- Navigation simplification based on Next.js, Stripe, AI SDK analysis (all use 3-4 main sections)
