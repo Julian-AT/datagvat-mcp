@@ -162,17 +162,26 @@ Plans:
 **Goal:** Live testing interface with AI
 
 **Requirements:**
-- Vercel AI SDK integration
-- MCP client connection
-- Chat API with rate limiting
-- Interactive UI at /try page
+- TEST-01: Live AI assistant testing interface using Vercel AI SDK
+- TEST-02: Users can test MCP tools interactively
+- TEST-03: Test results show tool outputs in real-time
+- TEST-04: Test interface validates configuration is working
 
-**Tasks:**
-1. Install AI SDK dependencies
-2. Create MCP client
-3. Create /api/chat route
-4. Build chat interface
-5. Add to navigation
+**Plans:** 3 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — Install MCP SDK dependencies and create client singleton
+- [ ] 09-02-PLAN.md — Create streaming chat API route with MCP tool integration
+- [ ] 09-03-PLAN.md — Build chat UI components and add to navigation
+
+**Deliverables:**
+- MCP TypeScript SDK integration (@modelcontextprotocol/client)
+- Client singleton with stdio transport to Python server
+- Streaming /api/chat endpoint with tool calling
+- Interactive chat UI at /try page with real-time updates
+- Tool invocation visualization (tool calls and results)
+- Rate limiting (5 messages per minute)
+- Navigation link to /try page
 
 ---
 
@@ -226,3 +235,4 @@ Plans:
 - Phase 7 uses virtual pages pattern (openapiSource) for frequent schema updates
 - OpenAPI schema: https://qs.data.gv.at/api/hub/repo/openapi.yaml
 - Phase 8 complete: 3 plans in 55 minutes, shadcn-level visual polish, npm-ready package (12.4 kB)
+- Phase 9: 3 plans in 3 waves (dependencies, API, UI)
