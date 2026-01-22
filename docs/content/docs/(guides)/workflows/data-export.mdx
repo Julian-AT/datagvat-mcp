@@ -189,9 +189,9 @@ By following this workflow, you'll:
 
         **Expected output:**
         ```
-        ✓ bev-stat-wien-2024: 85
-        ✓ gesundheit-wien-2024: 72
-        ✗ regional-stats: 65 (below threshold)
+        Success: bev-stat-wien-2024: 85
+        Success: gesundheit-wien-2024: 72
+        Error: regional-stats: 65 (below threshold)
 
         Approved: 2/3 datasets passed quality gate
         ```
@@ -242,8 +242,8 @@ By following this workflow, you'll:
 
         **Expected output:**
         ```
-        ✓ bev-stat-wien-2024: Schema valid (columns: year, region, value, population)
-        ✗ gesundheit-wien-2024: Missing columns {'region'}
+        Success: bev-stat-wien-2024: Schema valid (columns: year, region, value, population)
+        Error: gesundheit-wien-2024: Missing columns {'region'}
 
         Valid: 1/2 datasets passed schema validation
         ```
@@ -291,7 +291,7 @@ By following this workflow, you'll:
 
         **Expected output:**
         ```
-        ✓ Exported bev-stat-wien-2024: 2048576 bytes → ./exports/bev-stat-wien-2024_20240119_140530.csv
+        Success: Exported bev-stat-wien-2024: 2048576 bytes → ./exports/bev-stat-wien-2024_20240119_140530.csv
 
         Export summary:
         - Total exported: 1/1 datasets
