@@ -3,20 +3,8 @@ name: CI
 on:
   push:
     branches: [ main, develop ]
-    paths:
-      - 'docs/**'
-      - 'mcp/**'
-      - '.github/workflows/ci.yml'
-      - 'pyproject.toml'
-      - 'setup.py'
   pull_request:
     branches: [ main, develop ]
-    paths:
-      - 'docs/**'
-      - 'mcp/**'
-      - '.github/workflows/ci.yml'
-      - 'pyproject.toml'
-      - 'setup.py'
 
 jobs:
   filter:
