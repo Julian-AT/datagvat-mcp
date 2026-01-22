@@ -3,7 +3,7 @@ node_modules
 out
 build
 dist
+.bun
 **/.bun/**
-~/**
+~/.bun/**
 **/node_modules/**
-**/.bun/**

@@ -11,7 +11,8 @@ async function prebuild() {
 
   try {
     console.log('1. Running Biome checks...');
-    await $`biome check .`;
+    // Check only source directories to avoid scanning node_modules and Bun cache
+    await $`biome check app components lib scripts --files-ignore-unknown=true`;
     console.log('✓ Biome passed\n');
 
     console.log('2. Validating links...');
