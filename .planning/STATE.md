@@ -11,31 +11,31 @@ See: .planning/PROJECT.md (updated 2026-01-22)
 ## Current Position
 
 Phase: 10 of 13 (Navigation Simplification)
-Plan: 1 of 4 complete
+Plan: 2 of 4 complete
 Status: In progress
-Last activity: 2026-01-22 — Completed 10-01-PLAN.md
+Last activity: 2026-01-22 — Completed 10-03-PLAN.md
 
-Progress: [█░░░░░░░░░] 8% (1/13 plans complete)
+Progress: [██░░░░░░░░] 15% (2/13 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1 (v2.1 starting)
-- Average duration: 6 min
-- Total execution time: 0.1 hours
+- Total plans completed: 2 (v2.1 in progress)
+- Average duration: 6.5 min
+- Total execution time: 0.2 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 10. Navigation Simplification | 1/4 | 6min | 6min |
+| 10. Navigation Simplification | 2/4 | 13min | 6.5min |
 | 11. CLI Excellence | 0/3 | - | - |
 | 12. RAG Documentation Chat | 0/3 | - | - |
 | 13. Video Tutorials | 0/3 | - | - |
 
 **Recent Trend:**
-- Last 5 plans: 10-01 (6min)
-- Trend: Starting v2.1 execution
+- Last 5 plans: 10-01 (6min), 10-03 (7min)
+- Trend: Steady v2.1 execution pace
 
 *Updated after each plan completion*
 
@@ -52,6 +52,9 @@ Recent decisions affecting v2.1 work:
 - **10-01**: Nested folder structure — Use physical nested folders (docs/docs/, docs/api/) instead of flat folders with URL path configuration
 - **10-01**: 301 permanent redirects — Preserve SEO and external link compatibility through permanent redirects
 - **10-01**: Automated redirect verification — Ensure no gaps in redirect coverage with verification script
+- **10-03**: shields.io badges — Live status indicators for version, build, license, MCP compatibility, Python version
+- **10-03**: Quick Start path correction — MCP server in mcp/ subdirectory, config points to app/server.py
+- **10-03**: Two-part contribution guide — Separate sections for MCP server (Python) and documentation (Next.js)
 
 ### Pending Todos
 
@@ -60,6 +63,7 @@ Recent decisions affecting v2.1 work:
 
 **User Screenshot Capture (from v2.0 Phase 23):**
 - 5-7 Claude Desktop screenshots (non-blocking)
+- Quick Start screenshot for README.md (added in 10-03, non-blocking)
 
 ### Blockers/Concerns
 
@@ -75,11 +79,11 @@ Recent decisions affecting v2.1 work:
 
 ## Session Continuity
 
-Last session: 2026-01-22 (plan 10-01 execution)
-Stopped at: Completed 10-01-PLAN.md - Navigation Simplification
+Last session: 2026-01-22 (plan 10-03 execution)
+Stopped at: Completed 10-03-PLAN.md - Professional README and CONTRIBUTING
 Resume file: None
-Next step: Continue with next plan in Phase 10 (10-02, 10-03, 10-04)
+Next step: Continue with next plan in Phase 10 (10-04 CLI installer, 10-05 duplicate titles, 10-06 build verification)
 
 ---
 
-*Last updated: 2026-01-22 after 10-01 plan completion*
+*Last updated: 2026-01-22 after 10-03 plan completion*
