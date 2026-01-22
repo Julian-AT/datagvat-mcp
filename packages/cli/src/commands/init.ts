@@ -1,5 +1,6 @@
 import { checkbox } from '@inquirer/prompts';
 import { detectTools } from '../detect';
+import { configureTools } from '../configure';
 import * as ui from '../ui';
 import type { ToolInfo } from '../types';
 
@@ -71,15 +72,27 @@ export async function initCommand(options: InitCommandOptions = {}): Promise<voi
       );
     }
 
-    // Configure selected tools (placeholder for now - will be implemented in Task 2)
-    console.log('\nConfiguring tools:');
-    for (const tool of toolsToConfigureList) {
-      ui.success(`Would configure: ${tool.name} at ${tool.configPath}`);
+    // Configure selected tools
+    console.log('\nConfiguring tools...');
+    const configResult = await configureTools(toolsToConfigureList);
+
+    // Display summary
+    console.log('');
+    if (configResult.configured > 0) {
+      ui.success(`Configured ${configResult.configured} tool(s)`);
+    }
+    if (configResult.skipped > 0) {
+      ui.info(`Skipped ${configResult.skipped} tool(s) (already configured)`);
+    }
+    if (configResult.failed > 0) {
+      ui.error(`Failed to configure ${configResult.failed} tool(s)`);
     }
 
-    // Placeholder: This will be replaced with actual configureTools() call in Task 2
-    ui.info('\n✓ Configuration complete!');
-    ui.info('Restart your AI tools to use the data.gv.at MCP Server.');
+    if (configResult.configured > 0) {
+      console.log('');
+      ui.info('✓ Configuration complete!');
+      ui.info('Restart your AI tools to use the data.gv.at MCP Server.');
+    }
 
   } catch (err) {
     if (err instanceof Error) {
