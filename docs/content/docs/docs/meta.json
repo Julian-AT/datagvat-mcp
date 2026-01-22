@@ -6,6 +6,7 @@
   "root": true,
   "defaultOpen": true,
   "pages": [
+    "index",
     "getting-started",
     "---[Map]Guides---",
     "guides",
