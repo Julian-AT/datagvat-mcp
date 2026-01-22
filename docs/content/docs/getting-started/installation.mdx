@@ -19,15 +19,15 @@ Before installing:
 - **Claude Desktop** or compatible MCP client - [Download Claude Desktop](https://claude.ai/download)
 
 <Tabs items={['macOS/Linux', 'Windows']} groupId="os" persist>
-  <Tabs.Tab value="macOS/Linux">
+  <Tab value="macOS/Linux">
     **Verify Python version:**
     ```bash
     python3 --version
     ```
     Should show 3.11 or higher.
-  </Tabs.Tab>
+  </Tab>
 
-  <Tabs.Tab value="Windows">
+  <Tab value="Windows">
     **Verify Python version:**
     ```bash
     python --version
@@ -37,7 +37,7 @@ Before installing:
     <Callout type="warn">
     **Important:** During Python installation, check "Add Python to PATH".
     </Callout>
-  </Tabs.Tab>
+  </Tab>
 </Tabs>
 
 ## How data.gv.at MCP Server works
@@ -131,25 +131,25 @@ Key files:
 ### Step 1: Clone repository
 
 <Tabs items={['macOS/Linux', 'Windows']} groupId="os" persist>
-  <Tabs.Tab value="macOS/Linux">
+  <Tab value="macOS/Linux">
     ```bash
     git clone https://github.com/yourusername/datagvat-mcp.git
     cd datagvat-mcp/mcp
     ```
-  </Tabs.Tab>
+  </Tab>
 
-  <Tabs.Tab value="Windows">
+  <Tab value="Windows">
     ```bash
     git clone https://github.com/yourusername/datagvat-mcp.git
     cd datagvat-mcp\mcp
     ```
-  </Tabs.Tab>
+  </Tab>
 </Tabs>
 
 ### Step 2: Install dependencies
 
 <Tabs items={['uv (Recommended)', 'pip']} groupId="package-manager" persist>
-  <Tabs.Tab value="uv (Recommended)">
+  <Tab value="uv (Recommended)">
     [uv](https://github.com/astral-sh/uv) is a fast Python package manager with better dependency resolution.
 
     ```bash
@@ -163,13 +163,13 @@ Key files:
     <Callout type="info">
     **Why uv?** Faster dependency resolution and installs compared to pip.
     </Callout>
-  </Tabs.Tab>
+  </Tab>
 
-  <Tabs.Tab value="pip">
+  <Tab value="pip">
     ```bash
     pip install -e .
     ```
-  </Tabs.Tab>
+  </Tab>
 </Tabs>
 
 ### From PyPI (future)
@@ -228,7 +228,7 @@ Key directories:
 Add the data.gv.at MCP Server to your Claude Desktop configuration:
 
 <Tabs items={['macOS', 'Linux', 'Windows']} groupId="os" persist>
-  <Tabs.Tab value="macOS">
+  <Tab value="macOS">
     **Location:** `~/.claude/claude_desktop_config.json`
 
     **Configuration:**
@@ -253,9 +253,9 @@ Add the data.gv.at MCP Server to your Claude Desktop configuration:
     <Callout type="warn">
     **Important:** Replace `/Users/yourname/datagvat-mcp/mcp` with your actual path (use absolute paths only).
     </Callout>
-  </Tabs.Tab>
+  </Tab>
 
-  <Tabs.Tab value="Linux">
+  <Tab value="Linux">
     **Location:** `~/.config/Claude/claude_desktop_config.json`
 
     **Configuration:**
@@ -280,9 +280,9 @@ Add the data.gv.at MCP Server to your Claude Desktop configuration:
     <Callout type="warn">
     **Important:** Replace `/home/yourname/datagvat-mcp/mcp` with your actual path (use absolute paths only).
     </Callout>
-  </Tabs.Tab>
+  </Tab>
 
-  <Tabs.Tab value="Windows">
+  <Tab value="Windows">
     **Location:** `%APPDATA%\Claude\claude_desktop_config.json`
 
     **Configuration:**
@@ -311,7 +311,7 @@ Add the data.gv.at MCP Server to your Claude Desktop configuration:
     <Callout type="warn">
     **Important:** Replace `C:\\Users\\YourName\\datagvat-mcp\\mcp` with your actual path.
     </Callout>
-  </Tabs.Tab>
+  </Tab>
 </Tabs>
 
 ### Using pip instead of uv
@@ -445,27 +445,27 @@ If you see this response, the server is working and ready for Claude Desktop.
 Configuration is only loaded on startup. Restart properly:
 
 <Tabs items={['macOS', 'Linux', 'Windows']} groupId="os" persist>
-  <Tabs.Tab value="macOS">
+  <Tab value="macOS">
     1. Press `Cmd+Q` to quit Claude Desktop (not just close window)
     2. Wait 5 seconds
     3. Relaunch from Applications
-  </Tabs.Tab>
+  </Tab>
 
-  <Tabs.Tab value="Linux">
+  <Tab value="Linux">
     1. Quit Claude Desktop:
        ```bash
        killall claude-desktop
        ```
     2. Wait 5 seconds
     3. Relaunch from application menu
-  </Tabs.Tab>
+  </Tab>
 
-  <Tabs.Tab value="Windows">
+  <Tab value="Windows">
     1. Right-click Claude Desktop in system tray
     2. Select "Exit"
     3. Wait 5 seconds
     4. Relaunch from Start menu
-  </Tabs.Tab>
+  </Tab>
 </Tabs>
 
 ### Step 2: Test connection

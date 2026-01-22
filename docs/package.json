@@ -12,7 +12,7 @@
     "lint:fix": "biome check --write .",
     "lint:links": "bun run scripts/validate-links.ts",
     "format": "biome format --write .",
-    "type-check": "tsc --noEmit",
+    "type-check": "bun run scripts/type-check.ts",
     "types:check": "fumadocs-mdx && next typegen && tsc --noEmit",
     "clean": "rimraf .next",
     "dev": "next dev",
