@@ -120,13 +120,80 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (Populated by roadmapper) | | |
+| NAV-01 | Phase 10 | Pending |
+| NAV-02 | Phase 10 | Pending |
+| NAV-03 | Phase 10 | Pending |
+| NAV-04 | Phase 10 | Pending |
+| NAV-05 | Phase 10 | Pending |
+| README-01 | Phase 10 | Pending |
+| README-02 | Phase 10 | Pending |
+| README-03 | Phase 10 | Pending |
+| README-04 | Phase 10 | Pending |
+| README-05 | Phase 10 | Pending |
+| README-06 | Phase 10 | Pending |
+| README-07 | Phase 10 | Pending |
+| CLEAN-01 | Phase 10 | Pending |
+| CLEAN-02 | Phase 10 | Pending |
+| CLEAN-03 | Phase 10 | Pending |
+| CLEAN-04 | Phase 10 | Pending |
+| CLEAN-05 | Phase 10 | Pending |
+| CLEAN-06 | Phase 10 | Pending |
+| BUILD-01 | Phase 10 | Pending |
+| BUILD-02 | Phase 10 | Pending |
+| BUILD-03 | Phase 10 | Pending |
+| BUILD-04 | Phase 10 | Pending |
+| BUILD-05 | Phase 10 | Pending |
+| CLI-01 | Phase 11 | Pending |
+| CLI-02 | Phase 11 | Pending |
+| CLI-03 | Phase 11 | Pending |
+| CLI-04 | Phase 11 | Pending |
+| CLI-05 | Phase 11 | Pending |
+| CLI-06 | Phase 11 | Pending |
+| CLI-07 | Phase 11 | Pending |
+| CLI-08 | Phase 11 | Pending |
+| CLI-09 | Phase 11 | Pending |
+| CLI-10 | Phase 11 | Pending |
+| BUILD-01 | Phase 11 | Pending |
+| BUILD-02 | Phase 11 | Pending |
+| BUILD-03 | Phase 11 | Pending |
+| BUILD-04 | Phase 11 | Pending |
+| BUILD-05 | Phase 11 | Pending |
+| RAG-01 | Phase 12 | Pending |
+| RAG-02 | Phase 12 | Pending |
+| RAG-03 | Phase 12 | Pending |
+| RAG-04 | Phase 12 | Pending |
+| RAG-05 | Phase 12 | Pending |
+| RAG-06 | Phase 12 | Pending |
+| RAG-07 | Phase 12 | Pending |
+| RAG-08 | Phase 12 | Pending |
+| RAG-09 | Phase 12 | Pending |
+| RAG-10 | Phase 12 | Pending |
+| BUILD-01 | Phase 12 | Pending |
+| BUILD-02 | Phase 12 | Pending |
+| BUILD-03 | Phase 12 | Pending |
+| BUILD-04 | Phase 12 | Pending |
+| BUILD-05 | Phase 12 | Pending |
+| VIDEO-01 | Phase 13 | Pending |
+| VIDEO-02 | Phase 13 | Pending |
+| VIDEO-03 | Phase 13 | Pending |
+| VIDEO-04 | Phase 13 | Pending |
+| VIDEO-05 | Phase 13 | Pending |
+| VIDEO-06 | Phase 13 | Pending |
+| VIDEO-07 | Phase 13 | Pending |
+| VIDEO-08 | Phase 13 | Pending |
+| BUILD-01 | Phase 13 | Pending |
+| BUILD-02 | Phase 13 | Pending |
+| BUILD-03 | Phase 13 | Pending |
+| BUILD-04 | Phase 13 | Pending |
+| BUILD-05 | Phase 13 | Pending |
 
 **Coverage:**
-- v2.1 requirements: 42 total
-- Mapped to phases: (pending)
-- Unmapped: (pending)
+- v2.1 requirements: 51 total (5 NAV + 10 RAG + 8 VIDEO + 10 CLI + 6 CLEAN + 7 README + 5 BUILD)
+- Mapped to phases: 51/51 (100%)
+- Unmapped: 0
+
+**Note:** BUILD requirements (BUILD-01 to BUILD-05) are mapped to all 4 phases as verification steps after each phase completes.
 
 ---
 *Requirements defined: 2026-01-22*
-*Last updated: 2026-01-22 after initial definition*
+*Last updated: 2026-01-22 after v2.1 roadmap creation*
