@@ -11,8 +11,8 @@
  * - Environment-based API configuration
  */
 
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { convertToModelMessages, streamText } from 'ai';
-import { openaiCompatible } from '@ai-sdk/openai-compatible';
 import { mcpClient } from '@/lib/mcp/client';
 import { convertMCPTools } from '@/lib/mcp/tools';
 
@@ -152,13 +152,16 @@ export async function POST(req: Request) {
 
     // 5. Configure model
     const baseURL = process.env.ANTHROPIC_BASE_URL || 'https://api.anthropic.com/v1';
-    const model = openaiCompatible('claude-3-5-sonnet-20241022', {
+    const anthropic = createOpenAICompatible({
+      name: 'anthropic',
       baseURL,
       headers: {
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
       },
     });
+
+    const model = anthropic('claude-3-5-sonnet-20241022');
 
     // 6. Stream response with tool calling
     const result = streamText({
