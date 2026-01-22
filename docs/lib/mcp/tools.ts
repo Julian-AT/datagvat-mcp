@@ -5,10 +5,10 @@
  * Enables seamless integration between MCP server tools and AI SDK streaming chat.
  */
 
-import { tool } from 'ai';
-import type { CoreTool } from 'ai';
-import { z } from 'zod';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
+import type { CoreTool } from 'ai';
+import { tool } from 'ai';
+import { z } from 'zod';
 import { mcpClient } from './client.js';
 
 /**
@@ -17,40 +17,37 @@ import { mcpClient } from './client.js';
  * Converts JSON Schema type strings to Zod schema constructors.
  * Handles basic types - complex schemas require manual conversion.
  */
-function jsonSchemaTypeToZod(
-	type: string | undefined,
-	nullable = false,
-): z.ZodTypeAny {
-	let schema: z.ZodTypeAny;
+function jsonSchemaTypeToZod(type: string | undefined, nullable = false): z.ZodTypeAny {
+  let schema: z.ZodTypeAny;
 
-	switch (type) {
-		case 'string':
-			schema = z.string();
-			break;
-		case 'number':
-			schema = z.number();
-			break;
-		case 'integer':
-			schema = z.number().int();
-			break;
-		case 'boolean':
-			schema = z.boolean();
-			break;
-		case 'array':
-			// Default to array of unknown - should be refined based on items schema
-			schema = z.array(z.unknown());
-			break;
-		case 'object':
-			// Default to record of unknown - should be refined based on properties
-			schema = z.record(z.unknown());
-			break;
-		default:
-			// Unknown type defaults to any for flexibility
-			schema = z.any();
-			break;
-	}
+  switch (type) {
+    case 'string':
+      schema = z.string();
+      break;
+    case 'number':
+      schema = z.number();
+      break;
+    case 'integer':
+      schema = z.number().int();
+      break;
+    case 'boolean':
+      schema = z.boolean();
+      break;
+    case 'array':
+      // Default to array of unknown - should be refined based on items schema
+      schema = z.array(z.unknown());
+      break;
+    case 'object':
+      // Default to record of unknown - should be refined based on properties
+      schema = z.record(z.unknown());
+      break;
+    default:
+      // Unknown type defaults to any for flexibility
+      schema = z.any();
+      break;
+  }
 
-	return nullable ? schema.nullable() : schema;
+  return nullable ? schema.nullable() : schema;
 }
 
 /**
@@ -62,52 +59,51 @@ function jsonSchemaTypeToZod(
  * @param schema - JSON Schema definition from MCP tool inputSchema
  * @returns Zod schema for validation
  */
-function jsonSchemaToZod(
-	schema: Record<string, unknown>,
-): z.ZodObject<z.ZodRawShape> {
-	const properties = schema.properties as Record<string, any> | undefined;
-	const required = (schema.required as string[]) ?? [];
+function jsonSchemaToZod(schema: Record<string, unknown>): z.ZodObject<z.ZodRawShape> {
+  // biome-ignore lint/suspicious/noExplicitAny: JSON Schema properties have dynamic structure
+  const properties = schema.properties as Record<string, any> | undefined;
+  const required = (schema.required as string[]) ?? [];
 
-	if (!properties) {
-		// No properties defined - accept empty object
-		return z.object({});
-	}
+  if (!properties) {
+    // No properties defined - accept empty object
+    return z.object({});
+  }
 
-	const zodShape: z.ZodRawShape = {};
+  const zodShape: z.ZodRawShape = {};
 
-	for (const [key, prop] of Object.entries(properties)) {
-		const isRequired = required.includes(key);
+  for (const [key, prop] of Object.entries(properties)) {
+    const isRequired = required.includes(key);
 
-		// Handle anyOf patterns (e.g., string | null)
-		if (prop.anyOf) {
-			// Find the non-null type
-			const types = prop.anyOf
-				.map((t: any) => t.type)
-				.filter((t: string) => t !== 'null');
-			const primaryType = types[0];
-			const isNullable = prop.anyOf.some((t: any) => t.type === 'null');
+    // Handle anyOf patterns (e.g., string | null)
+    if (prop.anyOf) {
+      // Find the non-null type
+      // biome-ignore lint/suspicious/noExplicitAny: anyOf array items have dynamic schema structure
+      const types = prop.anyOf.map((t: any) => t.type).filter((t: string) => t !== 'null');
+      const primaryType = types[0];
+      // biome-ignore lint/suspicious/noExplicitAny: anyOf array items have dynamic schema structure
+      const isNullable = prop.anyOf.some((t: any) => t.type === 'null');
 
-			const baseSchema = jsonSchemaTypeToZod(primaryType, isNullable);
-			zodShape[key] = isRequired ? baseSchema : baseSchema.optional();
-		}
-		// Handle direct type
-		else if (prop.type) {
-			const baseSchema = jsonSchemaTypeToZod(prop.type);
-			zodShape[key] = isRequired ? baseSchema : baseSchema.optional();
-		}
-		// Handle array type with items
-		else if (prop.type === 'array' && prop.items) {
-			const itemSchema = jsonSchemaTypeToZod(prop.items.type);
-			const arraySchema = z.array(itemSchema);
-			zodShape[key] = isRequired ? arraySchema : arraySchema.optional();
-		}
-		// Fallback to any
-		else {
-			zodShape[key] = isRequired ? z.any() : z.any().optional();
-		}
-	}
+      const baseSchema = jsonSchemaTypeToZod(primaryType, isNullable);
+      zodShape[key] = isRequired ? baseSchema : baseSchema.optional();
+    }
+    // Handle direct type
+    else if (prop.type) {
+      const baseSchema = jsonSchemaTypeToZod(prop.type);
+      zodShape[key] = isRequired ? baseSchema : baseSchema.optional();
+    }
+    // Handle array type with items
+    else if (prop.type === 'array' && prop.items) {
+      const itemSchema = jsonSchemaTypeToZod(prop.items.type);
+      const arraySchema = z.array(itemSchema);
+      zodShape[key] = isRequired ? arraySchema : arraySchema.optional();
+    }
+    // Fallback to any
+    else {
+      zodShape[key] = isRequired ? z.any() : z.any().optional();
+    }
+  }
 
-	return z.object(zodShape);
+  return z.object(zodShape);
 }
 
 /**
@@ -115,9 +111,7 @@ function jsonSchemaToZod(
  *
  * Either successful result or error with message.
  */
-type ToolResult =
-	| { error: false; data: unknown }
-	| { error: true; message: string };
+type ToolResult = { error: false; data: unknown } | { error: true; message: string };
 
 /**
  * Convert MCP tools to AI SDK tool format
@@ -146,55 +140,54 @@ type ToolResult =
  * ```
  */
 export function convertMCPTools(mcpTools: Tool[]): Record<string, CoreTool> {
-	const tools: Record<string, CoreTool> = {};
+  const tools: Record<string, CoreTool> = {};
 
-	for (const mcpTool of mcpTools) {
-		const { name, description, inputSchema } = mcpTool;
+  for (const mcpTool of mcpTools) {
+    const { name, description, inputSchema } = mcpTool;
 
-		// Convert JSON Schema to Zod
-		const zodSchema = jsonSchemaToZod(inputSchema as Record<string, unknown>);
+    // Convert JSON Schema to Zod
+    const zodSchema = jsonSchemaToZod(inputSchema as Record<string, unknown>);
 
-		// Create AI SDK tool wrapper
-		tools[name] = tool({
-			description: description ?? `Call ${name} tool`,
-			parameters: zodSchema,
-			execute: async (args): Promise<ToolResult> => {
-				try {
-					// Call MCP tool through client
-					const result = await mcpClient.callTool(name, args);
+    // Create AI SDK tool wrapper
+    tools[name] = tool({
+      description: description ?? `Call ${name} tool`,
+      parameters: zodSchema,
+      execute: async (args): Promise<ToolResult> => {
+        try {
+          // Call MCP tool through client
+          const result = await mcpClient.callTool(name, args);
 
-					// Extract content from MCP result
-					// MCP returns { content: [...] } where content is array of text/image/resource
-					if (result.content && Array.isArray(result.content)) {
-						const textContent = result.content
-							.filter((c) => c.type === 'text')
-							.map((c) => ('text' in c ? c.text : ''))
-							.join('\n');
+          // Extract content from MCP result
+          // MCP returns { content: [...] } where content is array of text/image/resource
+          if (result.content && Array.isArray(result.content)) {
+            const textContent = result.content
+              .filter((c) => c.type === 'text')
+              .map((c) => ('text' in c ? c.text : ''))
+              .join('\n');
 
-						return {
-							error: false,
-							data: textContent || result.content,
-						};
-					}
+            return {
+              error: false,
+              data: textContent || result.content,
+            };
+          }
 
-					// Fallback: return raw result
-					return {
-						error: false,
-						data: result,
-					};
-				} catch (error) {
-					// Return error as result, don't throw (breaks streaming)
-					return {
-						error: true,
-						message:
-							error instanceof Error ? error.message : 'Tool execution failed',
-					};
-				}
-			},
-		});
-	}
+          // Fallback: return raw result
+          return {
+            error: false,
+            data: result,
+          };
+        } catch (error) {
+          // Return error as result, don't throw (breaks streaming)
+          return {
+            error: true,
+            message: error instanceof Error ? error.message : 'Tool execution failed',
+          };
+        }
+      },
+    });
+  }
 
-	return tools;
+  return tools;
 }
 
 /**
@@ -222,6 +215,6 @@ export function convertMCPTools(mcpTools: Tool[]): Record<string, CoreTool> {
  * ```
  */
 export async function initializeAITools(): Promise<Record<string, CoreTool>> {
-	const mcpTools = await mcpClient.listTools();
-	return convertMCPTools(mcpTools);
+  const mcpTools = await mcpClient.listTools();
+  return convertMCPTools(mcpTools);
 }
