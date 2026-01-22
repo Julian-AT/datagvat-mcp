@@ -11,31 +11,31 @@ See: .planning/PROJECT.md (updated 2026-01-22)
 ## Current Position
 
 Phase: 10 of 13 (Navigation Simplification)
-Plan: 4 of 4 complete
-Status: Phase complete
-Last activity: 2026-01-22 — Completed 10-04-PLAN.md
+Plan: 5 of 6 complete
+Status: In progress
+Last activity: 2026-01-22 — Completed 10-05-PLAN.md
 
-Progress: [███░░░░░░░] 31% (4/13 plans complete)
+Progress: [███░░░░░░░] 38% (5/13 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4 (v2.1 in progress)
-- Average duration: 9.3 min
-- Total execution time: 0.6 hours
+- Total plans completed: 5 (v2.1 in progress)
+- Average duration: 10.4 min
+- Total execution time: 0.9 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 10. Navigation Simplification | 4/4 | 32min | 8.0min |
+| 10. Navigation Simplification | 5/6 | 52min | 10.4min |
 | 11. CLI Excellence | 0/3 | - | - |
 | 12. RAG Documentation Chat | 0/3 | - | - |
 | 13. Video Tutorials | 0/3 | - | - |
 
 **Recent Trend:**
-- Last 5 plans: 10-01 (6min), 10-03 (7min), 10-02 (15min), 10-04 (4min)
-- Trend: Phase 10 complete, consistent velocity (6-15min per plan)
+- Last 5 plans: 10-01 (6min), 10-03 (7min), 10-02 (15min), 10-04 (4min), 10-05 (20min)
+- Trend: Phase 10 nearing completion, dependency cleanup took longer due to thorough analysis
 
 *Updated after each plan completion*
 
@@ -59,6 +59,9 @@ Recent decisions affecting v2.1 work:
 - **10-02**: Index pages as navigation hubs — Use Card components to provide clear navigation to subsections
 - **10-04**: EditorConfig baseline with Biome enforcement — EditorConfig works across all editors without extension, Biome provides enforcement via CLI
 - **10-04**: Explicit formatting rules in Biome — All rules explicit (lineEnding: lf, jsxQuoteStyle, trailingCommas) to match .editorconfig
+- **10-05**: i18n files false positives — German translation files (.de.mdx) show as unused in static analysis but are auto-detected by Fumadocs
+- **10-05**: Keep build tool dependencies — CSS @import and build tool usage not detected by depcheck, verify build after removal
+- **10-05**: Fumadocs built-in search sufficient — Removed Orama and Algolia dependencies, built-in search meets requirements
 
 ### Pending Todos
 
@@ -75,6 +78,7 @@ Recent decisions affecting v2.1 work:
 - Embedding model selection needs benchmark (OpenAI vs Cohere vs Mistral) — Research flag set
 - Optimal chunking strategy (1000 vs 1500 vs 2000 tokens) requires testing with actual docs
 - Similarity threshold tuning (0.75 recommended baseline) needs validation with query patterns
+- Re-evaluate embedding library choice (@mixedbread/sdk removed in 10-05 as premature)
 
 **Phase 13 (Video Tutorials):**
 - Remotion composition patterns need prototype validation — Research flag set
@@ -83,11 +87,11 @@ Recent decisions affecting v2.1 work:
 
 ## Session Continuity
 
-Last session: 2026-01-22 (plan 10-04 execution)
-Stopped at: Completed 10-04-PLAN.md - Repository cleanup (EditorConfig, gitignore, config consolidation)
+Last session: 2026-01-22 (plan 10-05 execution)
+Stopped at: Completed 10-05-PLAN.md - Unused file detection and dependency audit
 Resume file: None
-Next step: Begin Phase 11 (CLI Excellence) or continue with remaining v2.1 phases
+Next step: Continue with plan 10-06 (final Phase 10 plan) or begin Phase 11 (CLI Excellence)
 
 ---
 
-*Last updated: 2026-01-22 after 10-04 plan completion (Phase 10 complete)*
+*Last updated: 2026-01-22 after 10-05 plan completion*
