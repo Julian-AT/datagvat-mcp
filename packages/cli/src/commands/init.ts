@@ -4,6 +4,9 @@ import { configureTools } from '../configure.js';
 import { displayPostInstall } from '../messages.js';
 import * as ui from '../ui.js';
 import type { ToolInfo, ToolName } from '../types.js';
+import { InitOptionsSchema, ToolSelectionSchema } from '../schemas.js';
+import { isCI, requireNonInteractive } from '../ci.js';
+import { ZodError } from 'zod';
 
 interface InitCommandOptions {
   yes?: boolean;
@@ -12,6 +15,18 @@ interface InitCommandOptions {
 
 export async function initCommand(options: InitCommandOptions = {}): Promise<void> {
   try {
+    // Validate options at function start
+    const validation = InitOptionsSchema.safeParse(options);
+    if (!validation.success) {
+      console.log(ui.formatValidationError(validation.error));
+      process.exit(1);
+    }
+
+    // Check CI environment before prompts
+    if (!options.yes && isCI()) {
+      requireNonInteractive();
+    }
+
     // Display header
     ui.header(
       'data.gv.at MCP Installer',
@@ -67,10 +82,14 @@ export async function initCommand(options: InitCommandOptions = {}): Promise<voi
       toolsToConfigureList = [specificTool];
       ui.info(`Configuring specific tool: ${ui.cyan(options.tool)}`);
     }
-    // Handle --yes flag
-    else if (options.yes) {
+    // Handle --yes flag or CI mode
+    else if (options.yes || isCI()) {
       toolsToConfigureList = detectedTools;
-      ui.info('Configuring all detected tools (--yes flag)');
+      if (isCI() && !options.yes) {
+        ui.info('Running in non-interactive mode (CI detected)');
+      } else {
+        ui.info('Configuring all detected tools (--yes flag)');
+      }
     }
     // Interactive checkbox selection
     else {
@@ -80,11 +99,25 @@ export async function initCommand(options: InitCommandOptions = {}): Promise<voi
         checked: true // All checked by default
       }));
 
-      const selectedToolNames = await checkbox({
+      const selectedToolNames = await checkbox<ToolName>({
         message: 'Which tools would you like to configure?',
         choices,
-        required: true
+        required: true,
+        validate: (value) => {
+          const validation = ToolSelectionSchema.safeParse(value);
+          if (!validation.success) {
+            return validation.error.issues[0]?.message || 'Invalid selection';
+          }
+          return true;
+        }
       });
+
+      // Defensive validation after prompt (should be valid due to inline validation)
+      const selectionValidation = ToolSelectionSchema.safeParse(selectedToolNames);
+      if (!selectionValidation.success) {
+        console.log(ui.formatValidationError(selectionValidation.error));
+        process.exit(1);
+      }
 
       toolsToConfigureList = detectedTools.filter(tool =>
         selectedToolNames.includes(tool.name)
@@ -127,9 +160,15 @@ export async function initCommand(options: InitCommandOptions = {}): Promise<voi
         console.log('');
         process.exit(0);
       }
-      console.log('');
-      ui.error(`Installation failed: ${err.message}`);
-      console.log('');
+
+      // Handle Zod validation errors
+      if (err instanceof ZodError) {
+        console.log(ui.formatValidationError(err));
+        process.exit(1);
+      }
+
+      // Handle all other errors with formatted output
+      console.log(ui.formatError(err));
     } else {
       console.log('');
       ui.error('Installation failed with unknown error');
