@@ -1,8 +1,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
-import { getToolPaths } from './paths.js';
-import type { DetectionResult, ToolName, Platform, ToolInfo } from './types.js';
+import { getToolPaths } from './paths';
+import type { DetectionResult, ToolName, Platform, ToolInfo } from './types';
 
 export async function detectTools(): Promise<DetectionResult> {
   const platform = os.platform() as Platform;

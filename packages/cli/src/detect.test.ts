@@ -1,5 +1,5 @@
 import { test, expect } from 'bun:test';
-import { detectTools } from './detect.js';
+import { detectTools } from './detect';
 
 test('detectTools returns array of tool detection results', async () => {
   const result = await detectTools();

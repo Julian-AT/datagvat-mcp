@@ -5,6 +5,7 @@
     "rootDir": "src",
     "module": "ESNext",
     "target": "ES2022",
+    "moduleResolution": "bundler",
     "types": ["node", "bun"],
     "noEmit": false
   },

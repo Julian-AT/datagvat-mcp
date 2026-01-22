@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import type { ToolName } from './types.js';
+import type { ToolName } from './types';
 
 /**
  * Get tool-specific restart instructions

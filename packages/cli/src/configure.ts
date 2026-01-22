@@ -1,8 +1,8 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { getMcpConfig } from './templates.js';
-import * as ui from './ui.js';
-import type { ToolInfo } from './types.js';
+import { getMcpConfig } from './templates';
+import * as ui from './ui';
+import type { ToolInfo } from './types';
 
 interface ConfigResult {
   configured: number;

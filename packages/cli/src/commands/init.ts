@@ -1,9 +1,9 @@
 import { checkbox } from '@inquirer/prompts';
-import { detectTools } from '../detect.js';
-import { configureTools } from '../configure.js';
-import { displayPostInstall } from '../messages.js';
-import * as ui from '../ui.js';
-import type { ToolInfo, ToolName } from '../types.js';
+import { detectTools } from '../detect';
+import { configureTools } from '../configure';
+import { displayPostInstall } from '../messages';
+import * as ui from '../ui';
+import type { ToolInfo, ToolName } from '../types';
 
 interface InitCommandOptions {
   yes?: boolean;
