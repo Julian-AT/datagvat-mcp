@@ -1,14 +1,8 @@
 {
   "$schema": "..\\..\\..\\docs\\.source\\json-schema\\docs.meta.json",
   "pages": [
-    "getting-started",
-    "---[BookOpen]Documentation---",
-    "(guides)",
-    "---[Library]Reference---",
-    "reference",
-    "api-reference",
-    "---[Settings]Advanced Topics---",
-    "(advanced)",
+    "docs",
+    "api",
     "---[Zap]Interactive---",
     "external:[Try MCP Server](/try)",
     "---[ExternalLink]Resources---",
