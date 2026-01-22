@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-01-20)
 ## Current Position
 
 Milestone: v2.0 Professional Documentation System
-Phase: 5 of 9 (Code Quality Pass)
-Plan: 05-05 of 5
-Status: Phase 5 complete - Build pipeline working
-Last activity: 2026-01-22 - Completed 05-05-PLAN.md (Build pipeline workaround: type-check skipped, build succeeds)
+Phase: 6 of 9 (CI/CD Integration)
+Plan: 06-01 of 1
+Status: Phase 6 complete - CI/CD validation pipeline active
+Last activity: 2026-01-22 - Completed 06-01-PLAN.md (Pre-commit hooks, path-filtered CI, CONTRIBUTING.md)
 
-Progress: ███████████░ 138% (18/13 plans complete across all phases)
+Progress: ████████████ 146% (19/13 plans complete across all phases)
 
 ## Performance Metrics
 
@@ -66,17 +66,18 @@ Progress: ███████████░ 138% (18/13 plans complete across
 - Trend: v1.2 milestone complete - comprehensive documentation rebuild achieved
 
 **v2.0 Milestone:**
-- Total plans completed: 18
-- Average duration: 10.7 min
-- Total execution time: 193 min
+- Total plans completed: 19
+- Average duration: 10.5 min
+- Total execution time: 200 min
 - Timeline: 3 days (2026-01-20 → 2026-01-22)
 
 **Recent Trend:**
-- Last 5 plans: 05-02 (20 min), 05-01 (21 min), 05-03 (7 min), 05-04 (20 min), 05-05 (26 min)
+- Last 5 plans: 05-01 (21 min), 05-03 (7 min), 05-04 (20 min), 05-05 (26 min), 06-01 (7 min)
 - Phase 1 (Infrastructure Modernization): 5/5 plans complete - PHASE COMPLETE
 - Phase 3 (Link Validation & Fixes): 1/1 plans complete - PHASE COMPLETE
 - Phase 4 (Style Guide Compliance): 8/8 plans complete - PHASE COMPLETE
 - Phase 5 (Code Quality Pass): 5/3 plans complete - PHASE COMPLETE (including 2 gap closure plans)
+- Phase 6 (CI/CD Integration): 1/1 plans complete - PHASE COMPLETE
 
 ## Accumulated Context
 
@@ -335,6 +336,12 @@ Recent decisions affecting current work:
 - Skip TypeScript type-check temporarily due to Bun 1.x / TypeScript 5.9 global types conflict (05-05, 2026-01-22)
 - Add .source/ to .gitignore to exclude auto-generated fumadocs files from linting (05-05, 2026-01-22)
 - Document workaround with clear TODO and tracking information for future resolution (05-05, 2026-01-22)
+- Pre-commit hooks check staged files only (fast, typically <2 seconds) (06-01, 2026-01-22)
+- CI path filters trigger docs job only on docs/** or .github/workflows/ci.yml changes (06-01, 2026-01-22)
+- Frozen lockfile enforcement (bun ci) ensures reproducible CI builds (06-01, 2026-01-22)
+- Artifact upload on main branch only (7-day retention) for production debugging (06-01, 2026-01-22)
+- Preview deployment template added but commented out (platform not chosen yet) (06-01, 2026-01-22)
+- Type-check documented as temporarily skipped due to Bun 1.x/TypeScript 5.9 compatibility (06-01, 2026-01-22)
 
 ### Roadmap Evolution
 
@@ -393,22 +400,23 @@ Recent decisions affecting current work:
 - Zero errors - lint passes with exit code 0
 - No impact on build quality or runtime
 
-**CODE-01 Emoji Removal (COMPLETE):**
-- 05-03 completed best-practices/ directory (4 files, 32 instances removed)
-- 05-04 completed workflows/ and examples/ directories (8 files, 59 instances removed)
-- Zero emojis remain in print statements or code comments across all documentation
-- Verification: `grep -r 'print.*[✓✗]'` returns no matches
-- CODE-01 requirement: SATISFIED
+**CI/CD Validation Pipeline (ACTIVE):**
+- Pre-commit hooks block linting errors before commit (simple-git-hooks + Biome)
+- CI workflow path-filtered (docs/** changes only) to prevent wasted CI minutes
+- Frozen lockfile enforcement (bun ci) ensures reproducible builds
+- CONTRIBUTING.md provides comprehensive developer guidelines
+- SKIP_SIMPLE_GIT_HOOKS=1 environment variable for emergency bypass
+- Zero-error baseline maintained (Biome passes with 0 errors)
 
-No blocking issues. Phase 5 complete. Ready for Phase 6 (OpenAPI spec generation).
+No blocking issues. Phase 6 complete. Ready for Phase 7 (OpenAPI spec generation).
 
 ## Session Continuity
 
 Last session: 2026-01-22
-Stopped at: Completed 05-05-PLAN.md (Build pipeline workaround: type-check skipped, build succeeds)
+Stopped at: Completed 06-01-PLAN.md (CI/CD validation pipeline: pre-commit hooks, path-filtered CI, CONTRIBUTING.md)
 Resume file: None
-Next: Phase 6 (OpenAPI spec generation) - Phase 5 COMPLETE
+Next: Phase 7 (OpenAPI spec generation) - Phase 6 COMPLETE
 
 ---
 *State initialized: 2026-01-19*
-*Last updated: 2026-01-22 after plan 05-05 execution (Phase 5 COMPLETE)*
+*Last updated: 2026-01-22 after plan 06-01 execution (Phase 6 COMPLETE)*
