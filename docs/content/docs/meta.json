@@ -6,8 +6,11 @@
     "(guides)",
     "---[Library]Reference---",
     "reference",
+    "api-reference",
     "---[Settings]Advanced Topics---",
     "(advanced)",
+    "---[Zap]Interactive---",
+    "external:[Try MCP Server](/try)",
     "---[ExternalLink]Resources---",
     "external:[Official data.gv.at API](https://www.data.gv.at/katalog/api/3/)",
     "external:[GitHub Repository](https://github.com/datagvat/datagvat-mcp)"
