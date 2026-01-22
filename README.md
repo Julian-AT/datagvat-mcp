@@ -22,7 +22,7 @@ Get your first dataset in under 5 minutes:
 ```bash
 # Clone repository
 git clone https://github.com/datagvat/datagvat-mcp.git
-cd datagvat-mcp
+cd datagvat-mcp/mcp
 
 # Set up Python environment
 uv venv
@@ -52,9 +52,9 @@ Add configuration:
       "command": "uv",
       "args": [
         "--directory",
-        "/absolute/path/to/datagvat-mcp",
+        "/absolute/path/to/datagvat-mcp/mcp",
         "run",
-        "datagvat-mcp"
+        "app/server.py"
       ]
     }
   }
