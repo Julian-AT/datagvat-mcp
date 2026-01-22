@@ -43,7 +43,7 @@ Learn how to combine tools for complete data discovery workflows.
     actual_columns = [c['name'] for c in schema['columns']]
 
     if all(col in actual_columns for col in expected_columns):
-      print("✓ Schema validated - ready to download")
+      print("Success: Schema validated - ready to download")
       # Proceed with download_url
     ```
   </Tab>
@@ -149,10 +149,10 @@ Learn how to combine tools for complete data discovery workflows.
         actual_columns = [c['name'] for c in schema['columns']]
 
         if all(col in actual_columns for col in expected_columns):
-          print("✓ Schema validated")
+          print("Success: Schema validated")
           # Proceed with full download using download_url
         else:
-          print("✗ Schema mismatch, check dataset")
+          print("Error: Schema mismatch, check dataset")
         ```
       </Step>
     </Steps>
@@ -439,11 +439,11 @@ Learn how to combine tools for complete data discovery workflows.
                 'columns': len(schema['columns'])
               })
 
-              print(f"✓ {dataset['title']}")
+              print(f"Success: {dataset['title']}")
               print(f"  Score: {dataset['score']}, Columns: {len(schema['columns'])}")
 
             except Exception as e:
-              print(f"✗ {dataset['title']} - URL not accessible")
+              print(f"Error: {dataset['title']} - URL not accessible")
 
         print(f"\n{len(accessible_datasets)} datasets ready for use")
         ```
@@ -484,7 +484,7 @@ Learn how to combine tools for complete data discovery workflows.
     print(f"Overlap: {overlap_pct:.0f}%")
 
     if overlap_pct > 70:
-      print("✓ Language detection effective")
+      print("Success: Language detection effective")
     ```
   </Tab>
 
@@ -540,7 +540,7 @@ Learn how to combine tools for complete data discovery workflows.
         # Check language detection effectiveness
         overlap_pct = (len(overlap) / len(de_ids)) * 100
         if overlap_pct > 70:
-          print(f"✓ Language detection effective ({overlap_pct:.0f}% overlap)")
+          print(f"Success: Language detection effective ({overlap_pct:.0f}% overlap)")
         ```
       </Step>
     </Steps>

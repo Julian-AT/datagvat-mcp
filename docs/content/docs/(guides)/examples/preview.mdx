@@ -50,10 +50,10 @@ Learn how to inspect dataset contents before downloading.
     actual_cols = [c['name'] for c in schema['columns']]
 
     if all(col in actual_cols for col in expected_cols):
-      print("✓ Schema validated - proceed with data preview")
+      print("Success: Schema validated - proceed with data preview")
     else:
       missing = set(expected_cols) - set(actual_cols)
-      print(f"✗ Missing columns: {missing}")
+      print(f"Error: Missing columns: {missing}")
     ```
 
     **Advanced validation:**
@@ -306,7 +306,7 @@ Learn how to inspect dataset contents before downloading.
       if inconsistent:
         print(f"Warning: Objects with different fields: {inconsistent}")
       else:
-        print("✓ Consistent structure across all objects")
+        print("Success: Consistent structure across all objects")
     ```
   </Tab>
 </Tabs>
@@ -416,7 +416,7 @@ Learn how to inspect dataset contents before downloading.
         completeness = (received / requested) * 100
         print(f"   Preview completeness: {completeness:.1f}%")
       else:
-        print("✓ Full preview retrieved")
+        print("Success: Full preview retrieved")
 
     # Verify recovered data is valid
     if preview['data']:
@@ -556,7 +556,7 @@ Learn how to inspect dataset contents before downloading.
           print(f"Null values: {null_pct:.1f}%")
 
           if null_pct < 5:
-            print("✓ Data quality acceptable - proceed with download")
+            print("Success: Data quality acceptable - proceed with download")
           else:
             print("Warning: High null percentage - review data quality")
         ```
@@ -667,9 +667,9 @@ Learn how to inspect dataset contents before downloading.
     result = safe_preview(url="https://example.com/data.csv")
 
     if result['success']:
-      print(f"✓ Preview successful: {result['rows']} rows")
+      print(f"Success: Preview successful: {result['rows']} rows")
     else:
-      print(f"✗ Preview failed: {result['error']}")
+      print(f"Error: Preview failed: {result['error']}")
       print(f"   Suggestion: {result['suggestion']}")
     ```
   </Tab>
@@ -717,7 +717,7 @@ Learn how to inspect dataset contents before downloading.
       for fmt in ["CSV", "JSON"]:
         try:
           preview = preview_data(url=url, format=fmt)
-          print(f"✓ Detected as {fmt}")
+          print(f"Success: Detected as {fmt}")
           break
         except ToolError:
           continue
@@ -802,7 +802,7 @@ Learn how to inspect dataset contents before downloading.
     )
 
     if result['valid'] and result['download_recommended']:
-      print("✓ Validation passed - safe to download")
+      print("Success: Validation passed - safe to download")
     ```
   </Tab>
 </Tabs>
@@ -849,7 +849,7 @@ for row in preview["data"]:
   # Check for Umlauts: ä, ö, ü, ß
   for value in row.values():
     if isinstance(value, str) and any(c in value for c in 'äöüßÄÖÜ'):
-      print(f"✓ German characters detected: {value}")
+      print(f"Success: German characters detected: {value}")
 ```
 
 ## Performance Tips

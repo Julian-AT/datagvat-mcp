@@ -50,10 +50,10 @@ Datensatzinhalte vor dem Download prüfen.
     tatsaechliche_spalten = [c['name'] for c in schema['columns']]
 
     if all(col in tatsaechliche_spalten for col in erwartete_spalten):
-      print("✓ Schema validiert - mit Datenvorschau fortfahren")
+      print("Erfolg: Schema validiert - mit Datenvorschau fortfahren")
     else:
       fehlend = set(erwartete_spalten) - set(tatsaechliche_spalten)
-      print(f"✗ Fehlende Spalten: {fehlend}")
+      print(f"Fehler: Fehlende Spalten: {fehlend}")
     ```
 
     **Erweiterte Validierung:**
@@ -179,7 +179,7 @@ Datensatzinhalte vor dem Download prüfen.
         print("Warnung: Nur eine Spalte erkannt")
         print("   Trennzeichen möglicherweise nicht korrekt erkannt")
       else:
-        print("✓ Trennzeichenerkennung erfolgreich")
+        print("Erfolg: Trennzeichenerkennung erfolgreich")
 
     # Für problematische Dateien Rohdaten prüfen
     # (Würde direkten HTTP-Download für manuelle Analyse benötigen)
@@ -306,7 +306,7 @@ Datensatzinhalte vor dem Download prüfen.
       if inkonsistent:
         print(f"Warnung: Objekte mit unterschiedlichen Feldern: {inkonsistent}")
       else:
-        print("✓ Konsistente Struktur über alle Objekte")
+        print("Erfolg: Konsistente Struktur über alle Objekte")
     ```
   </Tab>
 </Tabs>
@@ -416,7 +416,7 @@ Datensatzinhalte vor dem Download prüfen.
         vollstaendigkeit = (erhalten / angefordert) * 100
         print(f"   Vorschau-Vollständigkeit: {vollstaendigkeit:.1f}%")
       else:
-        print("✓ Vollständige Vorschau abgerufen")
+        print("Erfolg: Vollständige Vorschau abgerufen")
 
     # Wiederhergestellte Daten auf Gültigkeit überprüfen
     if vorschau['data']:
@@ -556,7 +556,7 @@ Datensatzinhalte vor dem Download prüfen.
           print(f"Null-Werte: {null_prozent:.1f}%")
 
           if null_prozent < 5:
-            print("✓ Datenqualität akzeptabel - mit Download fortfahren")
+            print("Erfolg: Datenqualität akzeptabel - mit Download fortfahren")
           else:
             print("Warnung: Hoher Null-Prozentsatz - Datenqualität überprüfen")
         ```
@@ -667,9 +667,9 @@ Datensatzinhalte vor dem Download prüfen.
     ergebnis = sichere_vorschau(url="https://example.com/daten.csv")
 
     if ergebnis['erfolg']:
-      print(f"✓ Vorschau erfolgreich: {ergebnis['zeilen']} Zeilen")
+      print(f"Erfolg: Vorschau erfolgreich: {ergebnis['zeilen']} Zeilen")
     else:
-      print(f"✗ Vorschau fehlgeschlagen: {ergebnis['fehler']}")
+      print(f"Fehler: Vorschau fehlgeschlagen: {ergebnis['fehler']}")
       print(f"   Vorschlag: {ergebnis['vorschlag']}")
     ```
   </Tab>
@@ -717,7 +717,7 @@ Datensatzinhalte vor dem Download prüfen.
       for fmt in ["CSV", "JSON"]:
         try:
           vorschau = preview_data(url=url, format=fmt)
-          print(f"✓ Als {fmt} erkannt")
+          print(f"Erfolg: Als {fmt} erkannt")
           break
         except ToolError:
           continue
@@ -802,7 +802,7 @@ Datensatzinhalte vor dem Download prüfen.
     )
 
     if ergebnis['gueltig'] and ergebnis['download_empfohlen']:
-      print("✓ Validierung bestanden - sicher zum Herunterladen")
+      print("Erfolg: Validierung bestanden - sicher zum Herunterladen")
     ```
   </Tab>
 </Tabs>
