@@ -1,5 +1,34 @@
 # Project Milestones: Austria MCP
 
+## v2.0 Professional Documentation System (Shipped: 2026-01-22)
+
+**Delivered:** Enterprise-grade documentation infrastructure with modern tooling (Bun, Biome), shadcn-like CLI installer, live AI testing interface, and auto-generated API documentation from OpenAPI schema.
+
+**Phases completed:** 2-9 (28 plans total)
+
+**Key accomplishments:**
+
+- Modern build infrastructure with Bun runtime and Biome linting (0 errors, 100-character line width enforcement)
+- Comprehensive style guide compliance across 44 MDX files (Microsoft/Google conventions, zero AI buzzwords, real Austrian examples)
+- Automated quality pipeline with pre-commit hooks and GitHub Actions CI/CD (frozen lockfile, path-filtered jobs)
+- Auto-generated API documentation from data.gv.at OpenAPI schema (63 endpoints, weekly automated updates via PR workflow)
+- Production-ready CLI installer (@datagvat/mcp-installer) with shadcn-level visual polish (12.4 kB compressed, npm publish ready)
+- Live AI testing interface at /try page with streaming MCP tool execution (real-time results, rate limiting, tool visualization)
+
+**Stats:**
+
+- 161 commits, 39 files modified
+- 6,321 insertions, 62 deletions
+- 8 phases, 28 plans, 80+ tasks
+- ~30,000 lines TypeScript/MDX
+- 3 days from first commit to ship (2026-01-20 → 2026-01-22)
+
+**Git range:** `feat(02-01)` → `docs(v2.0): milestone audit complete`
+
+**What's next:** v2.1+ milestone - German localization (I18N-01, I18N-02), real Claude Desktop screenshots (VISUAL-01), video tutorials (VISUAL-02), or new features based on user feedback.
+
+---
+
 ## v1.2 Documentation Rebuild (Shipped: 2026-01-20)
 
 **Delivered:** Comprehensive, production-ready documentation from foundation to polish, with auto-generated tool reference, progressive disclosure patterns, and visual architecture aids serving both data analysts and developers.

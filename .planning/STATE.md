@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-01-20)
 
 **Core value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
-**Current focus:** v2.0 Professional Documentation System
+**Current focus:** v2.1+ (Next milestone - to be defined)
 
 ## Current Position
 
-Milestone: v2.0 Professional Documentation System
-Phase: 9 of 9 (AI-Powered Testing)
-Plan: 09-03 of 3
-Status: Phase complete - Interactive chat UI deployed
-Last activity: 2026-01-22 - Completed 09-03-PLAN.md (Chat UI component)
+Milestone: v2.1+ (Next milestone - planning phase)
+Phase: Not started
+Plan: Not started
+Status: Ready to start next milestone
+Last activity: 2026-01-22 - v2.0 milestone complete and shipped
 
-Progress: ███████████████████ 223% (29/13 plans complete across all phases)
+Progress: v2.0 COMPLETE - 28/28 plans shipped (100%)
 
 ## Performance Metrics
 
@@ -449,66 +449,22 @@ Recent decisions affecting current work:
 
 ### Blockers/Concerns
 
-**TypeScript Type-Check Issue (RESOLVED with workaround):**
-- Bun 1.x global types conflict with TypeScript 5.9 (`error TS2317: Global type 'ThisType' must have 1 type parameter(s)`)
-- Workaround implemented: Type-check skipped in prebuild with SKIP_TYPE_CHECK flag (05-05)
-- Build pipeline now works: `bun run build` completes successfully
-- Does NOT affect Biome linting (passes with 0 errors)
-- Does NOT affect Next.js build (Next.js uses its own TypeScript handling)
-- Future resolution: Re-enable when Bun 1.2+ releases or migrate to Node.js
-- Not blocking any work - Phase 5 complete, ready for Phase 6
+**No active blockers.** v2.0 milestone shipped successfully with 100% requirement coverage.
 
-**Biome Warnings (Acceptable):**
-- 20 non-critical Biome warnings remain (non-null assertions, any types in scripts)
-- All are justified and documented with biome-ignore comments
-- Zero errors - lint passes with exit code 0
-- No impact on build quality or runtime
-
-**CI/CD Validation Pipeline (ACTIVE):**
-- Pre-commit hooks block linting errors before commit (simple-git-hooks + Biome)
-- CI workflow path-filtered (docs/** changes only) to prevent wasted CI minutes
-- Frozen lockfile enforcement (bun ci) ensures reproducible builds
-- CONTRIBUTING.md provides comprehensive developer guidelines
-- SKIP_SIMPLE_GIT_HOOKS=1 environment variable for emergency bypass
-- Zero-error baseline maintained (Biome passes with 0 errors)
-
-**OpenAPI Automation (ACTIVE):**
-- Weekly automated schema updates configured (Monday 09:00 UTC)
-- PR-based review process prevents breaking changes
-- Manual trigger available for on-demand updates and 60-day workaround
-- Workflow pushed to GitHub, ready for initial testing
-
-**CLI Installer Package (COMPLETE):**
-- shadcn-level visual polish with box drawing and professional formatting
-- Post-install guidance with tool-specific restart instructions
-- Comprehensive README with troubleshooting documentation
-- npm-ready package (12.4 kB compressed, 21 files)
-- Ready for `npm publish` after repository URL update
-
-**MCP Client Infrastructure (COMPLETE):**
-- MCP TypeScript SDK integrated (@modelcontextprotocol/sdk@1.25.3)
-- Singleton client with stdio transport to Python server
-- Promise deduplication prevents concurrent connections
-- JSON Schema to Zod conversion for AI SDK compatibility
-- Error-as-result pattern for graceful tool failures
-
-**Chat UI Complete (COMPLETE):**
-- Interactive chat interface at /try page
-- useChat hook with message streaming
-- Tool call visualization (blue) and results (green)
-- Navigation integration with Zap icon
-- Composite keys for React stability
-- Responsive layout with error handling
-
-No blocking issues. Phase 9 complete (3/3 plans). v2.0 milestone ready for review.
+**Tech Debt from v2.0 (non-blocking):**
+- 4 placeholder screenshots remain in documentation (deferred to user)
+- CI path filters too broad (wastes CI minutes on Python-only changes)
+- First /try page request takes 2-3s (Python subprocess spawn)
+- No health check endpoint for MCP server status visibility
+- TypeScript type-check skipped due to Bun 1.x compatibility (re-enable when Bun 1.2+ releases)
 
 ## Session Continuity
 
 Last session: 2026-01-22
-Stopped at: Completed 09-03-PLAN.md (Chat UI component)
+Stopped at: v2.0 milestone shipped and archived
 Resume file: None
-Next: v2.0 milestone complete - all 9 phases finished
+Next: /gsd:new-milestone to start v2.1+
 
 ---
 *State initialized: 2026-01-19*
-*Last updated: 2026-01-22 after plan 09-03 execution (Phase 9 complete, v2.0 milestone achieved)*
+*Last updated: 2026-01-22 after v2.0 milestone completion*
