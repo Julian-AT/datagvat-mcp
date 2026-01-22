@@ -10,12 +10,12 @@ See: .planning/PROJECT.md (updated 2026-01-20)
 ## Current Position
 
 Milestone: v2.0 Professional Documentation System
-Phase: 7 of 9 (OpenAPI Integration)
-Plan: 07-03 of 3
-Status: Phase 7 complete - Auto-generated API reference from data.gv.at schema
-Last activity: 2026-01-22 - Completed 07-03-PLAN.md (Weekly automation workflow)
+Phase: 8 of 9 (CLI Installer)
+Plan: 08-01 of 3
+Status: In progress - CLI package structure and tool detection complete
+Last activity: 2026-01-22 - Completed 08-01-PLAN.md (CLI foundation with detection)
 
-Progress: ████████████████ 175% (23/13 plans complete across all phases)
+Progress: ████████████████ 185% (24/13 plans complete across all phases)
 
 ## Performance Metrics
 
@@ -66,19 +66,20 @@ Progress: ████████████████ 175% (23/13 plans com
 - Trend: v1.2 milestone complete - comprehensive documentation rebuild achieved
 
 **v2.0 Milestone:**
-- Total plans completed: 22
-- Average duration: 9.5 min
-- Total execution time: 214 min
+- Total plans completed: 23
+- Average duration: 9.2 min
+- Total execution time: 219 min
 - Timeline: 3 days (2026-01-20 → 2026-01-22)
 
 **Recent Trend:**
-- Last 5 plans: 05-05 (26 min), 06-01 (7 min), 06-02 (6 min), 07-01 (3 min), 07-03 (5 min)
+- Last 5 plans: 06-01 (7 min), 06-02 (6 min), 07-01 (3 min), 07-03 (5 min), 08-01 (5 min)
 - Phase 1 (Infrastructure Modernization): 5/5 plans complete - PHASE COMPLETE
 - Phase 3 (Link Validation & Fixes): 1/1 plans complete - PHASE COMPLETE
 - Phase 4 (Style Guide Compliance): 8/8 plans complete - PHASE COMPLETE
 - Phase 5 (Code Quality Pass): 5/3 plans complete - PHASE COMPLETE (including 2 gap closure plans)
 - Phase 6 (CI/CD Integration): 2/1 plans complete - PHASE COMPLETE (including 1 gap closure plan)
 - Phase 7 (OpenAPI Integration): 3/3 plans complete - PHASE COMPLETE
+- Phase 8 (CLI Installer): 1/3 plans complete - IN PROGRESS
 
 ## Accumulated Context
 
@@ -361,6 +362,11 @@ Recent decisions affecting current work:
 - Parse YAML to object and pass as () => { 'schema-id': schemaObject } pattern (07-02, 2026-01-22)
 - Line-by-line indentation comparison for empty content detection over regex (07-02, 2026-01-22)
 - Add placeholder application/json schemas when all RDF media types filtered (07-02, 2026-01-22)
+- CLI package @datagvat/mcp-installer with bin entry datagvat-mcp for shadcn-like installer pattern (08-01, 2026-01-22)
+- Tool detection checks both config file existence and parent directory for reliable detection (08-01, 2026-01-22)
+- TypeScript noEmit: false override in CLI package to emit JS files despite parent tsconfig (08-01, 2026-01-22)
+- Types field includes node and bun for proper Node.js API type resolution in CLI package (08-01, 2026-01-22)
+- Test files excluded from build output via tsconfig exclude pattern (08-01, 2026-01-22)
 
 ### Roadmap Evolution
 
@@ -446,15 +452,15 @@ Recent decisions affecting current work:
 - Manual trigger available for on-demand updates and 60-day workaround
 - Workflow pushed to GitHub, ready for initial testing
 
-No blocking issues. Phase 7 complete (3/3 plans). Ready for Phase 8 (CLI Installer).
+No blocking issues. Phase 8 in progress (1/3 plans complete). Ready for Plan 08-02 (Interactive installer UI).
 
 ## Session Continuity
 
 Last session: 2026-01-22
-Stopped at: Completed 07-03-PLAN.md (Automated weekly OpenAPI updates via GitHub Actions)
+Stopped at: Completed 08-01-PLAN.md (CLI package structure and tool detection)
 Resume file: None
-Next: Phase 8 (CLI Installer) - Phase 7 COMPLETE (3/3 plans)
+Next: Plan 08-02 (Interactive installer UI) - Phase 8 in progress
 
 ---
 *State initialized: 2026-01-19*
-*Last updated: 2026-01-22 after plan 07-03 execution (Phase 7 COMPLETE)*
+*Last updated: 2026-01-22 after plan 08-01 execution (Phase 8 in progress)*
