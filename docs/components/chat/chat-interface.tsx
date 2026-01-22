@@ -1,8 +1,8 @@
 'use client';
 
 import { DefaultChatTransport, useChat } from '@ai-sdk/react';
-import { MessageList } from './message-list';
 import { ChatInput } from './chat-input';
+import { MessageList } from './message-list';
 
 /**
  * Main Chat Interface Component
@@ -25,7 +25,9 @@ export function ChatInterface() {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
           <div className="text-center text-muted-foreground py-12">
-            <p className="text-lg font-medium mb-2">Welcome to the data.gv.at MCP Testing Interface</p>
+            <p className="text-lg font-medium mb-2">
+              Welcome to the data.gv.at MCP Testing Interface
+            </p>
             <p className="text-sm">
               Ask questions about Austrian open datasets and see real-time tool invocations.
             </p>

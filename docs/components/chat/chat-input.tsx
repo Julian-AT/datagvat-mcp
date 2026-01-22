@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, type FormEvent } from 'react';
+import { type FormEvent, useRef, useState } from 'react';
 
 /**
  * Chat Input Component

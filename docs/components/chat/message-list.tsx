@@ -38,7 +38,10 @@ export function MessageList({ messages }: { messages: UIMessage[] }) {
                 // Text content
                 if (part.type === 'text') {
                   return (
-                    <div key={idx} className="prose prose-sm dark:prose-invert max-w-none">
+                    <div
+                      key={`${message.id}-text-${idx}`}
+                      className="prose prose-sm dark:prose-invert max-w-none"
+                    >
                       <p className="whitespace-pre-wrap m-0">{part.text}</p>
                     </div>
                   );
@@ -48,7 +51,7 @@ export function MessageList({ messages }: { messages: UIMessage[] }) {
                 if (part.type === 'tool-call') {
                   return (
                     <div
-                      key={idx}
+                      key={`${message.id}-tool-call-${part.toolCallId}`}
                       className="bg-blue-500/10 border border-blue-500/20 rounded p-2 text-sm"
                     >
                       <div className="flex items-center gap-1 font-medium mb-1">
@@ -66,7 +69,7 @@ export function MessageList({ messages }: { messages: UIMessage[] }) {
                 if (part.type === 'tool-result') {
                   return (
                     <div
-                      key={idx}
+                      key={`${message.id}-tool-result-${part.toolCallId}`}
                       className="bg-green-500/10 border border-green-500/20 rounded p-2 text-sm"
                     >
                       <div className="flex items-center gap-1 font-medium mb-1">
