@@ -9,7 +9,7 @@ import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import type { CoreTool } from 'ai';
 import { tool } from 'ai';
 import { z } from 'zod';
-import { mcpClient } from './client.js';
+import { mcpClient } from './client';
 
 /**
  * JSON Schema to Zod type mapping

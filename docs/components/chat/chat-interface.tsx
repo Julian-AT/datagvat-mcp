@@ -1,6 +1,6 @@
 'use client';
 
-import { DefaultChatTransport, useChat } from '@ai-sdk/react';
+import { useChat } from '@ai-sdk/react';
 import { ChatInput } from './chat-input';
 import { MessageList } from './message-list';
 
@@ -12,7 +12,7 @@ import { MessageList } from './message-list';
  */
 export function ChatInterface() {
   const { messages, sendMessage, status, error, stop, clearError } = useChat({
-    transport: DefaultChatTransport({ api: '/api/chat' }),
+    api: '/api/chat',
     onError: (err) => console.error('Chat error:', err),
   });
 
