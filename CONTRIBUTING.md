@@ -88,6 +88,36 @@ When you open a pull request, GitHub Actions runs:
 
 All checks must pass before your pull request can be merged.
 
+## Automated Workflows
+
+### OpenAPI Schema Updates
+
+The OpenAPI schema is automatically updated weekly from data.gv.at.
+
+**Schedule:** Every Monday at 09:00 UTC
+
+**Process:**
+1. Workflow downloads latest schema from https://qs.data.gv.at/api/hub/repo/openapi.yaml
+2. If schema changed, PR is created automatically
+3. Review the PR for breaking changes before merging
+4. PR is merged or closed based on review
+
+**Manual trigger:** You can manually trigger the update workflow:
+1. Go to GitHub Actions > Update OpenAPI Schema
+2. Click "Run workflow"
+3. Select the branch and click "Run workflow"
+
+**Reviewing schema PRs:**
+
+When a schema update PR is created, check the following:
+
+- **Breaking changes:** Look for removed endpoints (breaks existing links in documentation)
+- **New endpoints:** Verify new endpoints have clear descriptions
+- **Build verification:** Test locally with `cd docs && bun run build`
+- **Documentation quality:** Check if endpoint descriptions are helpful
+
+If the schema has breaking changes, coordinate with the team before merging. The automated workflow creates PRs (not direct commits) specifically to enable review.
+
 ### Type Checking Status
 
 Type checking is **temporarily disabled** in the validation pipeline due to a Bun 1.x / TypeScript 5.9 compatibility issue (see [decision 05-05](.planning/decisions/05-05.md)). It will be re-enabled when Bun 2.x with full TypeScript 5.9+ support is available.
