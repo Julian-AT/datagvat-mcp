@@ -22,7 +22,7 @@ export const source = loader(
     baseUrl: '/docs',
     i18n,
     plugins: [pageTreeCodeTitles(), lucideIconsPlugin(), openapiPlugin()],
-  },
+  }
 );
 
 function pageTreeCodeTitles(): LoaderPlugin {

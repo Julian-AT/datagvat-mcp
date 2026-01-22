@@ -36,7 +36,7 @@ export const registry: Registry = {
         return resolveFromRemote(
           radixUi.registry,
           match[1],
-          (file) => path.basename(file.path, path.extname(file.path)) === match[1],
+          (file) => path.basename(file.path, path.extname(file.path)) === match[1]
         )!;
       }
     }

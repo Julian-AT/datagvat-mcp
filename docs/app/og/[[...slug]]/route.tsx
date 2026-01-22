@@ -15,7 +15,7 @@ export async function GET(_req: Request, { params }: RouteContext<'/og/[[...slug
 
   return new ImageResponse(
     <MetadataImage title={page.data.title} description={page.data.description} />,
-    await getImageResponseOptions(),
+    await getImageResponseOptions()
   );
 }
 

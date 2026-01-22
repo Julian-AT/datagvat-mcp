@@ -43,7 +43,7 @@ async function main() {
     const version = versionMatch[1];
     if (!['3.0', '3.1'].includes(version)) {
       throw new Error(
-        `Unsupported OpenAPI version: ${version}. fumadocs-openapi requires 3.0 or 3.1`,
+        `Unsupported OpenAPI version: ${version}. fumadocs-openapi requires 3.0 or 3.1`
       );
     }
 
@@ -115,7 +115,7 @@ async function main() {
           contentFixLines.push(`${baseIndent}    schema:`);
           contentFixLines.push(`${baseIndent}      type: object`);
           contentFixLines.push(
-            `${baseIndent}      description: "RDF format data (original schema contained only RDF media types not supported by documentation generator)"`,
+            `${baseIndent}      description: "RDF format data (original schema contained only RDF media types not supported by documentation generator)"`
           );
           continue;
         }

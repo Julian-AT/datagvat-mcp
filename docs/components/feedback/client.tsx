@@ -34,7 +34,7 @@ const rateButtonVariants = cva(
         false: 'text-fd-muted-foreground',
       },
     },
-  },
+  }
 );
 
 const pageFeedbackResult = z.extend(pageFeedback, {
@@ -106,7 +106,7 @@ export function Feedback({
           className={cn(
             rateButtonVariants({
               active: activeOpinion === 'good',
-            }),
+            })
           )}
           onClick={() => {
             setOpinion('good');
@@ -121,7 +121,7 @@ export function Feedback({
           className={cn(
             rateButtonVariants({
               active: activeOpinion === 'bad',
-            }),
+            })
           )}
           onClick={() => {
             setOpinion('bad');
@@ -144,7 +144,7 @@ export function Feedback({
                   buttonVariants({
                     color: 'primary',
                   }),
-                  'text-xs',
+                  'text-xs'
                 )}
               >
                 View on GitHub
@@ -156,7 +156,7 @@ export function Feedback({
                   buttonVariants({
                     color: 'secondary',
                   }),
-                  'text-xs',
+                  'text-xs'
                 )}
                 onClick={() => {
                   setOpinion(previous.opinion);
@@ -248,14 +248,14 @@ export function FeedbackBlock({
         <div
           className={cn(
             'absolute -inset-1 rounded-sm pointer-events-none z-[-1]',
-            open ? 'bg-fd-accent' : 'group-hover/feedback:bg-fd-accent',
+            open ? 'bg-fd-accent' : 'group-hover/feedback:bg-fd-accent'
           )}
         />
         <PopoverTrigger
           className={cn(
             buttonVariants({ variant: 'secondary', size: 'sm' }),
             'absolute -top-7 end-0 backdrop-blur-sm text-fd-muted-foreground gap-1.5',
-            !open && 'invisible group-hover/feedback:visible hover:visible',
+            !open && 'invisible group-hover/feedback:visible hover:visible'
           )}
           onClick={(e) => {
             setOpen((prev) => !prev);
@@ -283,7 +283,7 @@ export function FeedbackBlock({
                   buttonVariants({
                     color: 'primary',
                   }),
-                  'text-xs',
+                  'text-xs'
                 )}
               >
                 View on GitHub
@@ -295,7 +295,7 @@ export function FeedbackBlock({
                   buttonVariants({
                     color: 'secondary',
                   }),
-                  'text-xs',
+                  'text-xs'
                 )}
                 onClick={() => {
                   setPrevious(null);

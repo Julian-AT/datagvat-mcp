@@ -155,7 +155,7 @@ async function main() {
       console.log(`  ${block.file}:${block.line} - Invalid language: "${block.lang || '(empty)'}"`);
     }
     console.log(
-      '\nSuggestion: Use one of the supported languages or add the language to VALID_LANGUAGES array.',
+      '\nSuggestion: Use one of the supported languages or add the language to VALID_LANGUAGES array.'
     );
     process.exit(1);
   } else {

@@ -49,7 +49,7 @@ function Header() {
             size: 'icon-sm',
             color: 'secondary',
             className: 'rounded-full',
-          }),
+          })
         )}
         onClick={() => setOpen(false)}
       >
@@ -78,7 +78,7 @@ function SearchAIActions() {
               color: 'secondary',
               size: 'sm',
               className: 'rounded-full gap-1.5',
-            }),
+            })
           )}
           onClick={() => chat?.regenerate?.()}
         >
@@ -93,7 +93,7 @@ function SearchAIActions() {
             color: 'secondary',
             size: 'sm',
             className: 'rounded-full',
-          }),
+          })
         )}
         onClick={() => chat?.setMessages?.([])}
       >
@@ -147,7 +147,7 @@ function SearchAIInput(props: ComponentProps<'form'>) {
             buttonVariants({
               color: 'secondary',
               className: 'transition-all rounded-full mt-2 gap-2',
-            }),
+            })
           )}
           onClick={() => chat?.stop?.()}
         >
@@ -162,7 +162,7 @@ function SearchAIInput(props: ComponentProps<'form'>) {
             buttonVariants({
               color: 'secondary',
               className: 'transition-all rounded-full mt-2',
-            }),
+            })
           )}
           disabled={input.length === 0}
         >
@@ -228,7 +228,7 @@ function Input(props: ComponentProps<'textarea'>) {
         {...props}
         className={cn(
           'resize-none bg-transparent placeholder:text-fd-muted-foreground focus-visible:outline-none',
-          shared,
+          shared
         )}
       />
       <div ref={ref} className={cn(shared, 'break-all invisible')}>
@@ -265,7 +265,7 @@ function Message({ message, ...props }: { message: UIMessage } & ComponentProps<
       <p
         className={cn(
           'mb-1 text-sm font-medium text-fd-muted-foreground',
-          message.role === 'assistant' && 'text-fd-primary',
+          message.role === 'assistant' && 'text-fd-primary'
         )}
       >
         {roleName[message.role] ?? 'unknown'}
@@ -318,7 +318,7 @@ export function AISearchTrigger() {
           variant: 'secondary',
         }),
         'fixed bottom-4 gap-3 w-24 end-[calc(--spacing(4)+var(--removed-body-scroll-bar-size,0px))] text-fd-muted-foreground rounded-2xl shadow-lg z-20 transition-[translate,opacity]',
-        open && 'translate-y-10 opacity-0',
+        open && 'translate-y-10 opacity-0'
       )}
       onClick={() => setOpen(true)}
     >
@@ -388,7 +388,7 @@ export function AISearchPanel() {
             'lg:sticky lg:top-0 lg:h-dvh lg:border-s  lg:ms-auto lg:in-[#nd-docs-layout]:[grid-area:toc] lg:in-[#nd-notebook-layout]:row-span-full lg:in-[#nd-notebook-layout]:col-start-5',
             open
               ? 'animate-fd-dialog-in lg:animate-[ask-ai-open_200ms]'
-              : 'animate-fd-dialog-out lg:animate-[ask-ai-close_200ms]',
+              : 'animate-fd-dialog-out lg:animate-[ask-ai-close_200ms]'
           )}
         >
           <div className="flex flex-col p-2 size-full max-lg:max-h-[80dvh] lg:w-(--ai-chat-width) xl:p-4">

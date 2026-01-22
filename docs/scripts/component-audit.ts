@@ -228,14 +228,14 @@ async function main() {
 
   console.log('\nQUAL-04 (Error Handling):');
   console.log(
-    `  ✓ ${result.errorHandling.guidesWithExamples} guides include error handling examples`,
+    `  ✓ ${result.errorHandling.guidesWithExamples} guides include error handling examples`
   );
   console.log(`  ✓ Patterns: ${result.errorHandling.patterns.join(', ')}`);
 
   if (result.tabs.issues.length > 0) {
     console.log('\nRecommendations:');
     console.log(
-      `- Add persist prop to Tabs in ${result.tabs.issues.length} files for cross-page state`,
+      `- Add persist prop to Tabs in ${result.tabs.issues.length} files for cross-page state`
     );
   }
 

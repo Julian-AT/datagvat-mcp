@@ -51,7 +51,7 @@ export function LLMCopyButton({
           color: 'secondary',
           size: 'sm',
           className: 'gap-2 [&_svg]:size-3.5 [&_svg]:text-fd-muted-foreground',
-        }),
+        })
       )}
       onClick={onClick}
     >
@@ -62,7 +62,7 @@ export function LLMCopyButton({
 }
 
 const optionVariants = cva(
-  'text-sm p-2 rounded-lg inline-flex items-center gap-2 hover:text-fd-accent-foreground hover:bg-fd-accent [&_svg]:size-4',
+  'text-sm p-2 rounded-lg inline-flex items-center gap-2 hover:text-fd-accent-foreground hover:bg-fd-accent [&_svg]:size-4'
 );
 
 export function ViewOptions({
@@ -212,7 +212,7 @@ export function ViewOptions({
             color: 'secondary',
             size: 'sm',
             className: 'gap-2',
-          }),
+          })
         )}
       >
         Open

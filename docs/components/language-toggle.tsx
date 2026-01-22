@@ -38,7 +38,7 @@ export function LanguageToggle({ lang }: { lang: string }) {
         className={cn(
           'flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium',
           'hover:bg-fd-accent transition-colors',
-          'border border-transparent hover:border-fd-border',
+          'border border-transparent hover:border-fd-border'
         )}
         aria-label="Select language"
       >
@@ -63,7 +63,7 @@ export function LanguageToggle({ lang }: { lang: string }) {
                 className={cn(
                   'flex items-center gap-2 px-3 py-2 rounded-sm text-sm',
                   'hover:bg-fd-accent transition-colors cursor-pointer',
-                  language === lang && 'bg-fd-accent',
+                  language === lang && 'bg-fd-accent'
                 )}
               >
                 <span className="text-lg">{languageFlags[language]}</span>

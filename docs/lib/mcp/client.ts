@@ -85,7 +85,7 @@ class MCPClientManager {
           },
           {
             capabilities: {},
-          },
+          }
         );
 
         await client.connect(transport);
@@ -116,24 +116,24 @@ class MCPClientManager {
 
     if (message.includes('ENOENT') || message.includes('not found')) {
       return new Error(
-        'Python not found. Please ensure Python 3.11+ is installed and available in PATH.',
+        'Python not found. Please ensure Python 3.11+ is installed and available in PATH.'
       );
     }
 
     if (message.includes('No module named')) {
       return new Error(
-        'MCP server module not found. Please verify the project structure and run from the correct directory.',
+        'MCP server module not found. Please verify the project structure and run from the correct directory.'
       );
     }
 
     if (message.includes('timeout') || message.includes('ETIMEDOUT')) {
       return new Error(
-        'Connection timeout. Check that the Python MCP server starts correctly. Run `python -m mcp.app.server` manually to debug.',
+        'Connection timeout. Check that the Python MCP server starts correctly. Run `python -m mcp.app.server` manually to debug.'
       );
     }
 
     return new Error(
-      `Failed to connect to MCP server after ${RETRY_CONFIG.attempts} attempts: ${message}`,
+      `Failed to connect to MCP server after ${RETRY_CONFIG.attempts} attempts: ${message}`
     );
   }
 
@@ -150,7 +150,7 @@ class MCPClientManager {
       return result.tools;
     } catch (error) {
       throw new Error(
-        `Failed to list MCP tools: ${error instanceof Error ? error.message : String(error)}`,
+        `Failed to list MCP tools: ${error instanceof Error ? error.message : String(error)}`
       );
     }
   }
@@ -173,7 +173,7 @@ class MCPClientManager {
       return result;
     } catch (error) {
       throw new Error(
-        `Failed to call tool '${name}': ${error instanceof Error ? error.message : String(error)}`,
+        `Failed to call tool '${name}': ${error instanceof Error ? error.message : String(error)}`
       );
     }
   }

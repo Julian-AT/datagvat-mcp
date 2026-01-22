@@ -117,7 +117,7 @@ async function main() {
   console.log('Running syntax highlighting verification...');
   const syntaxCheck = runCommand(
     'npx tsx ./scripts/verify-syntax-highlighting.ts',
-    'Syntax Highlighting',
+    'Syntax Highlighting'
   );
   results.push(syntaxCheck);
   printResult(syntaxCheck);
@@ -132,7 +132,7 @@ async function main() {
   console.log('\nVerifying type information presence...');
   const typeInfoCheck = checkFileExists(
     '.planning/phases/24-final-polish-a-quality/component-audit-results.json',
-    'Type Information (QUAL-03)',
+    'Type Information (QUAL-03)'
   );
   results.push(typeInfoCheck);
   printResult(typeInfoCheck);
@@ -141,7 +141,7 @@ async function main() {
   console.log('\nVerifying error handling examples...');
   const errorHandlingCheck = checkFileExists(
     'content/docs/advanced/error-handling.mdx',
-    'Error Handling (QUAL-04)',
+    'Error Handling (QUAL-04)'
   );
   results.push(errorHandlingCheck);
   printResult(errorHandlingCheck);

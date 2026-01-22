@@ -26,15 +26,15 @@ interface PhaseResults {
 // Load prior plan outputs
 const componentAuditPath = join(
   __dirname,
-  '../.planning/phases/24-final-polish-a-quality/component-audit-results.json',
+  '../.planning/phases/24-final-polish-a-quality/component-audit-results.json'
 );
 const exampleTestPath = join(
   __dirname,
-  '../.planning/phases/24-final-polish-a-quality/example-test-results.md',
+  '../.planning/phases/24-final-polish-a-quality/example-test-results.md'
 );
 const sampledExamplesPath = join(
   __dirname,
-  '../.planning/phases/24-final-polish-a-quality/sampled-examples.json',
+  '../.planning/phases/24-final-polish-a-quality/sampled-examples.json'
 );
 
 const componentAudit = existsSync(componentAuditPath)
@@ -316,11 +316,11 @@ function verifyPhase23(): PhaseResults {
     checkFileExists('content/docs/advanced/fastmcp-internals.mdx') &&
     (readFileSync(
       join(__dirname, '../content/docs/advanced/fastmcp-internals.mdx'),
-      'utf-8',
+      'utf-8'
     ).includes('mermaid') ||
       readFileSync(
         join(__dirname, '../content/docs/advanced/fastmcp-internals.mdx'),
-        'utf-8',
+        'utf-8'
       ).includes('<Mermaid'));
   requirements.push({
     id: 'VIS-02',
@@ -539,7 +539,7 @@ console.log(report);
 // Save report
 const reportPath = join(
   __dirname,
-  '../.planning/phases/24-final-polish-a-quality/requirements-verification.md',
+  '../.planning/phases/24-final-polish-a-quality/requirements-verification.md'
 );
 
 import { writeFileSync } from 'node:fs';

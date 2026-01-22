@@ -75,7 +75,7 @@ export async function onPageFeedbackAction(feedback: PageFeedback): Promise<Acti
   'use server';
   return createDiscussionThread(
     feedback.url,
-    `[${feedback.opinion}] ${feedback.message || 'No additional feedback provided'}\n\n> Forwarded from user feedback.`,
+    `[${feedback.opinion}] ${feedback.message || 'No additional feedback provided'}\n\n> Forwarded from user feedback.`
   );
 }
 
@@ -83,7 +83,7 @@ export async function onBlockFeedbackAction(feedback: BlockFeedback): Promise<Ac
   'use server';
   return createDiscussionThread(
     feedback.url,
-    `> ${feedback.blockBody ?? feedback.blockId}\n\n${feedback.message}\n\n> Forwarded from user feedback.`,
+    `> ${feedback.blockBody ?? feedback.blockId}\n\n${feedback.message}\n\n> Forwarded from user feedback.`
   );
 }
 
@@ -91,7 +91,7 @@ async function createDiscussionThread(pageId: string, body: string) {
   const octokit = await getOctokit();
   const destination = await getFeedbackDestination();
   const category = destination.discussionCategories.nodes.find(
-    (category) => category.name === DocsCategory,
+    (category) => category.name === DocsCategory
   );
 
   if (!category) {

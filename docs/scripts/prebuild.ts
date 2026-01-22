@@ -14,11 +14,11 @@ async function prebuild() {
     const schemaPath = './data.gv.at-openapi.yaml';
     const schemaFile = Bun.file(schemaPath);
 
-    if (!(await schemaFile.exists())) {
+    if (await schemaFile.exists()) {
+      console.log('✓ Schema found\n');
+    } else {
       console.log('⚠️  Schema not found, downloading...');
       await $`bun run scripts/download-openapi.ts`;
-    } else {
-      console.log('✓ Schema found\n');
     }
 
     console.log('1. Running Biome checks...');

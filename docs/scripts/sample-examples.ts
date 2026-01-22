@@ -187,7 +187,7 @@ async function main() {
     '.planning',
     'phases',
     '24-final-polish-a-quality',
-    'sampled-examples.json',
+    'sampled-examples.json'
   );
   const { writeFileSync } = await import('node:fs');
   writeFileSync(outputPath, JSON.stringify(output, null, 2));

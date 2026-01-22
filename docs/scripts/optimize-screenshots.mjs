@@ -65,7 +65,7 @@ async function main() {
     }
 
     console.log(
-      `Optimizing ${imageFiles.length} screenshot${imageFiles.length !== 1 ? 's' : ''}...`,
+      `Optimizing ${imageFiles.length} screenshot${imageFiles.length !== 1 ? 's' : ''}...`
     );
 
     let totalInputSize = 0;
@@ -94,7 +94,7 @@ async function main() {
     const totalReduction = ((1 - totalOutputSize / totalInputSize) * 100).toFixed(1);
     console.log(`\nOptimization complete!`);
     console.log(
-      `Total size reduction: ${totalReduction}% (${(totalInputSize / 1024 / 1024).toFixed(2)}MB → ${(totalOutputSize / 1024 / 1024).toFixed(2)}MB)`,
+      `Total size reduction: ${totalReduction}% (${(totalInputSize / 1024 / 1024).toFixed(2)}MB → ${(totalOutputSize / 1024 / 1024).toFixed(2)}MB)`
     );
   } catch (error) {
     console.error(`Error during optimization: ${error.message}`);

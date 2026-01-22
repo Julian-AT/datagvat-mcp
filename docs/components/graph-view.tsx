@@ -31,7 +31,7 @@ export interface GraphViewProps {
 }
 
 const ForceGraph2D = lazy(
-  () => import('react-force-graph-2d'),
+  () => import('react-force-graph-2d')
 ) as typeof import('react-force-graph-2d').default;
 
 export function GraphView(props: GraphViewProps) {
