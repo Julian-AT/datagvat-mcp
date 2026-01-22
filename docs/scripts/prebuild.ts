@@ -28,9 +28,11 @@ async function prebuild() {
     }
 
     console.log('=== Pre-build validation complete ===\n');
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('\n✗ Pre-build validation failed');
-    console.error(`Exit code: ${err.exitCode}`);
+    if (err && typeof err === 'object' && 'exitCode' in err) {
+      console.error(`Exit code: ${err.exitCode}`);
+    }
     process.exit(1);
   }
 }

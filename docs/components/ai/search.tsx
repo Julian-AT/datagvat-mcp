@@ -329,6 +329,7 @@ export function AISearchTrigger() {
 }
 
 export function AISearchPanel() {
+  // biome-ignore lint/style/noNonNullAssertion: Context guaranteed to exist within SearchProvider
   const { open, setOpen } = use(Context)!;
   const chat = useChatContext();
 

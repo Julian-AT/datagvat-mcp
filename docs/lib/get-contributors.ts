@@ -31,8 +31,12 @@ export async function fetchContributors(owner: string, repo: string): Promise<Co
       return [];
     }
 
-    const contributors = await response.json();
-    return contributors.map((contributor: any) => ({
+    const contributors = (await response.json()) as Array<{
+      login: string;
+      avatar_url: string;
+      contributions: number;
+    }>;
+    return contributors.map((contributor) => ({
       login: contributor.login,
       avatar_url: contributor.avatar_url,
       contributions: contributor.contributions,

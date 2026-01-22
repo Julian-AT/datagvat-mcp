@@ -100,9 +100,11 @@ async function main() {
     result.tabs.total += tabsMatches;
 
     const tabsWithPersist = countPattern(content, /<Tabs[^>]*persist[^>]*>/gi);
+    // biome-ignore lint/style/noNonNullAssertion: Property initialized in result object
     result.tabs.withPersist! += tabsWithPersist;
 
     const tabsWithGroupId = countPattern(content, /<Tabs[^>]*groupId[^>]*>/gi);
+    // biome-ignore lint/style/noNonNullAssertion: Property initialized in result object
     result.tabs.withGroupId! += tabsWithGroupId;
 
     // Check for tabs without persist (potential issue)
@@ -123,6 +125,7 @@ async function main() {
 
     if (filePath.includes('/tools/') || filePath.includes('/api/')) {
       if (typeTableMatches > 0) {
+        // biome-ignore lint/style/noNonNullAssertion: Property initialized in result object
         result.typeTable.inApiDocs!++;
       }
     }
@@ -133,6 +136,7 @@ async function main() {
 
     if (filePath.includes('/workflows/')) {
       if (stepsMatches > 0) {
+        // biome-ignore lint/style/noNonNullAssertion: Property initialized in result object
         result.steps.inWorkflows!++;
       }
     }

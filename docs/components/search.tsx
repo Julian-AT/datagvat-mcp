@@ -145,7 +145,7 @@ export default function CustomSearchDialog(props: SharedProps) {
               <ChevronDown className="size-3.5 text-fd-muted-foreground" />
             </PopoverTrigger>
             <PopoverContent className="flex flex-col p-1 gap-1" align="start">
-              {items.map((item, i) => {
+              {items.map((item) => {
                 const isSelected = item.value === tag;
 
                 return (

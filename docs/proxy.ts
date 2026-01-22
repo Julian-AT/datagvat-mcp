@@ -6,7 +6,7 @@ import { i18n } from '@/lib/i18n';
 const { rewrite: rewriteLLM } = rewritePath('/docs{/*path}', '/llms.mdx/docs{/*path}');
 const i18nMiddleware = createI18nMiddleware(i18n);
 
-export default function proxy(request: NextRequest, event?: any) {
+export default function proxy(request: NextRequest, event?: unknown) {
   if (isMarkdownPreferred(request)) {
     const result = rewriteLLM(request.nextUrl.pathname);
     if (result) {

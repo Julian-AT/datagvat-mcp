@@ -71,8 +71,8 @@ function ClientOnly({
     }
     hoveredRef.current = node;
 
-    if (node) {
-      const coords = graph.graph2ScreenCoords(node.x!, node.y!);
+    if (node && node.x !== undefined && node.y !== undefined) {
+      const coords = graph.graph2ScreenCoords(node.x, node.y);
       setTooltip({
         x: coords.x + 4,
         y: coords.y + 4,
@@ -86,7 +86,7 @@ function ClientOnly({
   // Custom node rendering: circle with text label below
   const nodeCanvasObject: ForceGraphProps['nodeCanvasObject'] = (node, ctx) => {
     const container = containerRef.current;
-    if (!container) {
+    if (!container || node.x === undefined || node.y === undefined) {
       return;
     }
     const style = getComputedStyle(container);
@@ -95,7 +95,7 @@ function ClientOnly({
 
     // Draw circle
     ctx.beginPath();
-    ctx.arc(node.x!, node.y!, radius, 0, 2 * Math.PI, false);
+    ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI, false);
 
     const hoverNode = hoveredRef.current;
     const isActive = hoverNode?.id === node.id || hoverNode?.neighbors?.includes(node.id as string);
@@ -110,7 +110,7 @@ function ClientOnly({
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = getComputedStyle(container).getPropertyValue('color');
-    ctx.fillText(node.text, node.x!, node.y! + radius + fontSize);
+    ctx.fillText(node.text, node.x, node.y + radius + fontSize);
   };
 
   const linkColor = (link: Link) => {

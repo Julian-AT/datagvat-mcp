@@ -103,7 +103,7 @@ function generateTestChecklist(data: SamplingOutput): string {
 }
 
 function getExampleContext(example: SampledExample): string | null {
-  const { page, language, code } = example;
+  const { page, code } = example;
 
   // Infer context based on page and code content
   if (page.includes('installation') || page.includes('quickstart')) {

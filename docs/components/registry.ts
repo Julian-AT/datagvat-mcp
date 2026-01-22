@@ -24,6 +24,7 @@ export const registry: Registry = {
       const filePath = path.relative(baseDir, ref.file);
 
       if (filePath === 'lib/cn.ts') {
+        // biome-ignore lint/style/noNonNullAssertion: resolveFromRemote returns a valid result for known paths
         return resolveFromRemote(ui.registry, 'cn', (file) => file.path === 'cn.ts')!;
       }
     }
@@ -31,6 +32,7 @@ export const registry: Registry = {
     if (ref.type === 'dependency' && ref.dep === 'fumadocs-ui') {
       const match = /fumadocs-ui\/components\/ui\/(.*)/.exec(ref.specifier);
       if (match) {
+        // biome-ignore lint/style/noNonNullAssertion: resolveFromRemote returns a valid result for known paths
         return resolveFromRemote(
           radixUi.registry,
           match[1],

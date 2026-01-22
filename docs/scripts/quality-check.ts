@@ -56,12 +56,13 @@ function runCommand(command: string, name: string): CheckResult {
       status: 'PASS',
       message: output.trim().split('\n').slice(-2).join(' '),
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return {
       name,
       status: 'FAIL',
       message: 'Command failed',
-      details: error.message,
+      details: errorMessage,
     };
   }
 }
