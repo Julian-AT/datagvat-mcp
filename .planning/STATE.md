@@ -11,31 +11,31 @@ See: .planning/PROJECT.md (updated 2026-01-22)
 ## Current Position
 
 Phase: 10 of 13 (Navigation Simplification)
-Plan: Ready to plan
-Status: Ready to plan
-Last activity: 2026-01-22 — v2.1 roadmap created with 4 phases covering 51 requirements
+Plan: 1 of 4 complete
+Status: In progress
+Last activity: 2026-01-22 — Completed 10-01-PLAN.md
 
-Progress: [░░░░░░░░░░] 0% (0/13 plans complete)
+Progress: [█░░░░░░░░░] 8% (1/13 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0 (v2.1 starting fresh)
-- Average duration: TBD
-- Total execution time: 0 hours
+- Total plans completed: 1 (v2.1 starting)
+- Average duration: 6 min
+- Total execution time: 0.1 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 10. Navigation Simplification | 0/4 | - | - |
+| 10. Navigation Simplification | 1/4 | 6min | 6min |
 | 11. CLI Excellence | 0/3 | - | - |
 | 12. RAG Documentation Chat | 0/3 | - | - |
 | 13. Video Tutorials | 0/3 | - | - |
 
 **Recent Trend:**
-- Last 5 plans: None yet (starting v2.1)
-- Trend: TBD
+- Last 5 plans: 10-01 (6min)
+- Trend: Starting v2.1 execution
 
 *Updated after each plan completion*
 
@@ -49,6 +49,9 @@ Recent decisions affecting v2.1 work:
 - **v2.0**: Fumadocs for documentation — Modern framework, i18n support, interactive components (foundation for navigation restructuring and video embeds)
 - **v2.0**: Bun runtime — Fast builds essential for meeting <5 min constraint with video rendering
 - **v2.1**: Navigation first — Establishes stable URLs before RAG citations and video embeds need to reference docs
+- **10-01**: Nested folder structure — Use physical nested folders (docs/docs/, docs/api/) instead of flat folders with URL path configuration
+- **10-01**: 301 permanent redirects — Preserve SEO and external link compatibility through permanent redirects
+- **10-01**: Automated redirect verification — Ensure no gaps in redirect coverage with verification script
 
 ### Pending Todos
 
@@ -72,11 +75,11 @@ Recent decisions affecting v2.1 work:
 
 ## Session Continuity
 
-Last session: 2026-01-22 (roadmap creation)
-Stopped at: Roadmap and STATE.md created for v2.1 milestone
+Last session: 2026-01-22 (plan 10-01 execution)
+Stopped at: Completed 10-01-PLAN.md - Navigation Simplification
 Resume file: None
-Next step: Run `/gsd:plan-phase 10` to break down Navigation Simplification into executable plans
+Next step: Continue with next plan in Phase 10 (10-02, 10-03, 10-04)
 
 ---
 
-*Last updated: 2026-01-22 after v2.1 roadmap creation*
+*Last updated: 2026-01-22 after 10-01 plan completion*
