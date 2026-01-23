@@ -6,23 +6,23 @@ See: .planning/PROJECT.md (updated 2026-01-22)
 
 **Core value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
 
-**Current focus:** Phase 12 - RAG Documentation Chat
+**Current focus:** Phase 13 - Video Tutorials
 
 ## Current Position
 
-Phase: 12 of 13 (RAG Documentation Chat)
-Plan: 2 of 3
+Phase: 13 of 13 (Video Tutorials)
+Plan: 1 of 3
 Status: In progress
-Last activity: 2026-01-23 — Completed 12-02-PLAN.md
+Last activity: 2026-01-23 — Completed 13-01-PLAN.md
 
-Progress: [████████░░] 79% (11/14 plans complete)
+Progress: [████████░░] 86% (12/14 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11 (v2.1 Phase 12 in progress)
-- Average duration: 9.5 min
-- Total execution time: 1.7 hours
+- Total plans completed: 12 (v2.1 Phase 13 in progress)
+- Average duration: 9.3 min
+- Total execution time: 1.8 hours
 
 **By Phase:**
 
@@ -31,11 +31,11 @@ Progress: [████████░░] 79% (11/14 plans complete)
 | 10. Navigation Simplification | 6/6 | 59min | 9.8min |
 | 11. CLI Excellence | 3/3 | 29min | 9.7min |
 | 12. RAG Documentation Chat | 2/3 | 16min | 8.0min |
-| 13. Video Tutorials | 0/3 | - | - |
+| 13. Video Tutorials | 1/3 | 6min | 6.0min |
 
 **Recent Trend:**
-- Last 5 plans: 11-01 (9min), 11-02 (8min), 11-03 (12min), 12-01 (12min), 12-02 (4min)
-- Trend: Phase 12 progressing rapidly. RAG API endpoint complete, UI components next
+- Last 5 plans: 11-02 (8min), 11-03 (12min), 12-01 (12min), 12-02 (4min), 13-01 (6min)
+- Trend: Excellent velocity, Phase 13 infrastructure setup complete in 6 min
 
 *Updated after each plan completion*
 
@@ -85,6 +85,7 @@ Recent decisions affecting v2.1 work:
 - **12-02**: Top-5 chunk retrieval — Balance between context richness (~5K tokens) and token budget
 - **12-02**: Numbered citation format [1], [2] — Simple, unambiguous format LLMs can reliably generate
 - **12-02**: Source metadata via data stream — toDataStreamResponse data parameter enables client-side clickable citations
+- **13-01**: Remotion 4.0 infrastructure — H.264 codec with CRF 21, file-based caching via timestamp comparison, 50% concurrency
 
 ### Pending Todos
 
@@ -106,17 +107,19 @@ Recent decisions affecting v2.1 work:
 - **PENDING**: Citation rendering in UI — Map [1], [2] → clickable links using sources metadata
 
 **Phase 13 (Video Tutorials):**
-- Remotion composition patterns need prototype validation — Research flag set
-- Video rendering time must stay within CI/CD budget (GitHub Actions 2K free minutes/month)
-- File hosting strategy (public/ vs Vercel Blob) depends on size after rendering
+- **RESOLVED (13-01)**: Remotion installation — Dependencies installed, H.264 codec configured
+- **RESOLVED (13-01)**: Build-time rendering script — File-based caching implemented
+- **PENDING**: Video composition patterns — Create QuickStart, Workflow, Architecture videos in Plan 13-02
+- **PENDING**: Caption generation strategy — Whisper AI integration or manual VTT creation in Plan 13-02
+- **PENDING**: Build integration — Add render-videos.ts to prebuild script in Plan 13-03 after compositions exist
 
 ## Session Continuity
 
-Last session: 2026-01-23 (autonomous Phase 12-02 execution)
-Stopped at: Completed 12-02-PLAN.md — RAG API endpoint with streaming and citations
+Last session: 2026-01-23 (autonomous Phase 13-01 execution)
+Stopped at: Completed 13-01-PLAN.md — Remotion infrastructure setup
 Resume file: None
-Next step: Plan 12-03 - RAG UI components for chat interface
+Next step: Plan 13-02 - Video composition components (QuickStart, Workflow, Architecture)
 
 ---
 
-*Last updated: 2026-01-23 after Plan 12-02 completion*
+*Last updated: 2026-01-23 after Plan 13-01 completion*
