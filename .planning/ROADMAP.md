@@ -143,9 +143,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 13-01: Set up Remotion infrastructure with build-time rendering
-- [ ] 13-02: Create video compositions for quickstart, workflows, and architecture
-- [ ] 13-03: Generate captions, embed in documentation, and build verification
+- [ ] 13-01-PLAN.md — Remotion infrastructure with build-time rendering and file-based caching
+- [ ] 13-02-PLAN.md — Video compositions (QuickStart 2.5min, Workflow 4min, Architecture 6min) with frame-based animations
+- [ ] 13-03-PLAN.md — WebVTT captions, responsive VideoPlayer component, documentation embedding, and build verification
 
 ## Progress
 
@@ -161,4 +161,4 @@ Phases execute in numeric order: 10 → 11 → 12 → 13
 
 ---
 
-*Last updated: 2026-01-23 after Phase 12 completion*
+*Last updated: 2026-01-23 after Phase 13 planning*
