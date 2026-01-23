@@ -1,4 +1,4 @@
-import { Composition } from 'remotion';
+import { Composition, registerRoot } from 'remotion';
 
 /**
  * Remotion Root - registers all video compositions
@@ -13,3 +13,5 @@ export const RemotionRoot: React.FC = () => {
 		</>
 	);
 };
+
+registerRoot(RemotionRoot);
