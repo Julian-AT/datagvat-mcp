@@ -1,4 +1,4 @@
-import { createOpenAI } from '@ai-sdk/openai-compatible';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { embed, embedMany } from 'ai';
 
 /**
@@ -14,7 +14,7 @@ function getEmbeddingModel() {
     );
   }
 
-  const openai = createOpenAI({
+  const openai = createOpenAICompatible({
     apiKey,
     baseURL: 'https://api.openai.com/v1',
   });
