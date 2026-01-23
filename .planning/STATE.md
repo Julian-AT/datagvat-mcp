@@ -6,23 +6,23 @@ See: .planning/PROJECT.md (updated 2026-01-22)
 
 **Core value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
 
-**Current focus:** Phase 11 - CLI Excellence
+**Current focus:** Phase 12 - RAG Documentation Chat
 
 ## Current Position
 
-Phase: 11 of 13 (CLI Excellence)
-Plan: 3 of 3
-Status: Phase complete
-Last activity: 2026-01-23 — Completed 11-03-PLAN.md
+Phase: 12 of 13 (RAG Documentation Chat)
+Plan: 1 of 3
+Status: In progress
+Last activity: 2026-01-23 — Completed 12-01-PLAN.md
 
-Progress: [███████░░░] 69% (9/13 plans complete)
+Progress: [███████░░░] 71% (10/14 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9 (v2.1 Phase 11 complete)
-- Average duration: 9.7 min
-- Total execution time: 1.5 hours
+- Total plans completed: 10 (v2.1 Phase 12 in progress)
+- Average duration: 9.9 min
+- Total execution time: 1.6 hours
 
 **By Phase:**
 
@@ -30,12 +30,12 @@ Progress: [███████░░░] 69% (9/13 plans complete)
 |-------|-------|-------|----------|
 | 10. Navigation Simplification | 6/6 | 59min | 9.8min |
 | 11. CLI Excellence | 3/3 | 29min | 9.7min |
-| 12. RAG Documentation Chat | 0/3 | - | - |
+| 12. RAG Documentation Chat | 1/3 | 12min | 12.0min |
 | 13. Video Tutorials | 0/3 | - | - |
 
 **Recent Trend:**
-- Last 5 plans: 10-05 (20min), 10-06 (7min), 11-01 (9min), 11-02 (8min), 11-03 (12min)
-- Trend: Phase 11 COMPLETE. CLI package at v0.2.0, all features delivered, zero regressions
+- Last 5 plans: 10-06 (7min), 11-01 (9min), 11-02 (8min), 11-03 (12min), 12-01 (12min)
+- Trend: Phase 12 started. Vector indexing infrastructure complete, RAG API endpoint next
 
 *Updated after each plan completion*
 
@@ -76,6 +76,11 @@ Recent decisions affecting v2.1 work:
 - **11-03**: Minor version bump for new features — 0.1.0 → 0.2.0 following semver (new features without breaking changes)
 - **11-03**: Keep a Changelog format — Standard format (keepachangelog.com) with Added/Changed/Fixed sections
 - **11-03**: Biome formatting applied to CLI — Consistent code style across CLI package, intentional exceptions for ANSI codes
+- **12-01**: Vectra for local vector database — Zero infrastructure for <10K chunks, optional Upstash upgrade path for production scaling
+- **12-01**: Section-based chunking by H2/H3 headings — Preserves semantic context, better citation accuracy than fixed-size chunks
+- **12-01**: 100-token overlap between chunks — ~400 chars prevents context loss at semantic boundaries
+- **12-01**: Build-time indexing — Generate embeddings during build to avoid runtime latency, fits 5-minute build constraint
+- **12-01**: fumadocs-mdx dependency ordering — Must run before index-docs.ts to generate .source files (added as step 0 in prebuild)
 
 ### Pending Todos
 
@@ -89,10 +94,11 @@ Recent decisions affecting v2.1 work:
 ### Blockers/Concerns
 
 **Phase 12 (RAG Chat):**
-- Embedding model selection needs benchmark (OpenAI vs Cohere vs Mistral) — Research flag set
-- Optimal chunking strategy (1000 vs 1500 vs 2000 tokens) requires testing with actual docs
-- Similarity threshold tuning (0.75 recommended baseline) needs validation with query patterns
-- Re-evaluate embedding library choice (@mixedbread/sdk removed in 10-05 as premature)
+- **RESOLVED (12-01)**: Embedding library — Using Vercel AI SDK native embedMany() with OpenAI text-embedding-3-small
+- **RESOLVED (12-01)**: Chunking strategy — Section-based by H2/H3 headings with 100-token overlap
+- **PENDING**: Similarity threshold tuning (0.75 baseline) — Needs validation with real queries in Plan 12-02
+- **PENDING**: OPENAI_API_KEY required — Must be set in environment for build to succeed
+- **PENDING**: Build time validation — Actual indexing performance (token count, duration) needs measurement with API key
 
 **Phase 13 (Video Tutorials):**
 - Remotion composition patterns need prototype validation — Research flag set
@@ -101,11 +107,11 @@ Recent decisions affecting v2.1 work:
 
 ## Session Continuity
 
-Last session: 2026-01-23 (autonomous Phase 11-03 execution)
-Stopped at: Completed 11-03-PLAN.md — Phase 11 COMPLETE
+Last session: 2026-01-23 (autonomous Phase 12-01 execution)
+Stopped at: Completed 12-01-PLAN.md — Vector indexing infrastructure ready
 Resume file: None
-Next step: Begin Phase 12 - RAG Documentation Chat (Plan 12-01)
+Next step: Plan 12-02 - RAG API endpoint with streaming and citations
 
 ---
 
-*Last updated: 2026-01-23 after Plan 11-03 completion*
+*Last updated: 2026-01-23 after Plan 12-01 completion*
