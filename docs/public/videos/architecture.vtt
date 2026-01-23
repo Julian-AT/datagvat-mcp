@@ -1,0 +1,31 @@
+WEBVTT
+
+00:00.000 --> 00:03.000
+Architecture Overview: How DataGvat MCP Works
+
+00:03.000 --> 00:30.000
+Layered Architecture: Four layers working together
+
+00:30.000 --> 01:00.000
+Layer 1: MCP Protocol Layer handles communication with Claude Desktop
+
+01:00.000 --> 01:30.000
+Layer 2: FastMCP Framework provides tool registration and routing
+
+01:30.000 --> 02:00.000
+Layer 3: Enterprise Middleware includes retry logic, rate limiting, and structured logging
+
+02:00.000 --> 02:30.000
+Layer 4: Piveau Hub API Client interfaces with data.gv.at API
+
+02:30.000 --> 03:30.000
+Data Flow Step 1: User asks natural language query about Vienna transport datasets
+
+03:30.000 --> 04:30.000
+Data Flow Step 2: MCP tool invocation calls search_datasets with query parameters
+
+04:30.000 --> 05:30.000
+Data Flow Step 3: API request sent to Piveau Hub API with search parameters
+
+05:30.000 --> 06:00.000
+Data Flow Step 4: Structured response returns 12 datasets with metadata, quality scores, and download links

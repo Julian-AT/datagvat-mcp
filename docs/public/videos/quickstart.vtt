@@ -1,0 +1,25 @@
+WEBVTT
+
+00:00.000 --> 00:03.000
+DataGvat MCP Quick Start Guide
+
+00:03.000 --> 00:20.000
+Installation Step 1: Install globally with npm install -g @datagvat/mcp-server
+
+00:20.000 --> 00:40.000
+Installation Step 2: Verify installation with datagvat --version
+
+00:40.000 --> 01:00.000
+Installation Step 3: Configure Claude Desktop by editing claude_desktop_config.json
+
+01:00.000 --> 01:30.000
+Configuration: Add mcpServers section with datagvat command and optional environment variables
+
+01:30.000 --> 01:50.000
+Your First Query: Ask Claude to find Vienna datasets about public transport
+
+01:50.000 --> 02:20.000
+Claude uses MCP tools: search_datasets, get_dataset, and finds 12 relevant datasets
+
+02:20.000 --> 02:30.000
+You're ready! Explore the full documentation at datagvat.dev

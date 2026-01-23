@@ -1,0 +1,25 @@
+WEBVTT
+
+00:00.000 --> 00:03.000
+MCP Workflows: Real-World Examples
+
+00:03.000 --> 00:40.000
+Workflow 1: Dataset Discovery - Search with filters using search_datasets
+
+00:40.000 --> 01:10.000
+Get detailed metadata with get_dataset for climate-data-austria-2024
+
+01:10.000 --> 01:35.000
+Analyze quality metrics with analyze_quality tool
+
+01:35.000 --> 02:20.000
+Workflow 2: Quality Assessment shows 95% metadata completeness, monthly updates
+
+02:20.000 --> 02:40.000
+Quality assessment identifies partial documentation and machine-readable CSV format
+
+02:40.000 --> 03:20.000
+Workflow 3: Data Preview displays schema with date, temperature, and location fields
+
+03:20.000 --> 04:00.000
+Sample data shows Vienna temperature readings from January 2024
