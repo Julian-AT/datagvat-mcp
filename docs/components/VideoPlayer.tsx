@@ -1,5 +1,3 @@
-import type React from 'react';
-
 interface VideoPlayerProps {
   /**
    * Path to video file (relative to /public)
@@ -47,24 +45,20 @@ export function VideoPlayer({ src, captions, poster, title }: VideoPlayerProps) 
         aria-label={title}
       >
         <source src={src} type="video/mp4" />
-        <track
-          kind="captions"
-          src={captions}
-          srcLang="en"
-          label="English"
-          default
-        />
+        <track kind="captions" src={captions} srcLang="en" label="English" default />
         Your browser doesn't support HTML5 video.{' '}
         <a href={src} download style={{ color: '#3b82f6', textDecoration: 'underline' }}>
           Download the video
         </a>
       </video>
-      <figcaption style={{
-        marginTop: '0.5rem',
-        fontSize: '0.875rem',
-        color: '#64748b',
-        textAlign: 'center',
-      }}>
+      <figcaption
+        style={{
+          marginTop: '0.5rem',
+          fontSize: '0.875rem',
+          color: '#64748b',
+          textAlign: 'center',
+        }}
+      >
         {title}
       </figcaption>
     </figure>
