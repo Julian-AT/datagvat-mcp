@@ -40,3 +40,6 @@ yarn.lock
 
 # Vector index (generated at build time)
 .vector-index/
+
+# Rendered videos (too large for git)
+public/videos/*.mp4
