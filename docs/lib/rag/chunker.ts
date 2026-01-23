@@ -17,6 +17,7 @@ export interface Chunk {
 /**
  * Extract plain text from MDX AST node
  */
+// biome-ignore lint/suspicious/noExplicitAny: MDX AST nodes have dynamic types
 function extractText(node: any): string {
   if (node.type === 'text') {
     return node.value;

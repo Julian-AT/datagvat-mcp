@@ -1,4 +1,4 @@
-import { VectorStore, type ChunkMetadata } from './vector-store';
+import { VectorStore } from './vector-store';
 import { embedSingle } from './embedder';
 
 /**
