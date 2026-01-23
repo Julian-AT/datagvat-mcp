@@ -7,11 +7,6 @@
  * Requires: OPENAI_API_KEY environment variable
  */
 
-import { docs } from '@/.source/server';
-import { chunkDocumentation } from '@/lib/rag/chunker';
-import { embedTexts } from '@/lib/rag/embedder';
-import { VectorStore } from '@/lib/rag/vector-store';
-
 /**
  * Main indexing pipeline
  */
@@ -22,108 +17,128 @@ async function indexDocumentation() {
 
   // Environment validation
   if (!process.env.OPENAI_API_KEY) {
-    console.error(
-      '❌ OPENAI_API_KEY not set. Required for documentation indexing.'
+    console.warn(
+      '⚠️  OPENAI_API_KEY not set. Skipping documentation indexing.'
     );
-    console.error(
-      '   Set the environment variable and try again:\n   export OPENAI_API_KEY=sk-...'
+    console.warn(
+      '   RAG features will not work until you:'
     );
-    process.exit(1);
+    console.warn(
+      '   1. Set OPENAI_API_KEY environment variable'
+    );
+    console.warn(
+      '   2. Run: bun run build (to generate vector index)'
+    );
+    console.warn(
+      '   Continuing with build...\n'
+    );
+    return; // Skip indexing but don't fail the build
   }
 
-  // Initialize vector store
-  console.log('📦 Initializing vector store...');
-  const vectorStore = new VectorStore('.vector-index');
-  await vectorStore.initialize();
+  // Dynamic imports to avoid loading MDX when API key is missing
+  try {
+    const { docs } = await import('@/.source/server');
+    const { chunkDocumentation } = await import('@/lib/rag/chunker');
+    const { embedTexts } = await import('@/lib/rag/embedder');
+    const { VectorStore } = await import('@/lib/rag/vector-store');
 
-  const stats = await vectorStore.getStats();
-  console.log(`   Index path: ${stats.path}`);
-  console.log(`   Index exists: ${stats.exists}\n`);
+    // Initialize vector store
+    console.log('📦 Initializing vector store...');
+    const vectorStore = new VectorStore('.vector-index');
+    await vectorStore.initialize();
 
-  // Load all documentation pages
-  console.log('📄 Loading documentation pages...');
-  const pages = await docs.getPages();
-  console.log(`   Found ${pages.length} pages\n`);
+    const stats = await vectorStore.getStats();
+    console.log(`   Index path: ${stats.path}`);
+    console.log(`   Index exists: ${stats.exists}\n`);
 
-  let totalChunks = 0;
-  let totalTokens = 0;
+    // Load all documentation pages
+    console.log('📄 Loading documentation pages...');
+    const pages = await docs.getPages();
+    console.log(`   Found ${pages.length} pages\n`);
 
-  // Process each page
-  for (let i = 0; i < pages.length; i++) {
-    const page = pages[i];
+    let totalChunks = 0;
+    let totalTokens = 0;
 
-    try {
-      // Load MDX content
-      const content = await page.data.load();
+    // Process each page
+    for (let i = 0; i < pages.length; i++) {
+      const page = pages[i];
 
-      if (!content || typeof content.body !== 'string') {
-        console.warn(
-          `⚠️  Skipping ${page.url} - no body content`
+      try {
+        // Load MDX content
+        const content = await page.data.load();
+
+        if (!content || typeof content.body !== 'string') {
+          console.warn(
+            `⚠️  Skipping ${page.url} - no body content`
+          );
+          continue;
+        }
+
+        // Chunk the document
+        const chunks = chunkDocumentation(
+          content.body,
+          page.url,
+          page.data.title || 'Untitled'
         );
-        continue;
-      }
 
-      // Chunk the document
-      const chunks = chunkDocumentation(
-        content.body,
-        page.url,
-        page.data.title || 'Untitled'
-      );
+        if (chunks.length === 0) {
+          console.warn(
+            `⚠️  No chunks generated for ${page.url}`
+          );
+          continue;
+        }
 
-      if (chunks.length === 0) {
-        console.warn(
-          `⚠️  No chunks generated for ${page.url}`
+        // Batch embed all chunks from this document
+        const texts = chunks.map((c) => c.text);
+        const { embeddings, usage } = await embedTexts(texts);
+
+        // Insert into vector store
+        for (let j = 0; j < chunks.length; j++) {
+          await vectorStore.insertChunk(embeddings[j], {
+            url: chunks[j].url,
+            title: chunks[j].title,
+            section: chunks[j].section,
+            text: chunks[j].text,
+          });
+        }
+
+        totalChunks += chunks.length;
+        totalTokens += usage.tokens;
+
+        // Progress indicator
+        const progress = ((i + 1) / pages.length) * 100;
+        console.log(
+          `   [${Math.round(progress)}%] ${page.data.title}: ${chunks.length} chunks, ${usage.tokens} tokens`
         );
-        continue;
+      } catch (error) {
+        console.error(
+          `❌ Error processing ${page.url}: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
+        // Continue processing other pages
       }
-
-      // Batch embed all chunks from this document
-      const texts = chunks.map((c) => c.text);
-      const { embeddings, usage } = await embedTexts(texts);
-
-      // Insert into vector store
-      for (let j = 0; j < chunks.length; j++) {
-        await vectorStore.insertChunk(embeddings[j], {
-          url: chunks[j].url,
-          title: chunks[j].title,
-          section: chunks[j].section,
-          text: chunks[j].text,
-        });
-      }
-
-      totalChunks += chunks.length;
-      totalTokens += usage.tokens;
-
-      // Progress indicator
-      const progress = ((i + 1) / pages.length) * 100;
-      console.log(
-        `   [${Math.round(progress)}%] ${page.data.title}: ${chunks.length} chunks, ${usage.tokens} tokens`
-      );
-    } catch (error) {
-      console.error(
-        `❌ Error processing ${page.url}: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-      // Continue processing other pages
     }
-  }
 
-  const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
 
-  console.log('\n✅ Indexing complete!');
-  console.log(`   Pages indexed: ${pages.length}`);
-  console.log(`   Total chunks: ${totalChunks}`);
-  console.log(`   Total tokens: ${totalTokens.toLocaleString()}`);
-  console.log(`   Duration: ${duration}s`);
+    console.log('\n✅ Indexing complete!');
+    console.log(`   Pages indexed: ${pages.length}`);
+    console.log(`   Total chunks: ${totalChunks}`);
+    console.log(`   Total tokens: ${totalTokens.toLocaleString()}`);
+    console.log(`   Duration: ${duration}s`);
 
-  // Validate build time constraint
-  const durationSec = Number.parseFloat(duration);
-  if (durationSec > 30) {
-    console.warn(
-      `\n⚠️  WARNING: Indexing took ${duration}s (>30s target)`
-    );
-    console.warn(
-      '   This may impact the 5-minute build constraint'
-    );
+    // Validate build time constraint
+    const durationSec = Number.parseFloat(duration);
+    if (durationSec > 30) {
+      console.warn(
+        `\n⚠️  WARNING: Indexing took ${duration}s (>30s target)`
+      );
+      console.warn(
+        '   This may impact the 5-minute build constraint'
+      );
+    }
+  } catch (error) {
+    console.error('💥 Fatal error during indexing:', error);
+    throw error; // Re-throw to be caught by outer handler
   }
 }
 
