@@ -14,7 +14,6 @@
 
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { streamText } from 'ai';
-import { formatContextForPrompt, retrieveContext } from '@/lib/rag/retriever';
 
 // Vercel function timeout (max 30s for streaming)
 export const maxDuration = 30;
@@ -156,7 +155,8 @@ export async function POST(req: Request) {
 
     const userMessage = lastMessage.content;
 
-    // 5. Retrieve relevant documentation chunks
+    // 5. Retrieve relevant documentation chunks (dynamic import to avoid build-time evaluation)
+    const { retrieveContext, formatContextForPrompt } = await import('@/lib/rag/retriever');
     const chunks = await retrieveContext(userMessage, {
       topK: 5,
       threshold: 0.75,
