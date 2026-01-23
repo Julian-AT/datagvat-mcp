@@ -15,8 +15,9 @@ import { existsSync, statSync, readdirSync } from 'fs';
 import path from 'path';
 
 const VIDEO_CONFIGS = [
-	// Populated in Plan 13-02 with actual compositions
-	// Example: { id: 'QuickStart', output: 'quickstart.mp4', duration: 4500 }
+	{ id: 'QuickStart', output: 'quickstart.mp4', duration: 4500 },
+	{ id: 'Workflow', output: 'workflow.mp4', duration: 7200 },
+	{ id: 'Architecture', output: 'architecture.mp4', duration: 10800 },
 ];
 
 /**

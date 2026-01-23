@@ -1,15 +1,38 @@
 import { Composition, registerRoot } from 'remotion';
+import { QuickStartVideo } from './compositions/QuickStart';
+import { WorkflowVideo } from './compositions/Workflow';
+import { ArchitectureVideo } from './compositions/Architecture';
 
 /**
  * Remotion Root - registers all video compositions
- *
- * Compositions are added in Plan 13-02. This file establishes
- * the registry structure and will import video components.
  */
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
-			{/* Compositions registered in Plan 13-02 */}
+			<Composition
+				id="QuickStart"
+				component={QuickStartVideo}
+				durationInFrames={4500}
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			<Composition
+				id="Workflow"
+				component={WorkflowVideo}
+				durationInFrames={7200}
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			<Composition
+				id="Architecture"
+				component={ArchitectureVideo}
+				durationInFrames={10800}
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
 		</>
 	);
 };
