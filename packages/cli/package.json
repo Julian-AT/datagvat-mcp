@@ -1,66 +1,66 @@
 {
-  "name": "@datagvat/mcp-installer",
-  "version": "0.2.0",
-  "description": "shadcn-like one-command installer for data.gv.at MCP Server",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "bin": {
-    "datagvat-mcp": "./dist/index.js"
-  },
-  "files": [
-    "dist/**/*",
-    "src/**/*",
-    "README.md"
-  ],
-  "scripts": {
-    "build": "tsc",
-    "dev": "bun src/index.ts",
-    "test": "bun test",
-    "prepublishOnly": "bun run build"
-  },
-  "keywords": [
-    "mcp",
-    "installer",
-    "cli",
-    "data.gv.at",
-    "model-context-protocol",
-    "claude",
-    "continue",
-    "cline",
-    "austrian-open-data"
-  ],
-  "author": "datagvat-mcp contributors",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/yourusername/datagvat-mcp.git",
-    "directory": "packages/cli"
-  },
-  "bugs": {
-    "url": "https://github.com/yourusername/datagvat-mcp/issues"
-  },
-  "homepage": "https://datagvat-mcp-docs.vercel.app",
-  "publishConfig": {
-    "access": "public"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "dependencies": {
-    "chalk": "^5.3.0",
-    "ora": "^8.0.0",
-    "@inquirer/prompts": "^5.0.0",
-    "commander": "^12.0.0",
-    "zod": "^3.23.8",
-    "ci-info": "^4.0.0",
-    "diff": "^5.2.0",
-    "execa": "^9.0.0"
-  },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/diff": "^8.0.0",
-    "@types/node": "^20.0.0",
-    "typescript": "^5.0.0"
-  }
+	"name": "@datagvat/mcp-installer",
+	"version": "0.2.0",
+	"description": "shadcn-like one-command installer for data.gv.at MCP Server",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"bin": {
+		"datagvat-mcp": "./dist/index.js"
+	},
+	"files": [
+		"dist/**/*",
+		"src/**/*",
+		"README.md"
+	],
+	"scripts": {
+		"build": "tsc",
+		"dev": "bun src/index.ts",
+		"test": "bun test",
+		"prepublishOnly": "bun run build"
+	},
+	"keywords": [
+		"mcp",
+		"installer",
+		"cli",
+		"data.gv.at",
+		"model-context-protocol",
+		"claude",
+		"continue",
+		"cline",
+		"austrian-open-data"
+	],
+	"author": "datagvat-mcp contributors",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/yourusername/datagvat-mcp.git",
+		"directory": "packages/cli"
+	},
+	"bugs": {
+		"url": "https://github.com/yourusername/datagvat-mcp/issues"
+	},
+	"homepage": "https://datagvat-mcp-docs.vercel.app",
+	"publishConfig": {
+		"access": "public"
+	},
+	"engines": {
+		"node": ">=18.0.0"
+	},
+	"dependencies": {
+		"chalk": "^5.3.0",
+		"ora": "^8.0.0",
+		"@inquirer/prompts": "^5.0.0",
+		"commander": "^12.0.0",
+		"zod": "^3.23.8",
+		"ci-info": "^4.0.0",
+		"diff": "^5.2.0",
+		"execa": "^9.0.0"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"@types/diff": "^8.0.0",
+		"@types/node": "^20.0.0",
+		"typescript": "^5.0.0"
+	}
 }

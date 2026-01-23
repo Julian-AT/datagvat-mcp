@@ -1,9 +1,9 @@
-declare module 'diff' {
-  export interface Change {
-    value: string;
-    added?: boolean;
-    removed?: boolean;
-  }
+declare module "diff" {
+	export interface Change {
+		value: string;
+		added?: boolean;
+		removed?: boolean;
+	}
 
-  export function diffLines(oldStr: string, newStr: string): Change[];
+	export function diffLines(oldStr: string, newStr: string): Change[];
 }
