@@ -1,5 +1,5 @@
-import { LocalIndex } from 'vectra';
 import path from 'node:path';
+import { LocalIndex } from 'vectra';
 
 /**
  * Metadata stored with each vector chunk
@@ -46,10 +46,7 @@ export class VectorStore {
    * @param embedding - 1536-dimensional vector from text-embedding-3-small
    * @param metadata - Chunk metadata (url, title, section, text)
    */
-  async insertChunk(
-    embedding: number[],
-    metadata: ChunkMetadata
-  ): Promise<void> {
+  async insertChunk(embedding: number[], metadata: ChunkMetadata): Promise<void> {
     await this.index.insertItem({
       vector: embedding,
       metadata,

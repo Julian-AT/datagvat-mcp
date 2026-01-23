@@ -14,7 +14,7 @@
 
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { streamText } from 'ai';
-import { retrieveContext, formatContextForPrompt } from '@/lib/rag/retriever';
+import { formatContextForPrompt, retrieveContext } from '@/lib/rag/retriever';
 
 // Vercel function timeout (max 30s for streaming)
 export const maxDuration = 30;

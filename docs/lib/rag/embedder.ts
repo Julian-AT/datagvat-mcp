@@ -1,5 +1,5 @@
 import { createOpenAI } from '@ai-sdk/openai-compatible';
-import { embedMany, embed } from 'ai';
+import { embed, embedMany } from 'ai';
 
 /**
  * Initialize OpenAI client for embeddings

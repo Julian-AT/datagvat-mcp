@@ -53,9 +53,7 @@ function Header() {
     <div className="sticky top-0 flex items-start gap-2">
       <div className="flex-1 p-3 border rounded-xl bg-fd-card text-fd-card-foreground">
         <p className="text-sm font-medium mb-2">Ask AI about Documentation</p>
-        <p className="text-xs text-fd-muted-foreground">
-          Get answers with citations from the docs
-        </p>
+        <p className="text-xs text-fd-muted-foreground">Get answers with citations from the docs</p>
       </div>
       <button
         type="button"
@@ -259,9 +257,9 @@ function extractCitations(content: string, chunks: RetrievedChunk[]): Citation[]
   const citations: Citation[] = [];
   const regex = /\[(\d+)\]/g;
   const seen = new Set<string>();
-  let match;
 
-  while ((match = regex.exec(content)) !== null) {
+  let match = regex.exec(content);
+  while (match !== null) {
     const index = Number.parseInt(match[1], 10) - 1;
     if (chunks[index] && !seen.has(match[1])) {
       citations.push({
@@ -272,6 +270,7 @@ function extractCitations(content: string, chunks: RetrievedChunk[]): Citation[]
       });
       seen.add(match[1]);
     }
+    match = regex.exec(content);
   }
 
   return citations;

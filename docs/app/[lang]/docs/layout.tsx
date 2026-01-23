@@ -1,6 +1,6 @@
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
+import { RAGChatPanel, RAGChatProvider, RAGChatTrigger } from '@/components/ai/rag-chat';
 import { AISearch, AISearchPanel, AISearchTrigger } from '@/components/ai/search';
-import { RAGChatProvider, RAGChatPanel, RAGChatTrigger } from '@/components/ai/rag-chat';
 import { source } from '@/lib/source';
 import 'katex/dist/katex.min.css';
 import type { ReactNode } from 'react';

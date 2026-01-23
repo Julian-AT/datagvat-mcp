@@ -1,8 +1,8 @@
-import { unified } from 'unified';
-import remarkParse from 'remark-parse';
+import type { Code, Heading, List, Paragraph, Root } from 'mdast';
 import remarkMdx from 'remark-mdx';
+import remarkParse from 'remark-parse';
+import { unified } from 'unified';
 import { visit } from 'unist-util-visit';
-import type { Heading, Paragraph, Code, List, Root } from 'mdast';
 
 /**
  * Chunk represents a semantically coherent section of documentation
@@ -53,20 +53,13 @@ function slugify(text: string): string {
  * @param docTitle - Document title from frontmatter
  * @returns Array of chunks with semantic boundaries at H2/H3 headings
  */
-export function chunkDocumentation(
-  mdxContent: string,
-  docUrl: string,
-  docTitle: string
-): Chunk[] {
+export function chunkDocumentation(mdxContent: string, docUrl: string, docTitle: string): Chunk[] {
   const chunks: Chunk[] = [];
   let currentSection = docTitle; // Start with doc title
   let currentContent: string[] = [];
 
   try {
-    const tree = unified()
-      .use(remarkParse)
-      .use(remarkMdx)
-      .parse(mdxContent) as Root;
+    const tree = unified().use(remarkParse).use(remarkMdx).parse(mdxContent) as Root;
 
     visit(tree, (node) => {
       // New section on H2 or H3 heading
@@ -89,11 +82,7 @@ export function chunkDocumentation(
         const headingNode = node as Heading;
         currentSection = extractText(headingNode);
         currentContent = [currentSection]; // Include heading in chunk text
-      } else if (
-        node.type === 'paragraph' ||
-        node.type === 'code' ||
-        node.type === 'list'
-      ) {
+      } else if (node.type === 'paragraph' || node.type === 'code' || node.type === 'list') {
         // Accumulate content for current section
         const textNode = node as Paragraph | Code | List;
         const text = extractText(textNode);

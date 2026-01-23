@@ -1,5 +1,5 @@
-import { VectorStore } from './vector-store';
 import { embedSingle } from './embedder';
+import { VectorStore } from './vector-store';
 
 /**
  * Retrieved chunk with similarity score
@@ -44,13 +44,9 @@ export async function retrieveContext(
   const filteredResults = results.filter((result) => result.score >= threshold);
 
   // Log retrieval metrics
-  console.log(
-    `[RAG] Retrieved ${filteredResults.length} chunks (threshold: ${threshold})`
-  );
+  console.log(`[RAG] Retrieved ${filteredResults.length} chunks (threshold: ${threshold})`);
   if (filteredResults.length > 0) {
-    console.log(
-      `[RAG] Top similarity: ${filteredResults[0].score.toFixed(3)}`
-    );
+    console.log(`[RAG] Top similarity: ${filteredResults[0].score.toFixed(3)}`);
   } else {
     console.log(`[RAG] No chunks above threshold ${threshold} for query`);
   }

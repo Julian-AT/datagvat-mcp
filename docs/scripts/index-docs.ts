@@ -17,21 +17,11 @@ async function indexDocumentation() {
 
   // Environment validation
   if (!process.env.OPENAI_API_KEY) {
-    console.warn(
-      '⚠️  OPENAI_API_KEY not set. Skipping documentation indexing.'
-    );
-    console.warn(
-      '   RAG features will not work until you:'
-    );
-    console.warn(
-      '   1. Set OPENAI_API_KEY environment variable'
-    );
-    console.warn(
-      '   2. Run: bun run build (to generate vector index)'
-    );
-    console.warn(
-      '   Continuing with build...\n'
-    );
+    console.warn('⚠️  OPENAI_API_KEY not set. Skipping documentation indexing.');
+    console.warn('   RAG features will not work until you:');
+    console.warn('   1. Set OPENAI_API_KEY environment variable');
+    console.warn('   2. Run: bun run build (to generate vector index)');
+    console.warn('   Continuing with build...\n');
     return; // Skip indexing but don't fail the build
   }
 
@@ -68,23 +58,15 @@ async function indexDocumentation() {
         const content = await page.data.load();
 
         if (!content || typeof content.body !== 'string') {
-          console.warn(
-            `⚠️  Skipping ${page.url} - no body content`
-          );
+          console.warn(`⚠️  Skipping ${page.url} - no body content`);
           continue;
         }
 
         // Chunk the document
-        const chunks = chunkDocumentation(
-          content.body,
-          page.url,
-          page.data.title || 'Untitled'
-        );
+        const chunks = chunkDocumentation(content.body, page.url, page.data.title || 'Untitled');
 
         if (chunks.length === 0) {
-          console.warn(
-            `⚠️  No chunks generated for ${page.url}`
-          );
+          console.warn(`⚠️  No chunks generated for ${page.url}`);
           continue;
         }
 
@@ -129,12 +111,8 @@ async function indexDocumentation() {
     // Validate build time constraint
     const durationSec = Number.parseFloat(duration);
     if (durationSec > 30) {
-      console.warn(
-        `\n⚠️  WARNING: Indexing took ${duration}s (>30s target)`
-      );
-      console.warn(
-        '   This may impact the 5-minute build constraint'
-      );
+      console.warn(`\n⚠️  WARNING: Indexing took ${duration}s (>30s target)`);
+      console.warn('   This may impact the 5-minute build constraint');
     }
   } catch (error) {
     console.error('💥 Fatal error during indexing:', error);
