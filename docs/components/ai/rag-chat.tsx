@@ -262,7 +262,7 @@ function extractCitations(content: string, chunks: RetrievedChunk[]): Citation[]
   let match;
 
   while ((match = regex.exec(content)) !== null) {
-    const index = Number.parseInt(match[1]) - 1;
+    const index = Number.parseInt(match[1], 10) - 1;
     if (chunks[index] && !seen.has(match[1])) {
       citations.push({
         number: match[1],
@@ -289,7 +289,6 @@ function Message({ message, ...props }: { message: UIMessage } & ComponentProps<
   for (const part of message.parts ?? []) {
     if (part.type === 'text') {
       markdown += part.text;
-      continue;
     }
   }
 
