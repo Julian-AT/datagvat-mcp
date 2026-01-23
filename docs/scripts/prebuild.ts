@@ -10,7 +10,11 @@ async function prebuild() {
   console.log('=== Pre-build Validation ===\n');
 
   try {
-    console.log('0. Ensuring OpenAPI schema exists...');
+    console.log('0. Generating Fumadocs MDX metadata...');
+    await $`fumadocs-mdx`;
+    console.log('✓ MDX metadata generated\n');
+
+    console.log('1. Ensuring OpenAPI schema exists...');
     const schemaPath = './data.gv.at-openapi.yaml';
     const schemaFile = Bun.file(schemaPath);
 
@@ -21,16 +25,16 @@ async function prebuild() {
       await $`bun run scripts/download-openapi.ts`;
     }
 
-    console.log('1. Running Biome checks...');
+    console.log('2. Running Biome checks...');
     // Check only source directories to avoid scanning node_modules and Bun cache
     await $`biome check app components lib scripts --files-ignore-unknown=true`;
     console.log('✓ Biome passed\n');
 
-    console.log('2. Validating links...');
+    console.log('3. Validating links...');
     await $`bun run scripts/validate-links.ts`;
     console.log('✓ Links validated\n');
 
-    console.log('3. Type checking...');
+    console.log('4. Type checking...');
     if (SKIP_TYPE_CHECK) {
       console.log('⚠️  Skipped: Bun 1.x / TypeScript 5.9 compatibility issue');
       console.log('   See SKIP_TYPE_CHECK constant for details\n');

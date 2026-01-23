@@ -37,3 +37,6 @@ yarn.lock
 
 # Backup files
 *.backup
+
+# Vector index (generated at build time)
+.vector-index/
