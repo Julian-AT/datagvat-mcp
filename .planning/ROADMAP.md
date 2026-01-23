@@ -120,9 +120,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 12-01: Implement vector indexing with embeddings and chunking strategy
-- [ ] 12-02: Build RAG API route with streaming and similarity threshold validation
-- [ ] 12-03: Integrate chat UI with existing search button and build verification
+- [ ] 12-01-PLAN.md — Vector indexing with build-time embedding and section-based chunking
+- [ ] 12-02-PLAN.md — RAG API route with streaming, citations, and similarity threshold validation
+- [ ] 12-03-PLAN.md — Chat UI integration with clickable citations and comprehensive build verification
 
 ### Phase 13: Video Tutorials
 **Goal**: Users watch programmatically-generated video tutorials with captions demonstrating installation, workflows, and architecture
