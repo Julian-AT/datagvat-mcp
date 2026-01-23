@@ -143,21 +143,21 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BUILD-03 | Phase 10 | Complete |
 | BUILD-04 | Phase 10 | Complete |
 | BUILD-05 | Phase 10 | Complete |
-| CLI-01 | Phase 11 | Pending |
-| CLI-02 | Phase 11 | Pending |
-| CLI-03 | Phase 11 | Pending |
-| CLI-04 | Phase 11 | Pending |
-| CLI-05 | Phase 11 | Pending |
-| CLI-06 | Phase 11 | Pending |
-| CLI-07 | Phase 11 | Pending |
-| CLI-08 | Phase 11 | Pending |
-| CLI-09 | Phase 11 | Pending |
-| CLI-10 | Phase 11 | Pending |
-| BUILD-01 | Phase 11 | Pending |
-| BUILD-02 | Phase 11 | Pending |
-| BUILD-03 | Phase 11 | Pending |
-| BUILD-04 | Phase 11 | Pending |
-| BUILD-05 | Phase 11 | Pending |
+| CLI-01 | Phase 11 | Complete |
+| CLI-02 | Phase 11 | Complete |
+| CLI-03 | Phase 11 | Complete |
+| CLI-04 | Phase 11 | Complete |
+| CLI-05 | Phase 11 | Complete |
+| CLI-06 | Phase 11 | Complete |
+| CLI-07 | Phase 11 | Complete |
+| CLI-08 | Phase 11 | Complete |
+| CLI-09 | Phase 11 | Complete |
+| CLI-10 | Phase 11 | Complete |
+| BUILD-01 | Phase 11 | Complete |
+| BUILD-02 | Phase 11 | Complete |
+| BUILD-03 | Phase 11 | Complete |
+| BUILD-04 | Phase 11 | Complete |
+| BUILD-05 | Phase 11 | Complete |
 | RAG-01 | Phase 12 | Pending |
 | RAG-02 | Phase 12 | Pending |
 | RAG-03 | Phase 12 | Pending |
@@ -196,4 +196,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-22*
-*Last updated: 2026-01-23 after Phase 10 completion (23/51 requirements complete)*
+*Last updated: 2026-01-23 after Phase 11 completion (38/51 requirements complete)*
