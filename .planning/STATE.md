@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-01-22)
 ## Current Position
 
 Phase: 12 of 13 (RAG Documentation Chat)
-Plan: 1 of 3
+Plan: 2 of 3
 Status: In progress
-Last activity: 2026-01-23 — Completed 12-01-PLAN.md
+Last activity: 2026-01-23 — Completed 12-02-PLAN.md
 
-Progress: [███████░░░] 71% (10/14 plans complete)
+Progress: [████████░░] 79% (11/14 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10 (v2.1 Phase 12 in progress)
-- Average duration: 9.9 min
-- Total execution time: 1.6 hours
+- Total plans completed: 11 (v2.1 Phase 12 in progress)
+- Average duration: 9.5 min
+- Total execution time: 1.7 hours
 
 **By Phase:**
 
@@ -30,12 +30,12 @@ Progress: [███████░░░] 71% (10/14 plans complete)
 |-------|-------|-------|----------|
 | 10. Navigation Simplification | 6/6 | 59min | 9.8min |
 | 11. CLI Excellence | 3/3 | 29min | 9.7min |
-| 12. RAG Documentation Chat | 1/3 | 12min | 12.0min |
+| 12. RAG Documentation Chat | 2/3 | 16min | 8.0min |
 | 13. Video Tutorials | 0/3 | - | - |
 
 **Recent Trend:**
-- Last 5 plans: 10-06 (7min), 11-01 (9min), 11-02 (8min), 11-03 (12min), 12-01 (12min)
-- Trend: Phase 12 started. Vector indexing infrastructure complete, RAG API endpoint next
+- Last 5 plans: 11-01 (9min), 11-02 (8min), 11-03 (12min), 12-01 (12min), 12-02 (4min)
+- Trend: Phase 12 progressing rapidly. RAG API endpoint complete, UI components next
 
 *Updated after each plan completion*
 
@@ -81,6 +81,10 @@ Recent decisions affecting v2.1 work:
 - **12-01**: 100-token overlap between chunks — ~400 chars prevents context loss at semantic boundaries
 - **12-01**: Build-time indexing — Generate embeddings during build to avoid runtime latency, fits 5-minute build constraint
 - **12-01**: fumadocs-mdx dependency ordering — Must run before index-docs.ts to generate .source files (added as step 0 in prebuild)
+- **12-02**: 0.75 similarity threshold baseline — Starting point for quality filtering, configurable, may need tuning with real queries
+- **12-02**: Top-5 chunk retrieval — Balance between context richness (~5K tokens) and token budget
+- **12-02**: Numbered citation format [1], [2] — Simple, unambiguous format LLMs can reliably generate
+- **12-02**: Source metadata via data stream — toDataStreamResponse data parameter enables client-side clickable citations
 
 ### Pending Todos
 
@@ -96,9 +100,10 @@ Recent decisions affecting v2.1 work:
 **Phase 12 (RAG Chat):**
 - **RESOLVED (12-01)**: Embedding library — Using Vercel AI SDK native embedMany() with OpenAI text-embedding-3-small
 - **RESOLVED (12-01)**: Chunking strategy — Section-based by H2/H3 headings with 100-token overlap
-- **PENDING**: Similarity threshold tuning (0.75 baseline) — Needs validation with real queries in Plan 12-02
-- **PENDING**: OPENAI_API_KEY required — Must be set in environment for build to succeed
-- **PENDING**: Build time validation — Actual indexing performance (token count, duration) needs measurement with API key
+- **RESOLVED (12-02)**: RAG API endpoint — /api/rag complete with streaming, citations, and source metadata
+- **PENDING**: OPENAI_API_KEY required — Must be set in environment for vector indexing and query embeddings to work
+- **PENDING**: Similarity threshold validation — 0.75 baseline needs real query testing in Plan 12-03
+- **PENDING**: Citation rendering in UI — Map [1], [2] → clickable links using sources metadata
 
 **Phase 13 (Video Tutorials):**
 - Remotion composition patterns need prototype validation — Research flag set
@@ -107,11 +112,11 @@ Recent decisions affecting v2.1 work:
 
 ## Session Continuity
 
-Last session: 2026-01-23 (autonomous Phase 12-01 execution)
-Stopped at: Completed 12-01-PLAN.md — Vector indexing infrastructure ready
+Last session: 2026-01-23 (autonomous Phase 12-02 execution)
+Stopped at: Completed 12-02-PLAN.md — RAG API endpoint with streaming and citations
 Resume file: None
-Next step: Plan 12-02 - RAG API endpoint with streaming and citations
+Next step: Plan 12-03 - RAG UI components for chat interface
 
 ---
 
-*Last updated: 2026-01-23 after Plan 12-01 completion*
+*Last updated: 2026-01-23 after Plan 12-02 completion*
