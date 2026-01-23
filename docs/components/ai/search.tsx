@@ -38,7 +38,7 @@ function Header() {
   return (
     <div className="sticky top-0 flex items-start gap-2">
       <div className="flex-1 p-3 border rounded-xl bg-fd-card text-fd-card-foreground">
-        <p className="text-sm font-medium mb-2">Ask AI</p>
+        <p className="text-sm font-medium mb-2">MCP Chat</p>
       </div>
       <button
         type="button"
@@ -323,7 +323,7 @@ export function AISearchTrigger() {
       onClick={() => setOpen(true)}
     >
       <MessageCircleIcon className="size-4.5" />
-      Ask AI
+      MCP Chat
     </button>
   );
 }

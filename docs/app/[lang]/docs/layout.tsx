@@ -1,5 +1,6 @@
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
 import { AISearch, AISearchPanel, AISearchTrigger } from '@/components/ai/search';
+import { RAGChatProvider, RAGChatPanel, RAGChatTrigger } from '@/components/ai/rag-chat';
 import { source } from '@/lib/source';
 import 'katex/dist/katex.min.css';
 import type { ReactNode } from 'react';
@@ -54,10 +55,14 @@ export default async function Layout({
       githubUrl="https://github.com/julian-at/datagvat-mcp/"
     >
       {children}
-      <AISearch>
-        <AISearchPanel />
-        <AISearchTrigger />
-      </AISearch>
+      <RAGChatProvider>
+        <AISearch>
+          <AISearchPanel />
+          <AISearchTrigger />
+          <RAGChatPanel />
+          <RAGChatTrigger />
+        </AISearch>
+      </RAGChatProvider>
     </DocsLayout>
   );
 }
