@@ -8,6 +8,8 @@ export const docs = defineDocs({
     postprocess: {
       includeProcessedMarkdown: true,
     },
+    dynamic: true,
+    async: true,
   },
   meta: {
     schema: metaSchema,

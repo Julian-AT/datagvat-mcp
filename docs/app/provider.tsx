@@ -26,7 +26,6 @@ if (item === 'true') {
 export function Provider({ children }: { children: ReactNode }) {
   return (
     <TooltipProvider>
-      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Theme initialization script from static constant */}
       <script suppressHydrationWarning dangerouslySetInnerHTML={{ __html: inject }} />
       {children}
     </TooltipProvider>
