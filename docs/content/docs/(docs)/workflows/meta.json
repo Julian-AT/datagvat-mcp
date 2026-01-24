@@ -4,15 +4,11 @@
   "description": "Complete end-to-end workflows",
   "icon": "Workflow",
   "pages": [
-    "---[Compass]Exploration---",
     "discovery",
     "semantic-exploration",
-    "---[FileCheck]Quality---",
     "quality-assessment",
-    "---[GitCompare]Comparison---",
     "comparative-analysis",
     "publication-research",
-    "---[Download]Export---",
     "data-export"
   ]
 }

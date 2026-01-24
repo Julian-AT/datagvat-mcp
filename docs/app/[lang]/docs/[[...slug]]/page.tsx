@@ -25,7 +25,6 @@ import { getMDXComponents } from '@/mdx-components';
 
 function PreviewRenderer({ preview }: { preview: string }): ReactNode {
   if (preview && preview in Preview) {
-    // biome-ignore lint/performance/noDynamicNamespaceImportAccess: Preview components loaded dynamically from frontmatter
     const Comp = Preview[preview as keyof typeof Preview];
     return <Comp />;
   }
@@ -81,10 +80,10 @@ export default async function Page({
       <div className="prose flex-1 text-fd-foreground/90">
         {page.data.preview && <PreviewRenderer preview={page.data.preview} />}
         <Mdx
+          // @ts-ignore
           components={getMDXComponents({
             ...Twoslash,
-            // biome-ignore lint/suspicious/noExplicitAny: MDX component props are dynamic
-            a: ({ href, ...props }: { href?: string; [key: string]: any }) => {
+            a: ({ href, ...props }: { href?: string;[key: string]: any }) => {
               const found = source.getPageByHref(href ?? '', {
                 dir: PathUtils.dirname(page.path),
               });

@@ -1,7 +1,7 @@
 {
   "$schema": "../../../.source/json-schema/docs.meta.json",
   "title": "Documentation",
-  "description": "Complete guides, workflows, and examples for data.gv.at MCP Server",
+  "description": "Complete guides, workflows, and examples",
   "icon": "BookOpen",
   "root": true,
   "defaultOpen": true,

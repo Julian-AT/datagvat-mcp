@@ -29,29 +29,14 @@ const items = [
     value: undefined,
   },
   {
-    name: 'Framework',
-    description: 'Only results about framework guides',
-    value: 'framework',
+    name: 'Docs',
+    description: 'Only results about docs guides',
+    value: 'docs',
   },
   {
-    name: 'UI',
-    description: 'Only results about Fumadocs UI',
-    value: 'ui',
-  },
-  {
-    name: 'Core',
-    description: 'Only results about Fumadocs Core',
-    value: 'headless',
-  },
-  {
-    name: 'MDX',
-    description: 'Only results about Fumadocs MDX',
-    value: 'mdx',
-  },
-  {
-    name: 'CLI',
-    description: 'Only results about Fumadocs CLI',
-    value: 'cli',
+    name: 'API Reference',
+    description: 'Only results about API reference',
+    value: 'api-reference',
   },
 ];
 
@@ -125,9 +110,9 @@ export default function CustomSearchDialog(props: SharedProps) {
           items={
             query.data !== 'empty' || pageTreeAction
               ? [
-                  ...(pageTreeAction ? [pageTreeAction] : []),
-                  ...(Array.isArray(query.data) ? query.data : []),
-                ]
+                ...(pageTreeAction ? [pageTreeAction] : []),
+                ...(Array.isArray(query.data) ? query.data : []),
+              ]
               : null
           }
         />
@@ -170,13 +155,6 @@ export default function CustomSearchDialog(props: SharedProps) {
               })}
             </PopoverContent>
           </Popover>
-          <a
-            href="https://orama.com"
-            rel="noreferrer noopener"
-            className="text-xs text-nowrap text-fd-muted-foreground"
-          >
-            Powered by Orama
-          </a>
         </SearchDialogFooter>
       </SearchDialogContent>
     </SearchDialog>

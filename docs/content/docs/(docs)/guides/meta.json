@@ -4,14 +4,10 @@
   "description": "Step-by-step guides for common tasks",
   "icon": "BookOpen",
   "pages": [
-    "---[Search]Discovery---",
     "searching",
     "data-preview",
-    "---[BarChart]Analysis---",
     "quality-metrics",
-    "---[Workflow]Patterns---",
     "workflow-patterns",
-    "---[Settings]Configuration---",
     "configuration",
     "..."
   ]

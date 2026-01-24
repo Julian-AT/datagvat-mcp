@@ -3,14 +3,12 @@
   "title": "Getting Started",
   "description": "Set up and start using data.gv.at MCP Server",
   "icon": "Rocket",
-  "defaultOpen": true,
+  "defaultOpen": false,
   "pages": [
     "index",
-    "---[Zap]Quick Start---",
     "quickstart",
     "installation",
     "first-query",
-    "---[HelpCircle]Support---",
     "quick-reference",
     "troubleshooting",
     "tutorial"

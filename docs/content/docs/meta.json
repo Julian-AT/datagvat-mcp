@@ -1,7 +1,7 @@
 {
   "$schema": "..\\..\\..\\docs\\.source\\json-schema\\docs.meta.json",
   "pages": [
-    "docs",
+    "(docs)",
     "api",
     "---Interactive---",
     "external:[Try MCP Server](/try)",

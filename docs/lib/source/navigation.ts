@@ -8,10 +8,8 @@ export function getSection(path: string | undefined) {
   }
   return (
     {
-      ui: 'ui',
-      mdx: 'mdx',
-      cli: 'cli',
-      headless: 'headless',
-    }[dir] ?? 'framework'
+      docs: 'docs',
+      'api-reference': 'api-reference',
+    }[dir] ?? 'docs'
   );
 }
