@@ -29,8 +29,7 @@ dependencies = [
 ]
 
 [project.scripts]
-datagvat-mcp = "app.server:mcp.run"
-datagvat-mcp-cli = "app.cli.main:main"
+datagvat-mcp = "app.cli.main:app"
 
 [project.optional-dependencies]
 dev = [

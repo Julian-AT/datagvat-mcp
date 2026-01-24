@@ -1,34 +1,30 @@
 # DataGVAT MCP Server
 
-MCP server for Austrian Open Government Data via the [data.gv.at](https://data.gv.at) platform.
+MCP server for Austrian Open Government Data via [data.gv.at](https://data.gv.at).
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Quick Start
 
-### Option 1: Using uvx (Recommended)
-
 ```bash
-# Run MCP server directly
-uvx datagvat-mcp
+# Install to Claude Desktop (or Continue, Cline)
+uvx datagvat-mcp init
+
+# Check installation
+uvx datagvat-mcp doctor
 ```
 
-### Option 2: Using the CLI Installer
+That's it! Restart your AI tool and start querying Austrian open data.
+
+## Commands
 
 ```bash
-# Install to Claude Desktop, Continue, or Cline
-uvx --from datagvat-mcp datagvat-mcp-cli init
-
-# Check installation health
-uvx --from datagvat-mcp datagvat-mcp-cli doctor
-```
-
-### Option 3: From Source
-
-```bash
-cd mcp
-pip install -e .
-python -m app.server
+uvx datagvat-mcp              # Run MCP server (used by AI tools)
+uvx datagvat-mcp init         # Install to AI tools
+uvx datagvat-mcp init -y      # Install without prompts
+uvx datagvat-mcp doctor       # Check installation health
+uvx datagvat-mcp update       # Update configuration
+uvx datagvat-mcp --version    # Show version
 ```
 
 ## Configuration
@@ -43,96 +39,35 @@ Environment variables (prefix: `AUSTRIA_MCP_`):
 
 ## Tools (18 Read-Only)
 
-### Discovery
+**Discovery:** `list_catalogues`, `get_catalogue`, `search_datasets`, `get_dataset`, `get_dataset_distributions`
 
-- `list_catalogues` - List available catalogues
-- `get_catalogue` - Get catalogue details
-- `search_datasets` - Search datasets with filters
-- `get_dataset` - Get dataset metadata
-- `get_dataset_distributions` - Get downloadable files
+**Analysis:** `get_dataset_metrics`, `check_doi_eligibility`, `analyze_dataset_quality`
 
-### Analysis
+**Vocabularies:** `list_vocabularies`, `get_vocabulary`, `search_vocabulary_terms`, `get_resource_types`
 
-- `get_dataset_metrics` - Quality metrics (DQV)
-- `check_doi_eligibility` - DOI readiness check
-- `analyze_dataset_quality` - Comprehensive analysis
+**Preview:** `preview_distribution`, `analyze_distribution_schema`, `get_distribution_stats`, `find_related_datasets`, `compare_datasets`, `get_dataset_lineage`
 
-### Vocabularies
+## Example Queries
 
-- `list_vocabularies` - List controlled vocabularies
-- `get_vocabulary` - Get vocabulary terms
-- `search_vocabulary_terms` - Search within vocabulary
-- `get_resource_types` - List resource types
+After installation, try these in Claude Desktop:
 
-### Preview
+- "Find datasets about Vienna population"
+- "Show me health-related open data"
+- "What datasets have quality score above 80?"
+- "Preview the first 10 rows of this CSV"
 
-- `preview_distribution` - Preview CSV/JSON data
-- `analyze_distribution_schema` - Analyze data structure
-- `get_distribution_stats` - Statistical summary
-- `find_related_datasets` - Find similar datasets
-- `compare_datasets` - Compare multiple datasets
-- `get_dataset_lineage` - Dataset provenance
-
-## Resources
-
-Access data via MCP resources:
-
-```
-piveau://catalogues
-piveau://catalogues/{id}
-piveau://catalogues/{id}/datasets
-piveau://datasets/{id}
-piveau://datasets/{id}/distributions
-piveau://datasets/{id}/metrics
-piveau://vocabularies
-piveau://vocabularies/{id}
-```
-
-## CLI Commands
-
-```bash
-# Initialize MCP server in AI tools
-datagvat-mcp-cli init [--yes] [--tool <name>]
-
-# Add to specific tool
-datagvat-mcp-cli add <tool-name>
-
-# Update configuration
-datagvat-mcp-cli update [--yes] [--tool <name>]
-
-# Health check
-datagvat-mcp-cli doctor [--fix]
-```
-
-Supported tools: `claude-desktop`, `continue`, `cline`
-
-## Testing
+## Development
 
 ```bash
 cd mcp
-pytest                                    # Run all tests
-pytest --cov=app --cov-report=term-missing  # With coverage
-pytest -v                                 # Verbose output
+pip install -e ".[dev]"
+pytest
 ```
 
-## Claude Desktop Configuration
+## Links
 
-After running `datagvat-mcp-cli init`, your config will contain:
-
-```json
-{
-  "mcpServers": {
-    "datagvat": {
-      "command": "uvx",
-      "args": ["datagvat-mcp"]
-    }
-  }
-}
-```
-
-## Documentation
-
-Full documentation: https://datagvat-mcp-docs.vercel.app
+- **Documentation:** https://datagvat-mcp-docs.vercel.app
+- **Repository:** https://github.com/julian-at/datagvat-mcp
 
 ## License
 
