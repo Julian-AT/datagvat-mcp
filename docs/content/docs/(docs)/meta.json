@@ -8,11 +8,11 @@
   "pages": [
     "index",
     "getting-started",
-    "---[Map]Guides---",
+    "---Guides---",
     "guides",
     "workflows",
     "examples",
-    "---[Settings]Advanced---",
+    "---Advanced---",
     "integration",
     "best-practices",
     "advanced"
