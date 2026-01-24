@@ -4,40 +4,50 @@ MCP server for Austrian Open Government Data via the [data.gv.at](https://data.g
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Installation
-
-```bash
-pip install -e .
-```
-
 ## Quick Start
 
-```bash
-# Run the server
-python -m app.server
+### Option 1: Using uvx (Recommended)
 
-# Or with FastMCP CLI
-fastmcp run app.server:mcp
+```bash
+# Run MCP server directly
+uvx datagvat-mcp
+```
+
+### Option 2: Using the CLI Installer
+
+```bash
+# Install to Claude Desktop, Continue, or Cline
+uvx --from datagvat-mcp datagvat-mcp-cli init
+
+# Check installation health
+uvx --from datagvat-mcp datagvat-mcp-cli doctor
+```
+
+### Option 3: From Source
+
+```bash
+cd mcp
+pip install -e .
+python -m app.server
 ```
 
 ## Configuration
 
 Environment variables (prefix: `AUSTRIA_MCP_`):
 
-| Variable          | Default                                   | Description                  |
-| ----------------- | ----------------------------------------- | ---------------------------- |
-| `PIVEAU_API_BASE` | `https://data.gv.at/katalog/api/hub/repo` | API base URL                 |
-| `PIVEAU_API_KEY`  | -                                         | API key for write operations |
-| `REQUEST_TIMEOUT` | `30`                                      | HTTP timeout in seconds      |
-| `LOG_LEVEL`       | `INFO`                                    | Logging level                |
+| Variable          | Default                                   | Description             |
+| ----------------- | ----------------------------------------- | ----------------------- |
+| `PIVEAU_API_BASE` | `https://data.gv.at/katalog/api/hub/repo` | API base URL            |
+| `REQUEST_TIMEOUT` | `30`                                      | HTTP timeout in seconds |
+| `LOG_LEVEL`       | `INFO`                                    | Logging level           |
 
-## Tools
+## Tools (18 Read-Only)
 
 ### Discovery
 
 - `list_catalogues` - List available catalogues
 - `get_catalogue` - Get catalogue details
-- `search_datasets` - Search datasets
+- `search_datasets` - Search datasets with filters
 - `get_dataset` - Get dataset metadata
 - `get_dataset_distributions` - Get downloadable files
 
@@ -47,19 +57,21 @@ Environment variables (prefix: `AUSTRIA_MCP_`):
 - `check_doi_eligibility` - DOI readiness check
 - `analyze_dataset_quality` - Comprehensive analysis
 
-### Management
-
-- `create_dataset_draft` - Create new draft
-- `update_dataset_draft` - Update draft
-- `delete_dataset_draft` - Delete draft
-- `publish_dataset` - Publish to portal
-- `hide_dataset` - Unpublish dataset
-
 ### Vocabularies
 
 - `list_vocabularies` - List controlled vocabularies
 - `get_vocabulary` - Get vocabulary terms
 - `search_vocabulary_terms` - Search within vocabulary
+- `get_resource_types` - List resource types
+
+### Preview
+
+- `preview_distribution` - Preview CSV/JSON data
+- `analyze_distribution_schema` - Analyze data structure
+- `get_distribution_stats` - Statistical summary
+- `find_related_datasets` - Find similar datasets
+- `compare_datasets` - Compare multiple datasets
+- `get_dataset_lineage` - Dataset provenance
 
 ## Resources
 
@@ -76,59 +88,51 @@ piveau://vocabularies
 piveau://vocabularies/{id}
 ```
 
+## CLI Commands
+
+```bash
+# Initialize MCP server in AI tools
+datagvat-mcp-cli init [--yes] [--tool <name>]
+
+# Add to specific tool
+datagvat-mcp-cli add <tool-name>
+
+# Update configuration
+datagvat-mcp-cli update [--yes] [--tool <name>]
+
+# Health check
+datagvat-mcp-cli doctor [--fix]
+```
+
+Supported tools: `claude-desktop`, `continue`, `cline`
+
 ## Testing
 
-Run the test suite with pytest:
-
 ```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=app --cov-report=term-missing
-
-# Run specific test module
-pytest tests/test_client.py
-
-# Run with verbose output
-pytest -v
+cd mcp
+pytest                                    # Run all tests
+pytest --cov=app --cov-report=term-missing  # With coverage
+pytest -v                                 # Verbose output
 ```
 
-### Test Structure
+## Claude Desktop Configuration
 
-| Module              | Description                           |
-| ------------------- | ------------------------------------- |
-| `test_client.py`    | HTTP client and API operations        |
-| `test_config.py`    | Settings and environment variables    |
-| `test_dependencies.py` | Dependency injection helpers       |
-| `test_middleware.py` | Audit and auth middleware            |
-| `test_models.py`    | Pydantic models and validation        |
-| `test_prompts.py`   | MCP prompt templates                  |
-| `test_resources.py` | MCP resource endpoints                |
-| `test_tools.py`     | MCP tool implementations              |
-
-## Docker
-
-```bash
-docker build -t austria-mcp .
-docker run -e AUSTRIA_MCP_PIVEAU_API_KEY=your-key austria-mcp
-```
-
-## Claude Desktop
-
-Add to `claude_desktop_config.json`:
+After running `datagvat-mcp-cli init`, your config will contain:
 
 ```json
 {
   "mcpServers": {
     "datagvat": {
-      "command": "python",
-      "args": ["-m", "app.server"],
-      "cwd": "/path/to/datagvat-mcp/mcp"
+      "command": "uvx",
+      "args": ["datagvat-mcp"]
     }
   }
 }
 ```
+
+## Documentation
+
+Full documentation: https://datagvat-mcp-docs.vercel.app
 
 ## License
 

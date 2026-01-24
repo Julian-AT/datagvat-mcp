@@ -1,2 +1,0 @@
-[install.scopes]
-"@datagvat" = { token = "$BUN_GITHUB_TOKEN", url = "https://npm.pkg.github.com" }
