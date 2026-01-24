@@ -71,6 +71,6 @@ body {
 }
 
 .dark {
-  --docs-color: hsl(358, 72.1%, 42.2%);
+  --docs-color: #b91e23;
   --api-reference-color: hsl(180, 97%, 26.3%);
 }
