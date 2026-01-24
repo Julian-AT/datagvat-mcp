@@ -1,20 +1,25 @@
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { createOpenAPI } from 'fumadocs-openapi/server';
-import YAML from 'yaml';
+import { parse as parseYaml } from 'yaml';
+import { filterOpenAPISchema } from './filter-openapi';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const SCHEMA_PATH = path.join(__dirname, '..', 'data.gv.at-openapi.yaml');
-
-const schemaContent = readFileSync(SCHEMA_PATH, 'utf-8');
-const schemaObject = YAML.parse(schemaContent);
+const OPENAPI_URL = 'https://qs.data.gv.at/api/hub/repo/openapi.yaml';
 
 export const openapi = createOpenAPI({
-  input: () => ({
-    'data.gv.at': schemaObject,
-  }),
+  input: async () => {
+    const res = await fetch(OPENAPI_URL);
+    const text = await res.text();
+    const doc = text.trimStart().startsWith('{')
+      ? (JSON.parse(text) as Parameters<typeof filterOpenAPISchema>[0])
+      : (parseYaml(text) as Parameters<typeof filterOpenAPISchema>[0]);
+    const filtered = filterOpenAPISchema(doc, {
+      xInternal: true,
+      internalTags: ['Internal'],
+      // Exclude ops whose description contains "internal use only" (common in this spec)
+      excludeDescriptionContaining: 'internal use only',
+      // excludePathPrefixes: ['/internal/'],
+      // excludeOperationIds: ['someOpId'],
+    });
+    return { [OPENAPI_URL]: filtered };
+  },
   proxyUrl: '/api/proxy',
 });

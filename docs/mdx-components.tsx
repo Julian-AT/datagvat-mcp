@@ -6,6 +6,7 @@ import defaultMdxComponents from 'fumadocs-ui/mdx';
 import * as icons from 'lucide-react';
 import type { MDXComponents } from 'mdx/types';
 import { Mermaid } from '@/components/mdx/mermaid';
+import { APIPage } from '@/components/api-page';
 
 export function getMDXComponents(components?: MDXComponents) {
   return {
@@ -18,13 +19,12 @@ export function getMDXComponents(components?: MDXComponents) {
     Step,
     Steps,
     Mermaid,
+    APIPage,
     ...components,
   } satisfies MDXComponents;
 }
 
 declare module 'mdx/types.js' {
-  // Augment the MDX types to make it understand React.
-  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     type Element = React.JSX.Element;
     type ElementClass = React.JSX.ElementClass;

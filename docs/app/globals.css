@@ -45,17 +45,23 @@
   --color-fd-ring: hsl(0, 0%, 54.9%);
 }
 
+
+:root {
+  --docs-color: hsl(180, 97%, 26.3%);
+  --api-reference-color: hsl(180, 97%, 26.3%);
+}
+
+.dark {
+  --docs-color: hsl(180, 97%, 26.3%);
+  --api-reference-color: hsl(180, 97%, 26.3%);
+}
+
 .docs {
-  --color-fd-primary: var(--ui-color);
+  --color-fd-primary: var(--docs-color);
 }
 
 .api-reference {
   --color-fd-primary: var(--api-reference-color);
-}
-
-:root {
-  --docs-color: hsl(358, 72.1%, 42.2%);
-  --api-reference-color: hsl(180, 97%, 26.3%);
 }
 
 html {
@@ -70,7 +76,4 @@ body {
   background-color: var(--color-fd-background);
 }
 
-.dark {
-  --docs-color: #b91e23;
-  --api-reference-color: hsl(180, 97%, 26.3%);
-}
+

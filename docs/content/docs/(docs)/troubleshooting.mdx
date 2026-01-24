@@ -1,0 +1,299 @@
+---
+title: Troubleshooting
+description: Solutions to common data.gv.at MCP Server installation and usage issues
+icon: Bug
+---
+
+import { Tabs, Tab } from "fumadocs-ui/components/tabs";
+import { Callout } from "fumadocs-ui/components/callout";
+
+Solutions to common problems when installing or using data.gv.at MCP Server.
+
+## Server not appearing in Claude Desktop
+
+**Symptom:** Data.gv.at MCP Server doesn't show in Claude Desktop toolbar after installation
+
+**Common causes and fixes:**
+
+### Fix 1: Check configuration file syntax
+
+Invalid JSON prevents Claude Desktop from loading the configuration.
+
+**Validate JSON syntax:**
+
+<Tabs items={['macOS/Linux', 'Windows']} groupId="os" persist>
+  <Tab value="macOS/Linux">
+    ```bash
+    python3 -m json.tool ~/.claude/claude_desktop_config.json
+    ```
+  </Tab>
+
+  <Tab value="Windows">
+    ```bash
+    python -m json.tool "%APPDATA%\Claude\claude_desktop_config.json"
+    ```
+  </Tab>
+</Tabs>
+
+**Expected output:** Formatted JSON (no errors)
+
+**If you see errors, check for:**
+- Missing comma between entries
+- Extra comma after last entry
+- Unmatched brackets or quotes
+- Missing quotes around keys or values
+
+### Fix 2: Use absolute paths
+
+Relative paths fail in MCP configuration.
+
+<Callout type="warn">
+Always use absolute paths in MCP configuration. Relative paths and tilde (~) expansion are not supported.
+</Callout>
+
+❌ **Wrong:**
+```json
+{
+  "cwd": "~/datagvat-mcp/mcp",          // Fails: tilde not expanded
+  "cwd": "../datagvat-mcp/mcp"         // Fails: relative path
+}
+```
+
+✅ **Correct:**
+```json
+{
+  "cwd": "/Users/yourname/datagvat-mcp/mcp",      // macOS/Linux
+  "cwd": "C:\\Users\\YourName\\datagvat-mcp\\mcp"  // Windows
+}
+```
+
+**Windows users:** Remember to escape backslashes (use `\\` instead of `\`)
+
+### Fix 3: Restart Claude Desktop properly
+
+Configuration is only loaded on startup. Simple window closing doesn't fully quit the application.
+
+<Tabs items={['macOS', 'Linux', 'Windows']} groupId="os" persist>
+  <Tab value="macOS">
+    **Proper restart:**
+    1. Press `Cmd+Q` (not just close window)
+    2. Wait 5 seconds
+    3. Relaunch from Applications
+
+    **Verify quit:** Claude Desktop should NOT appear in Dock
+  </Tab>
+
+  <Tab value="Linux">
+    **Proper restart:**
+    ```bash
+    killall claude-desktop
+    # Wait 5 seconds
+    claude-desktop &
+    ```
+  </Tab>
+
+  <Tab value="Windows">
+    **Proper restart:**
+    1. Right-click system tray icon → Exit
+    2. Wait 5 seconds
+    3. Relaunch from Start menu
+
+    **Verify quit:** No Claude Desktop process in Task Manager
+  </Tab>
+</Tabs>
+
+**Verification:** After restart, "datagvat" appears in bottom toolbar with green indicator
+
+## Tools not working
+
+**Symptom:** Server connected but tool calls fail or return errors
+
+### Fix 1: Check Python version
+
+Data.gv.at MCP Server requires Python 3.11 or higher.
+
+**Check version:**
+```bash
+python --version
+```
+
+**If version is 3.10 or lower:**
+- [Download Python 3.11+](https://www.python.org/downloads/)
+- Reinstall dependencies after upgrade
+
+### Fix 2: Reinstall dependencies
+
+Corrupted or incomplete installation can cause tools to fail.
+
+<Tabs items={['uv', 'pip']} groupId="package-manager" persist>
+  <Tab value="uv">
+    ```bash
+    cd /path/to/datagvat-mcp/mcp
+    uv pip install -e . --force-reinstall
+    ```
+  </Tab>
+
+  <Tab value="pip">
+    ```bash
+    cd /path/to/datagvat-mcp/mcp
+    pip install -e . --force-reinstall
+    ```
+  </Tab>
+</Tabs>
+
+**Verification:**
+```bash
+python -c "from app.server import mcp; print('OK')"
+```
+
+**Expected output:** `OK`
+
+### Fix 3: Check virtual environment
+
+If using a virtual environment, ensure it's activated before running commands.
+
+**Check if activated:**
+```bash
+which python  # macOS/Linux
+where python  # Windows
+```
+
+**Expected:** Path should point to your venv directory
+
+**If not activated:**
+
+<Tabs items={['macOS/Linux', 'Windows']} groupId="os" persist>
+  <Tab value="macOS/Linux">
+    ```bash
+    source /path/to/datagvat-mcp/mcp/.venv/bin/activate
+    ```
+  </Tab>
+
+  <Tab value="Windows">
+    ```bash
+    C:\path\to\datagvat-mcp\mcp\.venv\Scripts\activate
+    ```
+  </Tab>
+</Tabs>
+
+## Connection errors when using tools
+
+**Symptom:** Tools execute but fail with connection errors or timeout messages
+
+### Fix 1: Check network access
+
+Data.gv.at MCP Server needs HTTPS access to data.gv.at API.
+
+**Test API access:**
+```bash
+curl https://www.data.gv.at/api/hub/search/catalogues
+```
+
+**Expected output:** JSON response with catalogue list
+
+**If connection fails:**
+- Check firewall settings (allow HTTPS outbound to data.gv.at)
+- Check corporate proxy configuration
+- Try from different network (mobile hotspot)
+
+### Fix 2: Verify API endpoint
+
+Ensure you can reach the API from your location.
+
+**Test with timeout:**
+```bash
+curl -m 10 https://www.data.gv.at/api/hub/search/catalogues
+```
+
+**If timeout occurs:**
+- Network routing issue or firewall blocking
+- Contact network administrator if on corporate network
+
+## Import errors
+
+**Symptom:** `ModuleNotFoundError` or `ImportError` when running server
+
+### Fix: Verify installation
+
+Ensure all dependencies are installed.
+
+**Check installation:**
+```bash
+cd /path/to/datagvat-mcp/mcp
+pip list | grep -E "fastmcp|httpx|pydantic"
+```
+
+**Expected:** All three packages should appear
+
+**If missing:**
+```bash
+pip install -e .
+```
+
+## Performance issues
+
+**Symptom:** Tools run slowly or timeout
+
+### Fix: Increase timeout settings
+
+Some operations may take longer on slower connections.
+
+<Callout type="info">
+Default timeout is 30 seconds. If you experience frequent timeouts on large datasets, consider upgrading your network connection or requesting smaller previews.
+</Callout>
+
+**Workaround:** Use smaller preview limits
+- Instead of: "Show first 1000 rows"
+- Try: "Show first 100 rows"
+
+## Still having problems?
+
+### Check log files
+
+Claude Desktop logs contain detailed error messages.
+
+<Tabs items={['macOS', 'Linux', 'Windows']} groupId="os" persist>
+  <Tab value="macOS">
+    **Location:** `~/Library/Logs/Claude/`
+
+    ```bash
+    tail -f ~/Library/Logs/Claude/mcp*.log
+    ```
+  </Tab>
+
+  <Tab value="Linux">
+    **Location:** `~/.config/Claude/logs/`
+
+    ```bash
+    tail -f ~/.config/Claude/logs/mcp*.log
+    ```
+  </Tab>
+
+  <Tab value="Windows">
+    **Location:** `%APPDATA%\Claude\logs\`
+
+    Open in text editor or view in terminal:
+    ```bash
+    type "%APPDATA%\Claude\logs\mcp*.log"
+    ```
+  </Tab>
+</Tabs>
+
+**What to look for:**
+- Python error messages and stack traces
+- Connection errors or timeout messages
+- Configuration loading errors
+
+### Get help
+
+If you're still stuck after trying these solutions:
+
+- **GitHub Issues:** [Report a bug](https://github.com/datagvat/datagvat-mcp/issues)
+- **GitHub Discussions:** [Ask questions](https://github.com/datagvat/datagvat-mcp/discussions)
+
+**Include in your report:**
+- [ ] Operating system and version
+- [ ] Python version (`python --version`)
+- [ ] Full error message from logs
+- [ ] Steps to reproduce the problem
+- [ ] What you've already tried from this guide

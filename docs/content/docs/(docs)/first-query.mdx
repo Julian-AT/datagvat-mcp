@@ -1,0 +1,292 @@
+---
+title: Your first query
+description: Complete tutorial from search to data preview with expected outputs
+icon: Search
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Learn how to perform a complete dataset discovery workflow with data.gv.at MCP Server - from search to data preview.
+
+## Prerequisites
+
+Before starting:
+
+- [ ] Completed the [Quickstart Guide](/getting-started/quickstart)
+- [ ] Claude Desktop running with data.gv.at MCP Server connected
+- [ ] MCP server showing green status in toolbar
+
+<Callout type="info">
+**New to data.gv.at MCP Server?** Complete the [Quickstart Guide](/getting-started/quickstart) first for a quick introduction.
+</Callout>
+
+## Step 1: Search for datasets
+
+Search for Vienna population data using semantic search:
+
+```
+Find datasets about Vienna population statistics
+```
+
+**What happens:**
+- Data.gv.at MCP Server analyzes "Vienna population statistics"
+- Expands query with related terms (demographics, census, inhabitants)
+- Searches data.gv.at catalog
+- Returns results ranked by quality and relevance
+
+**Expected output:**
+
+```json
+{
+  "results": [
+    {
+      "id": "bev-wien-2020-2024",
+      "title": "Bevölkerung Wien 2020-2024",
+      "description": "Quarterly population statistics for Vienna districts...",
+      "publisher": "Stadt Wien",
+      "themes": ["SOCI"],
+      "formats": ["CSV", "JSON"],
+      "quality_score": 95,
+      "last_modified": "2024-01-15"
+    },
+    {
+      "id": "wien-einwohner-altersgruppen",
+      "title": "Einwohnerinnen nach Altersgruppen Wien",
+      "description": "Demographic development Vienna by age group...",
+      "publisher": "Statistik Austria",
+      "themes": ["SOCI"],
+      "formats": ["CSV"],
+      "quality_score": 87,
+      "last_modified": "2023-12-10"
+    }
+  ],
+  "count": 2,
+  "facets": {
+    "themes": {"SOCI": 2},
+    "formats": {"CSV": 2, "JSON": 1}
+  }
+}
+```
+
+**Verify:**
+- [ ] You received dataset results with titles and IDs
+- [ ] Quality scores appear (0-100 range)
+- [ ] Results include publisher and format information
+
+## Step 2: Get dataset details
+
+Pick a dataset from results and get complete metadata:
+
+```
+Show me details for dataset bev-wien-2020-2024
+```
+
+**What happens:**
+- Data.gv.at MCP Server calls `get_dataset` tool with dataset ID
+- Retrieves full DCAT-AP metadata from data.gv.at
+- Returns structured dataset information
+
+**Expected output:**
+
+```json
+{
+  "id": "bev-wien-2020-2024",
+  "title": "Bevölkerung Wien 2020-2024",
+  "description": "Quarterly population statistics by Vienna district, gender, and age group. Data updated monthly covering all 23 Vienna districts.",
+  "publisher": {
+    "name": "Stadt Wien",
+    "email": "open@post.wien.gv.at"
+  },
+  "themes": ["SOCI"],
+  "keywords": ["Bevölkerung", "Wien", "Statistik", "Demografie"],
+  "license": "CC-BY-4.0",
+  "temporal_coverage": {
+    "start": "2020-01-01",
+    "end": "2024-12-31"
+  },
+  "spatial_coverage": "Wien, Österreich",
+  "distributions": [
+    {
+      "title": "Population Data CSV",
+      "format": "CSV",
+      "access_url": "https://www.data.gv.at/katalog/dataset/bev-wien-2020-2024.csv"
+    },
+    {
+      "title": "Population Data JSON",
+      "format": "JSON",
+      "access_url": "https://www.data.gv.at/katalog/dataset/bev-wien-2020-2024.json"
+    }
+  ],
+  "last_modified": "2024-01-15",
+  "quality_score": 95
+}
+```
+
+**Verify:**
+- [ ] Full description in German
+- [ ] License information (CC-BY-4.0)
+- [ ] Multiple distributions with download URLs
+- [ ] Temporal and spatial coverage details
+
+<Callout type="warn">
+**Dataset IDs:** Always use exact IDs from search results. IDs are unique identifiers and case-sensitive.
+</Callout>
+
+## Step 3: Get dataset distributions
+
+Before previewing data, get the list of available download formats:
+
+```
+List distributions for dataset bev-wien-2020-2024
+```
+
+**What happens:**
+- Data.gv.at MCP Server extracts distribution information
+- Returns all available download formats and URLs
+- Shows file sizes and modification dates
+
+**Expected output:**
+
+```json
+[
+  {
+    "title": "Population Data CSV",
+    "format": "CSV",
+    "access_url": "https://www.data.gv.at/katalog/dataset/bev-wien-2020-2024.csv",
+    "byte_size": 45678,
+    "modified": "2024-01-15"
+  },
+  {
+    "title": "Population Data JSON",
+    "format": "JSON",
+    "access_url": "https://www.data.gv.at/katalog/dataset/bev-wien-2020-2024.json",
+    "byte_size": 67890,
+    "modified": "2024-01-15"
+  }
+]
+```
+
+**Verify:**
+- [ ] Each distribution shows format (CSV, JSON, etc.)
+- [ ] Access URLs are provided
+- [ ] File sizes appear in bytes
+
+## Step 4: Preview data
+
+Preview the CSV data to see structure and sample rows:
+
+```
+Preview data from https://www.data.gv.at/katalog/dataset/bev-wien-2020-2024.csv
+```
+
+**What happens:**
+- Data.gv.at MCP Server downloads first 64KB of file
+- Detects CSV format and delimiter
+- Infers column types from sample rows
+- Returns schema and preview data
+
+**Expected output:**
+
+```json
+{
+  "format": "CSV",
+  "rows_previewed": 20,
+  "total_rows_estimate": 276,
+  "schema": {
+    "columns": [
+      {
+        "name": "Bezirk",
+        "type": "string",
+        "sample_values": ["1. Innere Stadt", "2. Leopoldstadt", "3. Landstraße"]
+      },
+      {
+        "name": "Geschlecht",
+        "type": "string",
+        "sample_values": ["männlich", "weiblich", "divers"]
+      },
+      {
+        "name": "Altersgruppe",
+        "type": "string",
+        "sample_values": ["0-14", "15-24", "25-64"]
+      },
+      {
+        "name": "Bevölkerung",
+        "type": "integer",
+        "sample_values": [12543, 23678, 45123]
+      }
+    ]
+  },
+  "preview": [
+    ["Bezirk", "Geschlecht", "Altersgruppe", "Bevölkerung"],
+    ["1. Innere Stadt", "männlich", "0-14", "1234"],
+    ["1. Innere Stadt", "männlich", "15-24", "2345"],
+    ["1. Innere Stadt", "männlich", "25-64", "8765"],
+    ["1. Innere Stadt", "weiblich", "0-14", "1123"],
+    ["1. Innere Stadt", "weiblich", "15-24", "2456"],
+    ["2. Leopoldstadt", "männlich", "0-14", "3456"],
+    ["2. Leopoldstadt", "männlich", "15-24", "4567"],
+    ["2. Leopoldstadt", "männlich", "25-64", "12345"],
+    ["3. Landstraße", "männlich", "0-14", "2345"],
+    ["3. Landstraße", "männlich", "15-24", "3456"]
+  ]
+}
+```
+
+**Verify:**
+- [ ] Schema shows column names and types
+- [ ] Preview includes header row
+- [ ] Sample values demonstrate data format
+- [ ] Row estimates help understand dataset size
+
+<Callout type="info">
+**Preview limits:** Default preview is 20 rows, configurable up to 100. Large datasets are estimated from preview sample.
+</Callout>
+
+## Complete workflow summary
+
+You've completed a full dataset discovery workflow:
+
+1. **Semantic Search** → Found relevant datasets using natural language
+2. **Dataset Details** → Retrieved complete metadata and license information
+3. **List Distributions** → Identified available download formats
+4. **Data Preview** → Inspected schema and sample data
+
+**Verify success:**
+
+- [ ] You searched for datasets
+- [ ] You retrieved full dataset metadata
+- [ ] You listed available distributions
+- [ ] You previewed data structure and sample rows
+- [ ] All expected outputs matched your results
+
+## What you've learned
+
+- **Complete workflow:** Search → Details → Distributions → Preview
+- **Expected outputs:** How to verify success at each step
+- **Data formats:** CSV and JSON are most common
+- **Quality indicators:** Quality scores (0-100) and metadata completeness
+- **Schema inference:** Data.gv.at MCP Server automatically detects column types
+
+## Next steps
+
+### Deeper learning
+
+- **[Quick Reference](/getting-started/quick-reference)** - Command cheat sheet
+- **[Searching Guide](/guides/searching)** - Advanced search techniques
+- **[Quality Metrics](/guides/quality-metrics)** - Understanding quality scores
+- **[Data Preview](/guides/data-preview)** - Preview configuration options
+
+### Common workflows
+
+- **[Discovery Workflow](/workflows/discovery)** - Complete search patterns
+- **[Quality Assessment](/workflows/quality-assessment)** - Evaluate dataset reliability
+- **[Data Analysis](/workflows/data-analysis)** - Analyze preview statistics
+
+### Troubleshooting
+
+- **[Troubleshooting Guide](/getting-started/troubleshooting)** - Solutions to common issues
+- **[Configuration Guide](/guides/configuration)** - Advanced server configuration
+
+<Callout type="warn">
+**Need help?** If you encounter errors or unexpected outputs, check the [Troubleshooting Guide](/getting-started/troubleshooting) for solutions.
+</Callout>
