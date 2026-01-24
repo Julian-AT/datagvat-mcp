@@ -3,7 +3,7 @@
  */
 export function getMcpConfig(): { command: string; args: string[] } {
 	return {
-		command: "npx",
-		args: ["-y", "@datagvat/mcp-server"],
+		command: "uvx",
+		args: ["datagvat-mcp"],
 	};
 }

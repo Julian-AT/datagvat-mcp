@@ -72,7 +72,7 @@ export function displayPostInstall(tools: ToolName[]): void {
 		`   ${ui.dim("Documentation:")} ${chalk.cyan.underline("https://datagvat-mcp-docs.vercel.app")}`,
 	);
 	console.log(
-		`   ${ui.dim("Source code:  ")} ${chalk.cyan.underline("https://github.com/yourusername/datagvat-mcp")}`,
+		`   ${ui.dim("Source code:  ")} ${chalk.cyan.underline("https://github.com/julian-at/datagvat-mcp")}`,
 	);
 	console.log("");
 

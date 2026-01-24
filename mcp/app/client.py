@@ -243,56 +243,6 @@ class PiveauClient:
         result = await self._request("GET", f"/datasets/{dataset_id}/metrics", params={"historic": str(historic).lower()})
         return result if isinstance(result, dict) else {"data": result}
 
-    # Draft operations
-
-    async def list_drafts(self, filter_by_provider: bool = False) -> list[str]:
-        result = await self._request(
-            "GET", "/drafts/datasets", params={"filterByProvider": str(filter_by_provider).lower()}, require_auth=True
-        )
-        return result if isinstance(result, list) else []
-
-    async def create_draft(self, catalogue_id: str, payload: dict[str, Any] | None = None) -> str:
-        response = await self._client.post(
-            "/drafts/datasets",
-            params={"catalogue": catalogue_id},
-            json=payload or {},
-            headers={"X-API-Key": self.api_key, "Content-Type": "application/ld+json"} if self.api_key else {},
-        )
-        if response.status_code == 401:
-            raise PiveauAuthError("API key required", status_code=401)
-        response.raise_for_status()
-
-        location = response.headers.get("Location", "")
-        if location:
-            draft_id: str = location.split("/")[-1]
-            return draft_id
-        try:
-            data = response.json()
-            if isinstance(data, dict):
-                result = data.get("id") or data.get("@id") or ""
-                return str(result)
-            return ""
-        except Exception:
-            return ""
-
-    async def get_draft(self, draft_id: str, catalogue_id: str) -> dict[str, Any]:
-        result = await self._request("GET", f"/drafts/datasets/{draft_id}", params={"catalogue": catalogue_id}, require_auth=True)
-        return result if isinstance(result, dict) else {"data": result}
-
-    async def update_draft(self, draft_id: str, catalogue_id: str, payload: dict[str, Any]) -> None:
-        await self._request(
-            "PUT", f"/drafts/datasets/{draft_id}", params={"catalogue": catalogue_id}, json_body=payload, require_auth=True
-        )
-
-    async def delete_draft(self, draft_id: str, catalogue_id: str) -> None:
-        await self._request("DELETE", f"/drafts/datasets/{draft_id}", params={"catalogue": catalogue_id}, require_auth=True)
-
-    async def publish_draft(self, draft_id: str, catalogue_id: str) -> None:
-        await self._request("PUT", f"/drafts/datasets/publish/{draft_id}", params={"catalogue": catalogue_id}, require_auth=True)
-
-    async def hide_dataset(self, dataset_id: str, catalogue_id: str) -> None:
-        await self._request("PUT", f"/drafts/datasets/hide/{dataset_id}", params={"catalogue": catalogue_id}, require_auth=True)
-
     # Identifier operations
 
     async def check_eligibility(

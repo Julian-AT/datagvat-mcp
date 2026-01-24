@@ -277,51 +277,6 @@ class TestPiveauClientDatasetOperations:
             assert call_kwargs["params"]["historic"] == "true"
 
 
-class TestPiveauClientDraftOperations:
-    @pytest.fixture
-    def client(self) -> PiveauClient:
-        return PiveauClient(base_url="https://api.example.com", api_key="test-key")
-
-    async def test_list_drafts(self, client: PiveauClient):
-        mock_response = MagicMock(spec=httpx.Response)
-        mock_response.status_code = 200
-        mock_response.headers = {"content-type": "application/json"}
-        mock_response.content = b'[]'
-        mock_response.json.return_value = ["draft-1", "draft-2"]
-        mock_response.raise_for_status = MagicMock()
-        
-        with patch.object(client._client, "request", new_callable=AsyncMock) as mock_request:
-            mock_request.return_value = mock_response
-            result = await client.list_drafts()
-            assert result == ["draft-1", "draft-2"]
-
-    async def test_create_draft_with_location_header(self, client: PiveauClient):
-        mock_response = MagicMock(spec=httpx.Response)
-        mock_response.status_code = 201
-        mock_response.headers = {"Location": "/drafts/datasets/new-draft-123"}
-        mock_response.json.return_value = {}
-        mock_response.raise_for_status = MagicMock()
-        
-        with patch.object(client._client, "post", new_callable=AsyncMock) as mock_post:
-            mock_post.return_value = mock_response
-            result = await client.create_draft("test-catalogue", {"@type": "dcat:Dataset"})
-            assert result == "new-draft-123"
-
-    async def test_delete_draft(self, client: PiveauClient):
-        mock_response = MagicMock(spec=httpx.Response)
-        mock_response.status_code = 204
-        mock_response.headers = {"content-type": "application/json"}
-        mock_response.content = b''
-        mock_response.json.return_value = {}
-        mock_response.raise_for_status = MagicMock()
-        
-        with patch.object(client._client, "request", new_callable=AsyncMock) as mock_request:
-            mock_request.return_value = mock_response
-            await client.delete_draft("draft-123", "test-catalogue")
-            call_kwargs = mock_request.call_args.kwargs
-            assert call_kwargs["method"] == "DELETE"
-
-
 class TestPiveauClientVocabularyOperations:
     @pytest.fixture
     def client(self) -> PiveauClient:

@@ -4,7 +4,6 @@ import logging
 import time
 from typing import Any
 
-from fastmcp.exceptions import ToolError
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 
 logger = logging.getLogger(__name__)
@@ -52,51 +51,3 @@ class AuditMiddleware(Middleware):
         except Exception:
             pass
         return f"req-{int(time.time() * 1000)}"
-
-
-class AuthMiddleware(Middleware):
-    """Enforces API key for write operations."""
-
-    WRITE_TOOLS = frozenset({
-        "create_dataset_draft",
-        "update_dataset_draft",
-        "delete_dataset_draft",
-        "publish_dataset",
-        "hide_dataset",
-    })
-
-    async def on_call_tool(self, context: MiddlewareContext, call_next: Any) -> Any:
-        tool_name = self._get_tool_name(context)
-
-        if tool_name in self.WRITE_TOOLS:
-            if not self._has_api_key(context):
-                raise ToolError(
-                    f"API key required for '{tool_name}'. "
-                    "Set AUSTRIA_MCP_PIVEAU_API_KEY environment variable."
-                )
-
-        return await call_next(context)
-
-    def _get_tool_name(self, context: MiddlewareContext) -> str:
-        try:
-            if hasattr(context, "arguments") and context.arguments:
-                name = context.arguments.get("name", "")
-                return str(name) if name is not None else ""
-            if hasattr(context, "message") and context.message:
-                params = getattr(context.message, "params", None)
-                if params:
-                    name = getattr(params, "name", "")
-                    return str(name) if name is not None else ""
-        except Exception:
-            pass
-        return ""
-
-    def _has_api_key(self, context: MiddlewareContext) -> bool:
-        try:
-            if context.fastmcp_context and context.fastmcp_context.request_context:
-                app_state = context.fastmcp_context.request_context.lifespan_context
-                if app_state and hasattr(app_state, "settings"):
-                    return app_state.settings.api_key_value is not None
-        except Exception:
-            pass
-        return False

@@ -1,21 +1,21 @@
 {
   "$schema": "../../../.source/json-schema/docs.meta.json",
   "title": "Documentation",
-  "description": "Complete guides, workflows, and examples",
+  "description": "Complete guides and examples",
   "icon": "BookOpen",
   "root": true,
   "defaultOpen": true,
   "pages": [
     "---Introduction---",
     "index",
-    "getting-started",
+    "installation",
+    "first-query",
+    "quick-reference",
+    "troubleshooting",
     "---Guides---",
     "guides",
-    "workflows",
     "examples",
-    "---Advanced---",
-    "integration",
-    "best-practices",
-    "advanced"
+    "---Integration---",
+    "integration"
   ]
 }

@@ -2,12 +2,11 @@ import logging
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from fastmcp.exceptions import ToolError
 from fastmcp.server.middleware import MiddlewareContext
 
 from app.client import PiveauClient
 from app.config import Settings
-from app.middleware import AuditMiddleware, AuthMiddleware
+from app.middleware import AuditMiddleware
 from app.server import AppState
 
 
@@ -127,125 +126,3 @@ class TestAuditMiddleware:
         ctx.message = None
         name = middleware._get_tool_name(ctx)
         assert name == "unknown"
-
-
-class TestAuthMiddleware:
-    def test_middleware_initialization(self):
-        middleware = AuthMiddleware()
-        assert middleware is not None
-
-    def test_write_tools_defined(self):
-        expected_tools = {
-            "create_dataset_draft",
-            "update_dataset_draft",
-            "delete_dataset_draft",
-            "publish_dataset",
-            "hide_dataset",
-        }
-        assert AuthMiddleware.WRITE_TOOLS == expected_tools
-
-    async def test_allows_read_tools_without_api_key(self):
-        middleware = AuthMiddleware()
-        ctx = create_middleware_context(tool_name="list_catalogues", has_api_key=False)
-        call_next = AsyncMock(return_value="result")
-        result = await middleware.on_call_tool(ctx, call_next)
-        assert result == "result"
-        call_next.assert_called_once()
-
-    async def test_blocks_write_tools_without_api_key(self):
-        middleware = AuthMiddleware()
-        
-        for tool_name in AuthMiddleware.WRITE_TOOLS:
-            ctx = create_middleware_context(tool_name=tool_name, has_api_key=False)
-            call_next = AsyncMock(return_value="result")
-            
-            with pytest.raises(ToolError) as exc_info:
-                await middleware.on_call_tool(ctx, call_next)
-            
-            assert tool_name in str(exc_info.value)
-            assert "API key required" in str(exc_info.value)
-            call_next.assert_not_called()
-
-    async def test_allows_write_tools_with_api_key(self):
-        middleware = AuthMiddleware()
-        
-        for tool_name in AuthMiddleware.WRITE_TOOLS:
-            ctx = create_middleware_context(tool_name=tool_name, has_api_key=True)
-            call_next = AsyncMock(return_value="result")
-            result = await middleware.on_call_tool(ctx, call_next)
-            assert result == "result"
-
-    async def test_error_message_includes_env_var(self):
-        middleware = AuthMiddleware()
-        ctx = create_middleware_context(tool_name="create_dataset_draft", has_api_key=False)
-        call_next = AsyncMock()
-        
-        with pytest.raises(ToolError) as exc_info:
-            await middleware.on_call_tool(ctx, call_next)
-        
-        assert "AUSTRIA_MCP_PIVEAU_API_KEY" in str(exc_info.value)
-
-    def test_get_tool_name_from_arguments(self):
-        middleware = AuthMiddleware()
-        ctx = MagicMock()
-        ctx.arguments = {"name": "my_tool"}
-        ctx.message = None
-        name = middleware._get_tool_name(ctx)
-        assert name == "my_tool"
-
-    def test_has_api_key_true_when_key_set(self):
-        middleware = AuthMiddleware()
-        ctx = create_middleware_context(has_api_key=True)
-        result = middleware._has_api_key(ctx)
-        assert result is True
-
-    def test_has_api_key_false_when_key_missing(self):
-        middleware = AuthMiddleware()
-        ctx = create_middleware_context(has_api_key=False)
-        result = middleware._has_api_key(ctx)
-        assert result is False
-
-    def test_has_api_key_false_on_exception(self):
-        middleware = AuthMiddleware()
-        ctx = MagicMock()
-        ctx.fastmcp_context = None
-        result = middleware._has_api_key(ctx)
-        assert result is False
-
-
-class TestMiddlewareIntegration:
-    async def test_audit_and_auth_chain(self, caplog):
-        audit = AuditMiddleware()
-        auth = AuthMiddleware()
-        ctx = create_middleware_context(tool_name="create_dataset_draft", has_api_key=True)
-        
-        async def final_handler(ctx):
-            return {"created": True}
-        
-        async def auth_wrapper(ctx):
-            return await auth.on_call_tool(ctx, final_handler)
-        
-        with caplog.at_level(logging.INFO):
-            result = await audit.on_call_tool(ctx, auth_wrapper)
-        
-        assert result == {"created": True}
-        assert any("create_dataset_draft" in record.message for record in caplog.records)
-
-    async def test_auth_blocks_before_audit_completes(self):
-        audit = AuditMiddleware()
-        auth = AuthMiddleware()
-        ctx = create_middleware_context(tool_name="delete_dataset_draft", has_api_key=False)
-        tool_executed = False
-        
-        async def final_handler(ctx):
-            nonlocal tool_executed
-            tool_executed = True
-            return {"deleted": True}
-        
-        async def auth_wrapper(ctx):
-            return await auth.on_call_tool(ctx, final_handler)
-        
-        with pytest.raises(ToolError):
-            await audit.on_call_tool(ctx, auth_wrapper)
-        
-        assert tool_executed is False

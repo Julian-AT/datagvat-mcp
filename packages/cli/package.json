@@ -34,11 +34,11 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/yourusername/datagvat-mcp.git",
+		"url": "https://github.com/julian-at/datagvat-mcp.git",
 		"directory": "packages/cli"
 	},
 	"bugs": {
-		"url": "https://github.com/yourusername/datagvat-mcp/issues"
+		"url": "https://github.com/julian-at/datagvat-mcp/issues"
 	},
 	"homepage": "https://datagvat-mcp-docs.vercel.app",
 	"publishConfig": {
