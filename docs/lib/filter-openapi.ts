@@ -31,12 +31,25 @@ const HTTP_METHODS = [
 	'trace',
 ] as const;
 
+/** Media types supported by the docs generator (fumadocs-openapi and deps). */
+const DEFAULT_SUPPORTED_MEDIA_TYPES = [
+	'application/json',
+	'application/xml',
+	'text/xml',
+	'text/plain',
+	'text/html',
+	'multipart/form-data',
+	'application/x-www-form-urlencoded',
+] as const;
+
 export interface FilterOpenAPIOptions {
 	xInternal?: boolean;
 	internalTags?: string[];
 	excludePathPrefixes?: string[];
 	excludeOperationIds?: string[];
 	excludeDescriptionContaining?: string;
+	/** Media types to allow in requestBody.content and responses[].content. Unsupported types (e.g. RDF) are removed or replaced with a fallback. */
+	allowedMediaTypes?: string[];
 }
 
 const DEFAULT_OPTIONS: FilterOpenAPIOptions = {
@@ -45,6 +58,146 @@ const DEFAULT_OPTIONS: FilterOpenAPIOptions = {
 	excludePathPrefixes: [],
 	excludeOperationIds: [],
 };
+
+function normalizeContent(
+	content: Record<string, unknown>,
+	allowed: Set<string>,
+): Record<string, unknown> {
+	const filtered = Object.fromEntries(
+		Object.entries(content).filter(([k]) => allowed.has(k)),
+	);
+	if (Object.keys(filtered).length > 0) return filtered;
+	return {
+		'application/json': {
+			schema: {
+				type: 'string',
+				description: 'RDF or other format (see API description)',
+			},
+		},
+	};
+}
+
+function normalizeOperationContent(
+	op: Operation,
+	allowed: Set<string>,
+): Operation {
+	let req = op.requestBody;
+	if (req && typeof req === 'object' && !Array.isArray(req)) {
+		const reqObj = req as Record<string, unknown>;
+		if (
+			reqObj.content &&
+			typeof reqObj.content === 'object' &&
+			!Array.isArray(reqObj.content)
+		) {
+			req = {
+				...reqObj,
+				content: normalizeContent(
+					reqObj.content as Record<string, unknown>,
+					allowed,
+				),
+			};
+		}
+	}
+	let res = op.responses;
+	if (res && typeof res === 'object' && !Array.isArray(res)) {
+		const newRes: Record<string, unknown> = {};
+		for (const [code, r] of Object.entries(res)) {
+			if (r && typeof r === 'object' && !('$ref' in r)) {
+				const rObj = r as Record<string, unknown>;
+				if (
+					rObj.content &&
+					typeof rObj.content === 'object' &&
+					!Array.isArray(rObj.content)
+				) {
+					newRes[code] = {
+						...rObj,
+						content: normalizeContent(
+							rObj.content as Record<string, unknown>,
+							allowed,
+						),
+					};
+				} else {
+					newRes[code] = r;
+				}
+			} else {
+				newRes[code] = r;
+			}
+		}
+		res = newRes;
+	}
+	return { ...op, requestBody: req, responses: res };
+}
+
+function normalizeComponents(
+	document: Document,
+	allowed: Set<string>,
+): void {
+	const comp = document.components as
+		| { requestBodies?: unknown; responses?: unknown; parameters?: unknown }
+		| undefined;
+	if (!comp || typeof comp !== 'object' || Array.isArray(comp)) return;
+
+	const reqBodies = comp.requestBodies;
+	if (reqBodies && typeof reqBodies === 'object' && !Array.isArray(reqBodies)) {
+		for (const v of Object.values(reqBodies)) {
+			if (v && typeof v === 'object' && !('$ref' in v)) {
+				const obj = v as Record<string, unknown>;
+				if (
+					obj.content &&
+					typeof obj.content === 'object' &&
+					!Array.isArray(obj.content)
+				) {
+					obj.content = normalizeContent(
+						obj.content as Record<string, unknown>,
+						allowed,
+					);
+				}
+			}
+		}
+	}
+
+	const responses = comp.responses;
+	if (responses && typeof responses === 'object' && !Array.isArray(responses)) {
+		for (const v of Object.values(responses)) {
+			if (v && typeof v === 'object' && !('$ref' in v)) {
+				const obj = v as Record<string, unknown>;
+				if (
+					obj.content &&
+					typeof obj.content === 'object' &&
+					!Array.isArray(obj.content)
+				) {
+					obj.content = normalizeContent(
+						obj.content as Record<string, unknown>,
+						allowed,
+					);
+				}
+			}
+		}
+	}
+
+	const parameters = comp.parameters;
+	if (
+		parameters &&
+		typeof parameters === 'object' &&
+		!Array.isArray(parameters)
+	) {
+		for (const v of Object.values(parameters)) {
+			if (v && typeof v === 'object' && !('$ref' in v)) {
+				const obj = v as Record<string, unknown>;
+				if (
+					obj.content &&
+					typeof obj.content === 'object' &&
+					!Array.isArray(obj.content)
+				) {
+					obj.content = normalizeContent(
+						obj.content as Record<string, unknown>,
+						allowed,
+					);
+				}
+			}
+		}
+	}
+}
 
 function isInternalOperation(
 	op: Operation | undefined,
@@ -98,6 +251,9 @@ export function filterOpenAPISchema(
 	options: FilterOpenAPIOptions = {},
 ): Document {
 	const opts = { ...DEFAULT_OPTIONS, ...options };
+	const allowedMedia = new Set(
+		opts.allowedMediaTypes ?? [...DEFAULT_SUPPORTED_MEDIA_TYPES],
+	);
 	const paths = document.paths ?? {};
 	const filteredPaths: Record<string, PathItem> = {};
 
@@ -117,6 +273,9 @@ export function filterOpenAPISchema(
 			if (!op) continue;
 			if (isInternalOperation(op, item, path, opts)) {
 				delete (filteredItem as Record<string, unknown>)[method];
+			} else {
+				(filteredItem as Record<string, unknown>)[method] =
+					normalizeOperationContent(op, allowedMedia);
 			}
 		}
 
@@ -127,6 +286,8 @@ export function filterOpenAPISchema(
 			filteredPaths[path] = filteredItem;
 		}
 	}
+
+	normalizeComponents(document, allowedMedia);
 
 	return {
 		...document,
