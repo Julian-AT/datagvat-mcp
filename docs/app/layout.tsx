@@ -1,13 +1,13 @@
 import './globals.css';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { NextProvider } from 'fumadocs-core/framework/next';
 import type { Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { Body } from '@/app/layout.client';
-import { baseUrl, createMetadata } from '@/lib/metadata';
 import { Provider } from '@/app/provider';
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import { Analytics } from "@vercel/analytics/next"
+import { baseUrl, createMetadata } from '@/lib/metadata';
 
 export const metadata = createMetadata({
   title: {
@@ -43,9 +43,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <NextProvider>
           <Provider>{children}</Provider>
         </NextProvider>
+        <SpeedInsights />
+        <Analytics />
       </Body>
-      <SpeedInsights />
-      <Analytics />
     </html>
   );
 }
