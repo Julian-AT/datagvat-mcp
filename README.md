@@ -4,7 +4,7 @@
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-3776AB.svg)](https://python.org)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-green.svg)](https://modelcontextprotocol.io)
 
-Access Austria's 10,000+ open government datasets through Claude, Cursor, and other MCP-compatible AI tools.
+Access Austria's 60,000+ open government datasets through Claude, Cursor, and other MCP-compatible AI tools.
 
 <p align="center">
   <a href="https://mcp.julianschmidt.cv">Documentation</a> •

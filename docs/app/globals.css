@@ -48,12 +48,12 @@
 
 :root {
   --docs-color: hsl(180, 97%, 26.3%);
-  --api-reference-color: hsl(180, 97%, 26.3%);
+  --api-color: rgb(185, 30, 35);
 }
 
 .dark {
   --docs-color: hsl(180, 97%, 26.3%);
-  --api-reference-color: hsl(180, 97%, 26.3%);
+  --api-color: rgb(185, 30, 35);
 }
 
 .docs {

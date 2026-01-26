@@ -9,7 +9,7 @@ export function getSection(path: string | undefined) {
   return (
     {
       docs: 'docs',
-      'api-reference': 'api-reference',
+      api: 'api',
     }[dir] ?? 'docs'
   );
 }

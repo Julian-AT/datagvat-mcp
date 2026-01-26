@@ -1,7 +1,7 @@
 {
   "$schema": "../../../.source/json-schema/docs.meta.json",
   "title": "Documentation",
-  "description": "Complete guides and examples",
+  "description": "Installation, Guides etc.",
   "icon": "BookOpen",
   "root": true,
   "defaultOpen": true,
