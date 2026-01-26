@@ -75,6 +75,7 @@ Ask your AI assistant questions like:
 uvx datagvat-mcp init      # Install to your AI tools
 uvx datagvat-mcp doctor    # Verify installation
 uvx datagvat-mcp update    # Update configuration
+uvx datagvat-mcp uninstall # Remove from your AI tools
 uvx datagvat-mcp --version # Show version
 ```
 

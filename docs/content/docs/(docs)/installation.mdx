@@ -131,6 +131,7 @@ uvx datagvat-mcp update
 | `uvx datagvat-mcp init -y` | Install without prompts |
 | `uvx datagvat-mcp doctor` | Verify installation health |
 | `uvx datagvat-mcp update` | Update tool configurations |
+| `uvx datagvat-mcp uninstall` | Remove from AI tools |
 | `uvx datagvat-mcp --version` | Show version |
 
 ## Environment Variables
@@ -189,6 +190,14 @@ The installer looks for config files in standard locations. If your tools are in
    - Windows: `%APPDATA%\Claude\logs\`
    - Linux: `~/.config/Claude/logs/`
 
+### macOS: "spawn uvx ENOENT" or "Failed to spawn process"
+
+macOS GUI apps don't inherit your shell's PATH. The installer now handles this automatically by using the absolute path to `uvx`.
+
+**Fix:** Run `uvx datagvat-mcp init` or `uvx datagvat-mcp update` to apply the fix.
+
+If the issue persists, see [Troubleshooting](/docs/troubleshooting) for manual configuration.
+
 ### Connection errors
 
 Test API access directly:
@@ -221,6 +230,10 @@ If you prefer manual setup or need a custom configuration:
       }
     }
     ```
+
+    <Callout type="warn" title="macOS users">
+    macOS GUI apps don't inherit your shell PATH. Replace `"uvx"` with the absolute path from `which uvx` (e.g., `"/Users/yourname/.local/bin/uvx"`).
+    </Callout>
   </Tab>
 
   <Tab value="Continue">
@@ -241,6 +254,10 @@ If you prefer manual setup or need a custom configuration:
       }
     }
     ```
+
+    <Callout type="warn" title="macOS users">
+    macOS GUI apps don't inherit your shell PATH. Replace `"uvx"` with the absolute path from `which uvx`.
+    </Callout>
   </Tab>
 
   <Tab value="Cline">
@@ -256,6 +273,10 @@ If you prefer manual setup or need a custom configuration:
       }
     }
     ```
+
+    <Callout type="warn" title="macOS users">
+    macOS GUI apps don't inherit your shell PATH. Replace `"uvx"` with the absolute path from `which uvx`.
+    </Callout>
   </Tab>
 </Tabs>
 

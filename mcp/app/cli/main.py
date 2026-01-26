@@ -6,10 +6,13 @@ import platform
 import shutil
 import subprocess
 import sys
+from importlib.metadata import version as get_version
 from pathlib import Path
 from typing import Annotated
 
 import typer
+
+__version__ = get_version("datagvat-mcp")
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -45,11 +48,6 @@ TOOL_PATHS = {
     },
 }
 
-MCP_CONFIG = {
-    "command": "uvx",
-    "args": ["datagvat-mcp"],
-}
-
 
 def get_platform() -> str:
     """Get the current platform identifier."""
@@ -59,6 +57,27 @@ def get_platform() -> str:
     elif system == "windows":
         return "win32"
     return "linux"
+
+
+def get_mcp_config() -> dict:
+    """Get MCP configuration with platform-appropriate command.
+
+    On macOS, GUI apps (like Claude Desktop) don't inherit shell PATH,
+    so we must use the absolute path to uvx.
+    """
+    command = "uvx"
+
+    if get_platform() == "darwin":
+        # macOS GUI apps only see /usr/bin:/bin:/usr/sbin:/sbin
+        # They can't find uvx in ~/.local/bin or /opt/homebrew/bin
+        uvx_path = shutil.which("uvx")
+        if uvx_path:
+            command = uvx_path
+
+    return {
+        "command": command,
+        "args": ["datagvat-mcp"],
+    }
 
 
 def expand_path(path: str) -> Path:
@@ -111,7 +130,7 @@ def configure_tool(tool_name: str, config_path: Path) -> tuple[bool, str]:
         if "datagvat" in config["mcpServers"]:
             return False, "Already configured"
 
-        config["mcpServers"]["datagvat"] = MCP_CONFIG
+        config["mcpServers"]["datagvat"] = get_mcp_config()
         config_path.write_text(json.dumps(config, indent=2) + "\n")
         return True, f"Configured at {config_path}"
 
@@ -142,10 +161,10 @@ def main(
     """Austrian Open Government Data MCP Server.
 
     Run without arguments to start the MCP server.
-    Use subcommands (init, doctor, update) to manage installation.
+    Use subcommands (init, doctor, update, uninstall) to manage installation.
     """
     if version:
-        console.print("datagvat-mcp version 1.0.0")
+        console.print(f"datagvat-mcp version {__version__}")
         raise typer.Exit()
 
     # If no subcommand, run the MCP server
@@ -226,6 +245,12 @@ def init(
 
     # Step 3: Configure
     console.print("[cyan][3/3][/cyan] Writing configuration")
+
+    # Show what command will be used (helpful for macOS debugging)
+    mcp_config = get_mcp_config()
+    if mcp_config["command"] != "uvx":
+        console.print(f"[cyan]ℹ[/cyan] [dim]Using absolute path: {mcp_config['command']}[/dim]")
+
     console.print()
 
     configured = 0
@@ -267,7 +292,7 @@ def init(
         console.print("  [dim]●[/dim] Show me health-related open data")
         console.print("  [dim]●[/dim] What datasets have quality score above 80?")
         console.print()
-        console.print(f"[dim]Docs:[/dim] [cyan]https://datagvat-mcp-docs.vercel.app[/cyan]")
+        console.print(f"[dim]Docs:[/dim] [cyan]https://mcp.julianschmidt.cv[/cyan]")
         console.print()
 
 
@@ -334,7 +359,11 @@ def doctor(
     # Check: uvx
     uvx_path = shutil.which("uvx")
     if uvx_path:
-        checks.append(("uvx", True, "Available for running MCP server", None))
+        if get_platform() == "darwin":
+            # On macOS, show the absolute path since GUI apps need it
+            checks.append(("uvx", True, f"Found at {uvx_path}", None))
+        else:
+            checks.append(("uvx", True, "Available for running MCP server", None))
     else:
         checks.append(("uvx", False, "Not found (required)", "Install uv: curl -LsSf https://astral.sh/uv/install.sh | sh"))
 
@@ -426,11 +455,12 @@ def update(
             config = json.loads(info["config_path"].read_text())
             old_config = config.get("mcpServers", {}).get("datagvat", {})
 
-            if old_config == MCP_CONFIG:
+            mcp_config = get_mcp_config()
+            if old_config == mcp_config:
                 console.print(f"[cyan]ℹ[/cyan] [dim]{name}: Already up to date[/dim]")
                 continue
 
-            config["mcpServers"]["datagvat"] = MCP_CONFIG
+            config["mcpServers"]["datagvat"] = mcp_config
             info["config_path"].write_text(json.dumps(config, indent=2) + "\n")
             console.print(f"[green]✓[/green] {name}: Updated")
             updated += 1
@@ -442,6 +472,83 @@ def update(
         console.print(f"[green]✓[/green] Updated {updated} tool(s)")
     else:
         console.print("[cyan]ℹ[/cyan] [dim]No updates needed[/dim]")
+    console.print()
+
+
+@app.command()
+def uninstall(
+    yes: Annotated[bool, typer.Option("--yes", "-y", help="Skip confirmation prompts")] = False,
+    tool: Annotated[str | None, typer.Option("--tool", "-t", help="Uninstall from specific tool only")] = None,
+) -> None:
+    """Remove MCP server configuration from AI tools."""
+    console.print()
+    console.print(Panel.fit(
+        "[bold cyan]Uninstall[/bold cyan]\n[dim]Remove data.gv.at MCP Server from AI tools[/dim]",
+        border_style="cyan",
+    ))
+    console.print()
+
+    tools = detect_tools()
+    configured = {}
+
+    # Find tools with datagvat configured
+    for name, info in tools.items():
+        if info["detected"] and info["config_path"].exists():
+            try:
+                config = json.loads(info["config_path"].read_text())
+                if config.get("mcpServers", {}).get("datagvat"):
+                    configured[name] = info
+            except Exception:
+                pass
+
+    if not configured:
+        console.print("[cyan]ℹ[/cyan] No configured tools found - nothing to uninstall")
+        raise typer.Exit(0)
+
+    console.print(f"[green]✓[/green] Found {len(configured)} tool(s) with datagvat configured")
+    console.print()
+
+    # Select tools to uninstall from
+    if tool:
+        if tool not in configured:
+            console.print(f"[red]✗[/red] Tool '{tool}' not configured with datagvat")
+            raise typer.Exit(1)
+        tools_to_uninstall = {tool: configured[tool]}
+    elif yes:
+        tools_to_uninstall = configured
+    else:
+        tools_to_uninstall = {}
+        for name, info in configured.items():
+            if Confirm.ask(f"  Remove from [cyan]{name}[/cyan]?", default=True):
+                tools_to_uninstall[name] = info
+
+        if not tools_to_uninstall:
+            console.print("[yellow]![/yellow] No tools selected")
+            raise typer.Exit(0)
+
+    console.print()
+
+    # Remove configuration
+    removed = 0
+    for name, info in tools_to_uninstall.items():
+        try:
+            config = json.loads(info["config_path"].read_text())
+            if "mcpServers" in config and "datagvat" in config["mcpServers"]:
+                del config["mcpServers"]["datagvat"]
+                info["config_path"].write_text(json.dumps(config, indent=2) + "\n")
+                console.print(f"[green]✓[/green] {name}: Removed")
+                removed += 1
+            else:
+                console.print(f"[cyan]ℹ[/cyan] [dim]{name}: Already removed[/dim]")
+        except Exception as e:
+            console.print(f"[red]✗[/red] {name}: {e}")
+
+    console.print()
+    if removed > 0:
+        console.print(f"[green]✓[/green] Removed from {removed} tool(s)")
+        console.print("[dim]Restart your AI tools to complete uninstallation[/dim]")
+    else:
+        console.print("[cyan]ℹ[/cyan] [dim]No changes made[/dim]")
     console.print()
 
 

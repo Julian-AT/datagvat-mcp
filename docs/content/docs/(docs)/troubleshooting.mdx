@@ -9,6 +9,52 @@ import { Callout } from "fumadocs-ui/components/callout";
 
 Solutions to common problems when installing or using data.gv.at MCP Server.
 
+## macOS: "spawn uvx ENOENT" or "Failed to spawn process"
+
+**Symptom:** Server works in Terminal but fails in Claude Desktop with these log messages:
+```
+Using MCP server command: uvx with args and path: { paths: ['/usr/bin', '/bin', '/usr/sbin', '/sbin'] }
+Failed to spawn process: No such file or directory
+Server transport closed unexpectedly
+```
+
+**Root cause:** macOS GUI applications (like Claude Desktop) don't inherit your shell's PATH. They only see the minimal system PATH (`/usr/bin:/bin:/usr/sbin:/sbin`), which doesn't include where `uvx` is installed (typically `~/.local/bin` or `/opt/homebrew/bin`).
+
+<Callout type="info">
+**Automatic fix:** The CLI installer (`uvx datagvat-mcp init`) now automatically uses the absolute path to `uvx` on macOS. Run `uvx datagvat-mcp init` or `uvx datagvat-mcp update` to apply the fix.
+</Callout>
+
+### Manual fix (if automatic fix doesn't work)
+
+If the automatic fix doesn't resolve the issue, manually update your config:
+
+**Step 1:** Find your uvx path
+```bash
+which uvx
+```
+Example output: `/Users/yourname/.local/bin/uvx`
+
+**Step 2:** Edit your Claude Desktop config
+```bash
+open ~/Library/Application\ Support/Claude/claude_desktop_config.json
+```
+
+**Step 3:** Replace `"command": "uvx"` with the absolute path:
+```json
+{
+  "mcpServers": {
+    "datagvat": {
+      "command": "/Users/yourname/.local/bin/uvx",
+      "args": ["datagvat-mcp"]
+    }
+  }
+}
+```
+
+**Step 4:** Fully quit Claude Desktop (Cmd+Q, not just close window) and restart.
+
+**Verification:** The "datagvat" server should now appear with a green indicator.
+
 ## Server not appearing in Claude Desktop
 
 **Symptom:** Data.gv.at MCP Server doesn't show in Claude Desktop toolbar after installation
