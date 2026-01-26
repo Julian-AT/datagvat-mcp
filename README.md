@@ -1,10 +1,26 @@
-# data.gv.at MCP Server
+<h1 align="center">data.gv.at MCP Server</h1>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python 3.11+](https://img.shields.io/badge/Python-3.11+-3776AB.svg)](https://python.org)
-[![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-green.svg)](https://modelcontextprotocol.io)
+<p align="center" style="width:80%;margin:0 auto;">
+  <a href="https://mcp.julianschmidt.cv">
+    <img src="./assets/banner.png" alt="data.gv.at MCP Server" style="display:block;margin:0 auto;max-width:100%;width:80%;" />
+  </a>
+</p>
 
-Access Austria's 60,000+ open government datasets through Claude, Cursor, and other MCP-compatible AI tools.
+<p align="center" style="margin-top: 1em;">
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT" />
+  </a>
+  <a href="https://python.org">
+    <img src="https://img.shields.io/badge/Python-3.11+-3776AB.svg" alt="Python 3.11+" />
+  </a>
+  <a href="https://modelcontextprotocol.io">
+    <img src="https://img.shields.io/badge/MCP-Compatible-green.svg" alt="MCP Compatible" />
+  </a>
+</p>
+
+<p align="center">
+  Access Austria's 60,000+ open government datasets through Claude, Cursor, and other MCP-compatible AI tools.
+</p>
 
 <p align="center">
   <a href="https://mcp.julianschmidt.cv">Documentation</a> •
