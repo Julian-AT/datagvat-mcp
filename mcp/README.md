@@ -1,73 +1,117 @@
-# DataGVAT MCP Server
+# datagvat-mcp
 
-MCP server for Austrian Open Government Data via [data.gv.at](https://data.gv.at).
+[![PyPI](https://img.shields.io/pypi/v/datagvat-mcp)](https://pypi.org/project/datagvat-mcp)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11+-3776AB.svg)](https://python.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](../LICENSE)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+MCP server for Austrian Open Government Data ([data.gv.at](https://data.gv.at)).
 
 ## Quick Start
 
 ```bash
-# Install to Claude Desktop (or Continue, Cline)
 uvx datagvat-mcp init
-
-# Check installation
-uvx datagvat-mcp doctor
 ```
 
-That's it! Restart your AI tool and start querying Austrian open data.
+The installer auto-detects and configures your AI tools.
 
-## Commands
+## CLI Commands
 
-```bash
-uvx datagvat-mcp              # Run MCP server (used by AI tools)
-uvx datagvat-mcp init         # Install to AI tools
-uvx datagvat-mcp init -y      # Install without prompts
-uvx datagvat-mcp doctor       # Check installation health
-uvx datagvat-mcp update       # Update configuration
-uvx datagvat-mcp --version    # Show version
-```
+| Command | Description |
+|---------|-------------|
+| `uvx datagvat-mcp` | Run the MCP server |
+| `uvx datagvat-mcp init` | Install to AI tools |
+| `uvx datagvat-mcp init -y` | Install without prompts |
+| `uvx datagvat-mcp doctor` | Check installation health |
+| `uvx datagvat-mcp update` | Update configuration |
+| `uvx datagvat-mcp --version` | Show version |
+
+## Available Tools
+
+**Discovery** — Find and browse datasets
+
+| Tool | Description |
+|------|-------------|
+| `list_catalogues` | List available data catalogues |
+| `get_catalogue` | Get catalogue details |
+| `search_datasets` | Search datasets by query |
+| `get_dataset` | Get dataset metadata |
+| `get_dataset_distributions` | List download formats |
+
+**Analysis** — Assess data quality
+
+| Tool | Description |
+|------|-------------|
+| `get_dataset_metrics` | Get usage metrics |
+| `check_doi_eligibility` | Check DOI registration eligibility |
+| `analyze_dataset_quality` | Calculate quality score (0-100) |
+
+**Preview** — Inspect data contents
+
+| Tool | Description |
+|------|-------------|
+| `preview_distribution` | Preview CSV/JSON data |
+| `analyze_distribution_schema` | Infer column types |
+| `get_distribution_stats` | Get data statistics |
+| `find_related_datasets` | Find similar datasets |
+| `compare_datasets` | Compare two datasets |
+| `get_dataset_lineage` | Trace data lineage |
+
+**Vocabularies** — EU DCAT-AP controlled vocabularies
+
+| Tool | Description |
+|------|-------------|
+| `list_vocabularies` | List available vocabularies |
+| `get_vocabulary` | Get vocabulary details |
+| `search_vocabulary_terms` | Search vocabulary terms |
+| `get_resource_types` | List resource types |
 
 ## Configuration
 
-Environment variables (prefix: `AUSTRIA_MCP_`):
+Environment variables (prefix `AUSTRIA_MCP_`):
 
-| Variable          | Default                                   | Description             |
-| ----------------- | ----------------------------------------- | ----------------------- |
-| `PIVEAU_API_BASE` | `https://data.gv.at/katalog/api/hub/repo` | API base URL            |
-| `REQUEST_TIMEOUT` | `30`                                      | HTTP timeout in seconds |
-| `LOG_LEVEL`       | `INFO`                                    | Logging level           |
-
-## Tools (18 Read-Only)
-
-**Discovery:** `list_catalogues`, `get_catalogue`, `search_datasets`, `get_dataset`, `get_dataset_distributions`
-
-**Analysis:** `get_dataset_metrics`, `check_doi_eligibility`, `analyze_dataset_quality`
-
-**Vocabularies:** `list_vocabularies`, `get_vocabulary`, `search_vocabulary_terms`, `get_resource_types`
-
-**Preview:** `preview_distribution`, `analyze_distribution_schema`, `get_distribution_stats`, `find_related_datasets`, `compare_datasets`, `get_dataset_lineage`
-
-## Example Queries
-
-After installation, try these in Claude Desktop:
-
-- "Find datasets about Vienna population"
-- "Show me health-related open data"
-- "What datasets have quality score above 80?"
-- "Preview the first 10 rows of this CSV"
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PIVEAU_API_BASE` | `https://data.gv.at/katalog/api/hub/repo` | API base URL |
+| `REQUEST_TIMEOUT` | `30` | HTTP timeout (seconds) |
+| `LOG_LEVEL` | `INFO` | Logging level |
 
 ## Development
 
 ```bash
-cd mcp
+# Clone and setup
+git clone https://github.com/julian-at/datagvat-mcp.git
+cd datagvat-mcp/mcp
+
+# Install with dev dependencies
 pip install -e ".[dev]"
+
+# Run tests
 pytest
+
+# Run server locally
+python -m app.server
+```
+
+### Project Structure
+
+```
+mcp/
+├── app/
+│   ├── cli/          # CLI commands (Typer)
+│   ├── tools/        # MCP tool implementations
+│   ├── server.py     # FastMCP server
+│   ├── client.py     # Piveau API client
+│   ├── config.py     # Settings
+│   └── middleware.py # Request middleware
+├── tests/
+└── pyproject.toml
 ```
 
 ## Links
 
-- **Documentation:** https://datagvat-mcp-docs.vercel.app
-- **Repository:** https://github.com/julian-at/datagvat-mcp
+- **Documentation:** [datagvat-mcp.vercel.app](https://datagvat-mcp.vercel.app)
+- **Try Online:** [datagvat-mcp.vercel.app/try](https://datagvat-mcp.vercel.app/try)
+- **data.gv.at:** [data.gv.at](https://data.gv.at)
 
 ## License
 

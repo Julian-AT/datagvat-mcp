@@ -1,16 +1,27 @@
 'use client';
 
 import { useChat } from '@ai-sdk/react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { ChatInput } from './chat-input';
 import { MessageList } from './message-list';
+
+interface ChatInterfaceProps {
+  /** Optional initial query to prefill the input */
+  initialQuery?: string;
+}
 
 /**
  * Main Chat Interface Component
  *
  * Integrates useChat hook with custom message rendering and input components.
  * Manages chat state, error handling, and streaming status.
+ * Supports initial query via props or URL parameter (?q=...).
  */
-export function ChatInterface() {
+export function ChatInterface({ initialQuery }: ChatInterfaceProps) {
+  const searchParams = useSearchParams();
+  const [prefillValue, setPrefillValue] = useState<string>('');
+
   const { messages, sendMessage, status, error, stop, clearError } = useChat({
     api: '/api/chat',
     onError: (err) => console.error('Chat error:', err),
@@ -18,6 +29,22 @@ export function ChatInterface() {
 
   const isStreaming = status === 'streaming';
   const isReady = status === 'ready';
+
+  // Handle initial query from props or URL params
+  useEffect(() => {
+    const queryFromUrl = searchParams.get('q');
+    const query = initialQuery || queryFromUrl;
+
+    if (query && messages.length === 0) {
+      setPrefillValue(query);
+    }
+  }, [searchParams, initialQuery, messages.length]);
+
+  // Clear prefill after it's been used
+  const handleSend = (text: string) => {
+    setPrefillValue('');
+    sendMessage(text);
+  };
 
   return (
     <div className="flex flex-col h-[calc(100vh-12rem)] max-w-4xl mx-auto border rounded-lg shadow-sm">
@@ -31,6 +58,11 @@ export function ChatInterface() {
             <p className="text-sm">
               Ask questions about Austrian open datasets and see real-time tool invocations.
             </p>
+            {prefillValue && (
+              <p className="text-sm mt-4 text-primary">
+                Query ready: Press Enter or click Send to try "{prefillValue}"
+              </p>
+            )}
           </div>
         )}
         <MessageList messages={messages} />
@@ -64,10 +96,11 @@ export function ChatInterface() {
       {/* Input Form */}
       <div className="border-t p-4">
         <ChatInput
-          onSend={(text) => sendMessage(text)}
+          onSend={handleSend}
           disabled={!isReady}
           onStop={isStreaming ? () => stop() : undefined}
           isStreaming={isStreaming}
+          initialValue={prefillValue}
         />
       </div>
     </div>

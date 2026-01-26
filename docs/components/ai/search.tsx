@@ -307,7 +307,6 @@ export function AISearch({ children }: { children: ReactNode }) {
 }
 
 export function AISearchTrigger() {
-  // biome-ignore lint/style/noNonNullAssertion: Context guaranteed to exist within SearchProvider
   const { open, setOpen } = use(Context)!;
 
   return (
@@ -323,13 +322,12 @@ export function AISearchTrigger() {
       onClick={() => setOpen(true)}
     >
       <MessageCircleIcon className="size-4.5" />
-      MCP Chat
+      Ask AI
     </button>
   );
 }
 
 export function AISearchPanel() {
-  // biome-ignore lint/style/noNonNullAssertion: Context guaranteed to exist within SearchProvider
   const { open, setOpen } = use(Context)!;
   const chat = useChatContext();
 

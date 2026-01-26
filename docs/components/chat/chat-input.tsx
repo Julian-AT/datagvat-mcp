@@ -1,26 +1,44 @@
 'use client';
 
-import { type FormEvent, useRef, useState } from 'react';
+import { type FormEvent, useEffect, useRef, useState } from 'react';
+
+interface ChatInputProps {
+  onSend: (text: string) => void;
+  disabled: boolean;
+  onStop?: () => void;
+  isStreaming?: boolean;
+  /** Initial value to prefill the input */
+  initialValue?: string;
+}
 
 /**
  * Chat Input Component
  *
  * Handles user text input with send/stop functionality.
  * Manages input state and focus for smooth UX.
+ * Supports prefilling via initialValue prop.
  */
 export function ChatInput({
   onSend,
   disabled,
   onStop,
   isStreaming,
-}: {
-  onSend: (text: string) => void;
-  disabled: boolean;
-  onStop?: () => void;
-  isStreaming?: boolean;
-}) {
-  const [input, setInput] = useState('');
+  initialValue = '',
+}: ChatInputProps) {
+  const [input, setInput] = useState(initialValue);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Update input when initialValue changes
+  useEffect(() => {
+    if (initialValue) {
+      setInput(initialValue);
+      // Focus and select the prefilled text
+      setTimeout(() => {
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }, 100);
+    }
+  }, [initialValue]);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

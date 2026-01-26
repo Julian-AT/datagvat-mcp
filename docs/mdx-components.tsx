@@ -7,6 +7,7 @@ import * as icons from 'lucide-react';
 import type { MDXComponents } from 'mdx/types';
 import { Mermaid } from '@/components/mdx/mermaid';
 import { APIPage } from '@/components/api-page';
+import { TryExample, TryExamples } from '@/components/try-example';
 
 export function getMDXComponents(components?: MDXComponents) {
   return {
@@ -20,6 +21,8 @@ export function getMDXComponents(components?: MDXComponents) {
     Steps,
     Mermaid,
     APIPage,
+    TryExample,
+    TryExamples,
     ...components,
   } satisfies MDXComponents;
 }

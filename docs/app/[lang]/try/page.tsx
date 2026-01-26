@@ -1,4 +1,18 @@
+import { Suspense } from 'react';
 import { ChatInterface } from '@/components/chat/chat-interface';
+
+function ChatLoader() {
+  return (
+    <div className="flex flex-col h-[calc(100vh-12rem)] max-w-4xl mx-auto border rounded-lg shadow-sm">
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-center text-muted-foreground">
+          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+          <p className="text-sm">Loading chat interface...</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function TryPage() {
   return (
@@ -10,7 +24,9 @@ export default function TryPage() {
           real-time tool invocations.
         </p>
       </div>
-      <ChatInterface />
+      <Suspense fallback={<ChatLoader />}>
+        <ChatInterface />
+      </Suspense>
     </main>
   );
 }
