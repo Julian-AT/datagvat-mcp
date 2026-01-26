@@ -6,7 +6,7 @@
 
 Documentation site for the data.gv.at MCP Server.
 
-**Live site:** [datagvat-mcp.vercel.app](https://datagvat-mcp.vercel.app)
+**Live site:** [mcp.julianschmidt.cv](https://mcp.julianschmidt.cv)
 
 ## Development
 
@@ -32,10 +32,8 @@ docs/
 │   ├── api/           # API reference
 │   └── examples/      # Code examples
 ├── app/               # Next.js app router
-│   ├── [lang]/        # i18n routes (en, de)
-│   └── api/           # API routes (chat, search)
+│   └── [lang]/        # i18n routes (en, de)
 ├── components/
-│   ├── chat/          # Interactive chat interface
 │   ├── ai/            # AI-related components
 │   └── ui/            # shadcn UI components
 └── lib/               # Utilities and config
@@ -44,10 +42,9 @@ docs/
 ## Key Features
 
 - **i18n** — English and German translations
-- **Interactive Chat** — Try the MCP server at `/try`
 - **OpenAPI Docs** — Auto-generated API reference
 - **Full-text Search** — Client-side search with Orama
-- **MDX Components** — TryExample, Mermaid, code blocks with syntax highlighting
+- **MDX Components** — Mermaid diagrams, code blocks with syntax highlighting
 
 ## Writing Content
 
@@ -66,17 +63,19 @@ Content with **markdown** and <Components />.
 ### Custom Components
 
 ```mdx
-{/* Interactive example that links to /try with prefilled query */}
-<TryExample query="Find datasets about Vienna" />
-
-{/* Grid of examples */}
-<TryExamples>
-  <TryExample query="Search Vienna" />
-  <TryExample query="Preview CSV" />
-</TryExamples>
-
 {/* Mermaid diagrams */}
 <Mermaid chart={`graph TD; A-->B;`} />
+
+{/* Callouts */}
+<Callout type="info" title="Screenshot placeholder">
+Description of what the screenshot will show.
+</Callout>
+
+{/* Tabs */}
+<Tabs items={['macOS', 'Windows']}>
+  <Tab value="macOS">macOS content</Tab>
+  <Tab value="Windows">Windows content</Tab>
+</Tabs>
 ```
 
 ## Tech Stack
@@ -87,7 +86,6 @@ Content with **markdown** and <Components />.
 | [Fumadocs](https://fumadocs.vercel.app) | Documentation framework |
 | [Tailwind CSS 4](https://tailwindcss.com) | Styling |
 | [shadcn/ui](https://ui.shadcn.com) | UI components |
-| [Vercel AI SDK](https://sdk.vercel.ai) | Chat interface |
 | [Shiki](https://shiki.style) | Syntax highlighting |
 
 ## Scripts

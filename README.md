@@ -7,9 +7,8 @@
 Access Austria's 10,000+ open government datasets through Claude, Cursor, and other MCP-compatible AI tools.
 
 <p align="center">
-  <a href="https://datagvat-mcp.vercel.app">Documentation</a> •
-  <a href="https://datagvat-mcp.vercel.app/try">Try Online</a> •
-  <a href="https://datagvat-mcp.vercel.app/docs/installation">Installation</a>
+  <a href="https://mcp.julianschmidt.cv">Documentation</a> •
+  <a href="https://mcp.julianschmidt.cv/docs/installation">Installation</a>
 </p>
 
 ---
@@ -75,12 +74,11 @@ datagvat-mcp/
 
 ## Documentation
 
-Full documentation at **[datagvat-mcp.vercel.app](https://datagvat-mcp.vercel.app)**
+Full documentation at **[mcp.julianschmidt.cv](https://mcp.julianschmidt.cv)**
 
-- [Installation Guide](https://datagvat-mcp.vercel.app/docs/installation)
-- [Your First Query](https://datagvat-mcp.vercel.app/docs/first-query)
-- [API Reference](https://datagvat-mcp.vercel.app/docs/api)
-- [Try Online](https://datagvat-mcp.vercel.app/try)
+- [Installation Guide](https://mcp.julianschmidt.cv/docs/installation)
+- [Your First Query](https://mcp.julianschmidt.cv/docs/first-query)
+- [API Reference](https://mcp.julianschmidt.cv/docs/api)
 
 ## Contributing
 

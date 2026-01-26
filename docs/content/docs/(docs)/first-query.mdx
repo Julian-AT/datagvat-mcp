@@ -12,8 +12,15 @@ Once you've [installed the MCP server](/docs/installation), you're ready to star
 
 Ask your AI assistant in natural language:
 
-<TryExample query="Find datasets about Vienna population" />
+```
+Find datasets about Vienna population
+```
 
+![Claude Desktop showing a search for Vienna population datasets. The assistant uses the search_datasets tool and returns results including Bevölkerung Wien 2020-2024 with quality score 92, Einwohner nach Bezirken with score 87, and Demografische Entwicklung Wien with score 81. Each result shows title, publisher, formats available, and quality score.](/optimized/screenshots/placeholder.webp)
+
+<Callout type="info" title="Screenshot placeholder">
+Screenshot showing Claude Desktop with data.gv.at MCP Server search results for Vienna population datasets.
+</Callout>
 
 The MCP server searches data.gv.at and returns matching datasets with:
 
@@ -29,17 +36,23 @@ Results are ranked by relevance and quality, so the best datasets appear first.
 Once you find an interesting dataset, ask for more information:
 
 ```
-Tell me more about [dataset title]
+Tell me more about Bevölkerung Wien 2020-2024
 ```
 
 You'll get the full metadata: license terms, temporal coverage, spatial extent, update frequency, and all available download formats.
+
+![Claude Desktop showing detailed metadata for a dataset including title, description, publisher contact, license CC BY 4.0, temporal coverage 2020-2024, spatial coverage Vienna, and available distributions in CSV and JSON formats.](/optimized/screenshots/placeholder.webp)
+
+<Callout type="info" title="Screenshot placeholder">
+Screenshot showing Claude Desktop displaying full dataset metadata including license, coverage, and download options.
+</Callout>
 
 ## Preview the Data
 
 Before downloading a large file, preview its contents:
 
 ```
-Preview the CSV from [dataset title]
+Preview the CSV from Bevölkerung Wien 2020-2024
 ```
 
 The MCP server fetches the first rows and shows you:
@@ -48,62 +61,35 @@ The MCP server fetches the first rows and shows you:
 - Sample values from each column
 - Total row count estimate
 
-This helps you verify the data structure matches your needs without downloading the entire file.
+![Claude Desktop showing a data preview with column headers Bezirk, Jahr, Quartal, Bevölkerung and sample rows of data. The preview shows schema inference detecting string and integer types, with 2,400 total rows estimated.](/optimized/screenshots/placeholder.webp)
 
-## Example Conversation
-
-Here's a realistic session exploring energy data:
-
-<Callout type="info">
-**You:** Find datasets about renewable energy in Austria
-
-**Assistant:** I found 23 datasets related to renewable energy. The top results are:
-
-1. **Stromerzeugung aus erneuerbaren Energien** (Statistik Austria) — Monthly electricity production from solar, wind, hydro, and biomass. Quality: 92/100. Formats: CSV, JSON.
-
-2. **Photovoltaik-Anlagen Österreich** (E-Control) — Registry of solar installations by federal state. Quality: 87/100. Format: CSV.
-
-3. **Windkraftanlagen Standorte** (BMNT) — Wind turbine locations with capacity data. Quality: 78/100. Formats: GeoJSON, CSV.
-
-**You:** Preview the first one
-
-**Assistant:** Here's a preview of "Stromerzeugung aus erneuerbaren Energien":
-
-| Jahr | Monat | Quelle | Erzeugung_GWh |
-|------|-------|--------|---------------|
-| 2024 | 1 | Solar | 142.3 |
-| 2024 | 1 | Wind | 891.2 |
-| 2024 | 1 | Wasserkraft | 2341.8 |
-
-The dataset has 4 columns and approximately 2,400 rows covering 2015-2024.
-
-**You:** What license is it under?
-
-**Assistant:** This dataset uses CC BY 4.0 (Creative Commons Attribution), so you can use it freely for any purpose as long as you credit Statistik Austria.
+<Callout type="info" title="Screenshot placeholder">
+Screenshot showing Claude Desktop with CSV data preview, schema inference, and row count estimate.
 </Callout>
+
+This helps you verify the data structure matches your needs without downloading the entire file.
 
 ## Tips for Better Results
 
-Try these example queries:
+**Be specific about location:**
+```
+Datasets about traffic in Graz
+```
 
-<TryExamples>
-  <TryExample
-    query="Datasets about traffic in Graz"
-    label="Be specific about location"
-  />
-  <TryExample
-    query="Time series data on unemployment rates"
-    label="Specify the data type"
-  />
-  <TryExample
-    query="Show me high-quality datasets (score above 80) about education"
-    label="Ask about quality"
-  />
-  <TryExample
-    query="Find CSV datasets about air quality"
-    label="Filter by format"
-  />
-</TryExamples>
+**Specify the data type:**
+```
+Time series data on unemployment rates
+```
+
+**Ask about quality:**
+```
+Show me high-quality datasets (score above 80) about education
+```
+
+**Filter by format:**
+```
+Find CSV datasets about air quality
+```
 
 ## What You Can Ask
 
@@ -124,4 +110,3 @@ The MCP server supports these types of queries:
 - [Searching Guide](/docs/guides/searching) — Advanced search techniques
 - [Data Preview](/docs/guides/data-preview) — Preview options and limits
 - [Quality Metrics](/docs/guides/quality-metrics) — Understanding quality scores
-- [Try Online](/try) — Test queries in your browser

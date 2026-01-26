@@ -3,10 +3,8 @@
   "pages": [
     "(docs)",
     "api",
-    "---Interactive---",
-    "external:[Try MCP Server](/try)",
     "---[ExternalLink]Resources---",
     "[Official data.gv.at API](https://www.data.gv.at/katalog/api/3/)",
-    "[GitHub Repository](https://github.com/datagvat/datagvat-mcp)"
+    "[GitHub Repository](https://github.com/julian-at/datagvat-mcp)"
   ]
 }

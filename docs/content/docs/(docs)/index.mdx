@@ -1,42 +1,56 @@
 ---
 title: Quick Start
-description: Getting Started with data.gv.at MCP Server
+description: Get started with data.gv.at MCP Server
 icon: Rocket
 ---
 
-Welcome to the data.gv.at MCP Server documentation. This comprehensive guide will help you integrate and use Austria's official open data platform through the Model Context Protocol.
+Access Austria's 10,000+ open government datasets through Claude Desktop and other MCP-compatible AI tools.
 
-## What You'll Find Here
+## Installation
+
+```bash
+uvx datagvat-mcp init
+```
+
+The installer detects your AI tools and configures them automatically. See the [Installation Guide](/docs/installation) for details.
+
+## What You Can Do
 
 <Cards>
   <Card
-    title="Getting Started"
-    description="Quick installation and first query guide"
-    href="/docs/getting-started"
-    icon={<Rocket className="text-purple-400" />}
+    title="Installation"
+    description="One-command setup for Claude Desktop, Continue, and Cline"
+    href="/docs/installation"
+  />
+  <Card
+    title="Your First Query"
+    description="Search, explore, and preview datasets"
+    href="/docs/first-query"
   />
   <Card
     title="Guides"
-    description="In-depth guides for all major features"
+    description="Search techniques, data preview, quality metrics"
     href="/docs/guides"
-    icon={<Book className="text-green-400" />}
   />
   <Card
-    title="Workflows"
-    description="Complete workflows for common use cases"
-    href="/docs/workflows"
-    icon={<Workflow className="text-blue-400" />}
-  />
-  <Card
-    title="Examples"
-    description="Practical examples and code samples"
-    href="/docs/examples"
-    icon={<Lightbulb className="text-yellow-400" />}
+    title="API Reference"
+    description="Complete tool documentation"
+    href="/docs/api"
   />
 </Cards>
 
+## Example Query
+
+Ask Claude Desktop:
+
+```
+Find datasets about Vienna population
+```
+
+The MCP server searches data.gv.at, ranks results by quality, and returns structured metadata including download links.
+
 ## Next Steps
 
-New to the data.gv.at MCP Server? Start with our [Getting Started](/docs/getting-started) guide to set up your environment and make your first query.
-
-Looking for specific functionality? Browse our [Guides](/docs/guides) section for detailed feature documentation.
+1. [Install the MCP server](/docs/installation)
+2. [Run your first query](/docs/first-query)
+3. [Learn advanced search techniques](/docs/guides/searching)

@@ -1,32 +1,73 @@
 ---
 title: API Reference
-description: Complete MCP tools reference and OpenAPI documentation
+description: Complete MCP tools reference
 ---
 
-Complete reference documentation for the data.gv.at MCP Server API.
+Complete reference documentation for the data.gv.at MCP Server tools.
 
-## Available References
+## Tool Categories
 
-<Cards>
-  <Card
-    title="Tools Reference"
-    description="Complete reference for all 25 MCP tools"
-    href="/docs/api/tools"
-  />
-  <Card
-    title="OpenAPI Documentation"
-    description="Auto-generated API documentation from data.gv.at OpenAPI schema"
-    href="/docs/api/openapi"
-  />
-</Cards>
+The MCP server provides 18 specialized tools organized by functionality:
 
-## About the API
+### Discovery Tools
 
-The data.gv.at MCP Server provides 25 specialized tools for interacting with Austria's official open data platform. These tools are organized by functionality:
+| Tool | Description |
+|------|-------------|
+| `list_catalogues` | List available data catalogues |
+| `get_catalogue` | Get catalogue details |
+| `search_datasets` | Search datasets by query and filters |
+| `get_dataset` | Get complete dataset metadata |
+| `get_dataset_distributions` | List available download formats |
 
-- **Search & Discovery**: Find datasets across Austria's data catalog
-- **Data Access**: Preview, download, and analyze dataset contents
-- **Metadata & Quality**: Assess data quality and completeness
-- **Workflow Support**: Advanced features for research and analysis
+### Analysis Tools
 
-For detailed tool specifications, see the [Tools Reference](/docs/api/tools) section.
+| Tool | Description |
+|------|-------------|
+| `get_dataset_metrics` | Get usage metrics |
+| `check_doi_eligibility` | Check DOI registration eligibility |
+| `analyze_dataset_quality` | Calculate quality score (0-100) |
+
+### Preview Tools
+
+| Tool | Description |
+|------|-------------|
+| `preview_distribution` | Preview CSV/JSON data |
+| `analyze_distribution_schema` | Infer column types |
+| `get_distribution_stats` | Get data statistics |
+| `find_related_datasets` | Find similar datasets |
+| `compare_datasets` | Compare two datasets |
+| `get_dataset_lineage` | Trace data lineage |
+
+### Vocabulary Tools
+
+| Tool | Description |
+|------|-------------|
+| `list_vocabularies` | List EU DCAT-AP vocabularies |
+| `get_vocabulary` | Get vocabulary details |
+| `search_vocabulary_terms` | Search vocabulary terms |
+| `get_resource_types` | List resource types |
+
+## Common Parameters
+
+Most search and list tools accept these parameters:
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `limit` | integer | 20 | Maximum results (1-100) |
+| `offset` | integer | 0 | Skip first N results |
+| `sort_by` | string | varies | Sort order |
+
+## Quality Scoring
+
+Quality scores (0-100) are calculated based on metadata completeness:
+
+- **90-100**: Complete metadata with descriptions, contact info, license
+- **70-89**: Good metadata coverage
+- **50-69**: Basic metadata present
+- **0-49**: Minimal metadata
+
+## Next Steps
+
+- [Installation](/docs/installation) — Set up the MCP server
+- [First Query](/docs/first-query) — Try searching for datasets
+- [Searching Guide](/docs/guides/searching) — Advanced search techniques

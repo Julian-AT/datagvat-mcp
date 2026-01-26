@@ -109,8 +109,7 @@ mcp/
 
 ## Links
 
-- **Documentation:** [datagvat-mcp.vercel.app](https://datagvat-mcp.vercel.app)
-- **Try Online:** [datagvat-mcp.vercel.app/try](https://datagvat-mcp.vercel.app/try)
+- **Documentation:** [mcp.julianschmidt.cv](https://mcp.julianschmidt.cv)
 - **data.gv.at:** [data.gv.at](https://data.gv.at)
 
 ## License
