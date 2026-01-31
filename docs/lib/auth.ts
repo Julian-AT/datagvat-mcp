@@ -19,7 +19,7 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
 });
 
-export async function createGuestSession() {
+export async function createGuestUser() {
   const guestId = crypto.randomUUID();
 
   const [guestUser] = await db.insert(user).values({
@@ -29,10 +29,5 @@ export async function createGuestSession() {
     emailVerified: null,
   }).returning();
 
-  const session = await auth.api.createSession({
-    userId: guestUser.id,
-    expiresIn: 60 * 60 * 24 * 7,
-  });
-
-  return { user: guestUser, session };
+  return guestUser;
 }

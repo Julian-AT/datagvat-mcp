@@ -82,5 +82,5 @@ export const messages = pgTable("messages", {
 }, (table) => [
   index("conversation_messages_idx").on(table.conversationId),
   index("message_created_idx").on(table.createdAt),
-  index("message_parts_gin_idx").on(table.parts).using("gin").op("jsonb_path_ops"),
+  index("message_parts_gin_idx").using("gin", table.parts),
 ]);
