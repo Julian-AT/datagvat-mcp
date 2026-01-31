@@ -174,11 +174,12 @@ Plans:
 6. User conversation with 50+ images loads in under 2 seconds (images stored as blob URLs, not inline base64)
 7. Guest user returns after 24 hours and resumes previous conversation via session cookie
 
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 14-01: TBD
-- [ ] 14-02: TBD
+- [ ] 14-01-PLAN.md — Database schema and migrations (Neon + Drizzle, AI SDK parts pattern, GIN indexes)
+- [ ] 14-02-PLAN.md — Session management (better-auth with anonymous sessions, 7-day cookies)
+- [ ] 14-03-PLAN.md — Message persistence API (CRUD operations, cursor pagination, blob storage)
 
 ### Phase 15: Daytona MCP Integration & Sandbox Setup
 **Goal**: Both data.gv.at and Daytona MCP servers connect reliably with health checks, and sandboxes clean up automatically to prevent resource exhaustion
@@ -321,7 +322,7 @@ v2.2 phases execute in numeric order: 14 → 15 → 16 → 17 → 18 → 19 → 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 14. Database Foundation | 0/TBD | Not started | - |
+| 14. Database Foundation | 0/3 | Not started | - |
 | 15. Daytona MCP Integration | 0/TBD | Not started | - |
 | 16. Multi-MCP Orchestration | 0/TBD | Not started | - |
 | 17. Code Execution Pipeline | 0/TBD | Not started | - |
@@ -331,4 +332,4 @@ v2.2 phases execute in numeric order: 14 → 15 → 16 → 17 → 18 → 19 → 
 
 ---
 
-*Last updated: 2026-01-31 after v2.2 roadmap creation*
+*Last updated: 2026-01-31 after Phase 14 planning*
