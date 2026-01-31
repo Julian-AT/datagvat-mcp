@@ -134,13 +134,62 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (To be filled by roadmapper) | | |
+| PERSIST-01 | Phase 14 | Pending |
+| PERSIST-02 | Phase 14 | Pending |
+| PERSIST-03 | Phase 14 | Pending |
+| PERSIST-04 | Phase 14 | Pending |
+| PERSIST-06 | Phase 14 | Pending |
+| PERSIST-07 | Phase 14 | Pending |
+| SEC-03 | Phase 14 | Pending |
+| MCP-01 | Phase 15 | Pending |
+| MCP-02 | Phase 15 | Pending |
+| MCP-03 | Phase 15 | Pending |
+| MCP-04 | Phase 15 | Pending |
+| MCP-05 | Phase 15 | Pending |
+| EXEC-04 | Phase 15 | Pending |
+| EXEC-06 | Phase 15 | Pending |
+| EXEC-10 | Phase 15 | Pending |
+| SEC-04 | Phase 15 | Pending |
+| AI-01 | Phase 16 | Pending |
+| AI-02 | Phase 16 | Pending |
+| AI-03 | Phase 16 | Pending |
+| AI-04 | Phase 16 | Pending |
+| AI-05 | Phase 16 | Pending |
+| DATA-01 | Phase 16 | Pending |
+| DATA-02 | Phase 16 | Pending |
+| DATA-03 | Phase 16 | Pending |
+| DATA-04 | Phase 16 | Pending |
+| DATA-05 | Phase 16 | Pending |
+| EXEC-01 | Phase 17 | Pending |
+| EXEC-05 | Phase 17 | Pending |
+| EXEC-07 | Phase 17 | Pending |
+| EXEC-08 | Phase 17 | Pending |
+| EXEC-09 | Phase 17 | Pending |
+| SEC-01 | Phase 18 | Pending |
+| SEC-02 | Phase 18 | Pending |
+| SEC-05 | Phase 18 | Pending |
+| SEC-06 | Phase 18 | Pending |
+| EXEC-02 | Phase 18 | Pending |
+| EXEC-03 | Phase 18 | Pending |
+| PERSIST-05 | Phase 18 | Pending |
+| VIZ-01 | Phase 19 | Pending |
+| VIZ-02 | Phase 19 | Pending |
+| VIZ-03 | Phase 19 | Pending |
+| VIZ-04 | Phase 19 | Pending |
+| VIZ-05 | Phase 19 | Pending |
+| CHAT-01 | Phase 20 | Pending |
+| CHAT-02 | Phase 20 | Pending |
+| CHAT-03 | Phase 20 | Pending |
+| CHAT-04 | Phase 20 | Pending |
+| CHAT-05 | Phase 20 | Pending |
+| CHAT-06 | Phase 20 | Pending |
+| DATA-06 | Phase 20 | Pending |
 
 **Coverage:**
-- v2.2 requirements: 44 total (6 CHAT + 6 DATA + 10 EXEC + 5 VIZ + 7 PERSIST + 5 AI + 5 MCP + 6 SEC)
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 44
+- v2.2 requirements: 50 total (6 CHAT + 6 DATA + 10 EXEC + 5 VIZ + 7 PERSIST + 5 AI + 5 MCP + 6 SEC)
+- Mapped to phases: 50 (100% coverage)
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-01-31*
-*Last updated: 2026-01-31 after requirements definition*
+*Last updated: 2026-01-31 after v2.2 roadmap creation*

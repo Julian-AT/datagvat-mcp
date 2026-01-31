@@ -5,17 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-31)
 
 **Core value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
-
-**Current focus:** Milestone v2.2 - Interactive Data Playground
+**Current focus:** Phase 14 - Database Foundation & Message Persistence
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements for v2.2 milestone
-Last activity: 2026-01-31 — Milestone v2.2 started
+Phase: 14 of 20 (Database Foundation & Message Persistence)
+Plan: 0 of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-01-31 — v2.2 roadmap created
 
-Progress: [          ] 0% (requirements definition in progress)
+Progress: [░░░░░░░░░░] 0% (0/7 phases complete in v2.2)
 
 ## Performance Metrics
 
@@ -27,26 +26,27 @@ Progress: [          ] 0% (requirements definition in progress)
 
 **v2.2 Milestone (Starting):**
 - Plans completed: 0
-- Phase: Requirements definition
+- Phase: Roadmap created, ready to plan Phase 14
+- Average duration: TBD
 
-*Metrics will update as v2.2 execution progresses*
+**Recent Trend:**
+- v2.1 completed with 15 plans across 4 phases
+- Previous milestone velocity: ~15 min/plan average
+- Trend: TBD for v2.2 (awaiting first plan)
+
+*Updated after v2.2 roadmap creation*
 
 ## Accumulated Context
 
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
+Recent decisions affecting current work:
 
-**v2.2 milestone decisions (pending validation):**
-- Vercel AI Gateway — Single endpoint for 100+ models, no separate API keys needed
-- Daytona MCP — Secure code execution via CLI stdio transport
-- Neon Postgres — Serverless database with generous free tier
-- Guest mode only — Simplify scope, defer authentication to v3.0
-
-**Recent v2.1 decisions (validated):**
-- Vercel AI SDK for AI features — Mature, streaming support, MCP tool integration (proven in /try page)
-- Fumadocs for documentation — Modern framework, i18n support, interactive components (foundation for v2.2)
-- Bun runtime — Fast builds essential for meeting <5 min constraint
+- v2.2: Vercel AI Gateway - Single endpoint for 100+ models, no separate API keys (pending verification)
+- v2.2: Daytona MCP for sandboxes - Secure code execution, CLI-based integration (pending verification)
+- v2.2: Neon Postgres for persistence - Serverless, generous free tier, Drizzle ORM support (pending implementation)
+- v2.2: Guest mode only (no auth) - Simplify v2.2 scope, defer user accounts to v3.0 (pending implementation)
 
 ### Pending Todos
 
@@ -54,29 +54,34 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - 56 search queries for manual testing (non-blocking)
 - 5-7 Claude Desktop screenshots (non-blocking)
 
-**v2.2 research needed:**
-- AI SDK 6 useChat hook with MCP tools (CRITICAL)
-- Vercel AI Gateway setup and configuration
-- Daytona MCP Server tools and CLI integration
-- Multiple MCP server connection patterns
-- Tool approval pattern (experimental_needsApproval)
+**v2.2 phase planning:**
+- Phase 14: Database schema design (execution_status column for approval bypass prevention)
+- Phase 15: Daytona MCP verification (CRITICAL - confirm CLI availability, define fallback)
+- Phase 18: Security patterns (approval flow, replay attack prevention)
 
 ### Blockers/Concerns
 
-**v2.2 technical unknowns:**
-- Multiple MCP servers to single AI agent connection pattern
-- Daytona MCP installation and configuration process
-- Vercel AI Gateway authentication setup
-- Message persistence with AI SDK 6 parts array pattern
-- Base64 image rendering performance for large visualizations
+**Phase 15 (Daytona MCP):**
+- LOW confidence on Daytona MCP server availability - needs verification during Phase 15 planning
+- Fallback to restricted Python sandbox (subprocess + RestrictedPython) if Daytona unavailable
+- Research task required: Verify `daytona mcp` command exists and document CLI integration
+
+**Phase 14 (Database):**
+- Image storage strategy critical: NEVER store base64 in JSONB (use blob URLs)
+- Performance collapse risk if large visualizations stored inline
+- Approval bypass via message replay must be prevented by schema design (execution_status column)
+
+**Phase 15 (Sandbox Cleanup):**
+- Sandbox resource exhaustion requires cleanup logic (15-minute timeout)
+- Background job needed for orphaned sandbox cleanup
 
 ## Session Continuity
 
-Last session: 2026-01-31 (milestone v2.2 initialization)
-Stopped at: Requirements definition starting
+Last session: 2026-01-31
+Stopped at: v2.2 roadmap created, ready to plan Phase 14
 Resume file: None
-Next step: Research domain ecosystem for v2.2 features
+Next step: /gsd:plan-phase 14
 
 ---
 
-*Last updated: 2026-01-31 after v2.2 milestone initialization*
+*v2.2 milestone: Interactive Data Playground - Transform docs into chat-based data exploration with code execution, visualizations, and multi-MCP orchestration*

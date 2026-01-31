@@ -1,8 +1,8 @@
-# Roadmap: Austria MCP v2.1
+# Roadmap: Austria MCP
 
 ## Overview
 
-Milestone v2.1 enhances the production documentation platform with four major capabilities: simplified navigation from 8 tabs to 3, RAG-powered documentation chat for natural language Q&A, comprehensive video tutorials via Remotion, and shadcn-quality CLI improvements. This builds on v2.0's solid foundation of 112 MDX files and modern tooling to deliver a best-in-class documentation experience.
+Multi-milestone roadmap transforming Austrian Open Government Data access from MCP server to interactive data playground. v1.0-v2.1 delivered comprehensive documentation infrastructure with AI-powered features. v2.2 adds chat-based data exploration with code execution in Daytona sandboxes, inline visualizations, and multi-MCP orchestration across 60,000+ datasets.
 
 ## Milestones
 
@@ -10,7 +10,8 @@ Milestone v2.1 enhances the production documentation platform with four major ca
 - ✅ **v1.1 Documentation Excellence** - Phases 10, 16, 17 (shipped 2026-01-18)
 - ✅ **v1.2 Documentation Rebuild** - Phases 18-24 (shipped 2026-01-20)
 - ✅ **v2.0 Professional Documentation System** - Phases 2-9 (shipped 2026-01-22)
-- 🚧 **v2.1 Documentation Excellence & AI Features** - Phases 10-13 (in progress)
+- ✅ **v2.1 Documentation Excellence & AI Features** - Phases 10-13 (shipped 2026-01-23)
+- 🚧 **v2.2 Interactive Data Playground** - Phases 14-20 (in progress)
 
 ## Phases
 
@@ -42,16 +43,10 @@ Enterprise-grade documentation infrastructure with modern tooling (Bun, Biome), 
 
 </details>
 
-### 🚧 v2.1 Documentation Excellence & AI Features (In Progress)
+<details>
+<summary>✅ v2.1 Documentation Excellence & AI Features (Phases 10-13) - SHIPPED 2026-01-23</summary>
 
 **Milestone Goal:** Perfect the documentation experience with simplified navigation, comprehensive video content, AI-powered chat for docs Q&A, and professional repository polish.
-
-- [x] **Phase 10: Navigation Simplification** - Streamline from 8 tabs to 3, fix duplicate titles, polish README and repository structure
-- [x] **Phase 11: CLI Excellence** - shadcn-quality interactive prompts, validation, self-maintenance
-- [x] **Phase 12: RAG Documentation Chat** - AI-powered Q&A with source citations and streaming responses
-- [x] **Phase 13: Video Tutorials** - Programmatic video generation via Remotion with accessibility
-
-## Phase Details
 
 ### Phase 10: Navigation Simplification
 **Goal**: Users navigate documentation through clear 3-tab structure (Docs/API/Try) with consistent information architecture, no duplicate titles, and professional repository presentation
@@ -147,18 +142,193 @@ Plans:
 - [x] 13-02-PLAN.md — Video compositions (QuickStart 2.5min, Workflow 4min, Architecture 6min) with frame-based animations
 - [x] 13-03-PLAN.md — WebVTT captions, responsive VideoPlayer component, documentation embedding, and build verification
 
+</details>
+
+### 🚧 v2.2 Interactive Data Playground (In Progress)
+
+**Milestone Goal:** Transform docs from static site into interactive data playground where users chat with AI to explore 60,000+ Austrian datasets, execute Python code in Daytona sandboxes after explicit approval, create visualizations, and persist conversations across sessions.
+
+- [ ] **Phase 14: Database Foundation & Message Persistence** - Neon Postgres with Drizzle ORM, message parts array, security-first schema
+- [ ] **Phase 15: Daytona MCP Integration & Sandbox Setup** - Multi-MCP orchestration, health checks, graceful degradation
+- [ ] **Phase 16: Multi-MCP Orchestration & Data Discovery** - Tool aggregation, AI Gateway, context-aware dataset search
+- [ ] **Phase 17: Code Execution Pipeline** - Sandbox lifecycle, timeout enforcement, error recovery
+- [ ] **Phase 18: Tool Approval Flow** - Approval dialog, security layer, execution state tracking
+- [ ] **Phase 19: Visualization Rendering** - Inline charts, base64 extraction, preview URLs
+- [ ] **Phase 20: Chat Interface & Polish** - Streaming UI, debug mode, loading states, custom cards
+
+## Phase Details
+
+### Phase 14: Database Foundation & Message Persistence
+**Goal**: User conversations persist across sessions with secure message storage that prevents approval bypass attacks
+
+**Depends on**: Nothing (first phase of v2.2)
+
+**Requirements**: PERSIST-01, PERSIST-02, PERSIST-03, PERSIST-04, PERSIST-06, PERSIST-07, SEC-03
+
+**Success Criteria** (what must be TRUE):
+1. User sends messages and sees them persist after browser refresh
+2. User loads conversation and sees up to 50 messages per page with accurate history
+3. User's tool calls and results appear in message history with correct formatting
+4. Developer inspects database and sees JSONB parts array storing text, tool calls, and results
+5. Developer inspects database schema and sees execution_status column preventing replay attacks
+6. User conversation with 50+ images loads in under 2 seconds (images stored as blob URLs, not inline base64)
+7. Guest user returns after 24 hours and resumes previous conversation via session cookie
+
+**Plans**: TBD
+
+Plans:
+- [ ] 14-01: TBD
+- [ ] 14-02: TBD
+
+### Phase 15: Daytona MCP Integration & Sandbox Setup
+**Goal**: Both data.gv.at and Daytona MCP servers connect reliably with health checks, and sandboxes clean up automatically to prevent resource exhaustion
+
+**Depends on**: Phase 14 (sandbox tracking in database)
+
+**Requirements**: MCP-01, MCP-02, MCP-03, MCP-04, MCP-05, EXEC-04, EXEC-06, EXEC-10, SEC-04
+
+**Success Criteria** (what must be TRUE):
+1. User sees clear connection status for both MCP servers before sending first message
+2. User sends message when Daytona unavailable and receives graceful error explaining only dataset search works
+3. Developer inspects logs and sees health check pings for both MCP servers on startup
+4. User creates 20+ sandboxes in sequence and system remains responsive (automatic cleanup after 15 minutes)
+5. Developer inspects database and sees sandbox_id column tracking active workspaces with timestamps
+6. User's sandbox executes in isolated environment without network access to production data
+7. System recovers automatically when MCP server crashes (reconnection logic triggers)
+
+**Plans**: TBD
+
+Plans:
+- [ ] 15-01: TBD
+- [ ] 15-02: TBD
+- [ ] 15-03: TBD
+
+### Phase 16: Multi-MCP Orchestration & Data Discovery
+**Goal**: AI coordinates tools from both MCP servers and generates code using actual dataset schemas discovered via search
+
+**Depends on**: Phase 15 (MCP servers connected and healthy)
+
+**Requirements**: AI-01, AI-02, AI-03, AI-04, AI-05, DATA-01, DATA-02, DATA-03, DATA-04, DATA-05
+
+**Success Criteria** (what must be TRUE):
+1. User asks "analyze Vienna air quality" and AI searches datasets then generates code using discovered schema
+2. User sees dataset quality metrics (completeness, freshness) before code generation
+3. User receives code that references correct column names from dataset schema
+4. Developer inspects AI requests and sees tools from both data.gv.at and Daytona merged in single call
+5. User asks question about Austrian energy data and AI uses semantic search to find relevant datasets
+6. User clicks dataset download link from chat and receives CSV file
+7. Developer verifies AI provider is Vercel AI Gateway with claude-sonnet-4.5 model
+
+**Plans**: TBD
+
+Plans:
+- [ ] 16-01: TBD
+- [ ] 16-02: TBD
+
+### Phase 17: Code Execution Pipeline
+**Goal**: AI-generated Python code executes in sandboxes with timeout enforcement, multi-file support, and automatic error recovery
+
+**Depends on**: Phase 16 (AI generates code with correct schemas)
+
+**Requirements**: EXEC-01, EXEC-05, EXEC-07, EXEC-08, EXEC-09
+
+**Success Criteria** (what must be TRUE):
+1. User requests analysis and AI generates Python code matching dataset schema
+2. User's code executes and completes within 30 seconds (timeout enforced)
+3. User requests multi-file project and AI creates proper Python package structure with imports
+4. User's code fails with error and AI automatically regenerates fixed version
+5. Developer inspects sandbox and sees full project structure (not just single script)
+6. User sees stdout/stderr output from code execution for debugging
+7. User's long-running code stops at 30 seconds with clear timeout message
+
+**Plans**: TBD
+
+Plans:
+- [ ] 17-01: TBD
+- [ ] 17-02: TBD
+
+### Phase 18: Tool Approval Flow
+**Goal**: User explicitly approves every code execution with full code preview, and approval state persists to prevent replay attacks
+
+**Depends on**: Phase 17 (execution pipeline working)
+
+**Requirements**: SEC-01, SEC-02, SEC-05, SEC-06, EXEC-02, EXEC-03, PERSIST-05
+
+**Success Criteria** (what must be TRUE):
+1. User receives approval dialog before ANY code execution with complete code preview
+2. User clicks Approve and sees code execute in sandbox
+3. User clicks Reject and conversation continues without execution
+4. User reloads page and previous approved execution does not re-run (execution_status prevents replay)
+5. Developer inspects approval dialog and sees syntax-highlighted code with full visibility
+6. User's sandbox has network access only to approved domains (data.gv.at, matplotlib CDN)
+7. Guest user operates without authentication (no login required for v2.2)
+
+**Plans**: TBD
+
+Plans:
+- [ ] 18-01: TBD
+- [ ] 18-02: TBD
+
+### Phase 19: Visualization Rendering
+**Goal**: User sees matplotlib, seaborn, and plotly charts inline in chat, with automatic compression for large images and support for Daytona preview URLs
+
+**Depends on**: Phase 18 (approved code executes and returns results)
+
+**Requirements**: VIZ-01, VIZ-02, VIZ-03, VIZ-04, VIZ-05
+
+**Success Criteria** (what must be TRUE):
+1. User requests chart and sees matplotlib PNG rendered inline in chat as base64 image
+2. User creates plotly interactive chart and clicks Daytona preview URL to view in browser
+3. User generates 2MB visualization and sees it compress automatically to under 500KB
+4. User's visualization fails to render and receives clear error message with debugging context
+5. Developer inspects tool results and sees AI receives stdout/stderr for error diagnosis
+6. User sees seaborn charts with correct styling (not default matplotlib theme)
+7. User creates multiple charts in sequence and all display inline without manual downloads
+
+**Plans**: TBD
+
+Plans:
+- [ ] 19-01: TBD
+- [ ] 19-02: TBD
+
+### Phase 20: Chat Interface & Polish
+**Goal**: Users experience polished chat interface with streaming responses, debug mode for power users, and custom UI cards for dataset results
+
+**Depends on**: Phase 19 (all backend features working)
+
+**Requirements**: CHAT-01, CHAT-02, CHAT-03, CHAT-04, CHAT-05, CHAT-06, DATA-06
+
+**Success Criteria** (what must be TRUE):
+1. User sends message and sees response stream token-by-token within 1 second
+2. User views message history with timestamps showing chronological conversation
+3. User enables debug mode and sees MCP tool invocations with parameter details
+4. User encounters error and sees clear, actionable error message explaining what happened
+5. User reloads page and previous conversation loads with all messages intact
+6. User receives dataset result and sees custom UI card (not plain text) with metadata
+7. User sees loading spinner during AI processing and code execution
+
+**Plans**: TBD
+
+Plans:
+- [ ] 20-01: TBD
+- [ ] 20-02: TBD
+- [ ] 20-03: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 10 → 11 → 12 → 13
+v2.2 phases execute in numeric order: 14 → 15 → 16 → 17 → 18 → 19 → 20
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 10. Navigation Simplification | 6/6 | ✓ Complete | 2026-01-23 |
-| 11. CLI Excellence | 3/3 | ✓ Complete | 2026-01-23 |
-| 12. RAG Documentation Chat | 3/3 | ✓ Complete | 2026-01-23 |
-| 13. Video Tutorials | 3/3 | ✓ Complete | 2026-01-23 |
+| 14. Database Foundation | 0/TBD | Not started | - |
+| 15. Daytona MCP Integration | 0/TBD | Not started | - |
+| 16. Multi-MCP Orchestration | 0/TBD | Not started | - |
+| 17. Code Execution Pipeline | 0/TBD | Not started | - |
+| 18. Tool Approval Flow | 0/TBD | Not started | - |
+| 19. Visualization Rendering | 0/TBD | Not started | - |
+| 20. Chat Interface & Polish | 0/TBD | Not started | - |
 
 ---
 
-*Last updated: 2026-01-23 after v2.1 milestone completion*
+*Last updated: 2026-01-31 after v2.2 roadmap creation*
