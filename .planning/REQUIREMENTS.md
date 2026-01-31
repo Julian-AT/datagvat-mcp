@@ -1,103 +1,114 @@
-# Requirements: Austria MCP v2.1
+# Requirements: Austria MCP v2.2
 
-**Defined:** 2026-01-22
+**Defined:** 2026-01-31
 **Core Value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
 
-## v2.1 Requirements
+## v2.2 Requirements
 
-Requirements for Documentation Excellence & AI Features milestone. Each maps to roadmap phases.
+Requirements for Interactive Data Playground milestone. Each maps to roadmap phases.
 
-### Navigation
+### Chat Interface
 
-- [ ] **NAV-01**: Documentation consolidates from 8 tabs to 3 tabs (Docs/API/Try)
-- [ ] **NAV-02**: Duplicate title rendering fixed (frontmatter title does not render as H1)
-- [ ] **NAV-03**: Comprehensive redirect mapping preserves all existing URLs
-- [ ] **NAV-04**: Navigation structure tested on mobile viewports
-- [ ] **NAV-05**: All internal links validated after restructuring
+- [ ] **CHAT-01**: User can send messages and receive streaming AI responses
+- [ ] **CHAT-02**: User can view message history with timestamps
+- [ ] **CHAT-03**: User can see loading states during AI processing
+- [ ] **CHAT-04**: User sees clear error messages when chat fails
+- [ ] **CHAT-05**: User can reload previous conversations from database
+- [ ] **CHAT-06**: User can toggle debug mode to see MCP tool invocations and parameters
 
-### RAG Documentation Chat
+### Data Discovery
 
-- [ ] **RAG-01**: User can ask natural language questions about documentation
-- [ ] **RAG-02**: Chat provides source citations with links to documentation pages
-- [ ] **RAG-03**: Responses stream token-by-token for perceived performance
-- [ ] **RAG-04**: Chat generates code examples relevant to user questions
-- [ ] **RAG-05**: Chat assists with troubleshooting common issues
-- [ ] **RAG-06**: Chat understands Austrian data domain and MCP terminology
-- [ ] **RAG-07**: Chat refuses to answer off-topic questions with helpful redirect
-- [ ] **RAG-08**: Similarity threshold >0.75 prevents hallucinated citations
-- [ ] **RAG-09**: Multi-turn conversations maintain context across messages
-- [ ] **RAG-10**: Chat UI integrates with existing search button (bottom-right)
+- [ ] **DATA-01**: User can ask natural language questions to search datasets
+- [ ] **DATA-02**: AI uses existing MCP tools (search_datasets, preview_data) automatically
+- [ ] **DATA-03**: User sees dataset schema before code generation
+- [ ] **DATA-04**: User sees quality metrics (completeness, freshness) for datasets
+- [ ] **DATA-05**: User can click download links for datasets
+- [ ] **DATA-06**: User sees custom UI cards for dataset results (vs plain text)
 
-### Video Tutorials
+### Code Execution
 
-- [ ] **VIDEO-01**: Quickstart video (2-3 min) demonstrates installation
-- [ ] **VIDEO-02**: Workflow demo videos (3-5 min each) cover 3-4 key workflows
-- [ ] **VIDEO-03**: Architecture overview video (5-7 min) explains system design
-- [ ] **VIDEO-04**: All videos include captions for accessibility
-- [ ] **VIDEO-05**: Videos embed seamlessly in documentation pages
-- [ ] **VIDEO-06**: Videos generated programmatically via Remotion (not manual filming)
-- [ ] **VIDEO-07**: Video rendering separated from Next.js build (< 5 min constraint)
-- [ ] **VIDEO-08**: Videos cached to avoid re-rendering on every build
+- [ ] **EXEC-01**: AI generates Python code based on dataset schema
+- [ ] **EXEC-02**: User sees approval dialog before code execution
+- [ ] **EXEC-03**: User sees code preview in approval dialog
+- [ ] **EXEC-04**: Code executes in isolated Daytona sandbox
+- [ ] **EXEC-05**: Code execution stops after 30 second timeout
+- [ ] **EXEC-06**: Sandbox automatically cleans up after 1 hour
+- [ ] **EXEC-07**: User can create multi-file mini-apps (not just single scripts)
+- [ ] **EXEC-08**: Daytona sandbox supports full project structure
+- [ ] **EXEC-09**: AI automatically fixes code errors when execution fails
+- [ ] **EXEC-10**: User sees graceful error message when Daytona unavailable
 
-### CLI Excellence
+### Visualization
 
-- [ ] **CLI-01**: Interactive prompts guide user through configuration
-- [ ] **CLI-02**: Clear error messages include solutions and next steps
-- [ ] **CLI-03**: Validation provides immediate feedback on invalid inputs
-- [ ] **CLI-04**: Progress indicators show long-running operations
-- [ ] **CLI-05**: Diff preview shows changes before applying (shadcn pattern)
-- [ ] **CLI-06**: Health check command diagnoses common configuration issues
-- [ ] **CLI-07**: Update command enables self-maintenance
-- [ ] **CLI-08**: Config file validation catches errors early
-- [ ] **CLI-09**: Non-interactive mode supports CI/CD automation
-- [ ] **CLI-10**: Semantic versioning prevents breaking changes for existing users
+- [ ] **VIZ-01**: User sees matplotlib/seaborn/plotly charts inline in chat
+- [ ] **VIZ-02**: User can click Daytona preview URLs for interactive visualizations
+- [ ] **VIZ-03**: Large images (>500KB) compress automatically
+- [ ] **VIZ-04**: User sees clear error messages when visualization fails
+- [ ] **VIZ-05**: AI has visibility into sandbox stdout/stderr for debugging
 
-### Repository Cleanup
+### Persistence
 
-- [ ] **CLEAN-01**: Unused files identified via static analysis and removed
-- [ ] **CLEAN-02**: File structure follows consistent organization patterns
-- [ ] **CLEAN-03**: Dependencies updated to latest compatible versions
-- [ ] **CLEAN-04**: EditorConfig added for cross-editor consistency
-- [ ] **CLEAN-05**: .gitignore audited and updated
-- [ ] **CLEAN-06**: TypeScript/Biome configs consolidated where possible
+- [ ] **PERSIST-01**: Message history stores in Neon Postgres
+- [ ] **PERSIST-02**: Messages use AI SDK 6 parts array pattern
+- [ ] **PERSIST-03**: Conversation loads 50 messages per page
+- [ ] **PERSIST-04**: MCP tool calls and results store with messages
+- [ ] **PERSIST-05**: Tool approval state persists to prevent replay attacks
+- [ ] **PERSIST-06**: Database uses JSONB for flexible message parts
+- [ ] **PERSIST-07**: Large images (>500KB) store in blob storage (not JSONB)
 
-### Project README
+### AI Provider
 
-- [ ] **README-01**: README clearly describes project purpose
-- [ ] **README-02**: Installation instructions are complete and tested
-- [ ] **README-03**: Quick start guide gets users to first success < 5 minutes
-- [ ] **README-04**: Links to full documentation site
-- [ ] **README-05**: Badges show build status, test coverage, version
-- [ ] **README-06**: Visual example or screenshot demonstrates value
-- [ ] **README-07**: Contributing guidelines explain how to help
+- [ ] **AI-01**: Chat uses Vercel AI Gateway as provider
+- [ ] **AI-02**: Default model is anthropic/claude-sonnet-4.5
+- [ ] **AI-03**: AI receives dataset schema in context before code generation
+- [ ] **AI-04**: AI can invoke both data.gv.at and Daytona MCP tools
+- [ ] **AI-05**: Tool calls from multiple MCP servers merge in single request
 
-### Build Verification
+### MCP Integration
 
-- [ ] **BUILD-01**: Full build runs successfully after every phase
-- [ ] **BUILD-02**: Build time remains under 5 minutes (excluding async video rendering)
-- [ ] **BUILD-03**: No TypeScript errors after changes
-- [ ] **BUILD-04**: Biome linting passes with zero errors
-- [ ] **BUILD-05**: All tests pass after changes
+- [ ] **MCP-01**: Daytona MCP client connects via stdio transport
+- [ ] **MCP-02**: Data.gv.at MCP client connects via existing FastMCP server
+- [ ] **MCP-03**: Both MCP servers aggregate tools in single AI SDK call
+- [ ] **MCP-04**: MCP server spawning includes health checks
+- [ ] **MCP-05**: Connection failures trigger graceful degradation (no crash)
+
+### Security
+
+- [ ] **SEC-01**: User approval required before ANY code execution
+- [ ] **SEC-02**: Approval dialog shows complete code to be executed
+- [ ] **SEC-03**: Tool approval bypass via message replay prevented
+- [ ] **SEC-04**: Each conversation uses isolated sandbox
+- [ ] **SEC-05**: Sandboxes have network access only to approved domains
+- [ ] **SEC-06**: Guest mode only (no authentication for v2.2)
 
 ## Future Requirements
 
-Deferred to later milestones (v2.2+).
+Deferred to later milestones (v2.3+).
 
-### Internationalization
+### User Accounts
 
-- **I18N-01**: Complete German translation of all documentation
-- **I18N-02**: German video content with native narration
+- **AUTH-01**: User can create account and log in
+- **AUTH-02**: User can view personal conversation history
+- **AUTH-03**: User can manage API keys
 
-### Visual Assets
+### Collaboration
 
-- **VISUAL-01**: Real Claude Desktop screenshots replace placeholders
-- **VISUAL-02**: Additional video content for advanced topics
+- **COLLAB-01**: User can share playground URLs publicly
+- **COLLAB-02**: User can fork existing conversations
+- **COLLAB-03**: User can embed dashboards in external sites
 
-### Advanced Features
+### Advanced Execution
 
-- **ADVANCED-01**: RAG chat memory persistence across sessions
-- **ADVANCED-02**: Video commenting and feedback system
-- **ADVANCED-03**: CLI plugin system for extensions
+- **EXEC-ADV-01**: User can choose sandbox template (Python, R, Julia)
+- **EXEC-ADV-02**: User can install custom packages in sandbox
+- **EXEC-ADV-03**: User can upload data files to sandbox
+- **EXEC-ADV-04**: User can schedule recurring executions
+
+### Advanced Visualization
+
+- **VIZ-ADV-01**: User can build interactive dashboards with drag-and-drop
+- **VIZ-ADV-02**: User can export visualizations as SVG/PNG
+- **VIZ-ADV-03**: User can annotate charts with comments
 
 ## Out of Scope
 
@@ -105,14 +116,17 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Feature | Reason |
 |---------|--------|
-| Real-time collaboration in chat | Single-user use case, unnecessary complexity |
-| Video commenting system | GitHub Discussions already serves this purpose |
-| CLI GUI wrapper | Target audience (developers) prefers CLI |
-| Chat memory persistence | Privacy concerns + complexity, stateless is fine for docs Q&A |
-| Multi-language video narration | Captions sufficient, narration is expensive |
-| CLI plugin system | Scope creep, keep focused on core functionality |
-| Browser-based video editing | Pre-render static MP4s, no need for runtime editing |
-| Multi-modal RAG (images, videos) | Text-based docs sufficient for v2.1 |
+| Real-time collaboration | Single-user focus for v2.2, defer to v2.3 |
+| Billing integration | Free tier only, monetization deferred |
+| Multiple sandbox templates | Python only for v2.2 MVP, R/Julia defer to v2.3 |
+| Interactive dashboard builder | Basic visualizations sufficient for v2.2 |
+| Public sharing URLs | Defer to v2.3 (requires auth) |
+| Teams and workspaces | Collaboration deferred to v3.0 |
+| Data upload from user | Use existing datasets only for v2.2 |
+| Unlimited execution time | 30 second timeout enforced for security |
+| Multiple AI models | claude-sonnet-4.5 only for v2.2 |
+| Browser-based code editing | AI generates code, no manual editing in v2.2 |
+| RAG documentation chat | Removed - single playground interface only |
 
 ## Traceability
 
@@ -120,80 +134,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| NAV-01 | Phase 10 | Complete |
-| NAV-02 | Phase 10 | Complete |
-| NAV-03 | Phase 10 | Complete |
-| NAV-04 | Phase 10 | Complete |
-| NAV-05 | Phase 10 | Complete |
-| README-01 | Phase 10 | Complete |
-| README-02 | Phase 10 | Complete |
-| README-03 | Phase 10 | Complete |
-| README-04 | Phase 10 | Complete |
-| README-05 | Phase 10 | Complete |
-| README-06 | Phase 10 | Complete |
-| README-07 | Phase 10 | Complete |
-| CLEAN-01 | Phase 10 | Complete |
-| CLEAN-02 | Phase 10 | Complete |
-| CLEAN-03 | Phase 10 | Complete |
-| CLEAN-04 | Phase 10 | Complete |
-| CLEAN-05 | Phase 10 | Complete |
-| CLEAN-06 | Phase 10 | Complete |
-| BUILD-01 | Phase 10 | Complete |
-| BUILD-02 | Phase 10 | Complete |
-| BUILD-03 | Phase 10 | Complete |
-| BUILD-04 | Phase 10 | Complete |
-| BUILD-05 | Phase 10 | Complete |
-| CLI-01 | Phase 11 | Complete |
-| CLI-02 | Phase 11 | Complete |
-| CLI-03 | Phase 11 | Complete |
-| CLI-04 | Phase 11 | Complete |
-| CLI-05 | Phase 11 | Complete |
-| CLI-06 | Phase 11 | Complete |
-| CLI-07 | Phase 11 | Complete |
-| CLI-08 | Phase 11 | Complete |
-| CLI-09 | Phase 11 | Complete |
-| CLI-10 | Phase 11 | Complete |
-| BUILD-01 | Phase 11 | Complete |
-| BUILD-02 | Phase 11 | Complete |
-| BUILD-03 | Phase 11 | Complete |
-| BUILD-04 | Phase 11 | Complete |
-| BUILD-05 | Phase 11 | Complete |
-| RAG-01 | Phase 12 | Complete |
-| RAG-02 | Phase 12 | Complete |
-| RAG-03 | Phase 12 | Complete |
-| RAG-04 | Phase 12 | Complete |
-| RAG-05 | Phase 12 | Complete |
-| RAG-06 | Phase 12 | Complete |
-| RAG-07 | Phase 12 | Complete |
-| RAG-08 | Phase 12 | Complete |
-| RAG-09 | Phase 12 | Complete |
-| RAG-10 | Phase 12 | Complete |
-| BUILD-01 | Phase 12 | Complete |
-| BUILD-02 | Phase 12 | Complete |
-| BUILD-03 | Phase 12 | Complete |
-| BUILD-04 | Phase 12 | Complete |
-| BUILD-05 | Phase 12 | Complete |
-| VIDEO-01 | Phase 13 | Pending |
-| VIDEO-02 | Phase 13 | Pending |
-| VIDEO-03 | Phase 13 | Pending |
-| VIDEO-04 | Phase 13 | Pending |
-| VIDEO-05 | Phase 13 | Pending |
-| VIDEO-06 | Phase 13 | Pending |
-| VIDEO-07 | Phase 13 | Pending |
-| VIDEO-08 | Phase 13 | Pending |
-| BUILD-01 | Phase 13 | Pending |
-| BUILD-02 | Phase 13 | Pending |
-| BUILD-03 | Phase 13 | Pending |
-| BUILD-04 | Phase 13 | Pending |
-| BUILD-05 | Phase 13 | Pending |
+| (To be filled by roadmapper) | | |
 
 **Coverage:**
-- v2.1 requirements: 51 total (5 NAV + 10 RAG + 8 VIDEO + 10 CLI + 6 CLEAN + 7 README + 5 BUILD)
-- Mapped to phases: 51/51 (100%)
-- Unmapped: 0
-
-**Note:** BUILD requirements (BUILD-01 to BUILD-05) are mapped to all 4 phases as verification steps after each phase completes.
+- v2.2 requirements: 44 total (6 CHAT + 6 DATA + 10 EXEC + 5 VIZ + 7 PERSIST + 5 AI + 5 MCP + 6 SEC)
+- Mapped to phases: 0 (roadmap pending)
+- Unmapped: 44
 
 ---
-*Requirements defined: 2026-01-22*
-*Last updated: 2026-01-23 after Phase 12 completion (51/51 requirements complete - 2 phases remain)*
+*Requirements defined: 2026-01-31*
+*Last updated: 2026-01-31 after requirements definition*
