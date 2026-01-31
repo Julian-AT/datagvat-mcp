@@ -10,7 +10,7 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 
 ## Current State
 
-**Latest shipped:** v2.0 Professional Documentation System (2026-01-22)
+**Latest shipped:** v2.1 Documentation Excellence & AI Features (2026-01-23)
 
 **What's working:**
 - MCP server with 25 tools for Austrian open data discovery and analysis
@@ -25,27 +25,26 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 - Visual architecture aids (4 Mermaid diagrams)
 - Production-ready quality (60/60 requirements verified, 100% sampled examples work)
 
-**Recent improvements (v2.0):**
-- Modern build infrastructure (Bun runtime, Biome linting with 0 errors)
-- Comprehensive style guide compliance (Microsoft/Google conventions, real Austrian examples)
-- Automated quality pipeline (pre-commit hooks, GitHub Actions CI/CD)
-- Auto-generated OpenAPI documentation (63 endpoints, weekly PR updates)
-- Production-ready CLI installer (@datagvat/mcp-installer, shadcn-inspired)
-- Live AI testing interface (/try page with streaming MCP execution)
+**Recent improvements (v2.1):**
+- Simplified 3-tab navigation (Docs/API/Try) with comprehensive redirects
+- State-of-the-art README with badges and quick start guide
+- shadcn-quality CLI with interactive prompts, health checks, and self-updates
+- RAG-powered documentation chat with source citations and streaming responses
+- Programmatic video tutorials via Remotion (3 videos: quickstart, workflow, architecture)
+- Comprehensive repository cleanup and standardization
 
-## Current Milestone: v2.1 Documentation Excellence & AI Features
+## Current Milestone: v2.2 Interactive Data Playground
 
-**Goal:** Perfect the documentation experience with simplified navigation, comprehensive video content, AI-powered chat for docs Q&A, and professional repository polish.
+**Goal:** Transform docs/ from a static documentation site into an interactive data playground where users can chat with AI to explore 60,000+ Austrian datasets, execute Python code in Daytona sandboxes, create visualizations, and share results.
 
 **Target features:**
-- Simplified navigation (8 tabs → 3: Docs/API/Try)
-- Fix duplicate title rendering (frontmatter + H1)
-- State-of-the-art project README
-- AI-powered documentation chat with RAG (Vercel AI SDK)
-- Comprehensive video tutorials via Remotion
-- shadcn-quality CLI improvements
-- Complete repository cleanup and standardization
-- Build verification after every phase
+- Chat interface with AI SDK useChat hook
+- Multiple MCP server integration (data.gv.at + Daytona)
+- Vercel AI Gateway with anthropic/claude-sonnet-4
+- Neon Postgres + Drizzle ORM for message persistence
+- User approval dialog before sandbox execution
+- Inline visualization output (base64 images)
+- Code execution in Daytona sandboxes
 
 ## Requirements
 
@@ -114,34 +113,45 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 - ✓ shadcn-like CLI installer for AI tools — v2.0
 - ✓ Live AI assistant testing with Vercel AI SDK — v2.0
 
+**v2.1 Documentation Excellence & AI Features (shipped 2026-01-23):**
+- ✓ Simplified navigation (8 tabs → 3: Docs/API/Try) with permanent redirects — v2.1
+- ✓ Fixed duplicate title rendering (frontmatter + H1) — v2.1
+- ✓ State-of-the-art project README with badges and visual examples — v2.1
+- ✓ AI-powered documentation chat with full RAG pipeline (Vectra, OpenAI embeddings) — v2.1
+- ✓ Comprehensive video tutorials via Remotion (3 videos, 36.1MB, WebVTT captions) — v2.1
+- ✓ shadcn-quality CLI improvements (interactive prompts, health checks, self-updates) — v2.1
+- ✓ Complete repository cleanup (EditorConfig, .gitignore, dependency audit) — v2.1
+- ✓ Build verification after every phase (152s build time under 5-minute constraint) — v2.1
+
 ### Active
 
-<!-- v2.1 scope -->
+<!-- v2.2 scope -->
 
-**v2.1 Documentation Excellence & AI Features:**
-- [ ] Simplified navigation (8 tabs → 3: Docs/API/Try)
-- [ ] Fix duplicate title rendering (frontmatter + H1)
-- [ ] State-of-the-art project README
-- [ ] AI-powered documentation chat with full RAG pipeline
-- [ ] Comprehensive video tutorials via Remotion (quickstart, workflows, architecture)
-- [ ] shadcn-quality CLI improvements (patterns, error handling, self-maintenance, testing)
-- [ ] Complete repository cleanup (unused files, standardize structure, update deps, add tooling)
-- [ ] Build verification after every phase
+**v2.2 Interactive Data Playground:**
+- [ ] Chat interface with AI SDK useChat hook
+- [ ] Multiple MCP server integration (data.gv.at + Daytona via stdio)
+- [ ] Vercel AI Gateway configuration (anthropic/claude-sonnet-4)
+- [ ] Neon Postgres database setup with Drizzle ORM
+- [ ] Message persistence (AI SDK 6 parts array pattern)
+- [ ] User approval dialog before sandbox execution (experimental_needsApproval)
+- [ ] Daytona sandbox creation and code execution
+- [ ] Inline visualization output (base64 image rendering)
 
 ### Out of Scope
 
 <!-- Explicit boundaries. Includes reasoning to prevent re-adding. -->
 
-**v1.2 Explicit Exclusions:**
-- German translation — focus on complete English docs first, defer to v1.3
-- Interactive MCP playground — future enhancement, not v1.2 scope
-- OpenAPI spec generation — can add later if needed
-- Video tutorials — screenshots sufficient for v1.2
+**v2.2 Explicit Exclusions:**
+- User authentication — guest mode only, defer to v3.0
+- Teams/collaboration features — single-user focus for v2.2
+- Billing integration — free tier only for v2.2
+- Multiple sandbox templates — single Python template for v2.2
+- Interactive dashboards — basic visualizations only for v2.2
+- Public sharing with URLs — defer to v2.3
 
 **General Exclusions:**
 - Publishing workflow optimizations — primary users are consumers (analysts, developers), not publishers
 - Custom data transformations — out of scope for MCP server; users handle post-download
-- Data storage/caching layer — stateless server design, no persistent storage
 - Multi-language UI — MCP protocol handles this at client level
 
 ## Context
@@ -168,12 +178,21 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 - 100% of sampled code examples work without modification
 - 60/60 requirements verified complete
 
+**v2.1 Shipped (2026-01-23):**
+- 14 plans across 4 phases (3.9 hours total)
+- 3 Remotion videos (36.1MB total) with WebVTT captions
+- RAG chat with Vectra vector DB and OpenAI embeddings
+- CLI v0.2.0 with Zod validation and ci-info detection
+- 152s build time maintaining <5 minute target
+
 **Technical Stack:**
-- FastMCP 2.14+ with enterprise middleware (retry, rate limiting, logging)
-- Fumadocs for bilingual documentation (German/English)
-- Python 3.11+ with async/await patterns
-- httpx for HTTP, rdflib for RDF parsing, pydantic for validation
-- Next.js 16.1.3 with Tailwind CSS v4
+- **Backend**: FastMCP 2.14+ with enterprise middleware (retry, rate limiting, logging)
+- **Frontend**: Next.js 16.1.3 with Tailwind CSS v4, Fumadocs for documentation
+- **MCP Server**: Python 3.11+ with async/await, httpx, rdflib, pydantic
+- **AI SDK**: Vercel AI SDK 6.0.41 with useChat hook and streaming
+- **Database**: Neon Postgres + Drizzle ORM (v2.2 addition)
+- **AI Provider**: Vercel AI Gateway with anthropic/claude-sonnet-4 (v2.2 addition)
+- **Sandbox**: Daytona MCP via CLI stdio transport (v2.2 addition)
 
 **Deployment Ready:**
 - Production build succeeds (481 static pages, zero warnings)
@@ -188,6 +207,9 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 - **Python**: 3.11+ — established runtime requirement
 - **Protocol**: MCP — tools, resources, prompts, sampling as interface
 - **Async**: All I/O operations must be async — established pattern
+- **Package Manager**: Bun — established in v2.0, maintain consistency
+- **Preserve**: mcp/ directory and existing MCP server — working production code
+- **Preserve**: docs/ structure and documentation content — v2.1 investment
 
 ## Key Decisions
 
@@ -201,6 +223,11 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 | Consumers over publishers | Primary audience is analysts/developers | ✓ Good |
 | Fumadocs for documentation | Modern framework, i18n support, interactive components | ✓ Good — v1.0 |
 | German/English bilingual | Austrian data users speak both languages | ✓ Good — v1.0 |
+| Vercel AI SDK for AI features | Mature, streaming support, MCP tool integration | ✓ Good — v2.1 |
+| Vercel AI Gateway | Single endpoint for 100+ models, no separate API keys | — Pending — v2.2 |
+| Daytona MCP for sandboxes | Secure code execution, CLI-based integration | — Pending — v2.2 |
+| Neon Postgres for persistence | Serverless, generous free tier, Drizzle ORM support | — Pending — v2.2 |
+| Guest mode only (no auth) | Simplify v2.2 scope, defer user accounts to v3.0 | — Pending — v2.2 |
 
 ---
-*Last updated: 2026-01-22 after v2.1 milestone initialization*
+*Last updated: 2026-01-31 after v2.2 milestone initialization*

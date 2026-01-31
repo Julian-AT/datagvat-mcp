@@ -2,135 +2,81 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-01-22)
+See: .planning/PROJECT.md (updated 2026-01-31)
 
 **Core value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
 
-**Current focus:** Phase 13 - Video Tutorials
+**Current focus:** Milestone v2.2 - Interactive Data Playground
 
 ## Current Position
 
-Phase: 13 of 13 (Video Tutorials)
-Plan: 3 of 3
-Status: Phase complete ✓
-Last activity: 2026-01-23 — Completed 13-03-PLAN.md
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements for v2.2 milestone
+Last activity: 2026-01-31 — Milestone v2.2 started
 
-Progress: [██████████] 100% (14/14 plans complete) - v2.1 MILESTONE COMPLETE
+Progress: [          ] 0% (requirements definition in progress)
 
 ## Performance Metrics
 
-**Velocity:**
-- Total plans completed: 14 (v2.1 Milestone COMPLETE)
+**v2.1 Milestone (Complete):**
+- Total plans completed: 14
 - Average duration: 16.6 min
 - Total execution time: 3.9 hours
+- Build time: 152s (<5 min target maintained)
 
-**By Phase:**
+**v2.2 Milestone (Starting):**
+- Plans completed: 0
+- Phase: Requirements definition
 
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 10. Navigation Simplification | 6/6 | 59min | 9.8min |
-| 11. CLI Excellence | 3/3 | 29min | 9.7min |
-| 12. RAG Documentation Chat | 3/3 | 16min | 5.3min |
-| 13. Video Tutorials | 3/3 | 117min | 39.0min |
-
-**Recent Trend:**
-- Last 5 plans: 12-01 (12min), 12-02 (4min), 13-01 (6min), 13-02 (37min), 13-03 (74min)
-- Trend: Video-related plans (13-02, 13-03) significantly longer due to rendering and build verification
-
-*Updated after each plan completion*
+*Metrics will update as v2.2 execution progresses*
 
 ## Accumulated Context
 
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting v2.1 work:
 
-- **v2.0**: Fumadocs for documentation — Modern framework, i18n support, interactive components (foundation for navigation restructuring and video embeds)
-- **v2.0**: Bun runtime — Fast builds essential for meeting <5 min constraint with video rendering
-- **v2.1**: Navigation first — Establishes stable URLs before RAG citations and video embeds need to reference docs
-- **10-01**: Nested folder structure — Use physical nested folders (docs/docs/, docs/api/) instead of flat folders with URL path configuration
-- **10-01**: 301 permanent redirects — Preserve SEO and external link compatibility through permanent redirects
-- **10-01**: Automated redirect verification — Ensure no gaps in redirect coverage with verification script
-- **10-03**: shields.io badges — Live status indicators for version, build, license, MCP compatibility, Python version
-- **10-03**: Quick Start path correction — MCP server in mcp/ subdirectory, config points to app/server.py
-- **10-03**: Two-part contribution guide — Separate sections for MCP server (Python) and documentation (Next.js)
-- **10-02**: Root folders require index.mdx — Fumadocs requires index files for root folders with root: true to display as tabs
-- **10-02**: Index pages as navigation hubs — Use Card components to provide clear navigation to subsections
-- **10-04**: EditorConfig baseline with Biome enforcement — EditorConfig works across all editors without extension, Biome provides enforcement via CLI
-- **10-04**: Explicit formatting rules in Biome — All rules explicit (lineEnding: lf, jsxQuoteStyle, trailingCommas) to match .editorconfig
-- **10-05**: i18n files false positives — German translation files (.de.mdx) show as unused in static analysis but are auto-detected by Fumadocs
-- **10-05**: Keep build tool dependencies — CSS @import and build tool usage not detected by depcheck, verify build after removal
-- **10-05**: Fumadocs built-in search sufficient — Removed Orama and Algolia dependencies, built-in search meets requirements
-- **10-06**: Comprehensive build verification required — TypeScript, Biome, link validation, full build, AND backend tests ensure no hidden breakage from Phase 10 changes
-- **10-06**: 5-minute build time target — CI/CD pipeline efficiency, 130s actual time demonstrates excellent performance with growth headroom
-- **10-06**: Zero tolerance for errors at phase boundaries — All verification checks must pass (exit 0) before proceeding to next phase
-- **11-01**: Zod for CLI validation — Runtime validation with TypeScript inference, custom error messages for better UX
-- **11-01**: ci-info for CI detection — Robust detection across CI providers, checks both ciInfo.isCI and process.stdout.isTTY
-- **11-01**: Error format: problem + fix + example — Every error message includes what's wrong, how to fix it, and exact command to run
-- **11-01**: Inline prompt validation — Validate option in prompt config provides immediate feedback during user interaction
-- **11-02**: Custom type declaration for diff module — @types/diff deprecated stub, created minimal types in src/types/diff.d.ts
-- **11-02**: 7 health checks with granular severity — Error (must-fix), warning (should-fix), info (optional) for proper CI/CD integration
-- **11-02**: Check both python3 and python commands — Maximum compatibility across different system configurations
-- **11-02**: Exit code reflects severity — Doctor exits 1 for critical errors only, 0 for warnings/info
-- **11-03**: Minor version bump for new features — 0.1.0 → 0.2.0 following semver (new features without breaking changes)
-- **11-03**: Keep a Changelog format — Standard format (keepachangelog.com) with Added/Changed/Fixed sections
-- **11-03**: Biome formatting applied to CLI — Consistent code style across CLI package, intentional exceptions for ANSI codes
-- **12-01**: Vectra for local vector database — Zero infrastructure for <10K chunks, optional Upstash upgrade path for production scaling
-- **12-01**: Section-based chunking by H2/H3 headings — Preserves semantic context, better citation accuracy than fixed-size chunks
-- **12-01**: 100-token overlap between chunks — ~400 chars prevents context loss at semantic boundaries
-- **12-01**: Build-time indexing — Generate embeddings during build to avoid runtime latency, fits 5-minute build constraint
-- **12-01**: fumadocs-mdx dependency ordering — Must run before index-docs.ts to generate .source files (added as step 0 in prebuild)
-- **12-02**: 0.75 similarity threshold baseline — Starting point for quality filtering, configurable, may need tuning with real queries
-- **12-02**: Top-5 chunk retrieval — Balance between context richness (~5K tokens) and token budget
-- **12-02**: Numbered citation format [1], [2] — Simple, unambiguous format LLMs can reliably generate
-- **12-02**: Source metadata via data stream — toDataStreamResponse data parameter enables client-side clickable citations
-- **13-01**: Remotion 4.0 infrastructure — H.264 codec with CRF 21, file-based caching via timestamp comparison, 50% concurrency
-- **13-02**: Frame-based animations only — Use interpolate() and spring(), no CSS transitions to avoid rendering flicker
-- **13-02**: Staggered reveals pattern — Sequential step appearance with offset frame ranges for progressive disclosure
-- **13-02**: 36.1MB total video size — Under 50MB threshold, no Vercel Blob migration needed
-- **13-03**: Manual VTT captions — Text-based animations without audio narration, manual captions describe visual content for screen readers
-- **13-03**: Captions enabled by default — <track default> attribute ensures WCAG 2.1 Level A compliance without user action
-- **13-03**: Responsive video design — 100% width, auto height, max-width 1920px prevents horizontal scroll while maintaining aspect ratio
-- **13-03**: Videos in Git (no Vercel Blob) — 36.1MB + 2.6KB captions well under 100MB threshold, migration deferred
-- **13-03**: Build verification protocol — Comprehensive checks (type-check, lint, build, tests, timing) confirm 152s build time under 5-minute constraint
+**v2.2 milestone decisions (pending validation):**
+- Vercel AI Gateway — Single endpoint for 100+ models, no separate API keys needed
+- Daytona MCP — Secure code execution via CLI stdio transport
+- Neon Postgres — Serverless database with generous free tier
+- Guest mode only — Simplify scope, defer authentication to v3.0
+
+**Recent v2.1 decisions (validated):**
+- Vercel AI SDK for AI features — Mature, streaming support, MCP tool integration (proven in /try page)
+- Fumadocs for documentation — Modern framework, i18n support, interactive components (foundation for v2.2)
+- Bun runtime — Fast builds essential for meeting <5 min constraint
 
 ### Pending Todos
 
-**User Manual Verification (from v2.0 Phase 24):**
+**From v2.1 (inherited):**
 - 56 search queries for manual testing (non-blocking)
-
-**User Screenshot Capture (from v2.0 Phase 23):**
 - 5-7 Claude Desktop screenshots (non-blocking)
-- Quick Start screenshot for README.md (added in 10-03, non-blocking)
+
+**v2.2 research needed:**
+- AI SDK 6 useChat hook with MCP tools (CRITICAL)
+- Vercel AI Gateway setup and configuration
+- Daytona MCP Server tools and CLI integration
+- Multiple MCP server connection patterns
+- Tool approval pattern (experimental_needsApproval)
 
 ### Blockers/Concerns
 
-**Phase 12 (RAG Chat):**
-- **RESOLVED (12-01)**: Embedding library — Using Vercel AI SDK native embedMany() with OpenAI text-embedding-3-small
-- **RESOLVED (12-01)**: Chunking strategy — Section-based by H2/H3 headings with 100-token overlap
-- **RESOLVED (12-02)**: RAG API endpoint — /api/rag complete with streaming, citations, and source metadata
-- **PENDING**: OPENAI_API_KEY required — Must be set in environment for vector indexing and query embeddings to work
-- **PENDING**: Similarity threshold validation — 0.75 baseline needs real query testing in Plan 12-03
-- **PENDING**: Citation rendering in UI — Map [1], [2] → clickable links using sources metadata
-
-**Phase 13 (Video Tutorials):**
-- **RESOLVED (13-01)**: Remotion installation — Dependencies installed, H.264 codec configured
-- **RESOLVED (13-01)**: Build-time rendering script — File-based caching implemented
-- **RESOLVED (13-02)**: Video compositions created — QuickStart (2.5 min), Workflow (4 min), Architecture (6 min) with frame-based animations
-- **RESOLVED (13-02)**: Videos rendered — 36.1MB total (quickstart 7.1MB, workflow 12MB, architecture 17MB)
-- **RESOLVED (13-03)**: Caption generation — Manual VTT captions created (2.6KB total), no Whisper needed for text-based animations
-- **RESOLVED (13-03)**: Video embedding — VideoPlayer component created with responsive design and default captions
-- **RESOLVED (13-03)**: Build integration — Comprehensive build verification confirms 152s build time (<5 min target)
-- **PHASE 13 COMPLETE** ✓ All VIDEO-01 through VIDEO-08 and BUILD-01 through BUILD-05 requirements met
+**v2.2 technical unknowns:**
+- Multiple MCP servers to single AI agent connection pattern
+- Daytona MCP installation and configuration process
+- Vercel AI Gateway authentication setup
+- Message persistence with AI SDK 6 parts array pattern
+- Base64 image rendering performance for large visualizations
 
 ## Session Continuity
 
-Last session: 2026-01-23 (autonomous Phase 13-03 execution)
-Stopped at: Completed 13-03-PLAN.md — Video captions, player component, and build verification
+Last session: 2026-01-31 (milestone v2.2 initialization)
+Stopped at: Requirements definition starting
 Resume file: None
-Next step: v2.1 Milestone COMPLETE - Ready for deployment
+Next step: Research domain ecosystem for v2.2 features
 
 ---
 
-*Last updated: 2026-01-23 after Plan 13-03 completion — v2.1 MILESTONE COMPLETE*
+*Last updated: 2026-01-31 after v2.2 milestone initialization*
