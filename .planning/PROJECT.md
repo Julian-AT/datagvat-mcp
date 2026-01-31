@@ -211,6 +211,14 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 - **Preserve**: mcp/ directory and existing MCP server — working production code
 - **Preserve**: docs/ structure and documentation content — v2.1 investment
 
+## Code Quality Standards
+
+- **Best practices**: Follow established patterns for the stack (Next.js, Drizzle, Vercel AI SDK)
+- **Clean code**: Minimize comments — code should be self-explanatory through clear naming
+- **Comments**: Only when logic is non-obvious or requires context (WHY, not WHAT)
+- **No AI slop**: Avoid verbose documentation blocks, excessive comments, or over-explanation
+- **Simple and readable**: Prioritize clarity and maintainability over cleverness
+
 ## Key Decisions
 
 <!-- Decisions that constrain future work. Add throughout project lifecycle. -->
@@ -228,6 +236,7 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 | Daytona MCP for sandboxes | Secure code execution, CLI-based integration | — Pending — v2.2 |
 | Neon Postgres for persistence | Serverless, generous free tier, Drizzle ORM support | — Pending — v2.2 |
 | Guest mode only (no auth) | Simplify v2.2 scope, defer user accounts to v3.0 | — Pending — v2.2 |
+| Clean code without AI slop | Minimize comments, self-explanatory code, best practices | ✓ Good — v2.2 coding standard |
 
 ---
-*Last updated: 2026-01-31 after v2.2 milestone initialization*
+*Last updated: 2026-01-31 after v2.2 coding standards defined*
