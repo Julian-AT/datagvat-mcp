@@ -18,7 +18,7 @@ import {
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from 'fumadocs-ui/components/ui/popover';
 import { useTreeContext } from 'fumadocs-ui/contexts/tree';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { cn } from '@/lib/cn';
@@ -86,7 +86,7 @@ export default function CustomSearchDialog(props: SharedProps) {
         type: 'action',
         node: (
           <div className="inline-flex items-center gap-2 text-fd-muted-foreground">
-            <ArrowRight className="size-4" />
+            <ChevronRight className="size-4" />
             <p>
               Jump to <span className="font-medium text-fd-foreground">{page.name}</span>
             </p>
@@ -110,9 +110,9 @@ export default function CustomSearchDialog(props: SharedProps) {
           items={
             query.data !== 'empty' || pageTreeAction
               ? [
-                ...(pageTreeAction ? [pageTreeAction] : []),
-                ...(Array.isArray(query.data) ? query.data : []),
-              ]
+                  ...(pageTreeAction ? [pageTreeAction] : []),
+                  ...(Array.isArray(query.data) ? query.data : []),
+                ]
               : null
           }
         />

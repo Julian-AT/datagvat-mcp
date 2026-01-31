@@ -1,5 +1,12 @@
-import { AbsoluteFill, Sequence, useCurrentFrame, interpolate, spring, useVideoConfig } from 'remotion';
 import type React from 'react';
+import {
+  AbsoluteFill,
+  interpolate,
+  Sequence,
+  spring,
+  useCurrentFrame,
+  useVideoConfig,
+} from 'remotion';
 
 /**
  * Architecture Video - System Design Overview (6 minutes)
@@ -19,12 +26,14 @@ const ArchIntroScene: React.FC = () => {
   const scale = spring({ frame, fps, from: 0.8, to: 1, config: { damping: 12 } });
 
   return (
-    <AbsoluteFill style={{
-      backgroundColor: '#0f172a',
-      alignItems: 'center',
-      justifyContent: 'center',
-      transform: `scale(${scale})`,
-    }}>
+    <AbsoluteFill
+      style={{
+        backgroundColor: '#0f172a',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transform: `scale(${scale})`,
+      }}
+    >
       <h1 style={{ fontSize: 72, color: 'white', margin: 0 }}>Architecture Overview</h1>
       <p style={{ fontSize: 36, color: '#94a3b8', marginTop: 20 }}>How DataGvat MCP Works</p>
     </AbsoluteFill>
@@ -115,9 +124,15 @@ const DataFlowScene: React.FC = () => {
 export const ArchitectureVideo: React.FC = () => {
   return (
     <AbsoluteFill>
-      <Sequence from={0} durationInFrames={90}><ArchIntroScene /></Sequence>
-      <Sequence from={90} durationInFrames={3600}><LayeredArchScene /></Sequence>
-      <Sequence from={3690} durationInFrames={7110}><DataFlowScene /></Sequence>
+      <Sequence from={0} durationInFrames={90}>
+        <ArchIntroScene />
+      </Sequence>
+      <Sequence from={90} durationInFrames={3600}>
+        <LayeredArchScene />
+      </Sequence>
+      <Sequence from={3690} durationInFrames={7110}>
+        <DataFlowScene />
+      </Sequence>
     </AbsoluteFill>
   );
 };

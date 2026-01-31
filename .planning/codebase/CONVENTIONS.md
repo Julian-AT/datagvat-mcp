@@ -1,335 +1,262 @@
 # Coding Conventions
 
-**Analysis Date:** 2025-01-16
+**Analysis Date:** 2026-01-31
 
 ## Naming Patterns
 
 **Files:**
-- Use lowercase with underscores: `client.py`, `discovery.py`, `test_client.py`
-- Test files prefixed with `test_`: `test_models.py`, `test_tools.py`
-- Module files named after their primary concern: `models.py`, `config.py`, `middleware.py`
+- Python: snake_case (e.g., `mcp/app/tools/discovery.py`, `mcp/tests/test_resources.py`)
+- TypeScript/React: kebab-case for components and utilities (e.g., `docs/components/messages.tsx`, `docs/lib/utils.ts`)
+- Test files: `test_*.py` prefix for Python tests
+- Configuration files: lowercase with dots (e.g., `pyproject.toml`, `biome.json`, `tsconfig.json`)
 
 **Functions:**
-- Use snake_case for all functions: `get_piveau_client()`, `register_discovery_tools()`
-- Async functions follow same pattern: `async def list_catalogues()`
-- Private methods prefixed with underscore: `_request()`, `_parse_response()`, `_handle_http_error()`
-- Factory/helper functions start with verb: `create_mock_context()`, `register_*_tools()`
+- Python: snake_case (e.g., `register_discovery_tools`, `get_piveau_client`, `calculate_quality_score`)
+- TypeScript: camelCase (e.g., `generateUUID`, `getLocalStorage`, `convertToUIMessages`)
+- Async functions: No special prefix; use `async def` (Python) or `async function` (TypeScript)
 
 **Variables:**
-- Use snake_case: `catalogue_id`, `mock_client`, `sample_dataset`
-- Constants in UPPER_CASE: `ACCEPT_HEADER`, `RDF_CONTENT_TYPES`, `WRITE_TOOLS`
-- Type variables follow class convention: `AppState`, `Settings`
+- Python: snake_case (e.g., `mock_client`, `sample_dataset`, `app_state`)
+- TypeScript: camelCase (e.g., `selectedModelId`, `isReadonly`, `messagesEndRef`)
+- Constants: SCREAMING_SNAKE_CASE (e.g., `ACCEPT_HEADER`, `RDF_CONTENT_TYPES`)
 
-**Classes:**
-- Use PascalCase: `PiveauClient`, `AuditMiddleware`, `Settings`
-- Exception classes end with Error: `PiveauApiError`, `PiveauNotFoundError`, `PiveauAuthError`
-- Pydantic models are nouns: `Dataset`, `Catalogue`, `Distribution`, `EligibilityResult`
-
-**Enums:**
-- Use PascalCase for class: `ValueType`, `IdentifierType`
-- Use UPPER_CASE for values: `URI_REFS`, `EU_RA_DOI`
+**Types:**
+- Python: PascalCase for classes and Pydantic models (e.g., `PiveauClient`, `Dataset`, `AppState`)
+- TypeScript: PascalCase for types and interfaces (e.g., `ChatMessage`, `MessagesProps`, `PostRequestBody`)
+- Python Enums: PascalCase for class, SCREAMING_SNAKE_CASE for values (e.g., `ValueType.URI_REFS`)
 
 ## Code Style
 
 **Formatting:**
-- Tool: Ruff (configured in `pyproject.toml`)
-- Line length: 120 characters
-- Target Python version: 3.11
+- Python: Ruff formatter with 120-character line length (`mcp/pyproject.toml`)
+- TypeScript/docs: Biome formatter with 100-character line length, 2-space indentation (`docs/biome.json`)
+- Line endings: LF (enforced by `.editorconfig`)
+- Final newline: Required in all files
 
 **Linting:**
-- Tool: Ruff
-- Rules enabled: E (pycodestyle), F (pyflakes), I (isort), UP (pyupgrade)
-- Rule E501 (line too long) ignored
+- Python: Ruff linter with rules ["E", "F", "I", "UP"], ignores E501 (line too long)
+- TypeScript: Biome linter with recommended rules, custom rules for style, complexity, and accessibility
+- Biome rules include: noNegationElse (error), useBlockStatements (warn), noExplicitAny (warn)
 
-**Configuration:**
-```toml
-# pyproject.toml
-[tool.ruff]
-line-length = 120
-target-version = "py311"
+**Indentation:**
+- Python: 4 spaces (`.editorconfig` line 27-28)
+- TypeScript/JSON/YAML: 2 spaces (`.editorconfig` line 9, confirmed in `docs/biome.json`)
 
-[tool.ruff.lint]
-select = ["E", "F", "I", "UP"]
-ignore = ["E501"]
-```
+**Quotes:**
+- TypeScript: Single quotes for JS/TS, double quotes for JSX attributes (`docs/biome.json` lines 45-46)
+- Python: No strict enforcement; double quotes common in codebase
+
+**Semicolons:**
+- TypeScript: Always required (Biome config: `semicolons: "always"`)
+
+**Trailing commas:**
+- TypeScript: ES5-compatible trailing commas (`trailingCommas: "es5"`)
 
 ## Import Organization
 
 **Order:**
-1. Standard library imports
-2. Third-party imports
-3. Local/application imports
+1. Standard library imports (Python: `import logging`, TypeScript: `type` imports from libraries)
+2. Third-party framework imports (Python: `fastmcp`, `httpx`, `pydantic`; TypeScript: `ai`, `next/server`)
+3. Local application imports (Python: `from app.client import`, TypeScript: `@/components`, `@/lib`)
 
-**Pattern from `app/server.py`:**
+**Python example from `mcp/app/tools/analysis.py`:**
 ```python
 import logging
-from contextlib import asynccontextmanager
-from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import Annotated, Any
 
-from fastmcp import FastMCP
+from fastmcp import Context, FastMCP
+from fastmcp.exceptions import ToolError
+from pydantic import Field, StringConstraints
 
-from app.client import PiveauClient
-from app.config import get_settings
+from app.dependencies import get_piveau_client
+from app.models import IdentifierType
 ```
 
-**TYPE_CHECKING Pattern:**
-- Use `TYPE_CHECKING` for imports only needed for type hints to avoid circular imports:
-```python
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from app.config import Settings
+**TypeScript example from `docs/components/messages.tsx`:**
+```typescript
+import type { UseChatHelpers } from '@ai-sdk/react';
+import { ChevronDown } from 'lucide-react';
+import { Greeting } from '@/components/greeting';
+import { PreviewMessage, ThinkingMessage } from '@/components/message';
+import { useMessages } from '@/hooks/use-messages';
+import type { ChatMessage } from '@/lib/types';
+import { useDataStream } from './data-stream-provider';
 ```
 
 **Path Aliases:**
-- None used. All imports are relative to package root `app`.
+- TypeScript: `@/*` maps to project root (configured in `docs/tsconfig.json` line 23)
+- Python: Relative imports within `app` namespace (e.g., `from app.client import`)
 
-## Type Annotations
-
-**Required everywhere:**
-- All function parameters must be typed
-- All return values must be typed
-- Use `Any` sparingly, prefer specific types
-
-**Common patterns:**
-```python
-# Union types use | syntax (Python 3.10+)
-def get_catalogue(self, catalogue_id: str) -> dict[str, Any]:
-
-# Optional parameters
-async def create_draft(self, catalogue_id: str, payload: dict[str, Any] | None = None) -> str:
-
-# List with typed elements
-async def list_catalogues(self, limit: int = 100) -> list[dict[str, Any]]:
-
-# Annotated for tool parameters (FastMCP)
-dataset_id: Annotated[str, "The dataset identifier"]
-limit: Annotated[int, Field(ge=1, le=5000)] = 100
-```
-
-## Pydantic Model Patterns
-
-**Model Configuration:**
-```python
-class Dataset(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    id: str
-    title: dict[str, str] | str
-    access_url: str | None = Field(None, alias="accessURL")
-```
-
-**Key patterns:**
-- Use `ConfigDict(populate_by_name=True)` for alias support
-- Use `Field(alias="...")` for JSON field name mapping
-- Use `Field(default_factory=list)` for mutable defaults
-- Support both string and dict types for multilingual fields: `dict[str, str] | str`
+**Import optimization:**
+- Biome: Auto-organize imports on save (configured in `docs/biome.json` lines 60-62)
 
 ## Error Handling
 
-**Exception Hierarchy:**
-- Base class `PiveauApiError` with status_code and details
-- Specific exceptions: `PiveauNotFoundError`, `PiveauAuthError`
+**Patterns:**
+- Python: Custom exception classes inherit from `Exception` (e.g., `PiveauApiError`, `PiveauNotFoundError`, `PiveauAuthError` in `mcp/app/client.py`)
+- Python MCP tools: Wrap exceptions and raise `fastmcp.exceptions.ToolError` with descriptive messages
+- TypeScript: Custom `ChatSDKError` class with error codes (see `docs/lib/errors.ts`)
+- Async error handling: Use try/except (Python) or try/catch (TypeScript) blocks
 
-**Pattern from `app/client.py`:**
+**Python example from `mcp/app/tools/analysis.py`:**
 ```python
-class PiveauApiError(Exception):
-    def __init__(self, message: str, status_code: int | None = None, details: Any = None):
-        super().__init__(message)
-        self.status_code = status_code
-        self.details = details
-
-class PiveauNotFoundError(PiveauApiError):
-    pass
-```
-
-**HTTP Error Handling:**
-```python
-def _handle_http_error(self, error: httpx.HTTPStatusError) -> None:
-    status = error.response.status_code
-    if status == 404:
-        raise PiveauNotFoundError("Resource not found", status_code=status, details=details)
-    elif status in (401, 403):
-        raise PiveauAuthError("Authentication failed", status_code=status, details=details)
-    else:
-        raise PiveauApiError(f"API error: {status}", status_code=status, details=details)
-```
-
-**Tool Error Handling (Graceful Degradation):**
-```python
-# From app/tools/analysis.py - continue on partial failure
 try:
-    analysis["metrics"] = await client.get_metrics(dataset_id)
-except Exception:
-    analysis["metrics"] = None
+    return await client.get_metrics(dataset_id, historic=include_history)
+except Exception as e:
+    raise ToolError(f"Failed to fetch metrics for dataset '{dataset_id}': {e}") from e
 ```
+
+**TypeScript example from `docs/lib/utils.ts`:**
+```typescript
+try {
+  const response = await fetch(input, init);
+  if (!response.ok) {
+    const { code, cause } = await response.json();
+    throw new ChatSDKError(code as ErrorCode, cause);
+  }
+  return response;
+} catch (error: unknown) {
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    throw new ChatSDKError('offline:chat');
+  }
+  throw error;
+}
+```
+
+**Graceful degradation:**
+- Non-critical operations log warnings and continue (e.g., `mcp/app/tools/analysis.py` lines 94-96, 104-106)
+- Track degraded state in responses with `degraded` and `degradation_reasons` fields
 
 ## Logging
 
-**Framework:** Python standard `logging` module
+**Framework:**
+- Python: Built-in `logging` module
+- TypeScript: `console.log`, `console.error`
 
-**Setup Pattern:**
+**Patterns:**
+- Python: Create logger per module: `logger = logging.getLogger(__name__)`
+- Log levels: INFO for startup/shutdown, WARNING for degraded operations, ERROR for failures
+- Python example from `mcp/app/server.py`:
 ```python
-import logging
 logger = logging.getLogger(__name__)
+logger.info("Starting Austria MCP Server")
 ```
-
-**Log Levels Used:**
-- INFO: Tool execution start/completion, server lifecycle
-- ERROR: Tool/request failures with timing
-- WARNING: Non-fatal issues like RDF parse failures
-
-**Pattern from `app/middleware.py`:**
+- Python example from `mcp/app/tools/analysis.py`:
 ```python
-logger.info(f"[{request_id}] {tool_name} started")
-logger.info(f"[{request_id}] {tool_name} completed in {elapsed:.2f}ms")
-logger.error(f"[{request_id}] {tool_name} failed after {elapsed:.2f}ms: {e}")
+logger.warning(f"Distributions unavailable for dataset {dataset_id}: {e}")
 ```
 
-## Async Patterns
+**Configuration:**
+- Python: Configured in lifespan with basicConfig (see `mcp/app/server.py` lines 39-42)
+- Log format: `"%(asctime)s [%(levelname)s] %(name)s: %(message)s"`
+- Level set from `settings.log_level` environment variable
 
-**Context Managers:**
-```python
-async def __aenter__(self) -> "PiveauClient":
-    return self
-
-async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
-    await self.close()
-```
-
-**Lifespan Pattern (FastMCP):**
-```python
-@asynccontextmanager
-async def lifespan(mcp: FastMCP):
-    # Setup
-    client = PiveauClient(...)
-    try:
-        yield AppState(settings=settings, piveau_client=client)
-    finally:
-        await client.close()
-```
-
-## Dependency Injection
-
-**Pattern from `app/dependencies.py`:**
-```python
-def get_app_state(ctx: Context) -> "AppState":
-    """Get the AppState from lifespan context."""
-    return ctx.request_context.lifespan_context
-
-def get_piveau_client(ctx: Context) -> "PiveauClient":
-    """Get the PiveauClient from server state."""
-    return get_app_state(ctx).piveau_client
-```
-
-**Usage in tools:**
-```python
-async def get_dataset(ctx: Context, dataset_id: str) -> dict[str, Any]:
-    client = get_piveau_client(ctx)
-    return await client.get_dataset(dataset_id)
-```
-
-## Tool Registration Pattern
-
-**Use decorator-based registration with register functions:**
-```python
-def register_discovery_tools(mcp: FastMCP) -> None:
-    @mcp.tool(
-        name="list_catalogues",
-        description="List available data catalogues...",
-        annotations={"readOnlyHint": True},
-    )
-    async def list_catalogues(ctx: Context, ...) -> list[dict[str, Any]]:
-        ...
-```
-
-**Tool Annotations:**
-- `readOnlyHint: True` for read operations
-- `readOnlyHint: False, destructiveHint: False` for create operations
-- `readOnlyHint: False, idempotentHint: True` for update operations
-- `readOnlyHint: False, destructiveHint: True` for delete operations
-
-## Middleware Pattern
-
-**From `app/middleware.py`:**
-```python
-class AuditMiddleware(Middleware):
-    async def on_call_tool(self, context: MiddlewareContext, call_next):
-        # Pre-processing
-        start = time.perf_counter()
-        try:
-            result = await call_next(context)
-            # Post-processing on success
-            return result
-        except Exception as e:
-            # Post-processing on failure
-            raise
-```
-
-## Configuration Pattern
-
-**Use pydantic-settings with environment prefix:**
-```python
-class Settings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_prefix="AUSTRIA_MCP_",
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore",
-    )
-
-    piveau_api_base: str = Field(default="https://qs.data.gv.at/api/hub/repo")
-    piveau_api_key: SecretStr | None = Field(default=None)
-```
-
-**Singleton getter pattern:**
-```python
-_settings: Settings | None = None
-
-def get_settings() -> Settings:
-    global _settings
-    if _settings is None:
-        _settings = Settings()
-    return _settings
-```
-
-## Comments and Documentation
+## Comments
 
 **When to Comment:**
-- Module docstrings at top of every file
-- Class docstrings for non-obvious classes
-- Function docstrings for public API functions
+- Docstrings: Required for public functions, classes, and methods
+- Inline comments: Used sparingly for complex logic or non-obvious behavior
+- Type hints preferred over comments for describing parameters
 
-**Docstring Style:**
+**Python Docstrings:**
+- Use triple double-quotes
+- Include Args, Returns, Raises sections
+- Example from `mcp/app/tools/discovery.py`:
 ```python
-"""Austria Open Data MCP Server."""
+def calculate_quality_score(dataset: dict[str, Any]) -> float:
+    """Calculate quality score for a dataset based on metadata completeness.
 
-"""HTTP client for the Piveau Hub API."""
+    Score components (0-100 scale):
+    - Has title: 10 points
+    - Has description: 15 points
+    [...]
 
-"""Get the AppState from lifespan context."""
+    Returns:
+        Float score 0-100 where 100 is highest quality.
+    """
 ```
 
-**Inline comments for complex logic only.**
-
-## Constants
-
-**Define as class attributes or module-level:**
-```python
-# Class-level
-class PiveauClient:
-    ACCEPT_HEADER = "application/ld+json, application/json;q=0.9, text/turtle;q=0.8"
-    RDF_CONTENT_TYPES = frozenset(["text/turtle", "application/rdf+xml", ...])
-
-# Use frozenset for immutable sets
-class AuthMiddleware:
-    WRITE_TOOLS = frozenset({
-        "create_dataset_draft",
-        "update_dataset_draft",
-        ...
-    })
+**TypeScript JSDoc:**
+- Minimal usage; TypeScript types provide sufficient documentation
+- Type annotations preferred over JSDoc comments
+- Example from `docs/components/messages.tsx`:
+```typescript
+type MessagesProps = {
+  addToolApprovalResponse: UseChatHelpers<ChatMessage>['addToolApprovalResponse'];
+  chatId: string;
+  status: UseChatHelpers<ChatMessage>['status'];
+  // ... more properties with explicit types
+};
 ```
+
+## Function Design
+
+**Size:**
+- Python: Functions typically 20-100 lines; complex operations split into helpers (e.g., `calculate_quality_score` in `mcp/app/tools/discovery.py`)
+- TypeScript: React components 30-90 lines; utility functions 10-40 lines
+
+**Parameters:**
+- Python: Use `Annotated` types with Pydantic `Field` for validation and descriptions
+- TypeScript: Use typed objects for multiple related parameters (e.g., `MessagesProps`)
+- Example from `mcp/app/tools/analysis.py`:
+```python
+async def get_dataset_metrics(
+    ctx: Context,
+    dataset_id: Annotated[str, StringConstraints(min_length=1, max_length=200), Field(description="...")],
+    include_history: Annotated[bool, Field(description="...")] = False,
+) -> dict[str, Any]:
+```
+
+**Return Values:**
+- Python: Explicit return type hints (e.g., `-> dict[str, Any]`, `-> list[dict[str, Any]]`)
+- TypeScript: Inferred or explicit return types for complex functions
+- Prefer structured dicts/objects over tuples
+
+**Progress Reporting:**
+- Python MCP tools: Check if `ctx` exists before calling `await ctx.report_progress(current, total, message)`
+- Example from `mcp/app/tools/analysis.py`:
+```python
+if ctx:
+    await ctx.report_progress(1, total_steps, "Fetching dataset metadata...")
+```
+
+## Module Design
+
+**Exports:**
+- Python: Define `__all__` in `__init__.py` files (e.g., `mcp/app/tools/__init__.py`)
+- TypeScript: Named exports for components and utilities; avoid default exports except for page components
+
+**Barrel Files:**
+- Python: `__init__.py` files import key exports for convenience
+- TypeScript: Limited usage; prefer explicit imports from individual files
+
+**Module structure:**
+- Python: Organize by feature (e.g., `tools/discovery.py`, `tools/analysis.py`, `tools/vocabularies.py`)
+- Registration pattern: Each module provides `register_*_tools(mcp: FastMCP)` function
+- Example from `mcp/app/server.py`:
+```python
+register_discovery_tools(mcp)
+register_analysis_tools(mcp)
+register_vocabulary_tools(mcp)
+register_preview_tools(mcp)
+register_resources(mcp)
+register_prompts(mcp)
+```
+
+## Type Safety
+
+**Python:**
+- Use Pydantic models for data validation (`mcp/app/models.py`)
+- Type hints required for function signatures
+- Enums for fixed value sets (e.g., `ValueType`, `IdentifierType`)
+- `TYPE_CHECKING` imports for circular dependency resolution
+
+**TypeScript:**
+- Strict mode enabled (`docs/tsconfig.json` line 11: `"strict": true`)
+- Explicit `type` imports for type-only references
+- Utility types from `ai` package (e.g., `UseChatHelpers<ChatMessage>`)
+- Avoid `any`; use `unknown` with type guards when necessary
 
 ---
 
-*Convention analysis: 2025-01-16*
+*Convention analysis: 2026-01-31*

@@ -17,4 +17,3 @@ export function useMode(): string | undefined {
     return getSection(slug[0]);
   }
 }
-

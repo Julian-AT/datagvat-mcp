@@ -1,182 +1,301 @@
 # Codebase Structure
 
-**Analysis Date:** 2025-01-16
+**Analysis Date:** 2026-01-31
 
 ## Directory Layout
 
 ```
 datagvat-mcp/
-├── app/                    # Main application package
-│   ├── tools/              # MCP tool implementations (grouped by domain)
-│   │   ├── __init__.py     # Empty package marker
-│   │   ├── analysis.py     # Quality metrics and eligibility tools
-│   │   ├── discovery.py    # Catalogue and dataset browsing tools
-│   │   ├── management.py   # Draft CRUD and publishing tools
-│   │   └── vocabularies.py # Controlled vocabulary tools
-│   ├── __init__.py         # Package init with version
-│   ├── client.py           # PiveauClient HTTP client
-│   ├── config.py           # Settings via pydantic-settings
-│   ├── dependencies.py     # DI helpers for Context extraction
-│   ├── middleware.py       # Audit and Auth middleware
-│   ├── models.py           # Pydantic models and enums
-│   ├── prompts.py          # MCP prompt templates
-│   ├── resources.py        # MCP resource endpoints
-│   └── server.py           # FastMCP server setup and entry point
-├── tests/                  # Test suite
-│   ├── __init__.py         # Test package marker
-│   ├── conftest.py         # Shared fixtures
-│   ├── test_client.py      # PiveauClient tests
-│   ├── test_config.py      # Settings tests
-│   ├── test_dependencies.py# DI helper tests
-│   ├── test_middleware.py  # Middleware tests
-│   ├── test_models.py      # Model validation tests
-│   ├── test_prompts.py     # Prompt generation tests
-│   ├── test_resources.py   # Resource endpoint tests
-│   └── test_tools.py       # Tool function tests
-├── .planning/              # Planning and documentation
-│   └── codebase/           # Codebase analysis documents
-├── Dockerfile              # Container build
-├── environment.yaml        # Conda environment
-├── pyproject.toml          # Python project config (hatch build)
-├── README.md               # Project documentation
-└── llms.txt                # LLM context file
+├── mcp/                    # Python MCP server
+│   ├── app/                # Server application code
+│   │   ├── cli/            # CLI installer commands
+│   │   └── tools/          # MCP tool implementations
+│   ├── scripts/            # Code generation scripts
+│   ├── tests/              # Python test suite
+│   ├── pyproject.toml      # Python package config
+│   └── uv.lock             # UV lockfile
+├── docs/                   # Next.js documentation site
+│   ├── app/                # Next.js App Router
+│   │   ├── [lang]/         # Internationalized routes
+│   │   └── api/            # API routes (chat, search)
+│   ├── components/         # React components
+│   │   ├── ai-elements/    # AI-specific components
+│   │   └── ui/             # shadcn/ui components
+│   ├── content/            # MDX documentation content
+│   │   └── docs/           # Docs pages
+│   ├── lib/                # Utility libraries
+│   │   ├── ai/             # AI SDK utilities
+│   │   └── source/         # Fumadocs source config
+│   ├── public/             # Static assets
+│   ├── remotion/           # Video tutorial compositions
+│   ├── package.json        # Node dependencies
+│   └── next.config.mjs     # Next.js configuration
+├── .planning/              # GSD planning artifacts
+│   ├── codebase/           # Codebase analysis docs
+│   ├── phases/             # Implementation phases
+│   └── milestones/         # Project milestones
+├── assets/                 # Repository assets (banner, etc.)
+├── my-app/                 # Example Next.js app (scaffolded)
+├── next-app/               # Example Next.js app (scaffolded)
+├── openapi.yaml            # OpenAPI spec for MCP server
+└── README.md               # Project documentation
 ```
 
 ## Directory Purposes
 
-**`app/`:**
-- Purpose: Main application package containing all source code
-- Contains: Server, client, models, tools, resources, prompts, middleware, config
-- Key files: `server.py` (entry point), `client.py` (HTTP client)
+**`mcp/`:**
+- Purpose: Python MCP server package
+- Contains: FastMCP server, tools, CLI, tests
+- Key files: `app/server.py` (entry point), `pyproject.toml` (package config)
 
-**`app/tools/`:**
-- Purpose: MCP tool implementations grouped by domain
-- Contains: Python modules with register_*_tools functions
-- Key files: `discovery.py` (read tools), `management.py` (write tools)
+**`mcp/app/`:**
+- Purpose: Core MCP server application code
+- Contains: Server initialization, API client, models, business logic, tools
+- Key files: `server.py`, `client.py`, `models.py`, `config.py`, `semantic.py`, `similarity.py`, `preview.py`, `prompts.py`, `resources.py`, `middleware.py`, `dependencies.py`
 
-**`tests/`:**
-- Purpose: Pytest test suite with unit tests
-- Contains: Test modules mirroring app structure, shared fixtures
-- Key files: `conftest.py` (fixtures), `test_tools.py` (tool tests)
+**`mcp/app/cli/`:**
+- Purpose: Command-line interface for MCP server installation
+- Contains: Typer-based CLI with init/doctor/update/uninstall commands
+- Key files: `main.py`
+
+**`mcp/app/tools/`:**
+- Purpose: MCP tool implementations grouped by category
+- Contains: Discovery tools, analysis tools, preview tools, vocabulary tools
+- Key files: `discovery.py` (search, list, get), `analysis.py` (quality scoring), `preview.py` (data inspection), `vocabularies.py` (SKOS concepts)
+
+**`mcp/tests/`:**
+- Purpose: Pytest test suite for MCP server
+- Contains: Unit tests, integration tests, fixtures
+- Key files: `conftest.py` (shared fixtures), `test_*.py` (test modules)
+
+**`mcp/scripts/`:**
+- Purpose: Code generation and maintenance scripts
+- Contains: JSON schema extractors, template generators
+- Key files: `extractors/`, `templates/`
+
+**`docs/`:**
+- Purpose: Next.js documentation site with AI chat
+- Contains: App Router pages, components, MDX content, API routes
+- Key files: `package.json`, `next.config.mjs`, `tsconfig.json`
+
+**`docs/app/`:**
+- Purpose: Next.js App Router entry point
+- Contains: Route handlers, layouts, pages
+- Key files: `layout.tsx`, `page.tsx`, `[lang]/docs/[[...slug]]/page.tsx`, `api/chat/route.ts`
+
+**`docs/app/[lang]/`:**
+- Purpose: Internationalized route group
+- Contains: Locale-specific pages (home, docs, chat)
+- Key files: `layout.tsx`, `(home)/page.tsx`, `docs/[[...slug]]/page.tsx`, `chat/page.tsx`
+
+**`docs/app/api/`:**
+- Purpose: API route handlers
+- Contains: Chat endpoint, search endpoint
+- Key files: `chat/route.ts` (AI streaming), `search/route.ts` (content search)
+
+**`docs/components/`:**
+- Purpose: Reusable React components
+- Contains: AI elements, UI primitives, MDX components
+- Key files: `chat.tsx`, `messages.tsx`, `multimodal-input.tsx`
+
+**`docs/components/ai-elements/`:**
+- Purpose: AI-specific UI components
+- Contains: Message display, reasoning, model selector, prompt input
+- Key files: `message.tsx`, `reasoning.tsx`, `model-selector.tsx`, `prompt-input.tsx`, `actions.tsx`, `response.tsx`
+
+**`docs/components/ui/`:**
+- Purpose: shadcn/ui component library
+- Contains: Radix UI wrapper components
+- Key files: `button.tsx`, `input.tsx`, `card.tsx`, `dialog.tsx`, `dropdown-menu.tsx`, `tooltip.tsx`, `alert.tsx`, `scroll-area.tsx`, `sidebar.tsx`, `skeleton.tsx`
+
+**`docs/content/docs/`:**
+- Purpose: MDX documentation content
+- Contains: Guides, API reference, tutorials organized by folders
+- Key files: `(docs)/` subdirectory with meta.json navigation
+
+**`docs/lib/`:**
+- Purpose: Shared utilities and configuration
+- Contains: AI SDK setup, Fumadocs source loader, type definitions
+- Key files: `source.tsx`, `ai/providers.ts`, `ai/prompts.ts`, `utils.ts`, `types.ts`, `errors.ts`
+
+**`docs/lib/ai/`:**
+- Purpose: AI SDK integration utilities
+- Contains: Provider setup, prompt engineering, entitlements
+- Key files: `providers.ts`, `prompts.ts`, `entitlements.ts`
+
+**`docs/lib/source/`:**
+- Purpose: Fumadocs source configuration
+- Contains: Navigation tree, page source loaders
+- Key files: `navigation.ts`
+
+**`docs/public/`:**
+- Purpose: Static assets served at root
+- Contains: Images, videos, screenshots, optimized assets
+- Key files: `favicon.ico`, `screenshots/`, `videos/`, `optimized/`
+
+**`docs/remotion/`:**
+- Purpose: Video tutorial generation with Remotion
+- Contains: Video compositions for documentation
+- Key files: `Root.tsx`, `compositions/Architecture.tsx`, `compositions/QuickStart.tsx`, `compositions/Workflow.tsx`
+
+**`.planning/`:**
+- Purpose: GSD (Get Stuff Done) planning artifacts
+- Contains: Phase plans, milestone tracking, codebase analysis
+- Key files: `phases/*/PLAN.md`, `milestones/*.md`, `codebase/*.md`
 
 **`.planning/codebase/`:**
-- Purpose: Codebase analysis documents for GSD workflow
-- Contains: ARCHITECTURE.md, STRUCTURE.md, etc.
-- Generated: Yes (by GSD map-codebase)
-- Committed: Yes
+- Purpose: Codebase analysis documents for GSD
+- Contains: Architecture, conventions, testing patterns, tech stack
+- Key files: `ARCHITECTURE.md`, `STRUCTURE.md`, `CONVENTIONS.md`, `TESTING.md`, `STACK.md`, `INTEGRATIONS.md`, `CONCERNS.md`
+
+**`.planning/phases/`:**
+- Purpose: Individual phase implementation plans
+- Contains: Subdirectories per phase with PLAN.md
+- Key files: `*/PLAN.md`, `*/STATUS.md`
+
+**`my-app/` and `next-app/`:**
+- Purpose: Example Next.js applications (scaffolded but unused)
+- Contains: Boilerplate Next.js App Router structure
+- Key files: Not actively used in production
 
 ## Key File Locations
 
 **Entry Points:**
-- `app/server.py`: Main server entry, run with `python -m app.server`
+- `mcp/app/server.py`: MCP server main entry point
+- `mcp/app/cli/main.py`: CLI entry point (`datagvat-mcp` command)
+- `docs/app/page.tsx`: Documentation site home page
+- `docs/app/[lang]/docs/[[...slug]]/page.tsx`: Dynamic docs page renderer
+- `docs/app/api/chat/route.ts`: AI chat API endpoint
 
 **Configuration:**
-- `app/config.py`: Settings class with env var loading
-- `pyproject.toml`: Project metadata, dependencies, tool configs
+- `mcp/pyproject.toml`: Python package metadata, dependencies, build config
+- `docs/package.json`: Node dependencies, scripts
+- `docs/next.config.mjs`: Next.js configuration
+- `docs/tsconfig.json`: TypeScript compiler options
+- `docs/source.config.ts`: Fumadocs source configuration
+- `mcp/app/config.py`: MCP server settings (Pydantic Settings)
+- `openapi.yaml`: OpenAPI specification for MCP API
 
 **Core Logic:**
-- `app/client.py`: PiveauClient - all HTTP/API operations
-- `app/middleware.py`: AuditMiddleware, AuthMiddleware
-
-**MCP Components:**
-- `app/tools/discovery.py`: Read-only dataset/catalogue tools
-- `app/tools/management.py`: Draft management tools (requires auth)
-- `app/tools/analysis.py`: Quality metrics and eligibility tools
-- `app/tools/vocabularies.py`: Vocabulary browsing tools
-- `app/resources.py`: MCP resource endpoints (piveau:// URIs)
-- `app/prompts.py`: MCP prompt templates for workflows
+- `mcp/app/client.py`: Piveau Hub API client (HTTP, RDF parsing)
+- `mcp/app/tools/discovery.py`: Dataset search and discovery tools
+- `mcp/app/semantic.py`: Natural language query expansion
+- `mcp/app/similarity.py`: Related dataset finder
+- `docs/app/api/chat/route.ts`: AI streaming with MCP tools
+- `docs/lib/ai/providers.ts`: AI Gateway model configuration
 
 **Testing:**
-- `tests/conftest.py`: Shared pytest fixtures
-- `tests/test_*.py`: Unit tests for each module
+- `mcp/tests/conftest.py`: Pytest fixtures and configuration
+- `mcp/tests/test_*.py`: Unit and integration tests
+- `mcp/pytest.ini`: Pytest configuration in pyproject.toml
 
 ## Naming Conventions
 
-**Files:**
-- `snake_case.py` for all Python modules
-- Test files prefixed with `test_` matching source module name
-- Tools grouped by domain: `discovery.py`, `management.py`, `analysis.py`, `vocabularies.py`
+**Files (Python):**
+- `snake_case.py`: Module files
+- `test_*.py`: Test files (pytest discovery pattern)
+- Pattern: Descriptive names like `semantic.py`, `similarity.py`, `preview.py`
+
+**Files (TypeScript/TSX):**
+- `kebab-case.tsx`: Component files (e.g., `model-selector.tsx`, `prompt-input.tsx`)
+- `kebab-case.ts`: Utility files (e.g., `page-actions.ts`)
+- `PascalCase.tsx`: Component files with JSX (alternative pattern, e.g., `Root.tsx`)
+- Pattern: shadcn/ui uses kebab-case, Remotion uses PascalCase
 
 **Directories:**
-- `snake_case` for all directories
-- `app/tools/` for tool modules (subdirectory pattern)
-- `tests/` at project root
+- `lowercase`: Python packages (e.g., `app`, `tools`, `cli`, `tests`)
+- `kebab-case`: Next.js route groups (e.g., `ai-elements`, `api-page`)
+- `[bracket]`: Next.js dynamic routes (e.g., `[lang]`, `[[...slug]]`)
+- `(group)`: Next.js route groups without URL segment (e.g., `(home)`, `(docs)`)
 
 **Functions:**
-- `snake_case` for all functions
-- Tool registration: `register_*_tools(mcp: FastMCP)`
-- DI helpers: `get_*` prefix (e.g., `get_piveau_client`)
-- MCP tool names: `verb_noun` pattern (e.g., `list_catalogues`, `get_dataset`)
+- `snake_case`: Python functions (e.g., `search_datasets`, `get_catalogue`)
+- `camelCase`: TypeScript functions (e.g., `getLanguageModel`, `generateUUID`)
+- Pattern: Follow language idioms (PEP 8 for Python, JavaScript conventions for TS)
 
-**Classes:**
-- `PascalCase` for all classes
-- Exception suffix: `*Error` (e.g., `PiveauApiError`)
-- Middleware suffix: `*Middleware` (e.g., `AuditMiddleware`)
+**Variables:**
+- `snake_case`: Python variables (e.g., `piveau_client`, `dataset_id`)
+- `camelCase`: TypeScript variables (e.g., `selectedChatModel`, `requestHints`)
 
-**Constants:**
-- `UPPER_SNAKE_CASE` for class-level constants
-- e.g., `ACCEPT_HEADER`, `RDF_CONTENT_TYPES`, `WRITE_TOOLS`
-
-## Import Organization
-
-**Order:**
-1. Standard library imports
-2. Third-party imports (fastmcp, pydantic, httpx, rdflib)
-3. Local imports (app.*)
-
-**Path Aliases:**
-- None used - all imports are relative to package root
-- Pattern: `from app.module import Class`
+**Types/Classes:**
+- `PascalCase`: Python classes (e.g., `PiveauClient`, `Dataset`, `Distribution`)
+- `PascalCase`: TypeScript types/interfaces (e.g., `ChatMessage`, `RequestHints`)
 
 ## Where to Add New Code
 
 **New MCP Tool:**
-- Primary code: `app/tools/{domain}.py` (add to existing or create new)
-- If new domain: Create `app/tools/newdomain.py`, import register function in `app/server.py`
-- Tests: `tests/test_tools.py` (add test cases)
+- Primary code: `mcp/app/tools/` - add to existing category file or create new category
+- Registration: `mcp/app/server.py` - call `register_*_tools(mcp)`
+- Tests: `mcp/tests/test_tools_*.py` - add test module
+- Models: `mcp/app/models.py` - add Pydantic models if needed
 
-**New MCP Resource:**
-- Implementation: `app/resources.py` (add @mcp.resource decorator)
-- Tests: `tests/test_resources.py`
+**New API Endpoint:**
+- Implementation: `docs/app/api/[name]/route.ts` - create route handler
+- Schema: `docs/app/api/[name]/schema.ts` - define Zod schema
+- Usage: Component imports from `@/app/api/[name]`
 
-**New MCP Prompt:**
-- Implementation: `app/prompts.py` (add @mcp.prompt decorator)
-- Tests: `tests/test_prompts.py`
+**New UI Component:**
+- AI-specific: `docs/components/ai-elements/[name].tsx`
+- Generic UI: `docs/components/ui/[name].tsx` (follow shadcn/ui pattern)
+- Shared logic: `docs/components/[name].tsx`
+- Usage: Import from `@/components/[name]`
 
-**New API Operation:**
-- Implementation: `app/client.py` (add method to PiveauClient)
-- Tests: `tests/test_client.py`
+**New Documentation Page:**
+- MDX file: `docs/content/docs/(docs)/[category]/[page].mdx`
+- Navigation: Update `docs/content/docs/(docs)/[category]/meta.json`
+- Assets: `docs/public/` for images/videos
 
-**New Pydantic Model:**
-- Implementation: `app/models.py`
-- Tests: `tests/test_models.py`
+**New Feature (Multi-Module):**
+- Backend: Add tool to `mcp/app/tools/[category].py`
+- Frontend: Add component to `docs/components/`
+- API: Add route to `docs/app/api/`
+- Docs: Add guide to `docs/content/docs/(docs)/guides/`
 
-**New Middleware:**
-- Implementation: `app/middleware.py` (subclass Middleware)
-- Registration: `app/server.py` (add to middleware list)
-- Tests: `tests/test_middleware.py`
+**Utilities:**
+- Shared helpers (Python): `mcp/app/` at root level (e.g., `semantic.py`, `similarity.py`)
+- Shared helpers (TypeScript): `docs/lib/[name].ts` or `docs/lib/[category]/[name].ts`
 
-**Utilities/Helpers:**
-- Shared helpers: `app/dependencies.py`
-- Tests: `tests/test_dependencies.py`
+**Business Logic:**
+- Algorithm implementations: `mcp/app/[name].py` (e.g., semantic search, similarity)
+- Type definitions: `mcp/app/models.py` (Pydantic) or `docs/lib/types.ts` (TypeScript)
 
 ## Special Directories
 
-**`.pytest_cache/`:**
-- Purpose: Pytest cache for test optimization
-- Generated: Yes
-- Committed: No (in .gitignore)
+**`node_modules/`:**
+- Purpose: NPM dependencies (docs site)
+- Generated: Yes (via `bun install` or `npm install`)
+- Committed: No (gitignored)
+
+**`.next/`:**
+- Purpose: Next.js build output and cache
+- Generated: Yes (via `next build` or `next dev`)
+- Committed: No (gitignored)
+
+**`__pycache__/`:**
+- Purpose: Python bytecode cache
+- Generated: Yes (via Python interpreter)
+- Committed: No (gitignored)
 
 **`.planning/`:**
-- Purpose: GSD workflow planning documents
-- Generated: Partially (codebase docs are generated)
-- Committed: Yes
+- Purpose: GSD planning artifacts
+- Generated: Manually by GSD commands and human planning
+- Committed: Yes (tracked for project management)
 
-**`.claude/`:**
-- Purpose: Claude Code configuration and commands
-- Contains: GSD workflow definitions, agent configs
-- Committed: Likely (project-specific tooling)
+**`.source/`:**
+- Purpose: Generated Fumadocs source files
+- Generated: Yes (via Fumadocs CLI)
+- Committed: Yes (tracked for build reproducibility)
+
+**`api/`:**
+- Purpose: Auto-generated TypeDoc API documentation
+- Generated: Yes (via `fumadocs-docgen` from OpenAPI spec)
+- Committed: Yes (tracked for docs deployment)
+
+**`docs/public/optimized/`:**
+- Purpose: Optimized images
+- Generated: Yes (via image optimization pipeline)
+- Committed: Yes (for deployment performance)
 
 ---
 
-*Structure analysis: 2025-01-16*
+*Structure analysis: 2026-01-31*

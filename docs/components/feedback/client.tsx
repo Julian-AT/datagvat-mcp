@@ -4,7 +4,7 @@ import type { FeedbackBlockProps } from 'fumadocs-core/mdx-plugins/remark-feedba
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { Collapsible, CollapsibleContent } from 'fumadocs-ui/components/ui/collapsible';
 import { Popover, PopoverContent, PopoverTrigger } from 'fumadocs-ui/components/ui/popover';
-import { MessageSquare, ThumbsDown, ThumbsUp } from 'lucide-react';
+import { MessageCircle, ThumbsDown, ThumbsUp } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import {
   type ReactNode,
@@ -112,7 +112,7 @@ export function Feedback({
             setOpinion('good');
           }}
         >
-          <ThumbsUp />
+          <ThumbsUp className="size-4" />
           Good
         </button>
         <button
@@ -127,7 +127,7 @@ export function Feedback({
             setOpinion('bad');
           }}
         >
-          <ThumbsDown />
+          <ThumbsDown className="size-4" />
           Bad
         </button>
       </div>
@@ -263,7 +263,7 @@ export function FeedbackBlock({
             e.preventDefault();
           }}
         >
-          <MessageSquare className="size-3.5" />
+          <MessageCircle className="size-3.5" />
           Feedback
         </PopoverTrigger>
 

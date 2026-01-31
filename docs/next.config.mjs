@@ -8,15 +8,6 @@ const config = {
     ignoreBuildErrors: true,
   },
   serverExternalPackages: ['@takumi-rs/image-response'],
-  async redirects() {
-    return [
-      {
-        source: '/',
-        destination: '/docs',
-        permanent: true,
-      },
-    ]
-  }
 };
 
 export default withMDX(config);

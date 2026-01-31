@@ -1,6 +1,6 @@
 export function getSection(path: string | undefined) {
   if (!path) {
-    return 'docs'
+    return 'docs';
   }
   const [dir] = path.split('/', 1);
   if (!dir) {

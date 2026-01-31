@@ -80,10 +80,10 @@ export default async function Page({
       <div className="prose flex-1 text-fd-foreground/90">
         {page.data.preview && <PreviewRenderer preview={page.data.preview} />}
         <Mdx
-          // @ts-ignore
+          // @ts-expect-error
           components={getMDXComponents({
             ...Twoslash,
-            a: ({ href, ...props }: { href?: string;[key: string]: any }) => {
+            a: ({ href, ...props }: { href?: string; [key: string]: any }) => {
               const found = source.getPageByHref(href ?? '', {
                 dir: PathUtils.dirname(page.path),
               });

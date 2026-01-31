@@ -40,7 +40,7 @@ export function card(): ReactNode {
       <div className="rounded-lg bg-fd-background">
         <Card
           href="#"
-          icon={<Home />}
+          icon={<Home className="size-4" />}
           title="Hello World"
           description="Learn More about Caching and Revalidation"
         />

@@ -1,10 +1,9 @@
 'use client';
 import { type UIMessage, type UseChatHelpers, useChat } from '@ai-sdk/react';
-import { Presence } from '@radix-ui/react-presence';
 import { DefaultChatTransport } from 'ai';
 import Link from 'fumadocs-core/link';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
-import { Loader2, MessageCircleIcon, RefreshCw, Send, X } from 'lucide-react';
+import { Loader2, MessageCircle, RefreshCw, Send, X } from 'lucide-react';
 import {
   type ComponentProps,
   createContext,
@@ -53,7 +52,7 @@ function Header() {
         )}
         onClick={() => setOpen(false)}
       >
-        <X />
+        <X className="size-4" />
       </button>
     </div>
   );
@@ -151,7 +150,7 @@ function SearchAIInput(props: ComponentProps<'form'>) {
           )}
           onClick={() => chat?.stop?.()}
         >
-          <Loader2 className="size-4 animate-spin text-fd-muted-foreground" />
+          <Loading01Icon className="size-4 animate-spin text-fd-muted-foreground" />
           Abort Answer
         </button>
       ) : (
@@ -321,7 +320,7 @@ export function AISearchTrigger() {
       )}
       onClick={() => setOpen(true)}
     >
-      <MessageCircleIcon className="size-4.5" />
+      <MessageCircle className="size-4.5" />
       Ask AI
     </button>
   );
@@ -369,16 +368,18 @@ export function AISearchPanel() {
           }
         }`}
       </style>
-      <Presence present={open}>
-        {/* biome-ignore lint/a11y/useKeyWithClickEvents: Backdrop overlay for modal dismissal */}
-        {/* biome-ignore lint/a11y/noStaticElementInteractions: Backdrop overlay for modal dismissal */}
-        <div
-          data-state={open ? 'open' : 'closed'}
-          className="fixed inset-0 z-30 backdrop-blur-xs bg-fd-overlay data-[state=open]:animate-fd-fade-in data-[state=closed]:animate-fd-fade-out lg:hidden"
-          onClick={() => setOpen(false)}
-        />
-      </Presence>
-      <Presence present={open}>
+      {open && (
+        <>
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: Backdrop overlay for modal dismissal */}
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: Backdrop overlay for modal dismissal */}
+          <div
+            data-state={open ? 'open' : 'closed'}
+            className="fixed inset-0 z-30 backdrop-blur-xs bg-fd-overlay data-[state=open]:animate-fd-fade-in data-[state=closed]:animate-fd-fade-out lg:hidden"
+            onClick={() => setOpen(false)}
+          />
+        </>
+      )}
+      {open && (
         <div
           className={cn(
             'overflow-hidden z-30 bg-fd-popover text-fd-popover-foreground [--ai-chat-width:400px] xl:[--ai-chat-width:460px]',
@@ -414,7 +415,7 @@ export function AISearchPanel() {
             </div>
           </div>
         </div>
-      </Presence>
+      )}
     </>
   );
 }

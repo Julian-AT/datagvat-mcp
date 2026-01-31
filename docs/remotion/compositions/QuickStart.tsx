@@ -1,5 +1,5 @@
-import { AbsoluteFill, Sequence, useCurrentFrame, useVideoConfig, interpolate } from 'remotion';
 import type React from 'react';
+import { AbsoluteFill, interpolate, Sequence, useCurrentFrame, useVideoConfig } from 'remotion';
 
 /**
  * QuickStart Video - Installation to First Query (2.5 minutes)
@@ -19,13 +19,17 @@ const TitleScene: React.FC = () => {
   const titleY = interpolate(frame, [0, 30], [50, 0], { extrapolateRight: 'clamp' });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: '#0f172a', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{
-        opacity: titleOpacity,
-        transform: `translateY(${titleY}px)`,
-        textAlign: 'center',
-        color: 'white',
-      }}>
+    <AbsoluteFill
+      style={{ backgroundColor: '#0f172a', alignItems: 'center', justifyContent: 'center' }}
+    >
+      <div
+        style={{
+          opacity: titleOpacity,
+          transform: `translateY(${titleY}px)`,
+          textAlign: 'center',
+          color: 'white',
+        }}
+      >
         <h1 style={{ fontSize: 72, fontWeight: 'bold', margin: 0 }}>DataGvat MCP</h1>
         <p style={{ fontSize: 36, marginTop: 20, color: '#94a3b8' }}>Quick Start Guide</p>
       </div>
@@ -82,14 +86,16 @@ const ConfigScene: React.FC = () => {
       <h2 style={{ fontSize: 48, marginBottom: 40 }}>Configuration</h2>
 
       <div style={{ opacity: codeOpacity, fontSize: 24, fontFamily: 'monospace' }}>
-        <pre style={{
-          backgroundColor: '#0f172a',
-          padding: 24,
-          borderRadius: 8,
-          overflow: 'hidden',
-          margin: 0,
-        }}>
-{`{
+        <pre
+          style={{
+            backgroundColor: '#0f172a',
+            padding: 24,
+            borderRadius: 8,
+            overflow: 'hidden',
+            margin: 0,
+          }}
+        >
+          {`{
   "mcpServers": {
     "datagvat": {
       "command": "datagvat",
@@ -119,28 +125,32 @@ const FirstQueryScene: React.FC = () => {
       <div style={{ fontSize: 28 }}>
         <div style={{ opacity: queryOpacity, marginBottom: 40 }}>
           <div style={{ color: '#94a3b8', marginBottom: 12 }}>Ask Claude:</div>
-          <div style={{
-            backgroundColor: '#3b82f6',
-            padding: 20,
-            borderRadius: 8,
-            fontStyle: 'italic',
-          }}>
+          <div
+            style={{
+              backgroundColor: '#3b82f6',
+              padding: 20,
+              borderRadius: 8,
+              fontStyle: 'italic',
+            }}
+          >
             "Find Vienna datasets about public transport"
           </div>
         </div>
 
         <div style={{ opacity: resultOpacity }}>
           <div style={{ color: '#94a3b8', marginBottom: 12 }}>Claude uses MCP tools:</div>
-          <div style={{
-            backgroundColor: '#0f172a',
-            padding: 20,
-            borderRadius: 8,
-            fontFamily: 'monospace',
-            fontSize: 20,
-          }}>
-            ✓ search_datasets(query="Vienna public transport")<br/>
-            ✓ get_dataset(id="vienna-transport-2024")<br/>
-            ✓ Found 12 relevant datasets
+          <div
+            style={{
+              backgroundColor: '#0f172a',
+              padding: 20,
+              borderRadius: 8,
+              fontFamily: 'monospace',
+              fontSize: 20,
+            }}
+          >
+            ✓ search_datasets(query="Vienna public transport")
+            <br />✓ get_dataset(id="vienna-transport-2024")
+            <br />✓ Found 12 relevant datasets
           </div>
         </div>
       </div>
@@ -153,12 +163,14 @@ const OutroScene: React.FC = () => {
   const opacity = interpolate(frame, [0, 20], [0, 1], { extrapolateRight: 'clamp' });
 
   return (
-    <AbsoluteFill style={{
-      backgroundColor: '#0f172a',
-      alignItems: 'center',
-      justifyContent: 'center',
-      opacity,
-    }}>
+    <AbsoluteFill
+      style={{
+        backgroundColor: '#0f172a',
+        alignItems: 'center',
+        justifyContent: 'center',
+        opacity,
+      }}
+    >
       <div style={{ textAlign: 'center', color: 'white' }}>
         <h2 style={{ fontSize: 56, margin: 0 }}>You're Ready!</h2>
         <p style={{ fontSize: 32, marginTop: 20, color: '#94a3b8' }}>

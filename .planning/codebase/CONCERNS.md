@@ -1,172 +1,183 @@
 # Codebase Concerns
 
-**Analysis Date:** 2025-01-16
+**Analysis Date:** 2026-01-31
 
 ## Tech Debt
 
-**Direct Access to Private Client Method:**
-- Issue: Tools bypass the public API by calling `client._request()` directly instead of going through proper public methods
-- Files: `app/tools/discovery.py:94`, `app/tools/vocabularies.py:91`
-- Impact: Tightly couples tools to internal implementation details; refactoring the client could break these tools
-- Fix approach: Add public methods `get_catalogue_record()` and `list_resources()` to `PiveauClient` class in `app/client.py`
+**MCP Server Error Handling - Empty Return Values:**
+- Issue: Several functions in `mcp/app/client.py` and `mcp/app/preview.py` return empty dicts/lists as fallback values without distinguishing between "no data" and "error" states
+- Files: `mcp/app/client.py:131`, `mcp/app/client.py:174`, `mcp/app/preview.py:339`, `mcp/app/preview.py:356`
+- Impact: AI assistants may receive empty responses and not know whether to retry, inform user of error, or treat as legitimate empty result
+- Fix approach: Return structured error responses with reason codes, or raise exceptions that FastMCP can translate to proper MCP error protocol messages
 
-**Global Mutable Settings Singleton:**
-- Issue: Settings use a global mutable singleton pattern with `_settings` module variable
-- Files: `app/config.py:30-37`
-- Impact: Makes testing harder (must reset global state); prevents running multiple server instances with different configurations
-- Fix approach: Pass settings explicitly through dependency injection rather than using global state; already partially done via lifespan context but `get_settings()` still used at startup
+**Semantic Search Language Detection - Limited Heuristics:**
+- Issue: `mcp/app/semantic.py:15-52` uses basic keyword matching for German/English detection (counts occurrences of common words)
+- Files: `mcp/app/semantic.py:15-52`
+- Impact: Ambiguous or multilingual queries may be misclassified, leading to suboptimal search expansion. Falls back to "auto" but this reduces semantic search quality
+- Fix approach: Consider using langdetect library or similar for more robust language identification, or rely entirely on LLM-based detection within expansion prompt
 
-**Bare Exception Handlers:**
-- Issue: Multiple bare `except Exception:` clauses that swallow all errors silently
-- Files: `app/client.py:100,140,232`, `app/middleware.py:40,48,84,94`, `app/tools/analysis.py:60,69,74,79`
-- Impact: Hides bugs and makes debugging difficult; errors are silently converted to fallback values
-- Fix approach: Catch specific exception types; log warnings for unexpected errors; re-raise or return explicit error states
+**JSON Truncation Recovery - Fragile Parsing:**
+- Issue: `mcp/app/preview.py:359-421` attempts to recover valid JSON from truncated partial content using bracket counting and pattern matching
+- Files: `mcp/app/preview.py:359-421`
+- Impact: Complex nested JSON structures may fail to parse correctly, resulting in PreviewError when data could potentially be recovered with better logic
+- Fix approach: Use streaming JSON parser (e.g., ijson) to extract complete objects from partial content, or implement more robust bracket-balancing algorithm
 
-**Debug Logging Left in Production Code:**
-- Issue: `logger.info(f"Catalogues: {result}")` logs entire API response
-- Files: `app/client.py:161`
-- Impact: Pollutes logs with potentially large data; performance overhead; may expose sensitive data
-- Fix approach: Remove or change to debug level; add conditional logging based on log level
+**Hardcoded API Token in Chat Route:**
+- Issue: `docs/app/api/chat/route.ts:38` contains hardcoded MCP server authorization token in source code
+- Files: `docs/app/api/chat/route.ts:38`
+- Impact: Security risk if repository is public or token needs rotation. Token exposed in client-side bundle if not properly tree-shaken
+- Fix approach: Move token to environment variable (e.g., `FASTMCP_AUTH_TOKEN`), add to `.env.example`, document in deployment guide
+
+**Console.log Statements in Production Code:**
+- Issue: `docs/app/api/chat/route.ts:50,52,57,74,79` contains multiple console.log statements used for debugging
+- Files: `docs/app/api/chat/route.ts:50,52,57,74,79`
+- Impact: Pollutes server logs with unnecessary output, potential performance overhead in high-traffic scenarios
+- Fix approach: Remove console.log statements or replace with proper logging library (e.g., pino, winston) with configurable log levels
 
 ## Known Bugs
 
-**Missing Return Type in `_request`:**
-- Symptoms: The `_request` method has unreachable code after `_handle_http_error`
-- Files: `app/client.py:91-94`
-- Trigger: When an HTTP error occurs, `_handle_http_error` raises but function signature suggests return
-- Workaround: Works correctly because `_handle_http_error` always raises
-- Note: Type checker may complain about missing return; add `Never` return type annotation to `_handle_http_error`
-
-**Inconsistent Draft ID Extraction:**
-- Symptoms: `create_draft` may return empty string if neither Location header nor JSON response provides ID
-- Files: `app/client.py:226-233`
-- Trigger: API returns 201 without Location header and non-standard JSON response
-- Workaround: Caller receives empty string and must handle it
+**No Known Critical Bugs:**
+- Investigation of TODO/FIXME comments found only documentation placeholders and archived debug sessions (`.planning/debug/resolved/`)
+- No active bug markers in production code paths
 
 ## Security Considerations
 
-**API Key Passed via Header Without TLS Verification:**
-- Risk: API key sent in `X-API-Key` header; httpx client uses default TLS settings
-- Files: `app/client.py:74-76`
-- Current mitigation: Relies on HTTPS transport; httpx verifies certificates by default
-- Recommendations: Add explicit `verify=True` to httpx client configuration for clarity; consider environment variable for CA bundle in enterprise environments
+**Missing Environment Variable Validation:**
+- Risk: Documentation chat feature (`docs/app/api/chat/route.ts`) requires `OPENAI_API_KEY` but no validation exists at build time or runtime startup
+- Files: `docs/app/api/chat/route.ts`, missing from `docs/.env.example`
+- Current mitigation: Vercel AI SDK throws error on first use, but this results in runtime failures instead of clear configuration error messages
+- Recommendations: Add startup validation script to check required env vars, add `OPENAI_API_KEY` to `.env.example`, document in deployment guide
 
-**No Rate Limiting:**
-- Risk: Clients can make unlimited requests to the external API through this server
-- Files: `app/server.py`, `app/middleware.py`
-- Current mitigation: None
-- Recommendations: Add rate limiting middleware to prevent abuse and protect against accidental infinite loops
+**API Key Exposure in Client Code:**
+- Risk: Hardcoded FastMCP authorization token in `docs/app/api/chat/route.ts:38` could be exposed through source maps or bundle analysis
+- Files: `docs/app/api/chat/route.ts:38`
+- Current mitigation: Server-side API route prevents direct client access to token
+- Recommendations: Move to environment variable, rotate token immediately after fix, add secret scanning to CI/CD
 
-**SecretStr Exposure in Logs:**
-- Risk: While `pydantic.SecretStr` protects the API key in repr/str, the raw value is passed to the client
-- Files: `app/config.py:24-27`, `app/server.py:44`
-- Current mitigation: SecretStr prevents accidental logging of settings object
-- Recommendations: Ensure logging never includes the client object with api_key attribute
+**No Rate Limiting on Chat Endpoint:**
+- Risk: `/api/chat` endpoint has no rate limiting, allowing potential abuse of OpenAI API credits
+- Files: `docs/app/api/chat/route.ts`
+- Current mitigation: None detected
+- Recommendations: Implement rate limiting via Vercel Edge Config or middleware (e.g., @upstash/ratelimit), add per-IP or per-session limits
 
 ## Performance Bottlenecks
 
-**No Connection Pooling Configuration:**
-- Problem: Default httpx connection pool settings may be insufficient for high-throughput scenarios
-- Files: `app/client.py:45-50`
-- Cause: Uses default connection limits; no explicit pool configuration
-- Improvement path: Configure `limits=httpx.Limits(max_keepalive_connections=X, max_connections=Y)` based on expected load
+**First Request Latency - MCP Server Spawn:**
+- Problem: First request to documentation chat spawns Python MCP server subprocess, causing 2-3 second delay
+- Files: Referenced in `.planning/milestones/v2.0-MILESTONE-AUDIT.md:22-25`
+- Cause: Cold start of Python process with FastMCP initialization
+- Improvement path: Pre-warm MCP connection on Next.js server start, add loading state in UI, consider persistent MCP server process instead of per-request spawn
 
-**Vocabulary Search Loads Entire Vocabulary:**
-- Problem: `search_vocabulary_terms` fetches entire vocabulary then filters in-memory
-- Files: `app/tools/vocabularies.py:48-82`
-- Cause: API may not support server-side filtering; current implementation downloads all terms
-- Improvement path: Cache vocabulary data; check if API supports query parameters; paginate large vocabularies
+**Large TypeScript Declaration Files:**
+- Problem: Multiple 100K+ line declaration files in node_modules slow TypeScript compilation
+- Files: `docs/node_modules/@octokit/openapi-types/types.d.ts` (122,599 lines), `docs/node_modules/@octokit/openapi-webhooks-types/types.d.ts` (70,664 lines)
+- Cause: GitHub Octokit types include entire GitHub API surface area
+- Improvement path: If Octokit is only used for docs generation, move to devDependencies or use more targeted @octokit/types imports
 
-**No Caching of Immutable Data:**
-- Problem: Repeated calls fetch same data (e.g., vocabularies, catalogue metadata)
-- Files: `app/client.py` (all read methods)
-- Cause: No caching layer implemented
-- Improvement path: Add LRU cache for stable endpoints; use ETags/If-Modified-Since for conditional requests
+**No Caching for Semantic Query Expansion:**
+- Problem: Every semantic search query calls LLM via `ctx.sample()` even for identical/similar queries
+- Files: `mcp/app/semantic.py:140`
+- Cause: No caching layer for query expansion results
+- Improvement path: Add TTL cache for expanded query results keyed by query text, or use FastMCP caching if available
 
 ## Fragile Areas
 
-**Middleware Tool Name Extraction:**
-- Files: `app/middleware.py:32-42,76-86`
-- Why fragile: Multiple fallback attempts to extract tool name from different context structures; relies on fastmcp internal implementation details
-- Safe modification: Changes to fastmcp context structure could break tool name extraction
-- Test coverage: Basic tests exist but don't cover all fallback paths
+**CSV Dialect Detection:**
+- Files: `mcp/app/preview.py:179-185`
+- Why fragile: Relies on `csv.Sniffer()` which can fail on edge cases (mixed delimiters, quoted fields with delimiters)
+- Safe modification: When changing CSV parsing logic, test with edge cases (TSV files, semicolon CSVs common in German datasets, files with BOM)
+- Test coverage: Good (`mcp/tests/test_preview.py` exists with 3,001 test files total)
 
-**RDF Parsing:**
-- Files: `app/client.py:127-142`
-- Why fragile: Attempts to parse various RDF formats; silently returns raw content on failure
-- Safe modification: Test with actual RDF responses from Piveau API; add more robust format detection
-- Test coverage: No tests for RDF parsing paths; only JSON responses tested
+**RDF to JSON-LD Parsing:**
+- Files: `mcp/app/client.py:146-163`
+- Why fragile: Depends on rdflib's graph parsing with multiple format detection paths (turtle, rdf+xml, n-triples)
+- Safe modification: Changes to content negotiation or format detection require testing against live data.gv.at API responses
+- Test coverage: Client tests exist (`mcp/tests/test_client.py`), but RDF parsing may need integration tests with real API
 
-**JSON-LD @graph Extraction:**
-- Files: `app/client.py:144-149`
-- Why fragile: Assumes specific JSON-LD structure; returns empty list if structure differs
-- Safe modification: API changes to response format could break extraction
-- Test coverage: Limited tests for @graph wrapper scenario
+**Similarity Score Calculation:**
+- Files: `mcp/app/similarity.py:81-120`
+- Why fragile: Hardcoded score weights (30 points per theme, 10 per keyword, 15 for publisher) based on heuristics
+- Safe modification: Changing weights requires validation against real dataset relationships, minimum score threshold (20.0) may need tuning
+- Test coverage: Tests exist (`mcp/tests/test_similarity.py`)
+
+**Remotion Video Rendering:**
+- Files: `docs/remotion/compositions/` (QuickStart.tsx, Workflow.tsx, Architecture.tsx)
+- Why fragile: Frame-based animations with hardcoded frame ranges, spring configurations, and timing dependencies
+- Safe modification: Changing FPS or durations requires recalculating all frame offsets in animations
+- Test coverage: Manual verification only, no automated visual regression tests
 
 ## Scaling Limits
 
-**Single httpx Client Instance:**
-- Current capacity: One connection pool shared across all requests
-- Limit: Default httpx limits (100 connections, 20 keepalive)
-- Scaling path: Configure explicit limits; consider multiple client instances for different priority levels
+**Vector Search - Local Vectra Database:**
+- Current capacity: <10K chunks documented in `.planning/STATE.md:79`
+- Limit: In-memory vector storage scales poorly beyond 10K documents, no persistence between deploys
+- Scaling path: Migrate to Upstash Vector (mentioned as upgrade path in `.planning/STATE.md:79`) or Pinecone for production
 
-**In-Memory Settings:**
-- Current capacity: Single server instance
-- Limit: Cannot dynamically reload configuration
-- Scaling path: Add config reload mechanism; use environment variable watching for cloud deployments
+**MCP Server Concurrency:**
+- Current capacity: Single Python process per request
+- Limit: No connection pooling or persistent MCP server, each chat request spawns new process
+- Scaling path: Deploy MCP server as standalone service with multiple workers, use FastMCP's HTTP transport for persistent connections
+
+**Similarity Search Candidate Set:**
+- Current capacity: Fetches 50 candidates by theme + 30 by keywords (max 80)
+- Limit: Scores all candidates synchronously, O(n) complexity
+- Scaling path: Implement pagination for large candidate sets, add early termination when top N scores are confident
 
 ## Dependencies at Risk
 
-**fastmcp Middleware API:**
-- Risk: Using `fastmcp.server.middleware.MiddlewareContext` which may be unstable/internal API
-- Impact: Major version updates to fastmcp could break middleware
-- Migration plan: Pin fastmcp version; monitor changelog; abstract middleware context access
+**Bun Runtime for Production:**
+- Risk: Bun 1.x is pre-1.0 stability, documented type-check issue requires workaround
+- Impact: Referenced in `.planning/milestones/v2.0-ROADMAP.md:247` - "TypeScript type-check issue with Bun 1.x (temporary workaround: skip type-check)"
+- Migration plan: Monitor Bun 2.0 release for type-checking fixes, or consider Node.js 20+ as fallback runtime
 
-**rdflib for RDF Parsing:**
-- Risk: Heavy dependency (rdflib) for potentially unused feature
-- Impact: Larger container image; slower startup; potential security surface
-- Migration plan: Make rdflib optional; lazy import only when RDF content-type encountered
+**Fumadocs OpenAPI Generation:**
+- Risk: Custom schema filtering required for RDF content types (added placeholders in Phase 7)
+- Impact: Updates to fumadocs-openapi may break custom filtering logic in `docs/lib/filter-openapi.ts`
+- Migration plan: Monitor fumadocs releases, test OpenAPI generation after updates, consider contributing RDF support upstream
 
 ## Missing Critical Features
 
 **No Health Check Endpoint:**
-- Problem: No way to verify server health in container orchestration
-- Blocks: Kubernetes/Docker health probes; load balancer health checks
+- Problem: MCP server lacks health check endpoint for monitoring
+- Blocks: Production deployment monitoring, graceful degradation strategies
+- Referenced in: `.planning/milestones/v2.0-MILESTONE-AUDIT.md:23`
 
-**No Request Timeout per Tool:**
-- Problem: Global timeout applies to all operations
-- Blocks: Long-running operations like bulk analysis
+**No RAG Similarity Threshold Validation:**
+- Problem: 0.75 similarity threshold for RAG chat is untested baseline
+- Blocks: Production quality assurance for documentation chat feature
+- Referenced in: `.planning/STATE.md:114` - "PENDING: Similarity threshold validation"
 
-**No Pagination Cursor Support:**
-- Problem: Only offset-based pagination; large result sets require calculating offsets
-- Blocks: Efficient iteration over all datasets/catalogues
+**No Citation Rendering in Chat UI:**
+- Problem: Backend returns numbered citations [1], [2] but UI doesn't render clickable links
+- Blocks: Full user experience for documentation chat feature
+- Referenced in: `.planning/STATE.md:115` - "PENDING: Citation rendering in UI"
 
 ## Test Coverage Gaps
 
-**No Integration Tests:**
-- What's not tested: Actual HTTP communication with Piveau API
-- Files: All `app/client.py` methods
-- Risk: API contract changes undetected until production
-- Priority: Medium - add integration tests with VCR/responses library
+**Documentation Chat Integration:**
+- What's not tested: End-to-end chat flow with RAG retrieval, citation rendering, MCP tool calls
+- Files: `docs/app/api/chat/route.ts`, `docs/components/chat.tsx`
+- Risk: Breaking changes to streaming protocol, tool execution, or citation format could go unnoticed
+- Priority: High - User-facing feature with complex integrations
 
-**No RDF Response Handling Tests:**
-- What's not tested: Parsing of text/turtle, application/rdf+xml, etc.
-- Files: `app/client.py:127-142`
-- Risk: RDF parsing failures in production; silent data corruption
-- Priority: High - API frequently returns RDF formats
+**Semantic Search LLM Expansion:**
+- What's not tested: Query expansion quality, German/English detection accuracy, theme code validation
+- Files: `mcp/app/semantic.py:55-176`
+- Risk: Poor expansion results could degrade search quality without detection
+- Priority: Medium - Fallback to direct search exists, but semantic search is key feature
 
-**No Error State Tests for Resources:**
-- What's not tested: Resource handlers when client raises exceptions
-- Files: `app/resources.py` (all resource functions)
-- Risk: Unhandled exceptions expose stack traces
-- Priority: Medium - add error handling tests for each resource
+**CSV/JSON Preview Edge Cases:**
+- What's not tested: Files with mixed line endings, BOM variations, malformed JSON recovery edge cases
+- Files: `mcp/app/preview.py`
+- Risk: Preview failures on real-world datasets could break user workflows
+- Priority: Medium - Error handling exists, but user experience degrades on failures
 
-**No Concurrent Request Tests:**
-- What's not tested: Behavior under concurrent load; connection pool exhaustion
-- Files: `app/client.py`, `app/server.py`
-- Risk: Race conditions; connection leaks under load
-- Priority: Low - add asyncio concurrency tests if production issues arise
+**Video Rendering Regressions:**
+- What's not tested: Remotion composition rendering, frame timing accuracy, caption synchronization
+- Files: `docs/remotion/compositions/`
+- Risk: Changes to compositions or Remotion version upgrades could break videos without detection until manual review
+- Priority: Low - Videos are static assets, breakage only occurs during build
 
 ---
 
-*Concerns audit: 2025-01-16*
+*Concerns audit: 2026-01-31*

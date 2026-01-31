@@ -1,123 +1,103 @@
 # Technology Stack
 
-**Analysis Date:** 2026-01-16
+**Analysis Date:** 2026-01-31
 
 ## Languages
 
 **Primary:**
-- Python 3.11+ - All application and test code
+- TypeScript - Documentation site (`docs/`)
+- Python 3.11+ - MCP server (`mcp/`)
 
 **Secondary:**
-- None
+- JavaScript (ESM) - Configuration files
 
 ## Runtime
 
 **Environment:**
-- Python 3.11+ (specified in `pyproject.toml` and `Dockerfile`)
-- Async/await pattern throughout
+- Node.js >=18.0.0 (documentation site)
+- Python 3.11+ (MCP server)
+- Bun (package manager and lockfile for docs)
 
 **Package Manager:**
-- pip (via pyproject.toml)
-- Optional: conda (via `environment.yaml`)
-- Lockfile: Not present (relies on version constraints in pyproject.toml)
-
-**Build System:**
-- Hatchling (`pyproject.toml` build-backend)
+- Bun (docs)
+- uv (Python, MCP server)
+- Lockfile: `docs/bun.lock`, `mcp/uv.lock`
 
 ## Frameworks
 
 **Core:**
-- FastMCP 2.3.0+ - MCP (Model Context Protocol) server framework
-- Pydantic 2.0.0+ - Data validation and settings management
-- Pydantic-Settings 2.0.0+ - Environment-based configuration
-
-**HTTP:**
-- httpx 0.27.0+ - Async HTTP client for API calls
-
-**Data Processing:**
-- rdflib 7.0.0+ - RDF/Linked Data parsing (Turtle, JSON-LD, N-Triples)
+- Next.js 16.1.3 - React framework for documentation site
+- FastMCP 2.14.0+ - Model Context Protocol server framework
+- React 19.2.4 - UI framework
 
 **Testing:**
-- pytest 8.0.0+ - Test framework
-- pytest-asyncio 0.23.0+ - Async test support
-- pytest-cov 4.1.0+ - Coverage reporting
-- pytest-mock 3.12.0+ - Mocking utilities
+- pytest >=8.0.0 - Python testing framework
+- pytest-asyncio >=0.23.0 - Async test support
+- pytest-cov >=4.1.0 - Coverage reporting
+- pytest-mock >=3.12.0 - Mocking utilities
 
-**Linting/Formatting:**
-- ruff 0.4.0+ - Linting and formatting
+**Build/Dev:**
+- TypeScript 5.9.3 - Type checking
+- Biome 2.3.11 - Linting and formatting for TypeScript
+- Ruff >=0.4.0 - Python linting and formatting
+- Tailwind CSS 4.1.18 - Styling framework
+- PostCSS 8.5.6 - CSS processing
+- Remotion 4.0.244 - Video generation framework
 
 ## Key Dependencies
 
 **Critical:**
-- `fastmcp` - Core framework; provides `FastMCP`, `Context`, `Middleware`, `Prompt`, `Message` classes
-- `httpx` - All HTTP communication with Piveau API
-- `rdflib` - Parses RDF responses from data.gv.at API
-- `pydantic` - All models in `app/models.py`
-- `pydantic-settings` - Configuration in `app/config.py`
+- ai 6.0.64 - Vercel AI SDK for streaming and chat
+- @ai-sdk/mcp 1.0.16 - MCP client integration for AI SDK
+- @ai-sdk/google 3.0.18 - Google AI provider
+- @ai-sdk/openai-compatible 2.0.24 - OpenAI-compatible provider
+- @ai-sdk/react 3.0.66 - React hooks for AI SDK
+- @modelcontextprotocol/sdk 1.25.3 - MCP SDK
+- fumadocs-ui 16.4.11 - Documentation UI components
+- fumadocs-mdx 14.2.6 - MDX processing for docs
+- fumadocs-openapi 10.2.7 - OpenAPI documentation
+- httpx >=0.27.0 - HTTP client for Python
+- rdflib >=7.0.0 - RDF parsing for data.gv.at
+- pydantic >=2.0.0 - Data validation for Python
+- typer >=0.12.0 - CLI framework for Python
 
 **Infrastructure:**
-- Standard library `logging` - Application logging
-- Standard library `dataclasses` - `AppState` in `app/server.py`
-- Standard library `contextlib` - Lifespan management
+- redis 5.10.0 - Caching and stream storage
+- resumable-stream 2.2.10 - Stream resumption support
+- @vercel/functions 3.4.0 - Vercel serverless functions
+- @vercel/analytics 1.6.1 - Analytics tracking
+- @vercel/speed-insights 1.3.1 - Performance monitoring
 
 ## Configuration
 
-**Environment Variables:**
-All prefixed with `AUSTRIA_MCP_`:
+**Environment:**
+- Configured via `.env.local` and `.env.example` in `docs/`
+- Required variables: `GITHUB_APP_ID`, `GITHUB_APP_PRIVATE_KEY` (optional for docs)
+- Optional: `REDIS_URL` (for stream resumption)
+- Python env vars: `AUSTRIA_MCP_LOG_LEVEL`, `PIVEAU_API_BASE`, etc.
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `AUSTRIA_MCP_PIVEAU_API_BASE` | `https://qs.data.gv.at/api/hub/repo` | Piveau Hub API endpoint |
-| `AUSTRIA_MCP_PIVEAU_API_KEY` | None | API key for write operations |
-| `AUSTRIA_MCP_REQUEST_TIMEOUT` | 30 | HTTP timeout (5-300 seconds) |
-| `AUSTRIA_MCP_USER_AGENT` | `Austria-MCP-Agent/1.0` | HTTP User-Agent header |
-| `AUSTRIA_MCP_LOG_LEVEL` | `INFO` | Logging level |
-
-**Configuration Files:**
-- `pyproject.toml` - Project metadata, dependencies, tool configs
-- `environment.yaml` - Conda environment definition
-- `.env` (gitignored) - Local environment overrides
-
-**Build Configuration:**
-- `pyproject.toml` lines 25-30: Hatchling build config
-- `pyproject.toml` lines 32-38: Ruff linter config (line-length=120, Python 3.11 target)
-- `pyproject.toml` lines 40-52: Pytest config (asyncio_mode=auto)
-- `pyproject.toml` lines 54-67: Coverage config (80% minimum)
+**Build:**
+- `docs/next.config.mjs` - Next.js configuration with MDX support
+- `docs/tsconfig.json` - TypeScript compiler options (ES2022 target, bundler resolution)
+- `mcp/pyproject.toml` - Python project configuration (hatchling build)
+- `docs/postcss.config.mjs` - PostCSS with Tailwind
+- `docs/source.config.ts` - Fumadocs content configuration
+- `docs/remotion/remotion.config.ts` - Remotion video configuration
+- Git hooks configured via `simple-git-hooks` (pre-commit: Biome check)
 
 ## Platform Requirements
 
 **Development:**
-- Python 3.11+
-- pip or conda for dependency installation
-- No OS-specific requirements
+- Node.js >=18.0.0
+- Python >=3.11
+- Bun (recommended for docs)
+- uv (recommended for Python)
 
 **Production:**
-- Docker support via `Dockerfile`
-- Base image: `python:3.11-slim`
-- Entry point: `python -m app.server`
-
-**Container Commands:**
-```bash
-docker build -t austria-mcp .
-docker run -e AUSTRIA_MCP_PIVEAU_API_KEY=your-key austria-mcp
-```
-
-**Local Run Commands:**
-```bash
-# Direct execution
-python -m app.server
-
-# Via FastMCP CLI
-fastmcp run app.server:mcp
-```
-
-## Version Constraints
-
-All version constraints use minimum versions (`>=`):
-- Core dependencies require modern versions (2024+)
-- No upper bounds specified
-- Test dependencies similarly modern
+- Vercel (documentation site deployment)
+- Docker support available (Python 3.11-slim base image in `mcp/Dockerfile`)
+- FastMCP server can run as HTTP endpoint or stdio MCP transport
 
 ---
 
-*Stack analysis: 2026-01-16*
+*Stack analysis: 2026-01-31*

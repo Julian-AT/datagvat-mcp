@@ -3,14 +3,14 @@ import * as FilesComponents from 'fumadocs-ui/components/files';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 import * as TabsComponents from 'fumadocs-ui/components/tabs';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
-import * as icons from 'lucide-react';
 import type { MDXComponents } from 'mdx/types';
-import { Mermaid } from '@/components/mdx/mermaid';
 import { APIPage } from '@/components/api-page';
+import { Mermaid } from '@/components/mdx/mermaid';
+import * as mdxIcons from '@/lib/mdx-icons';
 
 export function getMDXComponents(components?: MDXComponents) {
   return {
-    ...(icons as unknown as MDXComponents),
+    ...(mdxIcons as unknown as MDXComponents),
     ...defaultMdxComponents,
     ...TabsComponents,
     ...FilesComponents,

@@ -18,7 +18,7 @@ export function Breadcrumb({ tree }: { tree: PageTreeRoot }) {
   return (
     <div className="-mb-3 flex flex-row items-center gap-1 text-sm font-medium text-fd-muted-foreground">
       {items.map((item, i) => (
-        <Fragment key={item.url || item.name}>
+        <Fragment key={item.url || (item.name as string)}>
           {i !== 0 && <ChevronRight className="size-4 shrink-0 rtl:rotate-180" />}
           {item.url ? (
             <Link href={item.url} className="truncate hover:text-fd-accent-foreground">

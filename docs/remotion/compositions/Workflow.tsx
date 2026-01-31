@@ -1,5 +1,5 @@
-import { AbsoluteFill, Sequence, useCurrentFrame, interpolate } from 'remotion';
 import type React from 'react';
+import { AbsoluteFill, interpolate, Sequence, useCurrentFrame } from 'remotion';
 
 /**
  * Workflow Video - Key MCP Tool Demonstrations (4 minutes)
@@ -15,7 +15,14 @@ const WorkflowIntroScene: React.FC = () => {
   const opacity = interpolate(frame, [0, 30], [0, 1], { extrapolateRight: 'clamp' });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: '#0f172a', alignItems: 'center', justifyContent: 'center', opacity }}>
+    <AbsoluteFill
+      style={{
+        backgroundColor: '#0f172a',
+        alignItems: 'center',
+        justifyContent: 'center',
+        opacity,
+      }}
+    >
       <h1 style={{ fontSize: 72, color: 'white', margin: 0 }}>MCP Workflows</h1>
       <p style={{ fontSize: 36, color: '#94a3b8', marginTop: 20 }}>Real-World Examples</p>
     </AbsoluteFill>
@@ -99,8 +106,16 @@ const PreviewWorkflowScene: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              <tr><td style={{ padding: 8 }}>2024-01-15</td><td style={{ padding: 8 }}>-2.4°C</td><td style={{ padding: 8 }}>Vienna</td></tr>
-              <tr><td style={{ padding: 8 }}>2024-01-16</td><td style={{ padding: 8 }}>1.2°C</td><td style={{ padding: 8 }}>Vienna</td></tr>
+              <tr>
+                <td style={{ padding: 8 }}>2024-01-15</td>
+                <td style={{ padding: 8 }}>-2.4°C</td>
+                <td style={{ padding: 8 }}>Vienna</td>
+              </tr>
+              <tr>
+                <td style={{ padding: 8 }}>2024-01-16</td>
+                <td style={{ padding: 8 }}>1.2°C</td>
+                <td style={{ padding: 8 }}>Vienna</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -112,10 +127,18 @@ const PreviewWorkflowScene: React.FC = () => {
 export const WorkflowVideo: React.FC = () => {
   return (
     <AbsoluteFill>
-      <Sequence from={0} durationInFrames={90}><WorkflowIntroScene /></Sequence>
-      <Sequence from={90} durationInFrames={2100}><DiscoveryWorkflowScene /></Sequence>
-      <Sequence from={2190} durationInFrames={2400}><QualityWorkflowScene /></Sequence>
-      <Sequence from={4590} durationInFrames={2610}><PreviewWorkflowScene /></Sequence>
+      <Sequence from={0} durationInFrames={90}>
+        <WorkflowIntroScene />
+      </Sequence>
+      <Sequence from={90} durationInFrames={2100}>
+        <DiscoveryWorkflowScene />
+      </Sequence>
+      <Sequence from={2190} durationInFrames={2400}>
+        <QualityWorkflowScene />
+      </Sequence>
+      <Sequence from={4590} durationInFrames={2610}>
+        <PreviewWorkflowScene />
+      </Sequence>
     </AbsoluteFill>
   );
 };
