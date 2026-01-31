@@ -53,6 +53,8 @@ Neon Postgres database setup with Drizzle ORM for persisting AI chat conversatio
 - **better-auth**: Research this library for session management - user specifically wants this over custom cookies
 - **Security focus**: execution_status column is critical to prevent tool approval replay attacks (highlighted in research PITFALLS.md)
 - **Performance constraint**: "User conversation with 50+ images loads in under 2 seconds" requires blob URLs, not inline base64 in JSONB
+- **Code quality**: Follow project coding standards (minimal comments, self-explanatory code, no AI slop)
+- **UI review**: Use web-design-guidelines skill for accessibility and UX validation (though Phase 14 is database-only, note for future UI phases)
 
 </specifics>
 

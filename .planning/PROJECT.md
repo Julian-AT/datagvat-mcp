@@ -219,6 +219,11 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 - **No AI slop**: Avoid verbose documentation blocks, excessive comments, or over-explanation
 - **Simple and readable**: Prioritize clarity and maintainability over cleverness
 
+## Quality Assurance Tools
+
+- **web-design-guidelines**: Use for UI code review (accessibility, UX patterns, best practices)
+- **Integration**: Invoke after implementing UI components in phases 16-20 (chat interface, approval dialog, visualization rendering)
+
 ## Key Decisions
 
 <!-- Decisions that constrain future work. Add throughout project lifecycle. -->
