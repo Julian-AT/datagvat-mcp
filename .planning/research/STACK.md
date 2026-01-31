@@ -1,8 +1,9 @@
-# Technology Stack — v2.1 Additions
+# Technology Stack — v2.2 Additions
 
 **Project:** Austria MCP Server Documentation
-**Milestone:** v2.1 Documentation Excellence & AI Features
-**Researched:** 2026-01-22
+**Milestone:** v2.2 Interactive Data Playground
+**Researched:** 2026-01-31
+**Confidence:** MEDIUM
 
 ## Existing Stack (DO NOT CHANGE)
 
@@ -14,299 +15,463 @@
 | Biome | 2.3.11 | Linting and formatting | ✓ Established |
 | TypeScript | 5.9.3 | Type safety with strict mode | ✓ Established |
 | Tailwind CSS | 4.1.18 | Styling framework | ✓ Established |
-| Vercel AI SDK | 6.0.41 (ai package) | Already installed | ✓ Established |
-| @ai-sdk/react | 3.0.43 | React hooks for streaming | ✓ Established |
-| @ai-sdk/openai-compatible | 2.0.13 | Anthropic Claude integration | ✓ Established |
+| Vercel AI SDK | 6.0.64 (ai package) | Core AI SDK with streaming | ✓ Established v2.1 |
+| @ai-sdk/react | 3.0.66 | React hooks (useChat) | ✓ Established v2.1 |
+| @ai-sdk/openai-compatible | 2.0.24 | OpenAI-compatible provider | ✓ Established v2.1 |
+| @ai-sdk/mcp | 1.0.16 | MCP integration for AI SDK | ✓ Established v2.1 |
+| @modelcontextprotocol/sdk | 1.25.3 | MCP protocol SDK | ✓ Established v2.1 |
+| FastMCP | 2.14+ | Python MCP server (data.gv.at) | ✓ Established mcp/ |
+| zod | 4.3.6 | Schema validation | ✓ Established |
+| nanoid | 5.1.6 | ID generation | ✓ Established |
 
-## New Stack Requirements for v2.1
+## New Stack Requirements for v2.2
 
-### 1. RAG Pipeline with Vercel AI SDK
+### 1. Multiple MCP Server Integration
 
-**Current state:** Basic AI chat exists (`/api/chat/route.ts`) with streaming and MCP tool calling, but no RAG/embeddings.
+**Context:** Need to connect both data.gv.at MCP (existing) and Daytona MCP (code execution) to a single AI agent.
 
 #### Required Additions
 
 | Package | Version | Purpose | Priority |
 |---------|---------|---------|----------|
-| None — use existing `ai` 6.0.41 | Current | Embeddings via `embed()` and `embedMany()` | HIGH |
-| @upstash/vector | ^1.0.0 | Vector database for doc embeddings | HIGH |
-| @upstash/redis | ^1.0.0 | Rate limiting and caching | MEDIUM |
+| **NO NEW PACKAGES** | — | Use existing @ai-sdk/mcp + @modelcontextprotocol/sdk | — |
 
-**Why these choices:**
+**Why no new packages:**
+- `@ai-sdk/mcp@1.0.16` already supports multiple MCP servers via `getMCPTools()` for each client
+- `@modelcontextprotocol/sdk@1.25.3` Client class can be instantiated multiple times
+- Aggregation pattern: Create one Client per server, merge tools into single object for `streamText()`
 
-**Vercel AI SDK (existing):** The `ai` package (6.0.41) already provides:
-- `embed()` and `embedMany()` functions for generating embeddings
-- `cosineSimilarity()` for vector search
-- Provider-agnostic embedding support (OpenAI, Google, Mistral, Cohere, Bedrock)
-- No additional packages needed for embeddings generation
-
-**@upstash/vector (recommended):**
-- Free tier: 10K vectors, 10K queries/day (sufficient for docs corpus)
-- Serverless-native, edge-compatible (Next.js App Router optimization)
-- REST API (no persistent connections needed in serverless)
-- Simple SDK with TypeScript support
-- Cost scales: $0.40/100K queries after free tier
-- Better than Pinecone (no free tier after trial) or Qdrant (requires self-hosting)
-
-**Alternative not recommended:**
-- Pinecone: No permanent free tier (7-day trial only)
-- Qdrant: Self-hosting complexity or $95/month cloud minimum
-- Weaviate: Self-hosting or $25/month minimum
-- ChromaDB: Local-only, not edge-compatible
-
-#### Embedding Model Recommendation
-
-| Model | Provider | Dimensions | Cost | Rationale |
-|-------|----------|------------|------|-----------|
-| text-embedding-3-small | OpenAI | 1536 | $0.02/1M tokens | Best balance: quality, cost, dimension size |
-
-**Why:**
-- Lower cost than `text-embedding-3-large` ($0.02 vs $0.13 per 1M tokens)
-- Sufficient quality for documentation Q&A (not semantic research)
-- Smaller dimensions = faster vector search
-- Already have OpenAI SDK pattern via Anthropic integration
-
-**Not recommended:**
-- text-embedding-3-large: Overkill for docs, 6.5x more expensive
-- Google/Mistral/Cohere: Additional provider complexity, no clear benefit
-
-#### RAG Architecture
+#### Integration Pattern
 
 ```typescript
-// New files needed:
-// - lib/embeddings/generate.ts — Generate embeddings for docs corpus
-// - lib/embeddings/search.ts — Vector search implementation
-// - lib/embeddings/store.ts — Upstash Vector client wrapper
-// - scripts/build-embeddings.ts — Build-time embedding generation
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { getMCPTools } from '@ai-sdk/mcp';
 
-// Integration point: app/api/chat/route.ts
-// Add RAG context retrieval before streamText() call
+// Client 1: data.gv.at MCP (existing Python server)
+const dataGvClient = new Client({
+  name: 'datagvat-mcp-client',
+  version: '1.0.0'
+});
+
+await dataGvClient.connect(
+  new StdioClientTransport({
+    command: 'uvx',
+    args: ['--from', '/path/to/mcp', 'datagvat-mcp']
+  })
+);
+
+// Client 2: Daytona MCP (code execution sandbox)
+const daytonaClient = new Client({
+  name: 'daytona-mcp-client',
+  version: '1.0.0'
+});
+
+await daytonaClient.connect(
+  new StdioClientTransport({
+    command: 'daytona',
+    args: ['mcp']  // Daytona CLI MCP server mode
+  })
+);
+
+// Aggregate tools for AI SDK
+const allTools = {
+  ...getMCPTools({ mcpClient: dataGvClient }),
+  ...getMCPTools({ mcpClient: daytonaClient })
+};
+
+// Use in streamText with both tool sets
+const result = streamText({
+  model,
+  tools: allTools,
+  messages
+});
 ```
 
-**Build workflow:**
-1. Prebuild script: Generate embeddings for all MDX files
-2. Store in Upstash Vector with metadata (title, path, section)
-3. Runtime: Query vector DB with user question, retrieve top 5 matches
-4. Inject context into system prompt for Claude
-
-**Configuration needed:**
-```bash
-# .env.local additions
-UPSTASH_VECTOR_REST_URL=https://...
-UPSTASH_VECTOR_REST_TOKEN=xxx
-OPENAI_API_KEY=xxx  # For embeddings only
-```
+**Critical verification needed (Phase 6 research):**
+- [ ] Confirm Daytona CLI provides MCP server via `daytona mcp` command
+- [ ] Verify Daytona MCP tools for workspace creation and code execution
+- [ ] Test stdio transport in Vercel deployment (may need HTTP fallback)
 
 ---
 
-### 2. Remotion for Video Generation
+### 2. Tool Approval for Code Execution
 
-**Current state:** No video generation capability. Need infrastructure for tutorial videos (quickstart, workflows, architecture).
+**Context:** Code execution in Daytona sandboxes is dangerous—users must approve before execution.
 
 #### Required Additions
 
 | Package | Version | Purpose | Priority |
 |---------|---------|---------|----------|
-| remotion | ^4.0.0 | Core video framework | HIGH |
-| @remotion/cli | ^4.0.0 | CLI for rendering videos | HIGH |
-| @remotion/lambda | ^4.0.0 | AWS Lambda rendering (production) | MEDIUM |
-| @remotion/player | ^4.0.0 | Preview player component | MEDIUM |
-| @remotion/bundler | ^4.0.0 | Webpack bundler for compositions | HIGH |
+| **NO NEW PACKAGES** | — | Use existing ai@6.0.64 experimental_needsApproval | — |
 
-**Version confidence:** MEDIUM — Remotion is actively developed, 4.x is current major version based on ecosystem patterns, but official documentation did not provide specific version numbers. Verify with `npm view remotion version` before installing.
+**Why no new packages:**
+- AI SDK 6.0+ supports `experimental_needsApproval: true` on tool definitions
+- Approval flow handled by `tool-approval-request` and `tool-approval-response` message parts
+- Frontend already has `@ai-sdk/react@3.0.66` for handling approval state
 
-**Why Remotion:**
-- React-based (matches existing Next.js stack)
-- Programmatic video generation (no manual editing needed)
-- Code-as-video (version control, reusable components)
-- Supports Tailwind CSS (existing styling system)
-- TypeScript support (strict mode compatible)
+#### Approval Pattern
 
-**Integration approach:**
+```typescript
+import { tool } from 'ai';
+import { z } from 'zod';
 
+const executePythonTool = tool({
+  description: 'Execute Python code in Daytona sandbox',
+  parameters: z.object({
+    code: z.string().describe('Python code to execute'),
+    workspaceId: z.string().describe('Daytona workspace ID')
+  }),
+  experimental_needsApproval: true,  // Requires user confirmation
+  execute: async ({ code, workspaceId }) => {
+    // Only executes after user approves
+    const result = await daytonaClient.callTool({
+      name: 'execute_code',
+      arguments: { code, workspaceId }
+    });
+    return result.content;
+  }
+});
 ```
-docs/
-  remotion/
-    compositions/
-      QuickstartVideo.tsx       # Getting started tutorial
-      WorkflowVideo.tsx         # End-to-end workflow demos
-      ArchitectureVideo.tsx     # System architecture explainer
-    Root.tsx                    # Remotion entry point
-    remotion.config.ts          # Configuration
-  scripts/
-    render-videos.ts            # Build-time video generation
+
+**Approval flow:**
+1. AI generates tool call → returns `tool-approval-request` in stream
+2. Frontend displays approval dialog with code preview
+3. User approves/denies
+4. Frontend sends `tool-approval-response` back to API
+5. If approved, tool executes; if denied, model receives denial reason
+
+**Frontend handling (React):**
+```typescript
+import { useChat } from '@ai-sdk/react';
+
+const { messages, append, addToolApprovalResponse } = useChat({
+  api: '/api/chat'
+});
+
+// When tool-approval-request arrives in message stream
+const handleApproval = (approvalId: string, approved: boolean) => {
+  addToolApprovalResponse({
+    approvalId,
+    approved,
+    reason: approved ? 'User confirmed code execution' : 'User rejected execution'
+  });
+};
 ```
 
-**Build workflow:**
-1. Development: `npm run remotion` to preview compositions locally
-2. Production: Generate videos during build via `scripts/render-videos.ts`
-3. Output videos to `public/videos/` for static serving
-4. Embed in MDX with standard `<video>` tags
-
-**Rendering options:**
-
-| Option | Cost | Use Case | Recommendation |
-|--------|------|----------|----------------|
-| Local (bun) | Free | Development | ✓ Development |
-| GitHub Actions | Free (2K mins/month) | CI/CD builds | ✓ Initial production |
-| @remotion/lambda | ~$1-5/hour | Fast cloud rendering | Future scaling |
-
-**Start with GitHub Actions rendering:**
-- Sufficient for small video corpus (3-5 videos initially)
-- No AWS Lambda setup complexity
-- Cost: $0 (within GitHub free tier)
-- Videos rendered during build, committed to repo
-
-**Alternative not recommended:**
-- Loom/Vimeo: Manual recording, not code-driven, hard to update
-- FFmpeg + scripts: Too low-level, no React integration
-- Manim: Python-based, separate stack
+**Official documentation:** [AI SDK Tool Approval](https://ai-sdk.dev/docs/ai-sdk-core/tools-and-tool-calling)
 
 ---
 
-### 3. CLI Enhancements (shadcn-quality patterns)
+### 3. Vercel AI Gateway
 
-**Current state:** Package `shadcn` 3.7.0 already in devDependencies (likely for component installation). Need to understand existing CLI structure.
+**Context:** Need single endpoint for 100+ AI models without managing separate API keys per provider.
 
-#### Analysis of Existing Packages
-
-From `docs/package.json`:
-- `shadcn` (3.7.0) — Already installed as devDependency
-- Likely used for component management patterns
-
-**Research finding:** shadcn CLI uses:
-- TypeScript with `tsup` bundler
-- Vitest for testing
-- Interactive prompts (package not explicitly stated in README)
-- No explicit diff preview library mentioned
-
-#### Required Additions for CLI Improvements
+#### Required Additions
 
 | Package | Version | Purpose | Priority |
 |---------|---------|---------|----------|
-| @clack/prompts | ^0.7.0 | Interactive CLI prompts (modern, beautiful) | HIGH |
-| picocolors | ^1.0.0 | Terminal colors (lightweight) | MEDIUM |
-| diff | ^5.0.0 | Diff generation for preview | MEDIUM |
-| execa | ^8.0.0 | Process execution (better than child_process) | MEDIUM |
-| ora | ^8.0.0 | Loading spinners | LOW |
+| **NO NEW PACKAGES** | — | Use existing @ai-sdk/openai-compatible@2.0.24 | HIGH |
 
-**Why these choices:**
+**Why no new packages:**
+- `@ai-sdk/openai-compatible` already supports custom `baseURL` for AI Gateway
+- Single package works with all gateway-proxied providers (OpenAI, Anthropic, Google, etc.)
+- Already installed and used for Claude integration
 
-**@clack/prompts (over inquirer/prompts):**
-- Modern, beautiful CLI UX (used by Astro, SvelteKit)
-- TypeScript-first
-- Smaller bundle than inquirer
-- Better keyboard navigation
-- Async/await native
+#### Configuration Pattern
 
-**picocolors (over chalk):**
-- 14x smaller than chalk
-- Zero dependencies
-- Same API surface
-- Used by Vite, PostCSS
+```typescript
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 
-**diff (over diff-match-patch):**
-- Standard diff algorithm
-- Git-style unified diff format
-- Smaller, focused library
-
-**execa (over child_process):**
-- Promise-based
-- Better error handling
-- Cross-platform compatibility
-- Used by many modern CLIs
-
-**Alternative considered:**
-- commander.js: Not needed (existing CLI likely uses simple arg parsing)
-- inquirer: Larger, older, callback-based
-- chalk: 14x larger than picocolors
-- ora: Nice-to-have, not critical (defer to later)
-
-#### CLI Improvement Areas
-
-**Current gaps (based on milestone requirements):**
-1. No diff preview for configuration changes
-2. No interactive prompts for setup
-3. Basic error messages (need user-friendly formatting)
-4. No self-maintenance features (update checks, health checks)
-
-**New structure needed:**
+const model = createOpenAICompatible({
+  name: 'gpt-4o',  // or 'claude-opus-4', 'gemini-2.0-flash', etc.
+  baseURL: process.env.VERCEL_AI_GATEWAY_URL,  // Gateway endpoint
+  apiKey: process.env.VERCEL_AI_GATEWAY_KEY,   // Single gateway key
+});
 ```
-packages/
-  @datagvat/mcp-installer/
-    src/
-      commands/
-        init.ts        # Interactive setup
-        update.ts      # Self-update command
-        doctor.ts      # Health check
-      utils/
-        diff.ts        # Diff preview generation
-        prompts.ts     # Reusable prompt patterns
-        logger.ts      # Formatted output
-    tests/
-      commands/        # Command tests with vitest
+
+**Environment variables needed:**
+```bash
+# .env.local additions for v2.2
+VERCEL_AI_GATEWAY_URL=https://gateway.ai.cloudflare.com/v1/YOUR_ACCOUNT/YOUR_GATEWAY
+VERCEL_AI_GATEWAY_KEY=xxx  # Single key for all models
 ```
+
+**Setup process (Phase 6 research needed):**
+- [ ] Create Vercel AI Gateway instance
+- [ ] Configure model routing rules
+- [ ] Generate gateway API key
+- [ ] Test model switching (gpt-4o → claude-opus-4)
+
+**Confidence:** MEDIUM — Pattern verified with OpenAI-compatible providers, but Vercel AI Gateway specific configuration needs Phase 6 documentation research.
 
 ---
 
-### 4. Navigation Simplification (meta.json patterns)
+### 4. Message Persistence (Neon Postgres + Drizzle ORM)
 
-**Current state:** 8 navigation tabs via Fumadocs meta.json configuration.
+**Context:** Chat conversations must persist across sessions. Users return to previous chats.
 
-#### No New Packages Required
+#### Required Additions
 
-Navigation is configuration-only. Fumadocs (16.4.7) already supports:
-- `meta.json` for page ordering and grouping
-- Separators with `---[Icon]Label---` syntax
-- External links with `external:[Label](URL)` syntax
-- Folder groups with `(advanced)` syntax
+| Package | Version | Purpose | Priority |
+|---------|---------|---------|----------|
+| drizzle-orm | ^0.45.1 | Type-safe database ORM | HIGH |
+| postgres | ^3.4.8 | PostgreSQL driver (postgres.js) | HIGH |
+| drizzle-kit | ^latest | Schema migrations | HIGH (dev) |
 
-**Current structure from `docs/content/docs/meta.json`:**
-```json
-{
-  "pages": [
-    "getting-started",
-    "---[BookOpen]Documentation---",
-    "(guides)",
-    "---[Library]Reference---",
-    "reference",
-    "api-reference",
-    "---[Settings]Advanced Topics---",
-    "(advanced)",
-    "---[Zap]Interactive---",
-    "external:[Try MCP Server](/try)",
-    "---[ExternalLink]Resources---",
-    "external:[Official data.gv.at API](https://www.data.gv.at/katalog/api/3/)",
-    "external:[GitHub Repository](https://github.com/datagvat/datagvat-mcp)"
-  ]
+**Why these choices:**
+
+**Drizzle ORM:**
+- Zero runtime overhead (compiles to SQL)
+- Best-in-class TypeScript DX with full inference
+- Neon-optimized (postgres.js driver)
+- Smaller than Prisma (no query engine binary)
+- Edge-compatible (future-proof)
+
+**postgres.js (over node-postgres):**
+- 5x smaller bundle size than `pg` (~200KB vs 1MB)
+- Native WebSocket support for Neon pooling
+- Serverless-optimized (faster cold starts)
+- No prepared statement issues in AWS environments
+
+**Not Neon serverless driver (@neondatabase/serverless):**
+- Not needed for Next.js App Router (runs in Node.js runtime, not Edge)
+- postgres.js sufficient for serverless functions
+- Keep @neondatabase/serverless for future Edge Runtime features
+
+#### Database Schema
+
+```typescript
+// lib/db/schema.ts
+import { pgTable, text, timestamp, jsonb } from 'drizzle-orm/pg-core';
+
+export const chats = pgTable('chats', {
+  id: text('id').primaryKey(),  // nanoid generated
+  userId: text('user_id'),      // Future: user auth (v3.0)
+  title: text('title'),         // First message preview
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+export const messages = pgTable('messages', {
+  id: text('id').primaryKey(),  // nanoid generated
+  chatId: text('chat_id').notNull().references(() => chats.id),
+  role: text('role').notNull(), // 'user' | 'assistant' | 'tool'
+  content: jsonb('content').notNull(), // UIMessage content (string | array)
+  createdAt: timestamp('created_at').defaultNow()
+});
+```
+
+**Why JSONB for content:**
+- UIMessage content can be string or array of parts (text, tool-call, tool-result, image)
+- Preserves tool call metadata for replay
+- Simpler than separate tables for each content type
+
+#### Connection Setup
+
+```typescript
+// lib/db/client.ts
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+
+const connectionString = process.env.DATABASE_URL!;  // Neon pooled connection
+
+const sql = postgres(connectionString, {
+  max: 1,  // Serverless function uses one connection per instance
+  idle_timeout: 20,
+  max_lifetime: 60 * 30  // 30 minutes
+});
+
+export const db = drizzle(sql);
+```
+
+**Critical: Use Neon pooled connection string:**
+```
+postgresql://user:pass@ep-cool-darkness-123456-pooler.us-east-2.aws.neon.tech/dbname
+                                                  ^^^^^^^ Note -pooler suffix
+```
+
+**Why pooling is mandatory:**
+- Next.js serverless functions create new connections per invocation
+- Without pooling: Exhaust max_connections (104 at 0.25 CU compute)
+- With pooling: Support 10,000 concurrent connections via PgBouncer
+- Transaction-mode pooling (pool_mode=transaction) — connections return after each transaction
+
+**Pooling limitations:**
+- Cannot use session variables (SET/RESET) — not needed for this use case
+- Cannot use LISTEN/NOTIFY — not needed for this use case
+- Cannot use temporary tables — not needed for this use case
+- 2-minute query timeout (query_wait_timeout=120) — keep transactions short
+
+**Official documentation:** [Neon Connection Pooling](https://neon.com/docs/connect/connection-pooling)
+
+#### Message Persistence Pattern
+
+```typescript
+// app/api/chat/route.ts
+import { streamText } from 'ai';
+import { db } from '@/lib/db/client';
+import { messages, chats } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
+import { nanoid } from 'nanoid';
+
+export async function POST(req: Request) {
+  const { messages: clientMessages, chatId } = await req.json();
+
+  // Load previous messages from database
+  const previousMessages = await db
+    .select()
+    .from(messages)
+    .where(eq(messages.chatId, chatId))
+    .orderBy(messages.createdAt);
+
+  // Append new user message
+  const fullMessages = [
+    ...previousMessages.map(m => ({
+      id: m.id,
+      role: m.role as 'user' | 'assistant' | 'tool',
+      content: m.content
+    })),
+    clientMessages[clientMessages.length - 1]
+  ];
+
+  const result = streamText({
+    model,
+    tools: allTools,
+    messages: fullMessages,
+    onFinish: async ({ messages: finalMessages }) => {
+      // Persist all messages (AI SDK 6.0 pattern)
+      await db.insert(messages).values(
+        finalMessages.slice(previousMessages.length).map(msg => ({
+          id: nanoid(),
+          chatId,
+          role: msg.role,
+          content: msg.content,  // JSONB handles string or array
+          createdAt: new Date()
+        }))
+      ).onConflictDoNothing();
+    }
+  });
+
+  return result.toDataStreamResponse();
 }
 ```
 
-**Target structure (8 tabs → 3):**
-- Docs (consolidate getting-started + guides)
-- API (consolidate reference + api-reference + advanced)
-- Try (existing external link)
+**Why onFinish callback:**
+- AI SDK 6.0 pattern for persisting complete conversations
+- `onFinish` receives full conversation history including tool calls
+- Ensures tool approval flow is captured
+- Handles disconnects gracefully (use `result.consumeStream()` if needed)
 
-**Implementation:** Configuration restructuring only, no new dependencies.
+**Official documentation:** [AI SDK Message Persistence](https://ai-sdk.dev/docs/ai-sdk-ui/storing-messages)
+
+#### Migration Workflow
+
+```bash
+# Generate migrations from schema
+bunx drizzle-kit generate
+
+# Apply migrations to Neon database
+bunx drizzle-kit migrate
+
+# Development: Push schema directly (skips migrations)
+bunx drizzle-kit push
+```
+
+#### Environment Variables
+
+```bash
+# .env.local additions for v2.2
+DATABASE_URL=postgresql://user:pass@ep-xxx-pooler.us-east-2.aws.neon.tech/dbname
+```
+
+**Neon free tier:**
+- 512MB storage (sufficient for thousands of chats)
+- 10,000 pooled connections
+- 100 hours compute/month (Always Available projects)
+- $0 cost for v2.2 development and launch
+
+---
+
+### 5. Daytona MCP Server
+
+**Context:** Need secure code execution in isolated sandboxes for Python data analysis.
+
+#### Required Additions
+
+| Package | Version | Purpose | Priority |
+|---------|---------|---------|----------|
+| **NO NODE PACKAGES** | — | Daytona CLI installed on server via curl | HIGH |
+
+**Why no npm packages:**
+- Daytona MCP server is CLI-based, not npm package
+- Connects via stdio transport (command: 'daytona', args: ['mcp'])
+- Installation: `curl -sf https://download.daytona.io/install.sh | sudo bash`
+
+**Integration approach:**
+```typescript
+// Server-side MCP client connection
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+
+const daytonaClient = new Client({
+  name: 'daytona-mcp-client',
+  version: '1.0.0'
+});
+
+await daytonaClient.connect(
+  new StdioClientTransport({
+    command: 'daytona',  // Daytona CLI in PATH
+    args: ['mcp']        // Starts MCP server on stdio
+  })
+);
+```
+
+**Expected Daytona MCP tools (to be verified in Phase 6):**
+- `create_workspace` — Spin up isolated development environment
+- `execute_code` — Run Python code in workspace
+- `list_workspaces` — Show available sandboxes
+- `delete_workspace` — Clean up after session
+
+**Deployment considerations:**
+- Daytona CLI must be installed in Vercel deployment (Dockerfile or build script)
+- Alternative: Self-host Next.js on server with Daytona CLI pre-installed
+- Fallback: If Daytona unavailable, use restricted Python sandbox (subprocess, RestrictedPython)
+
+**Confidence:** LOW — Daytona MCP server existence and CLI integration pattern not verified with official documentation. **CRITICAL PHASE 6 RESEARCH NEEDED.**
+
+**Research tasks for Phase 6:**
+- [ ] Confirm Daytona provides MCP server via CLI
+- [ ] Document Daytona installation process
+- [ ] Verify MCP tool names and schemas
+- [ ] Test stdio transport in production environment
+- [ ] Define fallback strategy if Daytona unavailable
 
 ---
 
 ## Installation Commands
 
-### Core RAG Stack
+### Core v2.2 Stack
 ```bash
-bun add @upstash/vector @upstash/redis
+# Database persistence
+bun add drizzle-orm postgres
+
+# Dev dependencies
+bun add -D drizzle-kit
+
+# NO additions needed for:
+# - Multiple MCP servers (@ai-sdk/mcp + @modelcontextprotocol/sdk already installed)
+# - Tool approval (ai@6.0.64 already supports experimental_needsApproval)
+# - Vercel AI Gateway (@ai-sdk/openai-compatible@2.0.24 already installed)
 ```
 
-### Remotion Stack
+### Server Setup (Non-NPM)
 ```bash
-bun add remotion @remotion/cli @remotion/bundler @remotion/player @remotion/lambda
-```
+# Daytona CLI installation (production server)
+curl -sf https://download.daytona.io/install.sh | sudo bash
 
-### CLI Enhancement Stack
-```bash
-bun add @clack/prompts picocolors diff execa
-bun add -d ora  # Optional, defer to Phase 2
+# Verify Daytona MCP server
+daytona mcp  # Should start MCP server on stdio
 ```
 
 ---
@@ -314,72 +479,201 @@ bun add -d ora  # Optional, defer to Phase 2
 ## Integration Points with Existing Stack
 
 ### 1. Next.js 16.1.3 App Router
-- **RAG:** Route handler at `app/api/chat/route.ts` (already exists, add RAG retrieval)
-- **Remotion:** Static video generation via build scripts, serve from `public/videos/`
-- **CLI:** No integration (separate package)
+- **Chat API:** Route handler at `app/api/chat/route.ts` (connect MCP clients, stream with persistence)
+- **Database:** Drizzle client in `lib/db/` for message persistence
+- **Approval UI:** Dialog component for tool approval (React Server Components + client hooks)
 
-### 2. Fumadocs 16.4.7
-- **RAG:** Search button already exists (`components/ai/search.tsx`), repurpose for RAG-powered chat
-- **Videos:** Embed in MDX with standard video tags
-- **Navigation:** meta.json restructuring
+### 2. Vercel AI SDK 6.0.64
+- **Multiple MCP servers:** Aggregate tools from both data.gv.at and Daytona via `getMCPTools()`
+- **Tool approval:** Use `experimental_needsApproval` for code execution tools
+- **Message persistence:** Use `onFinish` callback to save to Neon Postgres
 
-### 3. Bun Runtime
-- **RAG:** Embedding generation scripts run with `bun run scripts/build-embeddings.ts`
-- **Remotion:** Video rendering with `bun run scripts/render-videos.ts`
-- **CLI:** CLI package uses Bun for build (tsup + vitest)
+### 3. Fumadocs 16.4.7
+- **Playground page:** New route at `docs/app/(playground)/chat/page.tsx`
+- **Navigation:** Add "Chat" tab to existing meta.json structure
 
-### 4. Biome 2.3.11
-- **All:** No special integration, lint rules apply to all new TypeScript files
+### 4. Bun Runtime
+- **Database migrations:** `bunx drizzle-kit` for schema management
+- **MCP connections:** Bun runtime supports Node.js stdio transport
 
 ### 5. TypeScript 5.9.3 Strict Mode
-- **All packages:** Full TypeScript support, strict mode compatible
+- **Drizzle ORM:** Full type inference for queries
+- **Tool schemas:** Zod schemas for tool parameters and approval responses
 
 ---
 
 ## What NOT to Add
 
-| Technology | Why Avoid |
-|------------|-----------|
-| LangChain | Over-engineering — Vercel AI SDK + raw vector search is simpler |
-| Vector database client libraries (Pinecone/Qdrant) | Upstash Vector is sufficient and free |
-| FFmpeg bindings | Remotion handles video rendering internally |
-| Commander.js | Existing CLI likely uses simple arg parsing, no need for full framework |
-| Inquirer | @clack/prompts is modern replacement |
-| Chalk | picocolors is 14x smaller |
-| Jest | Vitest already pattern in Fumadocs ecosystem (faster, Vite-native) |
-| Additional embedding providers | OpenAI text-embedding-3-small is sufficient |
+| Technology | Why Avoid | Use Instead |
+|------------|-----------|-------------|
+| Prisma ORM | Larger bundle, query engine binary, slower cold starts | Drizzle ORM |
+| node-postgres (pg) | 5x larger than postgres.js, prepared statement issues | postgres.js |
+| @neondatabase/serverless | Not needed for Node.js runtime (App Router default) | postgres.js |
+| Direct database connections | Exhaust max_connections in serverless | Neon pooled connection (-pooler) |
+| Supabase | Over-engineering (includes auth, storage, realtime—not needed v2.2) | Neon Postgres (just database) |
+| LangChain | Over-abstraction, AI SDK native patterns simpler | ai + @ai-sdk/mcp directly |
+| Custom MCP aggregation library | Reinventing wheel, @ai-sdk/mcp handles it | @ai-sdk/mcp getMCPTools() |
+
+---
+
+## Version Compatibility
+
+| Package A | Compatible With | Notes |
+|-----------|-----------------|-------|
+| ai@6.0.64 | @ai-sdk/mcp@1.0.16 | AI SDK 6.0+ required for experimental_needsApproval |
+| @ai-sdk/mcp@1.0.16 | @modelcontextprotocol/sdk@1.25.3 | Matching MCP protocol versions |
+| drizzle-orm@0.45.1 | postgres@3.4.8 | Drizzle's postgres-js driver |
+| postgres@3.4.8 | Neon pooled connections | Requires `-pooler` suffix in DATABASE_URL |
+| Next.js 16.1.3 | All above | App Router runs in Node.js runtime (stdio transport works) |
+
+---
+
+## Stack Patterns by Variant
+
+### Pattern 1: Multiple MCP Server Connection
+
+**When:** Chat API needs tools from 2+ MCP servers
+
+```typescript
+// lib/mcp/clients.ts
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+
+export async function createMCPClients() {
+  const dataGvClient = new Client({ name: 'datagvat-mcp', version: '1.0.0' });
+  const daytonaClient = new Client({ name: 'daytona-mcp', version: '1.0.0' });
+
+  await Promise.all([
+    dataGvClient.connect(new StdioClientTransport({
+      command: 'uvx',
+      args: ['--from', process.cwd() + '/mcp', 'datagvat-mcp']
+    })),
+    daytonaClient.connect(new StdioClientTransport({
+      command: 'daytona',
+      args: ['mcp']
+    }))
+  ]);
+
+  return { dataGvClient, daytonaClient };
+}
+```
+
+### Pattern 2: Tool Approval with Custom Validation
+
+**When:** Need conditional approval based on code analysis
+
+```typescript
+import { tool } from 'ai';
+
+const executePythonTool = tool({
+  description: 'Execute Python code in sandbox',
+  parameters: z.object({
+    code: z.string(),
+    workspaceId: z.string()
+  }),
+  experimental_needsApproval: async ({ code }) => {
+    // Dynamic approval: auto-approve safe operations
+    const isSafe = !code.includes('os.') && !code.includes('subprocess.');
+    return !isSafe;  // Require approval for potentially dangerous code
+  },
+  execute: async ({ code, workspaceId }) => {
+    // Execute after approval
+  }
+});
+```
+
+### Pattern 3: Message Persistence with Tool Calls
+
+**When:** Persisting conversations with tool approval history
+
+```typescript
+// Database schema captures full UIMessage format
+export const messages = pgTable('messages', {
+  id: text('id').primaryKey(),
+  chatId: text('chat_id').notNull(),
+  role: text('role').notNull(),
+  content: jsonb('content').notNull(),  // Handles tool-approval-request/response
+  createdAt: timestamp('created_at').defaultNow()
+});
+
+// Query with tool call history
+const result = await streamText({
+  model,
+  tools: allTools,
+  messages: previousMessages.map(m => ({
+    role: m.role,
+    content: m.content  // JSONB preserves tool call structure
+  })),
+  onFinish: async ({ messages: finalMessages }) => {
+    await db.insert(messages).values(
+      finalMessages.map(msg => ({
+        id: nanoid(),
+        chatId,
+        role: msg.role,
+        content: msg.content  // Tool calls, approvals, results all captured
+      }))
+    );
+  }
+});
+```
+
+### Pattern 4: Neon Connection in Serverless
+
+**When:** Database access from Next.js API routes
+
+```typescript
+// Use connection pooling for serverless
+const connectionString = process.env.DATABASE_URL!;  // Must include -pooler suffix
+
+const sql = postgres(connectionString, {
+  max: 1,  // One connection per serverless function instance
+  idle_timeout: 20,
+  max_lifetime: 60 * 30
+});
+
+export const db = drizzle(sql);
+
+// Keep transactions short (2-minute timeout)
+await db.transaction(async (tx) => {
+  await tx.insert(messages).values(/* ... */);
+  await tx.update(chats).set({ updatedAt: new Date() }).where(eq(chats.id, chatId));
+  // Complete within 2 minutes
+});
+```
 
 ---
 
 ## Cost Analysis
 
-### RAG Pipeline
+### Database (Neon Postgres)
 
-| Resource | Free Tier | After Free Tier | Estimate (v2.1) |
+| Resource | Free Tier | After Free Tier | Estimate (v2.2) |
 |----------|-----------|-----------------|-----------------|
-| Upstash Vector | 10K vectors, 10K queries/day | $0.40/100K queries | $0/month (well under limits) |
-| OpenAI Embeddings | None | $0.02/1M tokens | ~$0.50/month (112 docs = ~100K tokens) |
-| Upstash Redis | 10K requests/day | $0.20/100K requests | $0/month (rate limiting only) |
+| Storage | 512MB | $0.10/GB/month | $0/month (chat history ~100MB initially) |
+| Compute | 100 hours/month | $0.16/hour | $0/month (Always Available within free tier) |
+| Data Transfer | 5GB/month | $0.09/GB | $0/month (API queries minimal) |
 
-**Total RAG cost:** ~$0.50/month initially, scales to ~$5/month at 100K queries
+**Total database cost:** $0/month for v2.2 development and initial production
 
-### Video Rendering
+### Vercel AI Gateway
 
-| Option | Cost | Duration |
-|--------|------|----------|
-| GitHub Actions | Free (2K mins/month) | ~5 mins/video = 15 mins for 3 videos |
-| Remotion Lambda | ~$1-5/hour | ~30 seconds/video = $0.01-0.05/video |
+| Resource | Cost | Estimate |
+|----------|------|----------|
+| Gateway management | $0 (Vercel feature) | $0/month |
+| Model API calls | Pay-per-use (normal rates) | Depends on usage (same as direct) |
 
-**Total video cost:** $0/month (GitHub Actions sufficient for 3-5 videos)
+**Total gateway cost:** $0 infrastructure, model usage same as direct API calls
 
-### CLI Packages
+### Daytona Sandboxes
 
-| Resource | Cost |
-|----------|------|
-| npm packages | $0 (all open-source) |
-| Distribution | $0 (npm registry free) |
+| Resource | Cost | Estimate |
+|----------|------|----------|
+| Daytona CLI (self-hosted) | $0 (open-source) | $0/month |
+| Compute for sandboxes | Server costs (Vercel or self-host) | Variable (needs research) |
 
-**Total cost estimate for v2.1:** ~$0.50/month (embeddings only)
+**Confidence:** LOW — Daytona pricing model unclear, needs Phase 6 investigation
+
+**Total cost estimate for v2.2:** $0/month infrastructure (within free tiers)
 
 ---
 
@@ -390,77 +684,125 @@ bun add -d ora  # Optional, defer to Phase 2
 # Terminal 1: Next.js dev server
 bun run dev
 
-# Terminal 2: Remotion studio (video preview)
-bun run remotion
+# Terminal 2: Database migrations (when schema changes)
+bunx drizzle-kit push
 
-# Terminal 3: Embedding generation (when docs change)
-bun run scripts/build-embeddings.ts
+# Terminal 3: Drizzle Studio (database GUI)
+bunx drizzle-kit studio
+
+# Terminal 4: MCP server testing (data.gv.at)
+cd mcp && uvx datagvat-mcp
 ```
 
 ### Build Phase
 ```bash
-# Standard Next.js build with additions
-bun run prebuild    # Existing (now also generates embeddings)
-next build          # Static site generation
-bun run postbuild   # Existing (now also renders videos)
+# Standard Next.js build
+bun run build
+
+# Apply database migrations (production)
+bunx drizzle-kit migrate
 ```
 
 **Estimated build time impact:**
-- Embeddings generation: +30 seconds (112 docs, API calls)
-- Video rendering: +15 minutes (3 videos @ 5 mins each) — run async in CI
-- Total: +30 seconds for local builds, +15 mins for full CI builds
-
-**Optimization:**
-- Cache embeddings (only regenerate on content changes)
-- Render videos only on video source changes (check git diff)
-- Parallel video rendering in CI (GitHub Actions matrix)
+- No additional build time (database migrations run separately)
+- MCP connections established at runtime, not build time
 
 ---
 
-## Version Verification Needed
+## Research Gaps (Phase-Specific Investigation Needed)
 
-| Package | Confidence | Action |
-|---------|------------|--------|
-| remotion | MEDIUM | Run `npm view remotion version` to verify 4.x is current |
-| @remotion/* packages | MEDIUM | Verify all @remotion packages use same version |
-| @clack/prompts | HIGH | 0.7.0 confirmed in ecosystem usage |
-| @upstash/vector | HIGH | 1.0.0+ confirmed in Upstash documentation |
+### CRITICAL Priority (Blocking Development)
+
+1. **Daytona MCP Server Availability**
+   - **Question:** Does Daytona provide MCP server via `daytona mcp` command?
+   - **Why critical:** Entire code execution feature depends on this
+   - **Fallback:** Define restricted Python sandbox strategy if unavailable
+   - **Phase:** 6 (Research phase for code execution milestone)
+
+2. **Vercel AI Gateway Configuration**
+   - **Question:** How to create gateway instance and configure model routing?
+   - **Why critical:** Single endpoint for 100+ models is v2.2 requirement
+   - **Fallback:** Use direct provider packages (@ai-sdk/openai, @ai-sdk/anthropic)
+   - **Phase:** 6 (Research phase for AI integration milestone)
+
+3. **MCP stdio in Vercel Deployment**
+   - **Question:** Does stdio transport work in Vercel serverless functions?
+   - **Why critical:** MCP connections may fail in serverless if stdio unsupported
+   - **Fallback:** Use Streamable HTTP transport for MCP servers
+   - **Phase:** 6 (Research phase for deployment milestone)
+
+### HIGH Priority (Impacts UX)
+
+4. **Database Schema Design**
+   - **Question:** How to handle tool call content in JSONB? What indexes needed?
+   - **Why important:** Query performance and storage efficiency
+   - **Phase:** 7 (Implementation phase for persistence milestone)
+
+5. **Tool Approval UX**
+   - **Question:** What approval dialog design? How to display code preview safely?
+   - **Why important:** User trust and security perception
+   - **Phase:** 7 (Implementation phase for code execution milestone)
+
+### MEDIUM Priority (Performance Optimization)
+
+6. **Connection Pooling Tuning**
+   - **Question:** Monitor pool usage, adjust default_pool_size if needed
+   - **Why useful:** Prevent query timeouts under load
+   - **Phase:** 8 (Testing phase)
+
+7. **MCP Client Lifecycle**
+   - **Question:** Should MCP clients be singletons or per-request?
+   - **Why useful:** Performance vs. resource usage tradeoff
+   - **Phase:** 7 (Implementation phase)
 
 ---
 
 ## Sources
 
-**HIGH confidence (Context7, official docs):**
-- Vercel AI SDK embeddings: ai-sdk.dev documentation (WebFetch confirmed `embed()`, `embedMany()`, `cosineSimilarity()`)
-- Fumadocs meta.json: Existing codebase analysis (direct file read)
-- Existing package.json: Direct file read
+### HIGH Confidence (Official Documentation Verified)
 
-**MEDIUM confidence (ecosystem patterns, verified):**
-- Remotion versions: Ecosystem observation (official docs lacked version specifics, skill document confirmed 4.x patterns)
-- shadcn CLI patterns: GitHub repository analysis (WebFetch confirmed TypeScript, tsup, vitest)
-- @clack/prompts usage: Ecosystem adoption (Astro, SvelteKit)
-- Upstash Vector: WebSearch indicated serverless-first approach, REST API
+- **AI SDK Tool Approval:** [ai-sdk.dev/docs/ai-sdk-core/tools-and-tool-calling](https://ai-sdk.dev/docs/ai-sdk-core/tools-and-tool-calling) — `experimental_needsApproval` pattern, approval flow documented
+- **AI SDK Message Persistence:** [ai-sdk.dev/docs/ai-sdk-ui/storing-messages](https://ai-sdk.dev/docs/ai-sdk-ui/storing-messages) — `onFinish` callback pattern, UIMessage format documented
+- **Neon Connection Pooling:** [neon.com/docs/connect/connection-pooling](https://neon.com/docs/connect/connection-pooling) — Pooling configuration, limitations, transaction-mode behavior documented
+- **Drizzle ORM PostgreSQL:** [orm.drizzle.team/docs/get-started-postgresql](https://orm.drizzle.team/docs/get-started-postgresql) — postgres.js driver setup documented
+- **MCP Transports Specification:** [modelcontextprotocol.io/docs/concepts/transports](https://modelcontextprotocol.io/docs/concepts/transports) — stdio transport protocol documented
 
-**LOW confidence (requires validation):**
-- Remotion Lambda pricing: Estimated from typical AWS Lambda costs
-- GitHub Actions rendering time: Estimated from video complexity
-- Upstash pricing details: Need to verify current 2026 pricing
+### MEDIUM Confidence (Ecosystem Patterns Verified)
+
+- **MCP SDK Multiple Servers:** TypeScript SDK GitHub repository analysis — Multi-client pattern inferred from Client class architecture
+- **Vercel AI Gateway Configuration:** OpenAI-compatible provider pattern verified, but gateway-specific setup needs documentation
+
+### LOW Confidence (Requires Phase 6 Validation)
+
+- **Daytona MCP Server:** Mentioned in project context, no official MCP server documentation found — **CRITICAL GAP**
+- **Daytona CLI Installation:** General Daytona installation pattern assumed, needs verification
+- **Daytona Tool Schemas:** Expected tool names inferred from use case, needs verification
 
 ---
 
 ## Recommendation Summary
 
-**Proceed with these additions for v2.1:**
+**Proceed with these additions for v2.2:**
 
-1. **RAG Pipeline:** Add `@upstash/vector` + `@upstash/redis`, use existing `ai` package for embeddings
-2. **Remotion:** Add full Remotion stack (verify versions with npm), render with GitHub Actions
-3. **CLI:** Add `@clack/prompts`, `picocolors`, `diff`, `execa` for shadcn-quality UX
-4. **Navigation:** Configuration-only, no new packages
+1. **Database Persistence:** Add `drizzle-orm` + `postgres` for Neon Postgres integration
+2. **Multiple MCP Servers:** Use existing `@ai-sdk/mcp` + `@modelcontextprotocol/sdk` (no new packages)
+3. **Tool Approval:** Use existing `ai@6.0.64` experimental_needsApproval (no new packages)
+4. **Vercel AI Gateway:** Use existing `@ai-sdk/openai-compatible` with baseURL config (no new packages)
+5. **Daytona MCP:** Server installation via CLI (non-npm), **requires Phase 6 verification**
 
-**Total new dependencies:** 11 packages (6 Remotion, 4 CLI, 1 vector DB)
+**Total new npm dependencies:** 2 packages (drizzle-orm, postgres)
 
-**Cost:** ~$0.50/month for RAG, $0 for video rendering (GitHub Actions free tier)
+**Cost:** $0/month (within Neon free tier, Vercel gateway has no infrastructure cost)
 
-**Build time:** +30 seconds (embeddings), +15 mins (videos, async in CI)
+**Build time:** No impact (migrations run separately, MCP runtime connections)
 
-**Risk assessment:** LOW — All packages are well-established, TypeScript-native, and align with existing Bun/Next.js/Fumadocs stack.
+**Risk assessment:**
+- **LOW risk:** Database persistence (Drizzle + Neon well-established)
+- **MEDIUM risk:** Vercel AI Gateway (configuration needs research, but fallback is direct providers)
+- **HIGH risk:** Daytona MCP (availability unverified, needs fallback strategy)
+
+**Next step:** Phase 6 research must verify Daytona MCP server availability or define fallback to restricted Python sandbox approach.
+
+---
+
+*Last updated: 2026-01-31 for v2.2 Interactive Data Playground milestone*

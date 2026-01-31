@@ -1,18 +1,18 @@
-# Architecture Integration Patterns
+# Architecture Research: Interactive Data Playground
 
-**Project:** datagvat-mcp v2.1
-**Researched:** 2026-01-22
+**Domain:** AI-powered dataset discovery and exploration
+**Researched:** 2026-01-31
 **Confidence:** HIGH
 
 ## Executive Summary
 
-This document describes how v2.1 features (RAG chat, Remotion videos, navigation restructuring, CLI enhancements) integrate with the existing Next.js 16.1.3 + Fumadocs platform. The architecture leverages existing infrastructure (Vercel AI SDK, Fumadocs page tree, Bun tooling) while adding new API routes, components, and build-time processes.
+This document describes the architecture for adding an interactive data playground to the existing documentation site. The playground integrates TWO MCP servers (data.gv.at + Daytona) with ONE chat interface, enabling users to discover datasets and execute code to explore them immediately.
 
 **Key architectural decisions:**
-1. **RAG Chat:** Server-side API route (`/api/chat/rag`) + client component (repurpose existing search button) + server-side vector DB
-2. **Remotion Videos:** Build-time generation via Bun scripts + static hosting + MDX embed component
-3. **Navigation:** Meta.json restructuring using Fumadocs `root: true` pattern for 3-tab layout
-4. **CLI:** Enhanced with `add` command following shadcn patterns (registry + interactive selection)
+1. **Multiple MCP Integration:** Merge tools from HTTP (data.gv.at) and stdio (Daytona) MCP servers using AI SDK 6 tool spreading pattern
+2. **Message Persistence:** Store chat history in Neon Postgres using AI SDK's UIMessage format with parts array (JSONB)
+3. **Sandbox Execution:** Daytona workspaces for isolated Python/R code execution with user approval workflow
+4. **Inline Visualizations:** Base64-encoded images embedded in tool result parts for immediate rendering
 
 ## Current Architecture Baseline
 
@@ -21,1121 +21,794 @@ This document describes how v2.1 features (RAG chat, Remotion videos, navigation
 | Layer | Technology | Location | Purpose |
 |-------|-----------|----------|---------|
 | Framework | Next.js 16.1.3 App Router | `docs/` | SSR, routing, API routes |
-| Docs Engine | Fumadocs 16.4.7 | Integrated | MDX rendering, page tree, search |
-| Runtime | Bun | Root | Scripts, dev server, build |
-| Linting | Biome 2.3.11 | Root | Code quality, formatting |
-| CI/CD | GitHub Actions | `.github/` | Build, deploy, validation |
-| AI Integration | Vercel AI SDK 6.0.41 | `/try` page | Chat streaming (existing) |
+| AI Integration | Vercel AI SDK 6.0.64 | `docs/app/api/chat/` | Chat streaming (existing RAG chat) |
+| AI Gateway | Vercel AI Gateway | `@ai-sdk/gateway` | LLM provider abstraction |
+| MCP Server | FastMCP (data.gv.at) | `mcp/` | Dataset discovery tools (HTTP transport) |
+| Runtime | Bun + Node 18+ | Root | Scripts, dev server |
+| UI Components | Fumadocs + shadcn/ui | `docs/components/` | Chat interface, dialogs |
 
-### Existing Components
+### Existing Components (To Extend)
 
 ```
 docs/
 ├── app/
+│   ├── api/
+│   │   └── chat/
+│   │       ├── route.ts                 # MODIFY: Add Daytona MCP, persistence
+│   │       └── schema.ts                # Existing: Request validation
 │   ├── [lang]/
-│   │   ├── docs/[[...slug]]/page.tsx    # MDX page renderer
-│   │   ├── docs/layout.tsx              # DocsLayout with sidebar/tabs
-│   │   └── try/page.tsx                 # ChatInterface (existing)
-│   ├── layout.tsx                       # Root layout
-│   └── provider.tsx                     # Theme/context providers
+│   │   └── chat/
+│   │       └── page.tsx                 # MODIFY: Load messages from DB
 ├── components/
-│   ├── chat/
-│   │   ├── chat-interface.tsx           # useChat hook integration
-│   │   ├── chat-input.tsx               # Input with streaming controls
-│   │   └── message-list.tsx             # Message rendering
-│   ├── search.tsx                       # Search dialog (Orama)
-│   └── mdx/                             # MDX components
-├── content/docs/                        # MDX files organized by section
-└── lib/
-    └── source/
-        └── navigation.ts                # Section detection logic
+│   ├── chat.tsx                         # MODIFY: Visualization rendering
+│   ├── messages.tsx                     # MODIFY: Tool approval UI
+│   └── multimodal-input.tsx             # Existing: User input
+├── lib/
+│   └── ai/
+│       ├── providers.ts                 # Existing: AI Gateway setup
+│       └── models.ts                    # Existing: Model selection
+mcp/
+├── app/
+│   └── server.py                        # Existing: FastMCP server (unchanged)
 ```
 
 ### Existing Data Flow
 
-1. **MDX Rendering:** Fumadocs server → `.source/server.ts` → page tree → DocsLayout → MDX component
-2. **Chat Streaming:** Client (useChat) → `/api/chat` → Vercel AI SDK → streaming response
-3. **Search:** Client (SearchDialog) → Orama index → fuzzy search results
-4. **Navigation:** `meta.json` files → Fumadocs page tree → sidebar rendering
-
----
-
-## Feature 1: RAG Chat Integration
-
-### Architecture Overview
-
-**Pattern:** API Route + Server-Side Vector DB + Client Component + Streaming
-
+**Current RAG Chat Flow:**
 ```
-User Query → SearchButton (repurposed) → /api/chat/rag → Vector DB → embed() → similarity search → streamText() with context → Client
+User → Chat UI (useChat) → POST /api/chat → streamText() → data.gv.at MCP tools → Stream response
 ```
 
-### Component Structure
-
-#### New Components
-
-| Component | Type | Location | Responsibility |
-|-----------|------|----------|----------------|
-| `/api/chat/rag/route.ts` | API Route (POST) | `docs/app/api/chat/rag/` | RAG orchestration, vector search, streaming |
-| `<RAGChatDialog />` | Client Component | `docs/components/chat/rag-dialog.tsx` | Modal chat UI, useChat hook |
-| `<RAGTrigger />` | Client Component | `docs/components/chat/rag-trigger.tsx` | Bottom-right search button replacement |
-| `lib/rag/embeddings.ts` | Server Utility | `docs/lib/rag/` | Embedding generation (AI SDK embed) |
-| `lib/rag/vector-store.ts` | Server Utility | `docs/lib/rag/` | Vector storage interface |
-| `lib/rag/indexer.ts` | Build Script | `docs/lib/rag/` | Documentation indexing pipeline |
-
-#### Modified Components
-
-| Component | Change | Reason |
-|-----------|--------|--------|
-| `app/[lang]/docs/layout.tsx` | Remove `<AISearch>` components | Replace with RAGTrigger |
-| `components/search.tsx` | Keep for legacy Orama search | Backward compatibility |
-
-### API Route Architecture
-
-**File:** `docs/app/api/chat/rag/route.ts`
-
-```typescript
-// Implements Vercel AI SDK streaming pattern
-export async function POST(req: Request) {
-  const { messages } = await req.json();
-
-  // 1. Extract last user message
-  const query = messages[messages.length - 1].content;
-
-  // 2. Generate query embedding (server-side)
-  const embedding = await embed({
-    model: openai.embedding('text-embedding-3-small'),
-    value: query,
-  });
-
-  // 3. Vector similarity search
-  const relevantDocs = await vectorStore.search(embedding.embedding, {
-    topK: 5,
-    threshold: 0.7,
-  });
-
-  // 4. Build context from retrieved docs
-  const context = relevantDocs.map(doc => doc.content).join('\n\n');
-
-  // 5. Stream response with context
-  const result = await streamText({
-    model: openai('gpt-4o-mini'),
-    messages: [
-      { role: 'system', content: `Answer based on: ${context}` },
-      ...messages,
-    ],
-  });
-
-  return result.toDataStreamResponse();
-}
+**NEW Interactive Playground Flow:**
 ```
-
-**Key architectural decisions:**
-- **Server-side only:** Embedding generation and vector search never exposed to client
-- **Streaming response:** Uses `streamText()` + `toDataStreamResponse()` for incremental UI updates
-- **Context injection:** Retrieved docs injected into system message, not exposed to client
-
-### Vector Database Integration
-
-**Recommended stack:** In-memory vector store → PostgreSQL pgvector → Pinecone/Weaviate (scale path)
-
-#### Phase 1: In-Memory (MVP)
-
-```typescript
-// lib/rag/vector-store.ts
-class InMemoryVectorStore {
-  private vectors: Array<{ id: string; embedding: number[]; content: string; metadata: any }> = [];
-
-  async add(id: string, embedding: number[], content: string, metadata: any) {
-    this.vectors.push({ id, embedding, content, metadata });
-  }
-
-  async search(queryEmbedding: number[], options: { topK: number; threshold: number }) {
-    // Cosine similarity search
-    const scores = this.vectors.map(v => ({
-      ...v,
-      score: cosineSimilarity(queryEmbedding, v.embedding),
-    }));
-
-    return scores
-      .filter(s => s.score >= options.threshold)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, options.topK);
-  }
-}
-```
-
-**Pros:** Zero setup, fast for <10K docs, good for MVP
-**Cons:** RAM usage (approx 1MB per 1000 docs), lost on restart, no persistence
-**When to migrate:** When docs exceed 10K or multi-instance deployment needed
-
-#### Phase 2: PostgreSQL pgvector (Production)
-
-```typescript
-// lib/rag/vector-store.ts
-class PostgresVectorStore {
-  async search(queryEmbedding: number[], options: { topK: number; threshold: number }) {
-    const result = await sql`
-      SELECT id, content, metadata,
-             1 - (embedding <=> ${queryEmbedding}::vector) as similarity
-      FROM document_embeddings
-      WHERE 1 - (embedding <=> ${queryEmbedding}::vector) >= ${options.threshold}
-      ORDER BY embedding <=> ${queryEmbedding}::vector
-      LIMIT ${options.topK}
-    `;
-    return result.rows;
-  }
-}
-```
-
-**Migration trigger:** When docs >10K or need persistence
-**Dependencies:** `pg`, `@neondatabase/serverless`, `pgvector` extension
-
-### Documentation Indexing Pipeline
-
-**When:** Build-time (prebuild script) + optional runtime reindex endpoint
-
-**File:** `docs/lib/rag/indexer.ts`
-
-```typescript
-// Build-time indexer (run in prebuild script)
-export async function indexDocumentation() {
-  const vectorStore = getVectorStore();
-
-  // 1. Load all MDX files from content/docs/
-  const docs = await loadAllMDXFiles('content/docs');
-
-  // 2. Chunk documents (split on headings, max 1000 tokens)
-  const chunks = docs.flatMap(doc => chunkDocument(doc, {
-    maxTokens: 1000,
-    splitOn: ['##', '###'], // Split on H2, H3
-  }));
-
-  // 3. Batch embed chunks
-  const embeddings = await embedMany({
-    model: openai.embedding('text-embedding-3-small'),
-    values: chunks.map(c => c.content),
-  });
-
-  // 4. Store in vector DB
-  for (let i = 0; i < chunks.length; i++) {
-    await vectorStore.add(
-      chunks[i].id,
-      embeddings.embeddings[i],
-      chunks[i].content,
-      { title: chunks[i].title, url: chunks[i].url }
-    );
-  }
-}
-```
-
-**Chunking strategy:**
-- **Split on headings:** Preserves semantic boundaries (H2/H3 = logical sections)
-- **Max 1000 tokens:** Fits embedding model context + leaves room for query
-- **Overlap 200 tokens:** Prevents context loss at boundaries
-- **Metadata preservation:** Store title, URL, section for display in chat
-
-**Build integration:**
-```json
-// package.json
-{
-  "scripts": {
-    "prebuild": "bun run scripts/prebuild.ts && bun run lib/rag/indexer.ts",
-    "rag:reindex": "bun run lib/rag/indexer.ts"
-  }
-}
-```
-
-### Client Component Architecture
-
-**File:** `docs/components/chat/rag-dialog.tsx`
-
-```tsx
-'use client';
-import { useChat } from '@ai-sdk/react';
-
-export function RAGChatDialog() {
-  const { messages, sendMessage, status } = useChat({
-    api: '/api/chat/rag',
-    onError: (err) => console.error('RAG error:', err),
-  });
-
-  return (
-    <Dialog>
-      <MessageList messages={messages} />
-      <ChatInput onSend={sendMessage} disabled={status !== 'ready'} />
-    </Dialog>
-  );
-}
-```
-
-**Integration with existing search button:**
-
-Replace bottom-right search button in `app/[lang]/docs/layout.tsx`:
-
-```tsx
-// OLD (Orama search)
-<AISearch>
-  <AISearchPanel />
-  <AISearchTrigger />
-</AISearch>
-
-// NEW (RAG chat)
-<RAGChat>
-  <RAGChatDialog />
-  <RAGTrigger /> {/* Bottom-right button */}
-</RAGChat>
-```
-
-### Performance Considerations
-
-| Concern | Impact | Mitigation |
-|---------|--------|------------|
-| Embedding latency | 200-500ms per query | Use fast model (text-embedding-3-small), cache common queries |
-| Vector search time | O(n) for in-memory | Migrate to pgvector (uses HNSW index, O(log n)) |
-| Streaming latency | TTFB <1s critical | Edge deployment, vector search first (parallel with model call) |
-| Build-time indexing | +30s to build | Run in background, cache embeddings, incremental reindex |
-| Token costs | $0.0001/1K tokens (embed) | Batch embed (embedMany), cache embeddings, reuse across builds |
-
-### Data Flow Diagram
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│ Build Time                                                  │
-├─────────────────────────────────────────────────────────────┤
-│ MDX Files → Chunker → embedMany() → Vector Store           │
-│                         (batch)        (persistence)        │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│ Runtime (Query)                                             │
-├─────────────────────────────────────────────────────────────┤
-│ User → RAGTrigger → RAGDialog → useChat                    │
-│                                     ↓                       │
-│                            POST /api/chat/rag               │
-│                                     ↓                       │
-│                      embed(query) → Vector Search           │
-│                                     ↓                       │
-│                      streamText(context + query)            │
-│                                     ↓                       │
-│                      Stream → RAGDialog → User              │
-└─────────────────────────────────────────────────────────────┘
+User → Chat UI → POST /api/chat → getAllTools() (data.gv.at + Daytona)
+                                 → streamText() with merged tools
+                                 → Tool approval (code execution)
+                                 → Daytona sandbox execution
+                                 → Visualization rendering
+                                 → Persist to Postgres → Stream response
 ```
 
 ---
 
-## Feature 2: Remotion Video Generation
-
-### Architecture Overview
-
-**Pattern:** Build-Time Rendering + Static Hosting + MDX Component
+## System Overview
 
 ```
-Bun Script → Remotion renderMedia() → MP4 files → public/ → MDX <Video /> component → Next.js static serving
+┌─────────────────────────────────────────────────────────────────────┐
+│                        PRESENTATION LAYER                             │
+├─────────────────────────────────────────────────────────────────────┤
+│  ┌──────────────┐  ┌────────────────┐  ┌─────────────────────┐     │
+│  │  Chat UI     │  │  Visualization │  │  Code Approval UI   │     │
+│  │  (useChat)   │  │  Renderer      │  │  (Tool Parts)       │     │
+│  └──────┬───────┘  └────────┬───────┘  └──────────┬──────────┘     │
+│         │                   │                      │                │
+├─────────┴───────────────────┴──────────────────────┴────────────────┤
+│                        APPLICATION LAYER                             │
+├─────────────────────────────────────────────────────────────────────┤
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │              /api/chat Route Handler                         │    │
+│  │  • Parses useChat requests                                   │    │
+│  │  • Merges tools from multiple MCP servers                    │    │
+│  │  • Streams AI responses via streamText()                     │    │
+│  │  • Persists messages via onFinish callback                   │    │
+│  └──────────┬───────────────────────────────┬────────────────────┘  │
+│             │                               │                       │
+│  ┌──────────▼──────────┐       ┌───────────▼────────────┐          │
+│  │  MCP Client Manager │       │  Database Manager      │          │
+│  │  • data.gv.at MCP   │       │  • Message persistence │          │
+│  │  • Daytona MCP      │       │  • UIMessage format    │          │
+│  │  • Tool merging     │       │  • JSONB storage       │          │
+│  └──────────┬──────────┘       └────────────────────────┘          │
+│             │                                                        │
+├─────────────┴────────────────────────────────────────────────────────┤
+│                        INTEGRATION LAYER                             │
+├─────────────────────────────────────────────────────────────────────┤
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐  │
+│  │ data.gv.at MCP   │  │   Daytona MCP    │  │  Neon Postgres   │  │
+│  │ (HTTP transport) │  │ (stdio/CLI)      │  │  (serverless)    │  │
+│  │ • Dataset tools  │  │ • Code execution │  │  • Chat storage  │  │
+│  └──────────────────┘  └──────────────────┘  └──────────────────┘  │
+└─────────────────────────────────────────────────────────────────────┘
+                               ▲
+                               │
+                    ┌──────────┴───────────┐
+                    │  Vercel AI Gateway   │
+                    │  (LLM provider)      │
+                    └──────────────────────┘
 ```
 
-### Component Structure
+## Component Responsibilities
 
-| Component | Type | Location | Responsibility |
-|-----------|------|----------|----------------|
-| `scripts/render-videos.ts` | Build Script | `docs/scripts/` | Video generation orchestration |
-| `remotion/` | Remotion Project | `docs/remotion/` | Video compositions (React) |
-| `components/mdx/video.tsx` | MDX Component | `docs/components/mdx/` | Video embed with player |
-| `public/videos/` | Static Assets | `docs/public/` | Rendered MP4 files |
+| Component | Responsibility | Integration Pattern |
+|-----------|----------------|---------------------|
+| **Chat UI** | Renders message stream, tool approvals, visualizations | `useChat()` hook from `@ai-sdk/react`, communicates with `/api/chat` via POST |
+| **Visualization Renderer** | Displays inline charts/plots from code execution | Renders base64 images from tool result parts in message.parts array |
+| **Code Approval UI** | Shows pending tool calls, captures user approval | Monitors `message.parts` for `state: 'approval-pending'`, calls `addToolApprovalResponse()` |
+| **API Route Handler** | Orchestrates AI requests, tool calling, persistence | Next.js Route Handler using AI SDK's `streamText()` and `createUIMessageStream()` |
+| **MCP Client Manager** | Initializes and manages multiple MCP clients | Uses `@ai-sdk/mcp` `createMCPClient()` for each server, merges `.tools()` outputs |
+| **Database Manager** | Persists and loads chat history | Server actions using `@neondatabase/serverless` Pool, stores UIMessage[] as JSONB |
+| **data.gv.at MCP** | Provides dataset discovery/analysis tools | HTTP transport to FastMCP server at existing endpoint |
+| **Daytona MCP** | Executes Python/R code in isolated sandboxes | stdio transport spawning `daytona` CLI process |
+| **Neon Postgres** | Stores chat messages, executions, metadata | Serverless driver in Server Actions/API routes |
+| **Vercel AI Gateway** | Routes LLM requests, handles provider switching | Configured via `gateway.languageModel()` in providers.ts |
 
-### Video Generation Workflow
-
-**Decision:** Build-time generation (not runtime) for performance and cost
-
-**Rationale:**
-- **Build-time:** Videos generated once, served as static files (fast, CDN-friendly)
-- **Runtime (rejected):** API route triggers renderMedia() on-demand (slow, expensive, compute-heavy)
-
-#### Build Script Architecture
-
-**File:** `docs/scripts/render-videos.ts`
-
-```typescript
-import { renderMedia } from '@remotion/renderer';
-import { bundle } from '@remotion/bundler';
-
-// List of videos to generate
-const videos = [
-  { id: 'quickstart', composition: 'Quickstart', duration: 30 },
-  { id: 'tool-search', composition: 'ToolSearchDemo', duration: 45 },
-  { id: 'workflow-discovery', composition: 'WorkflowDiscovery', duration: 60 },
-];
-
-export async function renderAllVideos() {
-  // 1. Bundle Remotion project once
-  const bundleLocation = await bundle({
-    entryPoint: path.resolve('./remotion/index.ts'),
-    webpackOverride: (config) => config, // Next.js compat
-  });
-
-  // 2. Render each video composition
-  for (const video of videos) {
-    console.log(`Rendering ${video.id}...`);
-
-    await renderMedia({
-      composition: {
-        id: video.composition,
-        durationInFrames: video.duration * 30, // 30fps
-        fps: 30,
-        width: 1920,
-        height: 1080,
-      },
-      serveUrl: bundleLocation,
-      codec: 'h264',
-      outputLocation: path.join('./public/videos', `${video.id}.mp4`),
-      onProgress: ({ progress }) => {
-        console.log(`  ${video.id}: ${(progress * 100).toFixed(0)}%`);
-      },
-    });
-
-    console.log(`✓ ${video.id} complete`);
-  }
-}
-```
-
-**Build integration:**
-
-```json
-// package.json
-{
-  "scripts": {
-    "prebuild": "bun run scripts/prebuild.ts && bun run scripts/render-videos.ts",
-    "videos:render": "bun run scripts/render-videos.ts",
-    "videos:preview": "remotion studio remotion/index.ts"
-  },
-  "dependencies": {
-    "remotion": "^4.0.x",
-    "@remotion/bundler": "^4.0.x",
-    "@remotion/renderer": "^4.0.x",
-    "@remotion/player": "^4.0.x"
-  }
-}
-```
-
-### Remotion Project Structure
+## Recommended Project Structure
 
 ```
-docs/remotion/
-├── index.ts                     # Remotion root (registers compositions)
-├── compositions/
-│   ├── Quickstart.tsx           # Quickstart video composition
-│   ├── ToolSearchDemo.tsx       # Tool search demo
-│   └── WorkflowDiscovery.tsx    # Workflow discovery demo
+docs/                           # Existing Next.js docs site
+├── app/
+│   ├── api/
+│   │   ├── chat/
+│   │   │   ├── route.ts       # MODIFIED: Add Daytona MCP, persistence
+│   │   │   └── schema.ts      # Existing: Request validation
+│   ├── [lang]/
+│   │   ├── chat/
+│   │   │   ├── page.tsx       # MODIFIED: Load messages from DB
+│   │   │   └── layout.tsx     # Existing: Chat layout
 ├── components/
-│   ├── CodeEditor.tsx           # Animated code editor component
-│   ├── Terminal.tsx             # Animated terminal component
-│   └── Browser.tsx              # Animated browser window
-└── assets/
-    ├── fonts/                   # Custom fonts for branding
-    └── images/                  # Static images for compositions
+│   ├── chat.tsx               # MODIFIED: Add visualization rendering
+│   ├── messages.tsx           # MODIFIED: Render image parts, code approval
+│   ├── multimodal-input.tsx   # Existing: User input
+│   └── visualization.tsx      # NEW: Base64 image display component
+├── lib/
+│   ├── ai/
+│   │   ├── providers.ts       # Existing: Vercel AI Gateway setup
+│   │   ├── models.ts          # Existing: Model selection
+│   │   └── mcp-clients.ts     # NEW: Initialize both MCP servers
+│   ├── db/
+│   │   ├── client.ts          # NEW: Neon Pool configuration
+│   │   ├── schema.ts          # NEW: Database schema types
+│   │   └── queries.ts         # NEW: createChat, loadChat, saveChat
+│   └── sandbox/
+│       └── daytona.ts         # NEW: Daytona workspace management helpers
+mcp/                            # Existing FastMCP server (unchanged)
+├── app/
+│   ├── server.py              # Existing: data.gv.at MCP server
+│   └── tools/                 # Existing: Dataset tools
 ```
 
-**Example composition:**
+### Structure Rationale
 
-```tsx
-// remotion/compositions/Quickstart.tsx
-import { AbsoluteFill, useCurrentFrame } from 'remotion';
+- **lib/ai/mcp-clients.ts**: Centralizes MCP client initialization, preventing duplicate connections and enabling tool merging strategy
+- **lib/db/**: Separates database concerns from API routes, enabling reuse across Server Actions and Route Handlers
+- **lib/sandbox/**: Isolates Daytona-specific logic (workspace lifecycle, CLI wrapping) for testability
+- **components/visualization.tsx**: Dedicated component for rendering code execution outputs, handles base64 decoding and error states
+- **No changes to mcp/**: Existing FastMCP server continues running unchanged, accessed via HTTP transport
 
-export const Quickstart: React.FC = () => {
-  const frame = useCurrentFrame();
+---
 
-  return (
-    <AbsoluteFill style={{ backgroundColor: '#0A0A0A' }}>
-      {/* Animated terminal showing installation */}
-      <Terminal
-        lines={[
-          { frame: 30, text: '$ npx datagvat-mcp init' },
-          { frame: 60, text: '✓ Found Claude Desktop' },
-          { frame: 90, text: '✓ Configuration written' },
-        ]}
-      />
+## Architectural Patterns
 
-      {/* Animated browser showing Claude chat */}
-      <Browser url="claude.ai" startFrame={120}>
-        <ChatAnimation />
-      </Browser>
-    </AbsoluteFill>
-  );
-};
-```
+### Pattern 1: Multiple MCP Server Integration
 
-### MDX Video Component
+**What:** Merge tools from multiple MCP servers (data.gv.at + Daytona) into a single `streamText()` call.
 
-**File:** `docs/components/mdx/video.tsx`
+**When to use:** When a chat interface needs access to tools from different domains (dataset discovery + code execution).
 
-```tsx
-'use client';
-import { Player } from '@remotion/player';
-import { lazy, Suspense } from 'react';
+**Trade-offs:**
+- **Pro**: Single unified AI context, model can coordinate across tool types
+- **Pro**: Simple client-side implementation (one useChat hook)
+- **Con**: Both MCP servers must be running before any chat request
+- **Con**: Tool name conflicts require namespacing
 
-interface VideoProps {
-  id: string;           // e.g., 'quickstart'
-  composition?: string; // Optional: if different from id
-  width?: number;
-  height?: number;
+**Example:**
+```typescript
+// lib/ai/mcp-clients.ts
+import { createMCPClient } from '@ai-sdk/mcp';
+
+// HTTP transport for existing FastMCP server
+const datagvatClient = createMCPClient({
+  transport: {
+    type: 'http',
+    url: 'https://data-gv-at.fastmcp.app/mcp',
+    headers: { Authorization: `Bearer ${process.env.DATAGVAT_MCP_TOKEN}` },
+  },
+});
+
+// stdio transport for Daytona CLI
+const daytonaClient = createMCPClient({
+  transport: {
+    type: 'stdio',
+    command: 'daytona',
+    args: ['serve'], // Assumes Daytona provides MCP server mode
+    env: { DAYTONA_API_KEY: process.env.DAYTONA_API_KEY },
+  },
+});
+
+// Merge tools from both servers
+export async function getAllTools() {
+  const [datagvatTools, daytonaTools] = await Promise.all([
+    datagvatClient.tools(),
+    daytonaClient.tools(),
+  ]);
+
+  return {
+    ...datagvatTools,
+    ...daytonaTools,
+  };
 }
 
-export function Video({ id, composition, width = 1920, height = 1080 }: VideoProps) {
-  // Load video file statically
-  const videoSrc = `/videos/${id}.mp4`;
+// app/api/chat/route.ts
+import { streamText } from 'ai';
+import { getAllTools } from '@/lib/ai/mcp-clients';
+
+const result = streamText({
+  model: getLanguageModel(selectedChatModel),
+  messages: modelMessages,
+  tools: await getAllTools(), // Merged tools from both MCP servers
+});
+```
+
+### Pattern 2: Message Persistence with Parts Array
+
+**What:** Store chat history in Postgres using AI SDK's `UIMessage` format with `parts` array, capturing text, tool calls, and results.
+
+**When to use:** When chat sessions need to persist across page refreshes or for analytics/debugging.
+
+**Trade-offs:**
+- **Pro**: Exact reproduction of UI state (including partial messages, tool states)
+- **Pro**: JSONB storage enables querying specific message types or tool invocations
+- **Con**: Larger storage footprint than plain text (mitigated by Postgres compression)
+- **Con**: Must validate tools on load to prevent stale tool call schemas
+
+**Example:**
+```typescript
+// lib/db/schema.ts
+export interface Chat {
+  id: string;
+  created_at: Date;
+  updated_at: Date;
+  messages: UIMessage[]; // Stored as JSONB
+}
+
+// lib/db/queries.ts
+import { Pool } from '@neondatabase/serverless';
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+export async function saveChat({ chatId, messages }: { chatId: string; messages: UIMessage[] }) {
+  await pool.query(
+    `INSERT INTO chats (id, messages, updated_at)
+     VALUES ($1, $2, NOW())
+     ON CONFLICT (id) DO UPDATE SET messages = $2, updated_at = NOW()`,
+    [chatId, JSON.stringify(messages)]
+  );
+}
+
+export async function loadChat(id: string): Promise<UIMessage[]> {
+  const result = await pool.query('SELECT messages FROM chats WHERE id = $1', [id]);
+  return result.rows[0]?.messages || [];
+}
+
+// app/api/chat/route.ts
+import { createUIMessageStreamResponse } from 'ai';
+import { saveChat, loadChat } from '@/lib/db/queries';
+
+export async function POST(request: Request) {
+  const { id, message, messages } = requestBody;
+
+  // Load previous messages for continuation
+  const previousMessages = messages || await loadChat(id);
+  const allMessages = [...previousMessages, message];
+
+  return createUIMessageStreamResponse({
+    stream,
+    onFinish: ({ messages: finalMessages }) => {
+      saveChat({ chatId: id, messages: finalMessages }); // Persist on completion
+    },
+  });
+}
+```
+
+### Pattern 3: Sandbox Execution with User Approval
+
+**What:** Pause AI execution when code tools are invoked, render approval UI, resume after user confirms.
+
+**When to use:** When executing untrusted code (AI-generated Python/R) in sandboxes requires explicit user consent.
+
+**Trade-offs:**
+- **Pro**: Security-first pattern prevents arbitrary code execution
+- **Pro**: AI SDK `tool-use-parts` built-in support for approval workflow
+- **Con**: Adds latency to conversation flow (user must approve each execution)
+- **Con**: Requires careful UX to avoid approval fatigue
+
+**Example:**
+```typescript
+// app/api/chat/route.ts
+const result = streamText({
+  model: getLanguageModel(selectedChatModel),
+  messages: modelMessages,
+  tools: {
+    ...datagvatTools,
+    execute_python: tool({
+      description: 'Execute Python code in Daytona sandbox',
+      inputSchema: z.object({
+        code: z.string().describe('Python code to execute'),
+      }),
+      // No execute function - requires approval
+    }),
+  },
+});
+
+// components/messages.tsx
+export function Messages({ messages, addToolApprovalResponse }) {
+  return messages.map(message =>
+    message.parts.map(part => {
+      if (part.type === 'tool-use' && part.state === 'approval-pending') {
+        return (
+          <CodeApprovalCard
+            code={part.args.code}
+            onApprove={() => addToolApprovalResponse({
+              messageId: message.id,
+              partId: part.id,
+              approval: { approved: true },
+            })}
+            onDeny={() => addToolApprovalResponse({
+              messageId: message.id,
+              partId: part.id,
+              approval: { approved: false },
+            })}
+          />
+        );
+      }
+      // Render approved executions
+      if (part.type === 'tool-result' && part.toolName === 'execute_python') {
+        return <VisualizationRenderer result={part.result} />;
+      }
+    })
+  );
+}
+
+// lib/sandbox/daytona.ts - Called after approval
+export async function executePythonInDaytona(code: string) {
+  const sandbox = await daytona.create({ language: 'python' });
+  try {
+    const result = await sandbox.process.code_run(code);
+    // Extract base64 images from matplotlib output
+    const images = extractBase64Images(result.stdout);
+    return { output: result.stdout, images, exitCode: result.exit_code };
+  } finally {
+    await sandbox.delete();
+  }
+}
+```
+
+### Pattern 4: Inline Visualization Rendering
+
+**What:** Render base64-encoded chart images directly in chat messages from code execution results.
+
+**When to use:** When code execution produces visualizations (matplotlib, ggplot2) that should display inline.
+
+**Trade-offs:**
+- **Pro**: No external storage needed (images embedded in message parts)
+- **Pro**: Works offline once message loads
+- **Con**: Increases message payload size (mitigated by compression)
+- **Con**: Base64 encoding overhead (~33% size increase vs binary)
+
+**Example:**
+```typescript
+// components/visualization.tsx
+export function VisualizationRenderer({ result }: { result: ToolResult }) {
+  const { images, output } = result;
 
   return (
-    <div className="my-8 rounded-lg overflow-hidden border">
-      <video
-        src={videoSrc}
-        controls
-        width={width}
-        height={height}
-        className="w-full h-auto"
-        preload="metadata"
-      >
-        Your browser does not support video playback.
-      </video>
+    <div className="rounded border p-4">
+      {images.map((base64, i) => (
+        <img
+          key={i}
+          src={`data:image/png;base64,${base64}`}
+          alt={`Visualization ${i+1}`}
+          className="max-w-full h-auto"
+        />
+      ))}
+      <pre className="text-xs mt-2 text-muted-foreground">{output}</pre>
     </div>
   );
 }
 
-// Alternative: Use Remotion Player for interactive playback
-export function VideoPlayer({ id, composition }: VideoProps) {
-  const Composition = lazy(() => import(`@/remotion/compositions/${composition ?? id}`));
-
-  return (
-    <Suspense fallback={<div>Loading video...</div>}>
-      <Player
-        component={Composition}
-        durationInFrames={900} // 30s at 30fps
-        compositionWidth={1920}
-        compositionHeight={1080}
-        fps={30}
-        controls
-      />
-    </Suspense>
-  );
+// lib/sandbox/daytona.ts
+function extractBase64Images(stdout: string): string[] {
+  // Matplotlib configured with: plt.savefig(sys.stdout.buffer, format='png')
+  // Output contains base64-encoded PNG after magic marker
+  const marker = '--- PLOT_START ---';
+  const segments = stdout.split(marker);
+  return segments.slice(1).map(seg => seg.trim().split('\n')[0]);
 }
-```
-
-**Usage in MDX:**
-
-```mdx
----
-title: Quickstart
----
-
-# Quickstart Guide
-
-Watch the installation process:
-
-<Video id="quickstart" />
-
-See it in action:
-
-<Video id="tool-search" />
-```
-
-### Asset Management
-
-**Strategy:** Static hosting in public/ directory (not CDN for MVP)
-
-| Approach | Pros | Cons | Recommendation |
-|----------|------|------|----------------|
-| `public/videos/` | Simple, works with SSG, no CDN config | Large repo size, slow clones | **Use for MVP** (3-5 videos ~50MB total) |
-| Vercel Blob | CDN, no repo bloat, URL stability | Additional service, API calls | Migrate when >10 videos or >100MB |
-| Git LFS | Keeps repo clean, CDN-compatible | Git LFS cost, complex setup | Not recommended (team friction) |
-
-**Decision:** Start with `public/videos/`, migrate to Vercel Blob when hitting limits
-
-### Build-Time vs Runtime Comparison
-
-| Aspect | Build-Time (Recommended) | Runtime (Not Recommended) |
-|--------|--------------------------|---------------------------|
-| **Performance** | Instant (static file) | 10-60s wait per render |
-| **Cost** | Free (CI minutes) | $0.50-$2 per render (serverless compute) |
-| **Complexity** | Simple (bun script) | Complex (API route, queue, storage) |
-| **Caching** | Built-in (static files) | Manual (S3/Blob + cache headers) |
-| **When to use** | Videos rarely change, <10 compositions | Videos personalized per-user, >100 variations |
-
-**For this project:** Build-time is correct choice (videos are static documentation assets, not user-generated)
-
-### CI Integration
-
-```yaml
-# .github/workflows/build.yml
-- name: Install Remotion dependencies
-  run: |
-    # Remotion requires Chrome/Chromium for rendering
-    sudo apt-get update
-    sudo apt-get install -y chromium-browser
-
-- name: Render videos
-  run: bun run scripts/render-videos.ts
-  env:
-    REMOTION_DISABLE_HARDWARE_ACCELERATION: 1 # CI compatibility
-
-- name: Upload videos as artifacts
-  uses: actions/upload-artifact@v3
-  with:
-    name: videos
-    path: docs/public/videos/*.mp4
 ```
 
 ---
 
-## Feature 3: Navigation Restructuring
+## Data Flow
 
-### Architecture Overview
-
-**Pattern:** Meta.json Root Tabs + Fumadocs Page Tree Transform
-
-**Objective:** 3-tab layout (Documentation, Reference, Tutorials) with sidebar within each tab
-
-### Current Navigation Structure
-
-**Problem:** Flat sidebar with separator-based sections (not true tabs)
-
-```json
-// docs/content/docs/meta.json (current)
-{
-  "pages": [
-    "getting-started",
-    "---[BookOpen]Documentation---",
-    "(guides)",
-    "---[Library]Reference---",
-    "reference",
-    "---[Settings]Advanced Topics---",
-    "(advanced)"
-  ]
-}
-```
-
-**Issues:**
-1. All content in single sidebar (long scrolling)
-2. Separators (`---`) are not interactive tabs
-3. No clear top-level navigation
-
-### Target Navigation Structure
-
-**Solution:** Root-level meta.json entries with `root: true`
-
-```json
-// docs/content/docs/meta.json (new)
-{
-  "pages": [
-    "getting-started",
-    "documentation",   // → Root tab 1
-    "reference",       // → Root tab 2
-    "tutorials"        // → Root tab 3
-  ]
-}
-
-// docs/content/docs/documentation/meta.json
-{
-  "title": "Documentation",
-  "icon": "BookOpen",
-  "root": true,
-  "pages": [
-    "guides",
-    "workflows",
-    "examples"
-  ]
-}
-
-// docs/content/docs/reference/meta.json
-{
-  "title": "Reference",
-  "icon": "Library",
-  "root": true,
-  "pages": [
-    "tools",
-    "api",
-    "cli"
-  ]
-}
-
-// docs/content/docs/tutorials/meta.json
-{
-  "title": "Tutorials",
-  "icon": "GraduationCap",
-  "root": true,
-  "pages": [
-    "quickstart",
-    "integration",
-    "advanced"
-  ]
-}
-```
-
-### Implementation Strategy
-
-**Step 1: Restructure content/docs/ directory**
+### Request Flow: User Message → AI Response
 
 ```
-docs/content/docs/
-├── meta.json                         # Root nav (links to tabs)
-├── index.mdx                         # Home page
-├── getting-started/
-│   ├── meta.json
-│   ├── index.mdx
-│   └── ...
-├── documentation/                    # NEW: Tab 1
-│   ├── meta.json                     # { "root": true }
-│   ├── guides/
-│   │   ├── meta.json
-│   │   └── ...
-│   ├── workflows/
-│   └── examples/
-├── reference/                        # NEW: Tab 2 (exists, add root: true)
-│   ├── meta.json                     # { "root": true }
-│   ├── tools/
-│   ├── api/
-│   └── cli/
-└── tutorials/                        # NEW: Tab 3
-    ├── meta.json                     # { "root": true }
-    ├── quickstart/
-    └── ...
+[User types message in Chat UI]
+    ↓
+[useChat sends POST to /api/chat with { message, id, selectedChatModel }]
+    ↓
+[API route validates request, loads previous messages from Postgres]
+    ↓
+[getAllTools() fetches tools from data.gv.at + Daytona MCP servers]
+    ↓
+[streamText() merges tools, sends to Vercel AI Gateway]
+    ↓ ← [AI model decides to call tools]
+    ↓
+[Tool call appears in stream with state: 'approval-pending']
+    ↓
+[UI renders CodeApprovalCard, awaits user action]
+    ↓
+[User approves → addToolApprovalResponse() updates part state]
+    ↓
+[sendAutomaticallyWhen detects approval, sends continuation POST]
+    ↓
+[API route executes approved tool via Daytona sandbox]
+    ↓
+[Tool result (output + base64 images) added to message parts]
+    ↓
+[Stream completes → onFinish callback saves messages to Postgres]
+    ↓
+[UI renders final message with VisualizationRenderer for images]
 ```
 
-**Step 2: Update layout to use tabs**
-
-**File:** `docs/app/[lang]/docs/layout.tsx`
-
-```tsx
-// Already supports tabs via Fumadocs
-<DocsLayout
-  tree={source.getPageTree(lang)}
-  sidebar={{
-    tabs: {
-      transform(option, node) {
-        const meta = source.getNodeMeta(node);
-        if (!meta || !node.icon) return option;
-
-        // Apply custom tab styling
-        const color = `var(--${getSection(meta.path)}-color, var(--color-fd-foreground))`;
-        return {
-          ...option,
-          icon: (
-            <div className="rounded-lg" style={{ color }}>
-              {node.icon}
-            </div>
-          ),
-        };
-      },
-    },
-  }}
->
-  {children}
-</DocsLayout>
-```
-
-**How it works:**
-1. Fumadocs detects `root: true` in meta.json
-2. Automatically creates tab navigation at top of sidebar
-3. Each tab shows its own page tree when selected
-4. URL structure: `/docs/documentation/guides/setup` (tab is part of path)
-
-### Migration Path
-
-**Phase 1:** Create new directory structure without breaking existing URLs
+### State Management: Message Lifecycle
 
 ```
-1. Create documentation/ directory
-2. Move (guides)/, (workflows)/, examples/ into documentation/
-3. Update meta.json with root: true
-4. Add redirects for old URLs → new URLs
+[Empty Chat (messages: [])]
+    ↓
+[User sends message → useChat adds optimistic user message]
+    ↓
+[Server streams assistant message with reasoning, text, tool-use parts]
+    ↓
+[Tool-use part state: 'approval-pending' → UI shows approval card]
+    ↓
+[User approves → part state changes to 'approval-responded']
+    ↓
+[sendAutomaticallyWhen triggers → sends all messages with updated state]
+    ↓
+[Server executes tool → adds tool-result part to message]
+    ↓
+[Server streams final text after tool result]
+    ↓
+[onFinish → saveChat persists entire message history to Postgres]
 ```
 
-**Phase 2:** Update all internal links
+### Key Data Flows
 
-```
-OLD: [Setup Guide](/docs/guides/setup)
-NEW: [Setup Guide](/docs/documentation/guides/setup)
-```
+1. **Tool Merging Flow**: Both MCP clients initialize on first request → tools cached → spread into streamText() → AI sees unified tool set
+2. **Approval Flow**: Tool call streamed without execute → part.state='approval-pending' → UI renders approval → user action updates state → continuation request executes tool
+3. **Persistence Flow**: useChat maintains messages in memory → onFinish callback triggered on stream completion → saveChat writes JSONB to Postgres → loadChat hydrates on page load
+4. **Visualization Flow**: Daytona executes code with matplotlib → captures stdout → extracts base64 PNG → returns in tool-result part → UI decodes and renders
 
-**Phase 3:** Remove old directory structure
-
-### Handling Duplicate Titles
-
-**Problem:** Page title in frontmatter vs H1 in content
-
-**Current behavior:** Fumadocs uses frontmatter `title`, then page renders H1 (duplication)
-
-**Solution:** Use frontmatter title only (remove H1 from MDX content)
-
-```mdx
----
-title: Installation Guide
-description: How to install the MCP server
 ---
 
-<!-- OLD: # Installation Guide (duplicate) -->
-<!-- NEW: Start directly with content -->
+## Integration Points
 
-The data.gv.at MCP Server can be installed...
-```
+### External Services
 
-**Why:** Fumadocs DocsPage component already renders `<h1>{page.data.title}</h1>` (see `page.tsx:72`)
+| Service | Integration Pattern | Notes |
+|---------|---------------------|-------|
+| **Vercel AI Gateway** | SDK provider via `gateway.languageModel()` | Configure via environment: `AI_GATEWAY_URL`, handles failover across providers |
+| **data.gv.at MCP** | HTTP transport with Bearer token | Existing FastMCP server at `/mcp` endpoint, use `process.env.DATAGVAT_MCP_TOKEN` |
+| **Daytona** | stdio transport spawning CLI process | Requires `daytona` CLI installed, API key via `process.env.DAYTONA_API_KEY` |
+| **Neon Postgres** | Serverless driver with connection pooling | Use `@neondatabase/serverless` Pool, requires SSL: `sslmode=require` |
 
-### Tab-Specific Styling
+### Internal Boundaries
 
-**File:** `docs/lib/source/navigation.ts` (already exists, extend for new tabs)
+| Boundary | Communication | Notes |
+|----------|---------------|-------|
+| **Chat UI ↔ API Route** | HTTP POST with JSON (DefaultChatTransport) | Custom `prepareSendMessagesRequest` sends only last message or full history based on approval state |
+| **API Route ↔ MCP Clients** | In-process async function calls | Clients initialized once, tools fetched per request (consider caching) |
+| **API Route ↔ Database** | Direct Pool queries via Server Actions | Avoid in Route Handler body, use `after()` for background persistence |
+| **Messages Component ↔ Visualization** | React props passing tool-result parts | Parent filters parts by type, passes only relevant data to child |
 
+---
+
+## New vs. Modified Components
+
+### New Components (Build from Scratch)
+
+| Component | Purpose | Estimated Complexity |
+|-----------|---------|---------------------|
+| **lib/ai/mcp-clients.ts** | Initialize Daytona MCP client, merge tools | Low (50 LOC) |
+| **lib/db/client.ts** | Neon Pool singleton | Low (20 LOC) |
+| **lib/db/schema.ts** | TypeScript types for database | Low (30 LOC) |
+| **lib/db/queries.ts** | createChat, loadChat, saveChat functions | Medium (100 LOC) |
+| **lib/sandbox/daytona.ts** | Workspace lifecycle, base64 extraction | Medium (150 LOC) |
+| **components/visualization.tsx** | Render base64 images from tool results | Low (50 LOC) |
+| **components/code-approval-card.tsx** | UI for approving/denying code execution | Medium (80 LOC) |
+
+### Modified Components (Extend Existing)
+
+| Component | Changes Required | Integration Points |
+|-----------|------------------|-------------------|
+| **app/api/chat/route.ts** | Add Daytona MCP client, message persistence, tool approval handling | Import `getAllTools()`, `loadChat()`, `saveChat()` |
+| **components/chat.tsx** | Pass addToolApprovalResponse to Messages | Already uses useChat hook, expose approval handler |
+| **components/messages.tsx** | Render approval cards, visualization parts | Map over message.parts, conditionally render by part.type and state |
+| **app/[lang]/chat/page.tsx** | Load initial messages from database | Replace `initialMessages={[]}` with `loadChat(id)` |
+
+---
+
+## Critical Architecture Decisions
+
+### Decision 1: stdio vs HTTP for Daytona MCP
+
+**Context:** Daytona may support both stdio (CLI wrapper) and HTTP (server mode) transports.
+
+**Recommendation:** Start with **stdio transport**, migrate to HTTP if performance bottleneck.
+
+**Rationale:**
+- **stdio**: Simpler initial setup, no separate server process, works immediately with CLI
+- **HTTP**: Better for production (connection pooling, lower latency), but requires Daytona MCP server configuration
+- **Decision**: Use stdio for MVP, measure latency, migrate to HTTP if >2s per tool call
+
+**Implementation:**
 ```typescript
-export function getSection(path: string | undefined) {
-  if (!path) return 'framework';
+// Phase 1: stdio (MVP)
+const daytonaClient = createMCPClient({
+  transport: {
+    type: 'stdio',
+    command: 'daytona',
+    args: ['serve'], // or whatever CLI command Daytona provides
+    env: { DAYTONA_API_KEY: process.env.DAYTONA_API_KEY },
+  },
+});
 
-  const [dir] = path.split('/', 1);
-
-  return {
-    'documentation': 'documentation',  // NEW
-    'reference': 'reference',          // NEW
-    'tutorials': 'tutorials',          // NEW
-    'getting-started': 'framework',
-  }[dir] ?? 'framework';
-}
+// Phase 2: HTTP (if needed)
+const daytonaClient = createMCPClient({
+  transport: {
+    type: 'http',
+    url: 'http://localhost:3001/mcp',
+    headers: { Authorization: `Bearer ${process.env.DAYTONA_API_KEY}` },
+  },
+});
 ```
 
-**CSS Variables:** Define tab-specific colors in `globals.css`
+### Decision 2: Message Storage Format
 
-```css
-:root {
-  --documentation-color: hsl(220, 90%, 56%);
-  --reference-color: hsl(142, 76%, 36%);
-  --tutorials-color: hsl(262, 83%, 58%);
-}
+**Context:** UIMessage format includes display metadata (createdAt, id) vs ModelMessage (minimal).
+
+**Recommendation:** Store **UIMessage format** as-is in Postgres.
+
+**Rationale:**
+- AI SDK persistence docs recommend UIMessage format
+- Includes client-side state (part states, approval responses)
+- Enables exact UI reproduction on reload
+- JSONB compression mitigates size overhead
+
+**Schema:**
+```sql
+CREATE TABLE chats (
+  id TEXT PRIMARY KEY,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  messages JSONB NOT NULL DEFAULT '[]'::jsonb
+);
+
+CREATE INDEX idx_chats_updated_at ON chats(updated_at DESC);
+CREATE INDEX idx_chats_messages_gin ON chats USING GIN (messages jsonb_path_ops);
 ```
 
----
+### Decision 3: Guest Mode (No Authentication)
 
-## Feature 4: CLI Package Enhancement
+**Context:** Requirement states "no authentication (guest mode)".
 
-### Architecture Overview
+**Recommendation:** Implement **session-based guest IDs** with TTL.
 
-**Pattern:** Shadcn-Style Registry + Interactive Selection + Config Management
+**Rationale:**
+- Prevents abuse: Rate limit by session ID (leverage existing rate limiting middleware)
+- Enables persistence: Guest chats expire after 7 days
+- Privacy: No PII collected, sessions identified by cookie only
 
-**Goal:** Add `datagvat-mcp add <component>` command for adding MCP tools/configs
-
-### Current CLI Architecture
-
-```
-packages/cli/
-├── src/
-│   ├── index.ts                    # Commander entry point
-│   ├── commands/
-│   │   └── init.ts                 # Init command (exists)
-│   ├── detect.ts                   # Tool detection
-│   ├── configure.ts                # Config file management
-│   ├── paths.ts                    # Platform-specific paths
-│   ├── templates.ts                # MCP config templates
-│   ├── ui.ts                       # Terminal UI (chalk, ora)
-│   └── types.ts                    # Type definitions
-└── package.json
-```
-
-### Enhanced CLI Architecture
-
-**New command:** `datagvat-mcp add <tool>` (shadcn-style component addition)
-
-```
-packages/cli/
-├── src/
-│   ├── commands/
-│   │   ├── init.ts                 # Existing
-│   │   └── add.ts                  # NEW: Add components/tools
-│   ├── registry/
-│   │   ├── index.ts                # Registry loader
-│   │   ├── tools.json              # Tool registry (metadata)
-│   │   └── templates/              # Component templates
-│   │       ├── search-tool.json
-│   │       ├── preview-tool.json
-│   │       └── quality-tool.json
-│   ├── prompts.ts                  # NEW: Interactive prompts (@inquirer/prompts)
-│   ├── config.ts                   # NEW: Config file management (datagvat.config.json)
-│   └── installer.ts                # NEW: Template installation logic
-```
-
-### Shadcn Pattern Comparison
-
-| shadcn/ui | datagvat-mcp | Purpose |
-|-----------|--------------|---------|
-| `npx shadcn@latest init` | `npx datagvat-mcp init` | Initialize project config |
-| `npx shadcn@latest add button` | `npx datagvat-mcp add search` | Add single component |
-| `npx shadcn@latest add` | `npx datagvat-mcp add` | Interactive component selection |
-| `components.json` | `datagvat.config.json` | Project configuration file |
-| Registry (GitHub) | Registry (NPM package) | Component source |
-
-### Add Command Architecture
-
-**File:** `packages/cli/src/commands/add.ts`
-
+**Implementation:**
 ```typescript
-import { select, checkbox } from '@inquirer/prompts';
-import { getRegistry, installTool } from '../registry/index.js';
+// middleware.ts
+export function middleware(request: NextRequest) {
+  const response = NextResponse.next();
 
-interface AddCommandOptions {
-  yes?: boolean;    // Skip prompts
-  all?: boolean;    // Add all tools
-}
-
-export async function addCommand(toolName?: string, options: AddCommandOptions = {}) {
-  // 1. Load project config (datagvat.config.json)
-  const config = await loadConfig();
-  if (!config) {
-    ui.error('No datagvat.config.json found. Run `datagvat-mcp init` first.');
-    process.exit(1);
-  }
-
-  // 2. Load registry
-  const registry = await getRegistry();
-
-  // 3. Determine which tools to add
-  let toolsToAdd: string[];
-
-  if (toolName) {
-    // Specific tool: datagvat-mcp add search
-    if (!registry.tools[toolName]) {
-      ui.error(`Tool '${toolName}' not found in registry.`);
-      ui.info(`Available tools: ${Object.keys(registry.tools).join(', ')}`);
-      process.exit(1);
-    }
-    toolsToAdd = [toolName];
-  } else if (options.all) {
-    // All tools: datagvat-mcp add --all
-    toolsToAdd = Object.keys(registry.tools);
-  } else {
-    // Interactive selection: datagvat-mcp add
-    toolsToAdd = await checkbox({
-      message: 'Which tools would you like to add?',
-      choices: Object.entries(registry.tools).map(([id, tool]) => ({
-        name: `${tool.name} - ${tool.description}`,
-        value: id,
-        checked: false,
-      })),
+  if (!request.cookies.has('guest-session-id')) {
+    response.cookies.set('guest-session-id', generateUUID(), {
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      httpOnly: true,
+      sameSite: 'lax',
     });
   }
 
-  // 4. Install selected tools
-  for (const toolId of toolsToAdd) {
-    ui.step(`Installing ${toolId}...`);
-    await installTool(toolId, registry.tools[toolId], config);
-    ui.success(`✓ ${toolId} installed`);
-  }
-
-  // 5. Update config file
-  await saveConfig(config);
+  return response;
 }
+
+// Cleanup job (Vercel Cron):
+// DELETE FROM chats WHERE updated_at < NOW() - INTERVAL '7 days';
 ```
-
-### Registry Architecture
-
-**File:** `packages/cli/src/registry/tools.json`
-
-```json
-{
-  "tools": {
-    "search": {
-      "name": "Search Tool",
-      "description": "Enhanced search with filters and semantic search",
-      "version": "1.0.0",
-      "dependencies": {
-        "mcp": ["ckan_package_search"]
-      },
-      "config": {
-        "template": "search-tool.json",
-        "envVars": []
-      }
-    },
-    "preview": {
-      "name": "Data Preview Tool",
-      "description": "Interactive data previews with CSV/JSON support",
-      "version": "1.0.0",
-      "dependencies": {
-        "mcp": ["get_resource_preview"]
-      },
-      "config": {
-        "template": "preview-tool.json",
-        "envVars": []
-      }
-    },
-    "quality": {
-      "name": "Quality Assessment Tool",
-      "description": "Data quality metrics and validation",
-      "version": "1.0.0",
-      "dependencies": {
-        "mcp": ["get_resource_quality"]
-      },
-      "config": {
-        "template": "quality-tool.json",
-        "envVars": []
-      }
-    }
-  }
-}
-```
-
-**File:** `packages/cli/src/registry/templates/search-tool.json`
-
-```json
-{
-  "name": "search",
-  "enabled": true,
-  "features": {
-    "semantic_search": true,
-    "filters": ["format", "license", "organization"],
-    "facets": true
-  },
-  "limits": {
-    "max_results": 100,
-    "default_page_size": 20
-  }
-}
-```
-
-### Config File Management
-
-**File:** `datagvat.config.json` (generated by `init` command)
-
-```json
-{
-  "$schema": "https://datagvat-mcp.dev/schema.json",
-  "version": "1.0.0",
-  "tools": {
-    "search": {
-      "enabled": true,
-      "features": { "semantic_search": true }
-    },
-    "preview": {
-      "enabled": true,
-      "formats": ["csv", "json", "xml"]
-    }
-  },
-  "ai_clients": ["claude-desktop", "continue"],
-  "preferences": {
-    "auto_update": true
-  }
-}
-```
-
-**Purpose:**
-- **Project-level configuration:** Which tools/features are enabled
-- **Installation state:** Tracks what's been added via CLI
-- **Customization:** User-specific preferences (rate limits, API keys)
-
-**Location:** `~/.config/datagvat-mcp/datagvat.config.json` (user-level) or `./datagvat.config.json` (project-level)
 
 ---
 
-## Integration Dependencies & Build Order
+## Build Order Recommendations
 
-### Dependency Graph
+### Phase 1: Database Foundation (Week 1)
+
+**Why first:** Persistence layer is foundational for testing subsequent features. Enables iterative development with state preservation.
+
+**Tasks:**
+1. Create Neon Postgres database
+2. Implement `lib/db/client.ts` (Pool singleton)
+3. Implement `lib/db/schema.ts` (TypeScript types)
+4. Implement `lib/db/queries.ts` (createChat, loadChat, saveChat)
+5. Add persistence to existing `/api/chat` route (onFinish callback)
+6. Test: Create chat, reload page, verify messages persist
+
+**Deliverables:**
+- Working Postgres connection
+- Chat persistence (without new features)
+- Database schema and queries
+
+### Phase 2: Daytona MCP Integration (Week 1-2)
+
+**Why second:** Non-breaking addition to existing tools. Can test tool discovery before implementing execution.
+
+**Tasks:**
+1. Set up Daytona account, obtain API key
+2. Implement `lib/ai/mcp-clients.ts` (initialize both MCP clients)
+3. Create `getAllTools()` function to merge tools
+4. Modify `/api/chat` route to use merged tools
+5. Test: Verify data.gv.at tools still work, confirm Daytona tools appear (even if not yet executable)
+
+**Deliverables:**
+- Both MCP clients initialized
+- Tools merged successfully
+- No breaking changes to existing chat
+
+### Phase 3: Sandbox Execution (No Approval) (Week 2)
+
+**Why third:** Establishes core execution pipeline. Approval can be added as refinement.
+
+**Tasks:**
+1. Implement `lib/sandbox/daytona.ts` (workspace lifecycle)
+2. Add execute functions to Daytona tools in `mcp-clients.ts`
+3. Implement base64 image extraction from matplotlib
+4. Create `components/visualization.tsx` (render tool results)
+5. Modify `components/messages.tsx` to render visualization parts
+6. Test: Execute simple code (print statement, then matplotlib plot)
+
+**Deliverables:**
+- Working sandbox execution
+- Visualization rendering
+- Base64 image extraction
+
+### Phase 4: Tool Approval Flow (Week 3)
+
+**Why fourth:** Most complex feature, depends on working execution pipeline from Phase 3. Approval UX requires existing tool results to demonstrate value.
+
+**Tasks:**
+1. Remove execute functions from code tools (require approval)
+2. Create `components/code-approval-card.tsx` (approval UI)
+3. Modify `components/messages.tsx` to detect approval-pending state
+4. Wire up `addToolApprovalResponse` to approval card buttons
+5. Test: Verify execution pauses, approve/deny works, continuation resumes
+
+**Deliverables:**
+- Approval UI working
+- Execution blocked without approval
+- Continuation flow working
+
+### Dependencies Between Phases
 
 ```
-1. Foundation (Parallel)
-   ├── Navigation restructuring (meta.json changes)
-   └── CLI registry structure (tools.json, templates)
-
-2. RAG Chat (Sequential)
-   ├── Vector store implementation
-   ├── Documentation indexer
-   ├── API route (/api/chat/rag)
-   └── Client components (RAGDialog, RAGTrigger)
-
-3. Remotion Videos (Parallel with RAG)
-   ├── Remotion project setup
-   ├── Video compositions
-   ├── Build script (render-videos.ts)
-   └── MDX component (<Video />)
-
-4. CLI Enhancement (Depends on registry)
-   ├── Add command implementation
-   ├── Config file management
-   └── Interactive prompts
+Phase 1 (Database) ─┬─→ Phase 2 (MCP Integration)
+                    │       ↓
+                    │   Phase 3 (Execution)
+                    │       ↓
+                    └─→ Phase 4 (Approval)
+                            ↓
+                    [Complete System]
 ```
 
-### Recommended Build Order
-
-**Phase 1: Foundation (Week 1)**
-- Navigation restructuring (can break URLs, do early)
-- CLI registry structure (needed for add command)
-
-**Phase 2: RAG Chat (Week 2-3)**
-- Vector store (in-memory MVP)
-- Documentation indexer
-- API route + client components
-- Integration with existing search button
-
-**Phase 3: Videos (Week 2-3, parallel with Phase 2)**
-- Remotion project setup
-- First video composition (quickstart)
-- Build script integration
-- MDX component
-
-**Phase 4: CLI Enhancement (Week 4)**
-- Add command
-- Config file management
-- Update command
-
-### Critical Path
-
-**Blocking dependencies:**
-1. **Navigation restructuring blocks:** All documentation updates (new page URLs)
-2. **Vector store blocks:** RAG API route (can't search without storage)
-3. **Remotion setup blocks:** Video rendering (can't generate videos without Remotion)
-
-**Non-blocking (can be parallel):**
-- RAG chat + Remotion videos (independent features)
-- CLI enhancement + documentation updates (independent workflows)
+**Critical Path:**
+- Phase 1 blocks all (need persistence for testing)
+- Phase 2 and Phase 3 can start after Phase 1
+- Phase 4 strictly requires Phase 3
 
 ---
 
-## Summary & Recommendations
+## Scaling Considerations
 
-### Integration Strategy
+| Scale | Architecture Adjustments |
+|-------|--------------------------|
+| **0-100 concurrent chats** | Current architecture sufficient. Single Neon Postgres instance handles load. MCP clients per-request initialization acceptable. |
+| **100-1k concurrent chats** | **Optimize**: Cache MCP client tools (reduce per-request `.tools()` calls). Use `after()` for async message persistence (don't block response). Implement Daytona workspace pooling. |
+| **1k-10k concurrent chats** | **Parallelize**: Run Daytona MCP server as dedicated process (not stdio per request). Implement connection pooling for Postgres with `pgBouncer`. Consider worker queue for sandbox execution (Daytona API latency). |
+| **10k+ concurrent chats** | **Distribute**: Multiple Daytona regions for geographic latency. Separate read replicas for loadChat (Neon read replicas). Consider message archival strategy (move old chats to object storage). |
 
-1. **RAG Chat:** Server-side API route pattern with Vercel AI SDK streaming (proven, existing)
-2. **Remotion Videos:** Build-time generation pattern (simple, cost-effective)
-3. **Navigation:** Meta.json root tabs pattern (Fumadocs-native)
-4. **CLI:** Shadcn registry pattern (familiar, extensible)
+### Scaling Priorities
 
-### Technology Decisions
+1. **First bottleneck**: Daytona sandbox creation latency (2-5s per workspace)
+   - **Fix**: Pre-warm sandbox pools, reuse workspaces across executions
+   - **Avoid premature optimization**: Start with create-per-execution, measure actual latency before pooling
 
-| Feature | Technology | Why |
-|---------|-----------|-----|
-| RAG Embeddings | OpenAI text-embedding-3-small | Fast, cheap, good quality |
-| Vector Store (MVP) | In-memory | Zero setup, sufficient for <10K docs |
-| Video Rendering | Remotion @4.0.x | React-based, great DX, active development |
-| CLI Framework | Commander + @inquirer/prompts | Standard, good UX, type-safe |
+2. **Second bottleneck**: MCP tool discovery per request
+   - **Fix**: Cache tools at module level with TTL, invalidate on server restart
+   - **Trade-off**: Stale tools if MCP server updates (acceptable for most use cases)
 
-### Phased Rollout
+3. **Third bottleneck**: Postgres write contention on saveChat
+   - **Fix**: Use `after()` to make persistence async, accept eventual consistency
+   - **Fallback**: If `after()` fails, message still in client state (can retry)
 
-**Phase 1 (MVP):** RAG chat + first video + navigation restructure
-**Phase 2 (Polish):** More videos + CLI add command + vector DB migration
-**Phase 3 (Scale):** CDN for videos + advanced CLI features + RAG improvements
+---
 
-### Key Success Metrics
+## Anti-Patterns
 
-- **RAG:** <1s TTFB, >80% relevant results
-- **Videos:** <500ms load time, <10min build time per video
-- **Navigation:** <100ms tab switch, zero URL breakage
-- **CLI:** <5s install time, >90% auto-detection rate
+### Anti-Pattern 1: Storing Tool Implementations in Database
+
+**What people do:** Store Daytona sandbox code or tool definitions in Postgres for "dynamic" tool registration.
+
+**Why it's wrong:**
+- Security risk (eval of user-provided code)
+- Type safety lost (no static analysis)
+- Debugging nightmare (stack traces point to eval'd code)
+
+**Do this instead:**
+- Keep tools in code (lib/sandbox/tools/)
+- Version tools with application code
+- Use MCP server's built-in tool discovery for dynamic behavior
+
+### Anti-Pattern 2: Sending Full Message History on Every Request
+
+**What people do:** Include all previous messages in every POST to `/api/chat` for "full context".
+
+**Why it's wrong:**
+- Payload size grows linearly with conversation length
+- Tool result parts with base64 images cause exponential growth
+- Network latency dominates on long conversations
+
+**Do this instead:**
+- Use `prepareSendMessagesRequest` to send only last message
+- Load previous messages server-side via `loadChat(id)`
+- Trust server to maintain conversation state
+
+### Anti-Pattern 3: Synchronous Sandbox Execution
+
+**What people do:** `await sandbox.execute()` in tool execute function, blocking AI stream.
+
+**Why it's wrong:**
+- User sees frozen UI during 5-30s sandbox execution
+- Request timeout risk on complex computations
+- Poor UX compared to "working on it" streaming
+
+**Do this instead:**
+- Use tool approval pattern (execution happens in continuation request)
+- Stream progress updates via data parts: `dataStream.writeData({ type: 'sandbox-status', message: 'Installing packages...' })`
+- Implement timeout handling with partial results
+
+### Anti-Pattern 4: Inline Base64 for Large Images
+
+**What people do:** Embed 5MB+ base64 PNGs directly in message parts.
+
+**Why it's wrong:**
+- Postgres performance degrades with large JSONB documents
+- Client memory issues rendering massive data URIs
+- No progressive loading (image appears all-at-once)
+
+**Do this instead:**
+- For small charts (<500KB): Inline base64 is fine (this is the target use case)
+- For large images: Upload to Vercel Blob, store URL in message part
+- Implement size threshold: `if (base64.length > 500_000) uploadToBlob()`
 
 ---
 
 ## Sources
 
-This architecture research is based on:
+- [AI SDK Tool Calling Documentation](https://ai-sdk.dev/docs/ai-sdk-core/tools-and-tool-calling) - Tool merging patterns, multiple sources integration (verified 2026-01-31)
+- [AI SDK Chatbot Architecture](https://ai-sdk.dev/docs/ai-sdk-ui/chatbot) - Message parts structure, UIMessage format (verified 2026-01-31)
+- [AI SDK Message Persistence](https://ai-sdk.dev/docs/ai-sdk-ui/storing-messages) - Database storage patterns, onFinish callbacks (verified 2026-01-31)
+- [Neon Postgres Next.js Guide](https://neon.com/docs/guides/nextjs) - Connection patterns, serverless driver usage (verified 2026-01-31)
+- [Daytona Documentation](https://www.daytona.io/docs) - Sandbox execution, workspace management (verified 2026-01-31)
+- **Existing Codebase**: Current implementation patterns verified from:
+  - `docs/app/api/chat/route.ts` - Existing AI SDK 6 integration with MCP
+  - `docs/components/chat.tsx` - useChat hook usage with approval flow
+  - `docs/lib/ai/providers.ts` - Vercel AI Gateway configuration
+  - `mcp/app/server.py` - FastMCP server stdio transport pattern
 
-- **Vercel AI SDK Documentation:** [API Route Patterns](https://ai-sdk.dev/docs/ai-sdk-ui/chatbot) - Chat streaming architecture
-- **Vercel AI SDK Documentation:** [Embeddings API](https://ai-sdk.dev/docs/ai-sdk-core/embeddings) - Vector embedding patterns
-- **Remotion Documentation:** [Renderer API](https://remotion.dev/docs/renderer) - Server-side video rendering
-- **Fumadocs Documentation:** [Layout Configuration](https://fumadocs.dev/docs/ui/layouts) - Navigation and tab patterns
-- **Existing Codebase:** Current implementation patterns verified from:
-  - `docs/app/[lang]/try/page.tsx` - Existing Vercel AI SDK integration
-  - `docs/components/chat/chat-interface.tsx` - useChat hook usage
-  - `packages/cli/src/commands/init.ts` - CLI command patterns
-  - `docs/app/[lang]/docs/layout.tsx` - Fumadocs DocsLayout with tabs
-
-**Confidence Level:** HIGH for all patterns (based on official documentation and existing working code)
+---
+*Architecture research for: Interactive Data Playground*
+*Researched: 2026-01-31*
+*Confidence: HIGH (verified with official AI SDK 6 docs, Neon docs, Daytona docs, existing codebase patterns)*

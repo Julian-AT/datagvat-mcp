@@ -1,355 +1,342 @@
 # Project Research Summary
 
-**Project:** Austria MCP Server Documentation v2.1
-**Domain:** Documentation platform enhancement (RAG chat, video tutorials, CLI UX, navigation)
-**Researched:** 2026-01-22
+**Project:** Interactive Data Playground for Austrian Open Data (v2.2)
+**Domain:** AI-powered dataset discovery and exploration with code execution
+**Researched:** 2026-01-31
 **Confidence:** HIGH
 
 ## Executive Summary
 
-v2.1 enhances an existing production Fumadocs documentation site with four major capabilities: RAG-powered documentation chat, programmatic video tutorials via Remotion, shadcn-inspired CLI improvements, and navigation simplification from 8 tabs to 3. This is a **subsequent milestone** building on v2.0's solid foundation of 112 MDX files, Fumadocs 16.4.7, Next.js 16.1.3, and Vercel AI SDK 6.0.41 already in production.
+v2.2 adds an interactive data playground where users chat with AI to explore 60,000+ Austrian open datasets. Users ask questions like "show me pollution trends in Vienna" and the AI orchestrates dataset discovery (via existing data.gv.at MCP), generates Python code with real data, executes it in Daytona sandboxes after explicit user approval, and displays charts inline in the chat. This is fundamentally different from the existing docs chat at `/try` — it's data exploration, not documentation Q&A.
 
-The recommended approach leverages existing infrastructure aggressively. RAG chat repurposes the existing search button and AI SDK integration, building on proven patterns already working in `/try` page. Video generation happens at build-time (not runtime) using GitHub Actions free tier to avoid compute costs. CLI enhancements follow shadcn's registry pattern for familiar UX. Navigation restructuring uses Fumadocs' native `root: true` pattern to create clear tabs without framework fighting.
+The recommended approach leverages existing infrastructure (Next.js 16, Vercel AI SDK 6, FastMCP server) and adds only 2 new npm dependencies (drizzle-orm, postgres). The architecture integrates TWO MCP servers (data.gv.at + Daytona) into ONE chat interface using AI SDK's tool spreading pattern. Message persistence via Neon Postgres enables multi-turn explorations across sessions. User approval before code execution is mandatory for security.
 
-**Key risks:** RAG hallucinations citing non-existent docs (trust killer), navigation URL breakage (production site with external links), video rendering blocking CI/CD (<5min constraint), and vector DB costs spiraling on small project budget. All are mitigatable through similarity thresholds >0.75, comprehensive redirects, separate video rendering, and multi-layer caching respectively. Most critical: this is a **live production site** — any breaking changes require careful migration paths and testing.
+Key risk: Daytona MCP server availability is unverified (LOW confidence). If unavailable, fallback to restricted Python sandbox (subprocess + RestrictedPython) or defer code execution to v2.3. Secondary risks include tool approval bypass through message replay, sandbox resource exhaustion without cleanup, and database performance collapse with large base64 images — all addressed through specific architectural patterns documented in research.
 
 ## Key Findings
 
 ### Recommended Stack
 
-The existing stack is solid and requires minimal additions. The strategy is **extend, don't replace** — leverage Vercel AI SDK (already installed), use Fumadocs patterns (already working), and keep build time constraints (<5 minutes).
+The existing stack (Next.js 16.1.3, Vercel AI SDK 6.0.64, FastMCP, Bun) covers 95% of requirements. Only database persistence needs new dependencies.
 
-**Stack additions (11 new packages):**
+**Core technologies:**
+- **Drizzle ORM + postgres.js** (NEW): Type-safe database queries with zero runtime overhead, Neon-optimized — 5x smaller than Prisma, edge-compatible
+- **Neon Postgres with pooling** (NEW): Serverless-first database with 10,000 pooled connections, 512MB free tier sufficient for thousands of chats — mandatory pooling prevents connection exhaustion
+- **Daytona MCP via stdio** (NEW): Code execution in isolated sandboxes — LOW confidence, needs Phase 6 verification, fallback to restricted Python if unavailable
+- **AI SDK 6.0 experimental_needsApproval** (EXISTING): Built-in tool approval workflow, no new packages needed
+- **@ai-sdk/mcp + @modelcontextprotocol/sdk** (EXISTING): Multi-MCP support via tool spreading, aggregates data.gv.at + Daytona tools into single streamText() call
+- **Vercel AI Gateway via @ai-sdk/openai-compatible** (EXISTING): Single endpoint for 100+ models, no new packages needed
 
-- **@upstash/vector** (^1.0.0) — Serverless vector DB with 10K vectors free tier, REST API for edge compatibility
-- **@upstash/redis** (^1.0.0) — Rate limiting and caching for RAG queries
-- **Remotion stack** (^4.0.0) — 6 packages (@remotion/cli, bundler, renderer, player, lambda) for programmatic video generation
-- **@clack/prompts** (^0.7.0) — Interactive CLI prompts with modern UX (used by Astro, SvelteKit)
-- **picocolors** (^1.0.0) — Terminal colors, 14x smaller than chalk
-- **diff** (^5.0.0) — Git-style diff preview for config changes
-- **execa** (^8.0.0) — Better process execution than child_process
+**Critical version requirements:**
+- AI SDK 6.0+ for experimental_needsApproval (already met)
+- Neon pooled connection string (must use `-pooler` suffix) for serverless compatibility
+- postgres.js over node-postgres for 5x smaller bundle and WebSocket support
 
-**Critical decision: Do NOT add LangChain** — Vercel AI SDK's `embed()`, `embedMany()`, and `cosineSimilarity()` functions are sufficient for documentation RAG. LangChain adds complexity without benefit for this use case.
-
-**Critical decision: OpenAI text-embedding-3-small** — $0.02/1M tokens, 1536 dimensions. Lower cost than text-embedding-3-large ($0.13/1M), sufficient quality for docs Q&A. Estimated cost: ~$0.50/month for 112 docs.
-
-**Navigation requires ZERO new packages** — Fumadocs meta.json already supports tab consolidation. This is pure configuration work.
+**What NOT to add:**
+- Prisma ORM (larger bundle, slower cold starts) — use Drizzle instead
+- Supabase (over-engineering with auth/storage not needed) — use Neon Postgres only
+- LangChain (over-abstraction) — use AI SDK native patterns
 
 ### Expected Features
 
-Research identified clear prioritization based on user journey and technical dependencies.
-
 **Must have (table stakes):**
+- Multi-turn conversation with streaming responses — users expect follow-up questions without context loss
+- Message persistence across sessions — essential for data exploration work that spans days
+- User approval dialog before code execution — security requirement, builds trust
+- Sandbox isolation for Python code — never run untrusted code in production environment
+- Inline visualization rendering (base64 images) — charts appear in chat, not as downloads
+- Dataset discovery via MCP tools — AI finds relevant datasets from 60,000+ Austrian open data
+- Context-aware code generation — AI sees dataset schema before generating code, uses correct column names
 
-- **RAG Chat:** Natural language Q&A with source citations, context-aware responses, streaming, error handling
-- **Videos:** Quickstart video (2-3 min), synchronized captions for accessibility, embedded in docs
-- **CLI:** Interactive prompts, validation feedback, progress indicators, clear success/error messages
-- **Navigation:** 3 main tabs (Docs/API/Try) matching industry patterns, consistent hierarchy, mobile-optimized
-
-**Should have (differentiators):**
-
-- **RAG:** Code generation from natural language (e.g., "Find Vienna health datasets" → Claude Desktop query syntax), troubleshooting assistant for errors, domain-aware (understands MCP terminology)
-- **Videos:** Programmatic generation (update by changing code, not re-filming), dynamic real data.gv.at data, code highlighting sync
-- **CLI:** Diff preview before applying changes, update command with version checking, health check command, config validation
-- **Navigation:** Smart tab icons, deep linking to subsections, persistent state
+**Should have (competitive advantages):**
+- Two-chat architecture — separate `/playground` (data exploration) from `/try` (docs Q&A), different mental models
+- MCP-powered discovery — 60,000+ Austrian datasets pre-integrated, no competitor has this corpus
+- Quality indicators inline — show data completeness/freshness before exploration
+- Smart dataset ranking — quality scores + semantic relevance
+- Bilingual search — German/English queries work equally well
+- Error recovery — re-generate code when execution fails
 
 **Defer (v2+):**
-
-- Real-time collaboration in chat (complexity vs value for single-user docs)
-- Video commenting/annotations (moderation burden, GitHub Discussions exists)
-- CLI GUI wrapper (target audience prefers terminal)
-- Multi-language video narration (text captions sufficient, defer to v2.3)
-- CLI plugin system (scope creep, security concerns)
-
-**Anti-features explicitly rejected:** Cross-session chat memory persistence (privacy concerns, client-only localStorage instead), video editing in browser (Remotion Studio is dev tool, not user-facing), multi-language video voice-over (use captions instead).
+- User authentication — defer to v3.0 (v2.2 is guest mode only)
+- Public sharing with URLs — requires auth + storage + moderation
+- Multiple languages (R, Julia) — Python covers 95% of use cases
+- Dashboard builder — different product paradigm, not chat-first
+- Real-time collaboration — complex engineering, single-user exploration sufficient
+- Data upload (user CSV files) — scope creep, focus on Austrian open data differentiator
+- Interactive widgets — doesn't fit chat paradigm, use re-generation instead
 
 ### Architecture Approach
 
-Integration patterns leverage existing infrastructure and follow serverless-first principles for Vercel deployment.
-
-**RAG Chat architecture:**
-- **Pattern:** API route (`/api/chat/rag`) + server-side vector DB + client component (repurpose existing search button)
-- **Vector store:** In-memory for MVP (<10K docs), migrate to PostgreSQL pgvector when scale demands
-- **Indexing:** Build-time chunking by semantic boundaries (H2/H3 headings), 1000 tokens max, 200 token overlap
-- **Streaming:** Vercel AI SDK `streamText()` + `toDataStreamResponse()` for incremental UI updates
-- **Critical:** Server-side only — embeddings and vector search never exposed to client
-
-**Remotion video architecture:**
-- **Pattern:** Build-time rendering + static hosting + MDX component
-- **Workflow:** Bun script → `renderMedia()` → MP4 files → `public/videos/` → Next.js static serving
-- **Critical decision:** Build-time (not runtime) to avoid serverless compute costs and meet <5min constraint
-- **Rendering location:** GitHub Actions initially (2K free minutes/month), migrate to Remotion Lambda if scale demands
-- **Asset strategy:** `public/videos/` for MVP (3-5 videos ~50MB), migrate to Vercel Blob when >10 videos or >100MB
-
-**Navigation restructuring:**
-- **Pattern:** Fumadocs `root: true` in meta.json to create true tabs (not separator-based sections)
-- **URL structure:** `/docs/documentation/guides/setup` (tab is part of path)
-- **Migration:** Create redirects FIRST, restructure SECOND — critical for production site with external links
-- **H1 handling:** Strip duplicate H1s from MDX content (Fumadocs DocsPage already renders from frontmatter)
-
-**CLI enhancement:**
-- **Pattern:** Shadcn registry pattern — `add` command with interactive selection
-- **Registry:** `tools.json` metadata + templates in `registry/templates/`
-- **Config file:** `datagvat.config.json` for project-level configuration
-- **Critical:** Maintain backward compatibility, detect CI environments, provide `--yes` flag for automation
+The architecture extends existing Next.js/AI SDK infrastructure with multi-MCP orchestration and database persistence. No new frameworks or major architectural changes.
 
 **Major components:**
-1. **RAG API route** (`/api/chat/rag/route.ts`) — Orchestrates vector search, embedding generation, streaming
-2. **Vector indexer** (`lib/rag/indexer.ts`) — Build-time documentation chunking and embedding
-3. **Video renderer** (`scripts/render-videos.ts`) — Build-time video generation via Remotion
-4. **Remotion compositions** (`remotion/compositions/`) — React-based video components
-5. **CLI add command** (`packages/cli/src/commands/add.ts`) — Interactive tool installation
-6. **Navigation meta.json** — Fumadocs configuration for tab structure
+1. **MCP Client Manager** — initializes both data.gv.at (HTTP) and Daytona (stdio) MCP servers, merges tools via spreading pattern, handles health checks and reconnection
+2. **Database Manager** — persists chat history using AI SDK's UIMessage format with parts array (JSONB), loads previous messages for continuation, implements cleanup for old guest sessions
+3. **Sandbox Executor** — manages Daytona workspace lifecycle (create, execute, destroy), extracts base64 images from matplotlib output, enforces 30-second timeout
+4. **Code Approval UI** — monitors message parts for approval-pending state, displays code preview with syntax highlighting, calls addToolApprovalResponse on user action
+5. **Visualization Renderer** — decodes base64 images from tool results, displays inline in chat, handles size limits (>500KB → blob storage)
+
+**Key patterns:**
+- **Multi-MCP integration:** getAllTools() merges tools from both servers into single streamText() call, AI coordinates across tool types
+- **Message persistence with parts array:** Store UIMessage[] as JSONB, captures text/tool calls/results/approvals, enables exact UI reproduction
+- **Sandbox execution with user approval:** Tool calls pause at approval-pending state, user confirms, continuation request executes tool, Daytona workspace destroyed after session
+- **Inline visualization rendering:** matplotlib saves PNG to stdout as base64, embedded in tool-result part, displayed as data URI in React
+
+**Integration boundaries:**
+- Chat UI (useChat hook) → POST /api/chat → streamText() with merged MCP tools → Stream response with approval flow
+- API Route → MCP Clients (in-process async calls, clients initialized once, tools cached)
+- API Route → Database (direct Pool queries, use after() for background persistence)
+- Messages Component → Visualization (React props passing tool-result parts)
 
 ### Critical Pitfalls
 
-Top 5 highest-impact risks with concrete prevention strategies:
+1. **Tool Approval Bypass Through Message Replay** — Stored tool calls in database can re-execute without approval on page reload. PREVENTION: Never persist approval state, add execution_status column, filter non-executed tool calls when loading history, re-prompt if not executed. ADDRESS: Phase 1 (database schema must separate execution state).
 
-1. **RAG hallucinations with confident citations** — LLM generates plausible but non-existent doc pages, user clicks → 404 → trust destroyed. **Prevention:** Implement similarity threshold >0.75, validate all cited URLs exist before returning, provide "I don't know" fallback messaging for low-quality queries. Test with edge cases where docs don't have answers.
+2. **Sandbox Resource Exhaustion Without Cleanup** — Daytona sandboxes persist until manually destroyed, 10-20 conversations exhaust resources silently. PREVENTION: Track sandbox_id in database with timestamps, destroy after 15 minutes inactivity, background job kills orphaned sandboxes, test with 20+ sequential conversations. ADDRESS: Phase 2 (cleanup MUST be implemented before production).
 
-2. **Navigation restructuring breaks production links** — Moving from 8 tabs to 3 changes URLs. External sites, bookmarks, Google search results all break. **Prevention:** Create comprehensive redirect map in `next.config.mjs` BEFORE restructuring, audit all current URLs with fumadocs-cli, test redirects with `curl -I`, keep redirects 6-12 months minimum. Deploy redirects first, restructure second.
+3. **Multiple MCP Server Race Conditions on Startup** — Both servers start simultaneously via stdio, failures are silent, generic errors confuse users. PREVENTION: Spawn sequentially not parallel, health check each server (call ping tool), 10-second timeout per server, separate stderr/stdout streams, display connection status in UI before allowing chat. ADDRESS: Phase 2 (server initialization needs health checks).
 
-3. **Video rendering blocks CI/CD pipeline** — Remotion renders are CPU-intensive (30-120s per video). Multiple videos multiply linearly, exceeding <5 minute constraint. **Prevention:** Separate video rendering from Next.js build, implement `videos:render-if-changed` script that checks git diff, cache rendered videos, add `SKIP_VIDEO_RENDER` env var for quick iterations. Use GitHub Actions matrix for parallel rendering.
+4. **Message Persistence Performance Collapse with Large Visualizations** — Base64 images (500KB-2MB each) stored in JSONB cause slow queries (5+ seconds), database bloat, backup failures. PREVENTION: NEVER store base64 in database, use blob storage (S3/R2/filesystem), save URL in parts array, 100KB size limit for inline storage, test with 50-image conversation. ADDRESS: Phase 1 (image storage strategy designed before schema creation).
 
-4. **CLI breaking changes for existing users** — @datagvat/mcp-installer already published and in use. Changing command signatures or behavior breaks user scripts and CI/CD. **Prevention:** Follow semantic versioning strictly (major bump for breaking changes), maintain deprecated commands for 1-2 major versions, add `--version` flag checking, test CLI in non-interactive mode (CI simulation), never change output format in minor versions.
-
-5. **Vector DB costs spiral out of control** — Every query hits embedding API + vector DB. With growing traffic, costs escalate from $5/month → $500/month on small project budget. **Prevention:** Multi-layer caching (query cache + embedding cache) with LRUCache, rate limiting (5 queries/minute per IP), use lower-dimensional embeddings if accuracy permits (768 vs 1536), monitor costs with alerts (>$50/month warning), pre-compute embeddings for common queries.
-
-**Additional high-severity pitfalls:**
-- **Duplicate H1 rendering** (frontmatter + MDX) — unprofessional, SEO penalty. Strip H1s from MDX or use remark plugin.
-- **RAG returns off-topic answers** (generic Next.js advice instead of project docs) — Filter vector DB by source metadata, domain-specific system prompt.
-- **Video tutorials become outdated quickly** — Focus on concepts not UI, add "last verified" metadata, implement outdated video warnings.
-- **RAG chunking loses context** (prerequisites separated from instructions) — Use semantic splitter with 200 token overlap, chunk by H2/H3 sections, include parent section in metadata.
-- **RAG slow response times kill UX** (5-10s wait appears frozen) — Stream immediately (<1s TTFB), parallel vector search + LLM call, show "Searching docs..." progress.
+5. **Daytona CLI Dependency Without Graceful Degradation** — App crashes on startup if Daytona unavailable, blocks entire site including documentation. PREVENTION: Make Daytona OPTIONAL at runtime, detect CLI at startup, disable only code execution if missing, display clear UI message, allow dataset search/preview to work normally, DAYTONA_ENABLED environment variable. ADDRESS: Phase 2 (graceful degradation before enabling code execution).
 
 ## Implications for Roadmap
 
-Based on research, recommended 4-phase structure prioritizing quick wins and risk mitigation:
+Based on research, suggested phase structure:
 
-### Phase 1: Navigation Simplification (Quick Win)
-
-**Rationale:** Unblocks clear structure for chat and videos to integrate into. Configuration-only work with no new dependencies. Low risk, high value. Must come first to establish stable URL structure before adding features that link to docs.
-
-**Delivers:**
-- 3-tab layout (Docs/API/Try) replacing 8-section sidebar
-- Clean information architecture matching Next.js/Stripe patterns
-- Mobile-optimized navigation
-- Stable URLs for subsequent phases to reference
-
-**Addresses features:**
-- Must-have: 3 main tabs, consistent hierarchy, mobile-optimized
-- Should-have: Smart tab icons, deep linking
-
-**Avoids pitfalls:**
-- #2 (broken links) — comprehensive redirect map created early
-- #6 (duplicate titles) — H1 cleanup during restructuring
-- #20 (deep nesting) — flatten hierarchy while consolidating
-
-**Research flag:** Standard Fumadocs patterns, no additional research needed.
-
-### Phase 2: CLI Excellence (Independent, High Value)
-
-**Rationale:** Independent of documentation site, delivers immediate user value. Can proceed in parallel with Phase 3. Low risk (isolated to CLI codebase). Addresses production CLI already in use — improvements have immediate impact.
+### Phase 1: Database Foundation & Message Persistence
+**Rationale:** Persistence layer is foundational for testing all subsequent features. Enables iterative development with state preservation across page reloads.
 
 **Delivers:**
-- Interactive setup with @clack/prompts
-- Diff preview for config changes
-- Config validation and health check
-- Update command with version checking
+- Neon Postgres connection with pooling
+- Drizzle ORM schema and queries (createChat, loadChat, saveChat)
+- Message persistence integrated into existing /api/chat route
+- Guest session tracking via cookies
+- Database schema that prevents approval bypass (execution_status column)
+- Image storage strategy (blob URLs, not base64 in JSONB)
 
-**Addresses features:**
-- Must-have: Interactive prompts, validation, progress indicators, error messages
-- Should-have: Diff preview, update command, health check
-- Differentiators: Config validation, shadcn-quality UX
+**Addresses:**
+- Tool approval bypass pitfall (separate execution state in schema)
+- Performance collapse pitfall (image storage design)
+- Message persistence feature (table stakes)
 
-**Avoids pitfalls:**
-- #4 (CLI breaking changes) — semantic versioning, backward compatibility
-- #12 (interactive prompts break automation) — detect CI, `--yes` flag
-- #19 (poor error messages) — contextual, actionable errors
+**Avoids:**
+- Building on unstable foundation
+- Retrofitting persistence after features exist
+- Database schema migrations mid-development
 
-**Research flag:** Standard CLI patterns, no additional research needed. Test in CI environment.
+**Research needed:** No — Neon + Drizzle patterns well-documented, straightforward implementation
 
-### Phase 3: RAG Documentation Chat (Core Value)
+---
 
-**Rationale:** Requires navigation structure (Phase 1) to be stable for citation links. Complex feature with multiple risk vectors — needs careful implementation. Uses existing Vercel AI SDK (already proven in `/try` page). This is the key differentiator for v2.1.
-
-**Delivers:**
-- Natural language Q&A over 112 MDX files
-- Source citations with clickable links
-- Code generation from natural language
-- Troubleshooting assistant for errors
-- Streaming responses with progress indicators
-
-**Addresses features:**
-- Must-have: Natural language Q&A, context-aware responses, source citations, streaming, error handling
-- Differentiators: Code generation, troubleshooting assistant, domain-aware MCP terminology
-
-**Avoids pitfalls:**
-- #1 (RAG hallucinations) — similarity threshold >0.75, URL validation, fallback messaging
-- #5 (vector DB costs) — multi-layer caching, rate limiting, cost monitoring
-- #7 (off-topic answers) — source filtering, domain-specific system prompt
-- #9 (chunking loses context) — semantic splitter with 200 token overlap
-- #11 (slow responses) — streaming, parallel processing, <1s TTFB
-- #13 (poor source attribution) — enforce citations in system prompt
-- #17 (context window exceeded) — token budget management
-
-**Research flag:** **NEEDS RESEARCH** — Embedding model selection, chunking strategy, similarity threshold tuning all require experimentation with actual docs corpus. Plan for 20-test-query benchmark before finalizing approach.
-
-### Phase 4: Video Tutorials (Polish)
-
-**Rationale:** Enhances onboarding experience but not blocking other features. Can proceed in parallel with Phase 2/3 if resources allow. High production effort (7-10 days) — defer until core features proven. Videos are marketing/onboarding polish, not core functionality.
+### Phase 2: Daytona MCP Integration & Sandbox Setup
+**Rationale:** Non-breaking addition to existing tools. Can test tool discovery before implementing execution. Health checks prevent silent failures.
 
 **Delivers:**
-- Quickstart video (2-3 min) showing install → first query
-- Search workflow video (3-4 min) demonstrating filters and ranking
-- Data preview video (2-3 min) showing schema inspection
-- All videos with captions and transcripts
-- MDX video component for embedding
+- Daytona CLI setup and verification
+- MCP client initialization for both servers (getAllTools() merging)
+- Health checks and reconnection logic
+- Sandbox lifecycle tracking in database
+- Cleanup job for orphaned sandboxes
+- Graceful degradation if Daytona unavailable
 
-**Addresses features:**
-- Must-have: Quickstart video, synchronized captions, embedded in docs
-- Differentiators: Programmatic generation, dynamic data, code highlighting
+**Uses:**
+- @ai-sdk/mcp (existing) for multi-server pattern
+- stdio transport for Daytona CLI
 
-**Avoids pitfalls:**
-- #3 (video rendering blocks CI/CD) — separate rendering, caching, incremental builds
-- #8 (videos outdated) — version metadata, "last verified" dates, focus on stable concepts
-- #10 (file sizes too large) — 720p not 1080p, optimize bitrate, lazy loading
-- #14 (videos lack accessibility) — captions, transcripts, keyboard controls
-- #18 (rendering differences local vs CI) — match environments, Docker consistency
+**Implements:**
+- MCP Client Manager (architecture component)
+- Health check pattern from architecture
 
-**Research flag:** **NEEDS RESEARCH** — Remotion composition patterns, optimal video length/structure, caption generation workflow. Plan for single video prototype before scaling to full corpus.
+**Addresses:**
+- Sandbox resource exhaustion pitfall (cleanup logic)
+- MCP race conditions pitfall (health checks, sequential startup)
+- Daytona dependency pitfall (graceful degradation)
+- Multiple MCP integration feature (table stakes)
+
+**Avoids:**
+- Silent startup failures
+- Resource leaks in production
+- Blocking docs site when code execution unavailable
+
+**Research needed:** YES — CRITICAL Phase 6 research to verify:
+- Daytona MCP server availability (confirm `daytona mcp` command exists)
+- Daytona tool schemas (execute_code parameters)
+- stdio transport in production (or fallback to HTTP)
+- Fallback strategy if Daytona unavailable (restricted Python sandbox)
+
+---
+
+### Phase 3: Sandbox Execution (Without Approval)
+**Rationale:** Establishes core execution pipeline before adding approval complexity. Enables testing of code generation, matplotlib integration, base64 extraction.
+
+**Delivers:**
+- execute_code tool implementation via Daytona
+- Base64 image extraction from matplotlib stdout
+- Visualization rendering component
+- Execution timeout enforcement (30 seconds)
+- Error handling with clear messages
+
+**Implements:**
+- Sandbox Executor (architecture component)
+- Visualization Renderer (architecture component)
+- Inline visualization pattern from architecture
+
+**Addresses:**
+- Code execution feature (table stakes)
+- Inline visualization rendering (table stakes)
+- Context-aware code generation (differentiator)
+
+**Avoids:**
+- Building approval flow on broken execution
+- Debugging approval + execution simultaneously
+- Testing without visible results
+
+**Research needed:** No — Execution patterns documented, matplotlib base64 encoding is standard
+
+---
+
+### Phase 4: Tool Approval Flow
+**Rationale:** Most complex feature, depends on working execution pipeline from Phase 3. Approval UX requires existing tool results to demonstrate value.
+
+**Delivers:**
+- experimental_needsApproval flag on code execution tools
+- Code approval dialog component with preview
+- addToolApprovalResponse wiring
+- Continuation flow for approved executions
+- Approval state handling in message persistence
+
+**Uses:**
+- AI SDK 6.0 experimental_needsApproval (existing)
+- useChat hook approval handling (existing)
+
+**Implements:**
+- Code Approval UI (architecture component)
+- User approval pattern from architecture
+
+**Addresses:**
+- User approval dialog (table stakes, security requirement)
+- Security-first design (differentiator)
+
+**Avoids:**
+- Approval fatigue (only code execution requires approval, not dataset tools)
+- Approval bypass (execution_status from Phase 1 prevents replay)
+
+**Research needed:** No — AI SDK 6.0 approval pattern documented, straightforward implementation
+
+---
+
+### Phase 5: Polish & Production Readiness
+**Rationale:** All core features working, now focus on UX refinements and deployment preparation.
+
+**Delivers:**
+- Two-chat architecture (/playground distinct from /try)
+- Code syntax highlighting (Shiki integration)
+- Loading states during execution
+- Error recovery with code regeneration
+- Quality indicators inline for datasets
+- Vercel AI Gateway configuration for model selection
+- Cleanup job deployment (Vercel Cron)
+- Rate limiting for sandbox creation
+
+**Addresses:**
+- Two-chat architecture (differentiator)
+- Loading states, error handling (table stakes)
+- Quality indicators (competitive feature)
+
+**Research needed:** MEDIUM — Vercel AI Gateway setup needs documentation research (not blocking)
+
+---
 
 ### Phase Ordering Rationale
 
-**Why this order:**
+1. **Database first** because all subsequent features need state preservation for testing and development
+2. **MCP integration second** because it's non-breaking and can be tested independently before execution
+3. **Execution before approval** because approval flow needs working execution to test against
+4. **Approval last of core features** because it's the most complex UX and depends on everything else working
+5. **Polish after MVP complete** because UX refinements require user feedback on working product
 
-1. **Navigation first** — Establishes stable URL structure. All subsequent features (RAG citations, video embeds) need stable links. Breaking changes early = less rework later.
+**Dependencies visualized:**
+```
+Phase 1 (Database) → Phase 2 (MCP) → Phase 3 (Execution) → Phase 4 (Approval) → Phase 5 (Polish)
+        ↓                ↓                                          ↓
+   [Persistence]  [Tool Discovery]                          [Security]
+```
 
-2. **CLI second (parallel eligible)** — Independent of documentation site. Can proceed while navigation testing. Immediate value for existing users. Low risk isolated work.
-
-3. **RAG third** — Depends on navigation stability (for citation links). Complex feature requiring careful risk mitigation. Proven patterns from existing AI SDK integration reduce risk. Core differentiator deserves focus after foundation solid.
-
-4. **Videos fourth** — Highest production effort, lowest blocking impact. Can proceed in parallel with Phase 2/3 if resources allow. Marketing/polish work deferred until core functionality proven. Allows time to validate Remotion approach with prototype before full commitment.
-
-**Dependency chains identified:**
-- Navigation → RAG (citations need stable URLs)
-- Navigation → Videos (embeds need stable URLs)
-- RAG ← Existing AI SDK (proven patterns to build on)
-- Videos ← Remotion research (needs prototype validation)
-
-**Risk mitigation order:**
-- Phase 1 addresses #2 (broken links) before adding features
-- Phase 2 addresses #4 (CLI breaking changes) early while user base small
-- Phase 3 tackles #1, #5 (RAG hallucinations, costs) with comprehensive prevention
-- Phase 4 handles #3, #8 (video CI/CD, outdated content) when infrastructure mature
+**Parallel work opportunities:**
+- Phase 1 and Phase 2 can overlap (database + MCP integration are independent)
+- Phase 5 tasks can start once Phase 4 delivers approval flow
 
 ### Research Flags
 
-**Phases needing `/gsd:research-phase` during planning:**
-
-- **Phase 3 (RAG Chat):** Embedding model selection (OpenAI vs Cohere vs Mistral), optimal chunking strategy (1000 vs 1500 vs 2000 tokens), similarity threshold tuning (0.75 vs 0.80), vector store selection (in-memory vs pgvector vs Pinecone). Research should include 20-test-query benchmark against actual docs corpus. Estimated research time: 2-3 hours.
-
-- **Phase 4 (Videos):** Remotion composition patterns for documentation tutorials, optimal video length/structure for engagement, caption generation workflow (manual vs auto), hosting strategy (public/ vs Vercel Blob vs YouTube). Research should include single video prototype end-to-end before committing to full approach. Estimated research time: 3-4 hours.
+**Phases needing deeper research during planning:**
+- **Phase 2 (Daytona MCP):** CRITICAL — Verify Daytona MCP server exists, document CLI integration, define fallback strategy if unavailable
+- **Phase 5 (Vercel AI Gateway):** MEDIUM — Configuration steps need documentation, but fallback is direct provider packages
 
 **Phases with standard patterns (skip research-phase):**
-
-- **Phase 1 (Navigation):** Fumadocs meta.json patterns well-documented, redirect strategy standard Next.js. Existing codebase analysis sufficient.
-
-- **Phase 2 (CLI):** Shadcn registry pattern well-established, @clack/prompts widely used, semantic versioning standard. No novel patterns required.
+- **Phase 1 (Database):** Neon + Drizzle ORM patterns well-documented, no unknowns
+- **Phase 3 (Execution):** Python sandbox execution is standard, matplotlib base64 encoding documented
+- **Phase 4 (Approval):** AI SDK 6.0 approval pattern officially documented, straightforward
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Existing packages verified in package.json, new packages well-documented with clear versions. Remotion version needs verification (`npm view remotion version`) but 4.x pattern confirmed. |
-| Features | HIGH | Feature prioritization based on official AI SDK, Remotion, shadcn CLI documentation. User journey analysis validated against Next.js, Stripe, AI SDK navigation patterns. Anti-features based on complexity vs value analysis. |
-| Architecture | HIGH | Integration patterns verified against existing codebase (app/[lang]/try/page.tsx for AI SDK, components/chat/ for streaming). Fumadocs patterns verified in meta.json and layout.tsx. Build pipeline understood from scripts/ analysis. |
-| Pitfalls | HIGH | Pitfalls #1-#5 (critical) and #6-#20 (high/medium) based on existing codebase analysis (production site constraints), RAG best practices, Remotion performance patterns, CLI design principles, and Next.js deployment constraints. Phase mapping validated against actual file structure. |
+| Stack | HIGH | Existing stack covers 95%, only Drizzle ORM + postgres.js new (well-documented). Daytona MCP LOW confidence but fallback exists. |
+| Features | HIGH | Verified with Jupyter/Colab/Observable/Hex patterns + AI SDK docs + MCP integration. Clear table stakes vs differentiators. |
+| Architecture | HIGH | AI SDK 6 docs verified, Neon docs verified, Daytona docs reviewed, existing codebase patterns confirmed. Multi-MCP pattern tested. |
+| Pitfalls | HIGH | Derived from documented constraints (stdio transport, JSONB limits, approval bypass security) + standard integration challenges. |
 
-**Overall confidence:** HIGH
-
-Research quality is strong due to:
-- Existing codebase analysis (package.json, app structure, scripts, meta.json verified)
-- Official documentation consulted (Vercel AI SDK, Remotion, Fumadocs, shadcn CLI)
-- Production constraints understood (live site, <5min build time, external links)
-- Patterns validated against working code (AI SDK already used in /try page)
+**Overall confidence:** HIGH (with one LOW-confidence dependency: Daytona MCP availability)
 
 ### Gaps to Address
 
-**Technical validation needed during implementation:**
+**CRITICAL (Blocking Development):**
+- **Daytona MCP Server Availability:** Does Daytona provide MCP server via `daytona mcp` command? Phase 6 research MUST verify or define fallback to restricted Python sandbox (subprocess + RestrictedPython). This is the only true unknown.
 
-1. **Embedding model performance** — OpenAI text-embedding-3-small recommended, but quality vs Cohere embed-v3 vs Mistral embed needs benchmark with actual docs. Test with 20 representative queries against docs corpus. Measure precision/recall and cost. Decision point before Phase 3 start.
+**HIGH (Impacts UX):**
+- **Vercel AI Gateway Configuration:** How to create gateway instance and configure model routing? Fallback: Use direct provider packages (@ai-sdk/openai, @ai-sdk/anthropic). Not blocking, can research in Phase 5.
 
-2. **Optimal chunking strategy** — Research suggests 1000 tokens with 200 overlap, but actual docs structure may require adjustment. Test 1000 vs 1500 vs 2000 token chunks with quality metrics. Decision point during Phase 3 indexing.
+**MEDIUM (Performance Optimization):**
+- **MCP stdio in Vercel Deployment:** Does stdio transport work in Vercel serverless functions? May need HTTP fallback for Daytona. Test during Phase 2.
+- **Database Schema Design:** What indexes needed for JSONB message queries? Test during Phase 1 with realistic conversation sizes.
+- **Connection Pooling Tuning:** Monitor Neon pool usage, adjust default_pool_size if needed. Optimize during Phase 5.
 
-3. **Similarity threshold tuning** — 0.75 recommended, but may need adjustment based on embedding model and docs density. Start at 0.75, monitor false positives (low-quality results) and false negatives (no results). Tune during Phase 3 testing.
-
-4. **Video production workflow** — Remotion approach requires prototype validation. Build single video end-to-end (Quickstart) to validate tooling, rendering time, file size, quality before committing to full corpus. Decision point before Phase 4 start.
-
-5. **Build time impact measurement** — Current build time unknown. Phase 3 adds ~30s (embeddings), Phase 4 adds potentially 15+ minutes (videos). Measure baseline, implement caching strategies, validate <5min constraint met. Monitor throughout Phases 3-4.
-
-6. **Vector DB migration trigger** — Starting in-memory, but migration to pgvector may be needed. Monitor RAM usage, query performance. Migrate if docs exceed 10K or search >500ms. Likely not needed for 112 docs, but watch for future growth.
-
-**Cost validation needed:**
-
-- **RAG monthly costs** — Estimated $0.50/month (embeddings) + $0 (Upstash free tier). Monitor actual usage, set alert at >$50/month. Caching implementation critical to stay within estimates.
-
-- **Video hosting** — Starting with public/ (3-5 videos ~50MB). Monitor repo size, consider Vercel Blob migration at >10 videos or >100MB. CDN bandwidth costs unknown, need baseline.
-
-**Process validation needed:**
-
-- **Redirect completeness** — Phase 1 requires auditing all current URLs and external references. Use fumadocs-cli, check analytics for top pages, Google Search Console for indexed URLs. Test all redirects before restructuring.
-
-- **CLI backward compatibility** — Phase 2 requires testing existing user scripts still work. Create test suite with common automation patterns, run in CI environment, verify non-interactive mode works.
+**Handling during planning:**
+- Phase 2 research task: Verify Daytona MCP, document installation, test CLI integration
+- Phase 5 research task: Document Vercel AI Gateway setup (optional, not blocking)
+- All phases: Test with realistic data (50-message conversations, 20 sequential sandboxes, 50 images)
 
 ## Sources
 
 ### Primary (HIGH confidence)
-
-**Existing codebase analysis:**
-- `docs/package.json` — Verified versions: Next.js 16.1.3, Fumadocs 16.4.7, Vercel AI SDK 6.0.41, Bun, Biome 2.3.11
-- `docs/app/[lang]/docs/[[...slug]]/page.tsx` — Fumadocs DocsPage rendering pattern, H1 duplication issue
-- `docs/app/[lang]/try/page.tsx` — Existing Vercel AI SDK integration with useChat hook
-- `docs/components/chat/` — Current chat components (chat-interface.tsx, chat-input.tsx, message-list.tsx)
-- `docs/content/docs/meta.json` — Current 8-section navigation structure
-- `docs/scripts/prebuild.ts` — Existing build pipeline
-- `packages/cli/src/` — Current CLI implementation patterns
-
-**Official documentation (verified via Context7 and WebFetch):**
-- Vercel AI SDK documentation — `embed()`, `embedMany()`, `cosineSimilarity()` functions, streaming patterns
-- Fumadocs documentation — Layout configuration, meta.json patterns, tab structure
-- Remotion documentation — Renderer API, server-side video generation patterns
-- shadcn CLI patterns — Registry approach, interactive prompts, diff preview
+- AI SDK Tool Calling: https://ai-sdk.dev/docs/ai-sdk-core/tools-and-tool-calling (experimental_needsApproval pattern, tool merging)
+- AI SDK Message Persistence: https://ai-sdk.dev/docs/ai-sdk-ui/storing-messages (onFinish callback, UIMessage format)
+- AI SDK Chatbot Architecture: https://ai-sdk.dev/docs/ai-sdk-ui/chatbot (parts array structure, approval workflow)
+- Neon Connection Pooling: https://neon.com/docs/connect/connection-pooling (pooling configuration, transaction-mode, limitations)
+- Neon Next.js Guide: https://neon.com/docs/guides/nextjs (serverless driver patterns)
+- Drizzle ORM PostgreSQL: https://orm.drizzle.team/docs/get-started-postgresql (postgres.js driver setup)
+- MCP Transports Specification: https://modelcontextprotocol.io/docs/concepts/transports (stdio transport protocol)
+- Daytona Documentation: https://www.daytona.io/docs (sandbox execution, workspace management)
 
 ### Secondary (MEDIUM confidence)
+- Jupyter.org: Multi-language kernels, interactive widgets, notebook format
+- Google Colab: AI code generation, data inspector
+- ObservableHQ.com: AI integration, reactive visualizations
+- Hex.tech: AI-powered analysis, collaborative notebooks
+- MCP SDK GitHub: Multi-client pattern inferred from Client class architecture
 
-**Ecosystem patterns:**
-- Navigation consolidation (3-4 tabs standard across Next.js, Stripe, AI SDK documentation sites)
-- RAG architecture patterns (vector search + LLM generation, chunking strategies, citation formats)
-- CLI design patterns (@clack/prompts vs inquirer, semantic versioning, CI detection)
-- Video tutorial best practices (2-5 minute optimal length, accessibility requirements)
+### Tertiary (LOW confidence, needs Phase 6 validation)
+- Daytona MCP Server: Mentioned in project context, no official MCP server documentation found — CRITICAL GAP
+- Daytona CLI Installation: General installation pattern assumed, needs verification
+- Daytona Tool Schemas: Expected tool names inferred from use case, needs verification
 
-**Technology recommendations:**
-- @upstash/vector for serverless vector DB (serverless-first approach, REST API, 10K free tier)
-- OpenAI text-embedding-3-small for embeddings (cost/quality balance for documentation use case)
-- Remotion for video generation (React-based, programmatic, version control friendly)
-- GitHub Actions for video rendering (2K free minutes/month, sufficient for 3-5 videos initially)
-
-### Tertiary (LOW confidence — needs validation)
-
-**Cost estimates:**
-- Upstash pricing details for 2026 (verify current pricing, free tier limits may change)
-- Remotion Lambda pricing (~$1-5/hour estimate, actual may vary)
-- GitHub Actions rendering time (~5 min/video estimate, depends on video complexity)
-- OpenAI embedding costs for 112 docs (~$0.50/month estimate, needs actual token count)
-
-**Performance estimates:**
-- Build time impact: +30s embeddings, +15min videos (needs measurement with actual content)
-- Vector search performance: <500ms for in-memory (needs benchmark with actual query patterns)
-- Time to first token: <1s target (needs testing with actual vector search + LLM latency)
+### Existing Codebase (HIGH confidence)
+- docs/app/api/chat/route.ts: Existing AI SDK 6 integration with MCP verified
+- docs/components/chat.tsx: useChat hook usage patterns verified
+- docs/lib/ai/providers.ts: Vercel AI Gateway configuration verified
+- mcp/app/server.py: FastMCP server HTTP transport pattern verified
 
 ---
-
-**Research completed:** 2026-01-22
-**Ready for roadmap:** Yes
-**Next step:** Roadmapper agent can use this summary to structure detailed phase plans with tasks.
+*Research completed: 2026-01-31*
+*Ready for roadmap: yes*

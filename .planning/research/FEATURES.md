@@ -1,801 +1,859 @@
-# Feature Landscape: Documentation Platform Enhancements (v2.1)
+# Feature Landscape: Interactive Data Playground (v2.2)
 
-**Domain:** AI chat, video tutorials, CLI design, navigation UX for technical documentation
-**Researched:** 2026-01-22
-**Confidence:** HIGH (verified with AI SDK, Remotion, shadcn CLI, Next.js/Stripe navigation patterns)
+**Domain:** Interactive data playground for dataset exploration
+**Researched:** 2026-01-31
+**Confidence:** HIGH (verified with Jupyter, Colab, Observable, Hex patterns + AI SDK + MCP integration)
 
 ## Executive Summary
 
-v2.1 adds four major capabilities to the existing Fumadocs-based documentation platform:
+v2.2 adds an interactive data playground where users chat with AI to explore Austrian open datasets, execute Python code in sandboxes, create visualizations, and persist sessions. This is distinct from the existing docs RAG chat at `/try` (which answers questions about documentation).
 
-1. **RAG Documentation Chat** - Semantic search and context-aware Q&A over 112 MDX files
-2. **Video Tutorials** - Programmatic video generation using Remotion for quickstart/workflow demos
-3. **CLI Excellence** - Enhance @datagvat/mcp-installer with shadcn-inspired interactive patterns
-4. **Navigation Simplification** - Reduce from 8 tabs to 3 (Docs/API/Try) for clearer information architecture
+**Core value:** Users ask "show me pollution trends in Vienna" → AI finds datasets via MCP tools → generates Python code with real data → executes in Daytona sandbox → displays charts inline in chat.
 
-**Key insight:** These features serve different audiences at different stages. Chat serves exploratory users ("What can this do?"). Videos serve visual learners ("Show me how"). CLI serves installers ("Make it work"). Navigation serves everyone ("Where am I?").
+**Key architectural decisions:**
+1. **Two-chat architecture:** Separate `/playground` (data exploration) from `/try` (docs Q&A)
+2. **MCP multi-server orchestration:** Route tool calls between data.gv.at MCP (discovery) and Daytona MCP (execution)
+3. **User approval required:** Never auto-execute code without explicit user consent (security best practice)
+4. **Guest mode only:** No auth in v1, defer user accounts to v3.0
+5. **Context-aware code generation:** AI sees dataset schema/preview before generating code
 
-**Existing platform strengths:**
-- 112 MDX documentation files already written and working
-- Auto-generated tool reference (25 MCP tools) with TypeTable components
-- Progressive disclosure (Basic/Advanced tabs) throughout
-- Interactive components (Tabs, Steps, Mermaid) battle-tested
-- /try page with MCP tool testing infrastructure
-- Search button placeholder (ready for enhancement)
+**Existing strengths to leverage:**
+- 25 MCP tools for Austrian dataset discovery already built and working
+- Documentation site infrastructure (Next.js, Vercel AI SDK already integrated at `/try`)
+- Neon Postgres + Drizzle ORM can be added incrementally
+- `/try` page demonstrates MCP tool integration patterns
 
 ## Table Stakes
 
-Features users expect from modern documentation platforms. Missing these = feature feels incomplete or unprofessional.
+Features users expect from interactive data playgrounds. Missing these = product feels incomplete.
 
-### RAG Documentation Chat
-
-| Feature | Why Expected | Complexity | User Value | Dependencies |
-|---------|--------------|------------|------------|--------------|
-| **Natural language Q&A** | Users ask "How do I search datasets?" not browse docs | Medium | High | AI SDK, embedding model |
-| **Context-aware responses** | Answer based on documentation content, not hallucinated | Medium | High | Vector DB, MDX indexing |
-| **Source citations** | Link to specific doc pages where answer came from | Low | High | AI SDK sources pattern |
-| **Multi-turn conversations** | Follow-up questions without repeating context | Low | Medium | useChat conversation state |
-| **Streaming responses** | Show partial answers as they generate | Low | Medium | AI SDK streaming |
-| **Error handling** | Graceful fallback when LLM fails or timeout | Low | High | AI SDK error states |
-
-### Video Tutorials
+### Core Chat Interface
 
 | Feature | Why Expected | Complexity | User Value | Dependencies |
 |---------|--------------|------------|------------|--------------|
-| **Quickstart video** (2-3 min) | Visual proof of "install to first query" flow | Medium | High | Remotion, screen recording |
-| **Workflow demos** (3-5 min each) | Show common tasks end-to-end | Medium | High | Remotion, real data examples |
-| **Synchronized captions** | Accessibility requirement, improves engagement | Medium | High | Remotion caption support |
-| **Embedded in docs** | Videos appear inline with written content | Low | Medium | Fumadocs video embedding |
-| **Thumbnail previews** | Clear visual cues what video covers | Low | Medium | Static image generation |
+| **Multi-turn conversation** | Users ask follow-up questions without repeating context | LOW | HIGH | AI SDK useChat hook |
+| **Message persistence** | Return to previous explorations across sessions | MEDIUM | HIGH | Neon Postgres + Drizzle |
+| **Streaming responses** | See AI thinking/generating code in real-time | LOW | MEDIUM | AI SDK streaming (already works in /try) |
+| **Loading states** | Clear feedback during code execution (5-30s) | LOW | HIGH | AI SDK message state |
+| **Error handling** | Code fails often; show clear, actionable errors | MEDIUM | HIGH | Sandbox error formatting |
+| **Conversation history UI** | See past messages in sidebar or scrollable area | LOW | MEDIUM | React state + database query |
 
-### CLI Excellence
-
-| Feature | Why Expected | Complexity | User Value | Dependencies |
-|---------|--------------|------------|------------|--------------|
-| **Interactive prompts** | Ask user for config options, don't require flags | Low | High | @clack/prompts |
-| **Validation feedback** | Check file paths, MCP config before proceeding | Low | High | Node fs, JSON validation |
-| **Clear progress indicators** | Show what's happening during installation | Low | Medium | @clack/prompts spinners |
-| **Success confirmation** | Explicit "Installation complete" with next steps | Low | High | Console formatting |
-| **Error messages** | User-friendly errors with actionable fixes | Medium | High | Error handling patterns |
-
-### Navigation Simplification
+### Code Execution
 
 | Feature | Why Expected | Complexity | User Value | Dependencies |
 |---------|--------------|------------|------------|--------------|
-| **3 main tabs** (Docs/API/Try) | Standard pattern (Next.js, Stripe, AI SDK) | Low | High | Fumadocs meta.json |
-| **Consistent tab order** | Predictable: learn → reference → try | Low | Medium | Navigation structure |
-| **No duplicate titles** | Don't show "Getting Started" in both nav and H1 | Low | Medium | MDX frontmatter cleanup |
-| **Clear hierarchy** | Subsections visible in sidebar | Low | High | Fumadocs built-in |
-| **Breadcrumbs** | Location awareness in deep hierarchies | Low | Medium | Fumadocs built-in |
+| **Sandbox isolation** | Never run untrusted code in production environment | HIGH | CRITICAL | Daytona MCP integration |
+| **User approval dialog** | Explicit consent before executing any code | LOW | CRITICAL | AI SDK experimental_needsApproval |
+| **Code syntax highlighting** | Display generated code readably | LOW | MEDIUM | Shiki or Prism.js |
+| **Execution timeout** | Prevent infinite loops/resource abuse | LOW | HIGH | Sandbox 30s timeout |
+| **Python data libraries** | pandas, numpy, matplotlib expected pre-installed | MEDIUM | HIGH | Sandbox template config |
+| **Standard output capture** | Show print() statements and console logs | MEDIUM | MEDIUM | Sandbox stdout piping |
+
+### Visualization
+
+| Feature | Why Expected | Complexity | User Value | Dependencies |
+|---------|--------------|------------|------------|--------------|
+| **Inline chart rendering** | Charts appear in chat, not as downloads | MEDIUM | HIGH | Base64 image encoding |
+| **Multiple plot types** | Line, bar, scatter, histograms expected | LOW | MEDIUM | matplotlib/seaborn in sandbox |
+| **Reasonable defaults** | Charts are readable without tweaking | LOW | MEDIUM | AI prompt engineering |
+| **Image display** | Render base64 PNG/JPG in message bubbles | LOW | HIGH | React img with data URI |
+
+### Dataset Integration
+
+| Feature | Why Expected | Complexity | User Value | Dependencies |
+|---------|--------------|------------|------------|--------------|
+| **Natural language discovery** | "pollution data" → AI finds relevant datasets | HIGH | HIGH | MCP search tools + LLM |
+| **Dataset metadata in context** | AI sees schema before generating code | HIGH | HIGH | MCP preview tools → LLM context |
+| **Data loading in sandbox** | Bridge MCP results to sandbox environment | HIGH | HIGH | Pass URLs or inline data to code |
+| **Quality indicators** | Show data completeness/freshness before exploration | LOW | MEDIUM | MCP quality tools |
 
 ## Differentiators
 
-Features that set this documentation apart. Not expected, but create exceptional user experience.
+Features that set this playground apart. Not expected, but create competitive advantage.
 
-### RAG Documentation Chat
-
-| Feature | Value Proposition | Complexity | User Value | Priority |
-|---------|-------------------|------------|------------|----------|
-| **Code generation** | Generate working MCP queries from natural language | High | High | P1 |
-| **Troubleshooting assistant** | Diagnose errors from error messages | Medium | High | P1 |
-| **Semantic search fallback** | If chat fails, fall back to search results | Low | Medium | P2 |
-| **Query history** | Show past conversations for reference | Low | Medium | P2 |
-| **Suggested questions** | Pre-populate common queries as buttons | Low | High | P1 |
-| **Domain-aware** | Understand MCP terminology (tools, resources, prompts) | Medium | High | P1 |
-| **Multi-doc synthesis** | Combine info from multiple pages ("Compare search vs semantic_search") | High | High | P2 |
-
-**Code Generation Detail:**
-- User: "Find health datasets from Vienna"
-- Chat: Generates Claude Desktop query with exact tool invocation
-- Shows both natural language and MCP tool syntax
-- Explains parameters used
-
-**Troubleshooting Detail:**
-- User pastes error: "Tool not found: search_dataset"
-- Chat: Identifies typo (missing 's'), links to correct tool docs
-- Suggests checking MCP server status
-
-**Domain-Aware Detail:**
-- Understands "tool" means MCP tool, not generic software tool
-- Knows difference between resources (static content) and tools (dynamic queries)
-- Can explain FastMCP-specific patterns
-
-### Video Tutorials
+### MCP-Powered Discovery
 
 | Feature | Value Proposition | Complexity | User Value | Priority |
 |---------|-------------------|------------|------------|----------|
-| **Programmatic generation** | Update videos by changing code, not re-filming | High | High | P0 |
-| **Dynamic data** | Show real data.gv.at datasets, not mock data | Medium | High | P1 |
-| **Code highlighting sync** | Highlight code lines as narration explains them | High | Medium | P2 |
-| **Interactive timestamps** | Click timestamp to jump to section | Low | Medium | P2 |
-| **Multiple formats** | MP4 for embedding, GIF for previews | Low | Low | P2 |
+| **60,000+ Austrian datasets** | No other playground has this corpus pre-integrated | MEDIUM | HIGH | P0 |
+| **Smart dataset ranking** | Quality scores + semantic relevance | HIGH | HIGH | P1 |
+| **Bilingual search** | German/English queries work equally well | LOW | HIGH | P0 |
+| **Domain-specific tools** | DOI eligibility, theme exploration, publisher filtering | MEDIUM | MEDIUM | P1 |
+| **Related dataset suggestions** | "Users who viewed X also explored Y" | LOW | MEDIUM | P2 |
 
-**Programmatic Generation Value:**
-- When MCP protocol updates, regenerate videos automatically
-- Consistent visual style across all videos
-- Version-specific videos (v1.2 vs v2.0)
+**Example flow:**
+```
+User: "Show me recent air quality data for Vienna"
+  → AI calls search_datasets(query="air quality Vienna", theme="Umwelt", location="Wien")
+  → AI calls analyze_quality(dataset_id="...") to check completeness
+  → AI calls preview_data(distribution_id="...") to inspect schema
+  → AI generates code: pd.read_csv(url), plot PM2.5 over time
+  → User approves execution
+  → Chart displays inline
+```
 
-**Recommended Video Types:**
-
-| Video | Length | Content | Priority |
-|-------|--------|---------|----------|
-| **Quickstart** | 2-3 min | Install CLI → configure → first query → success | P0 |
-| **Search workflow** | 3-4 min | Text search → filters → quality ranking → preview | P1 |
-| **Data preview** | 2-3 min | Find dataset → inspect schema → preview rows | P1 |
-| **Quality assessment** | 3-4 min | Get metrics → interpret scores → compare datasets | P1 |
-| **Semantic exploration** | 4-5 min | Natural language query → related datasets → theme drill-down | P1 |
-| **Architecture overview** | 5-7 min | MCP protocol → FastMCP → Piveau API → data flow | P2 |
-
-### CLI Excellence
+### Context-Aware Code Generation
 
 | Feature | Value Proposition | Complexity | User Value | Priority |
 |---------|-------------------|------------|------------|----------|
-| **Diff preview** | Show file changes before applying | Medium | High | P1 |
-| **Update command** | Check for new versions, update server | Medium | High | P1 |
-| **Config validation** | Verify MCP config.json structure | Low | High | P0 |
-| **Multiple install modes** | npx (global), local project, Docker | High | Medium | P2 |
-| **Rollback** | Undo broken installation | Medium | Low | P3 |
-| **Health check** | Test MCP server connectivity | Low | High | P1 |
+| **Schema-aware code** | Generates correct column names from actual data | HIGH | HIGH | P0 |
+| **Data type handling** | Knows if date column is string/datetime | HIGH | MEDIUM | P1 |
+| **Error recovery** | Re-generates code when execution fails | MEDIUM | HIGH | P1 |
+| **Incremental exploration** | Builds on previous code in conversation | MEDIUM | HIGH | P0 |
+| **Best practices** | Handles missing values, scales axes appropriately | MEDIUM | MEDIUM | P2 |
 
-**Diff Preview Pattern (shadcn-inspired):**
-```
-npx @datagvat/mcp-installer@latest
+**Why this matters:** Generic code playgrounds generate `df['column']` that fails. We generate `df['PM25_Mittelwert']` because AI saw the actual schema.
 
-? Where is your Claude Desktop config? ~/Library/Application Support/Claude/config.json
-? Install mode: Add to existing config
-
-Preview changes:
-
- config.json
- + "datagvat": {
- +   "command": "python",
- +   "args": ["-m", "app"],
- +   "env": {}
- + }
-
-? Apply changes? (Y/n)
-```
-
-**Update Command:**
-```
-npx @datagvat/mcp-installer@latest update
-
-Checking for updates...
-Found new version: 2.1.0 (current: 2.0.0)
-
-What's new:
-- RAG documentation chat
-- Video tutorials
-- Enhanced CLI
-
-? Update now? (Y/n)
-```
-
-**Health Check:**
-```
-npx @datagvat/mcp-installer@latest health
-
-Checking MCP server status...
-✓ Config file found
-✓ Python environment available
-✓ Server responds to ping
-✓ 25 tools registered
-
-Status: Healthy
-```
-
-### Navigation Simplification
+### Two-Chat Architecture
 
 | Feature | Value Proposition | Complexity | User Value | Priority |
 |---------|-------------------|------------|------------|----------|
-| **Smart tab icons** | Visual cues (Book/Code/Wrench for Docs/API/Try) | Low | Medium | P1 |
-| **Persistent state** | Remember which tab/page user was on | Low | Medium | P2 |
-| **Mobile optimization** | Collapsible navigation for small screens | Low | High | P0 |
-| **Deep linking** | Direct URLs to subsections | Low | High | P0 |
+| **Separate docs/data interfaces** | Different mental models (Q&A vs exploration) | MEDIUM | HIGH | P0 |
+| **Different system prompts** | Docs assistant vs data analyst personas | LOW | MEDIUM | P0 |
+| **Different tool routing** | /try uses no MCP tools, /playground uses 25+ | HIGH | HIGH | P0 |
+| **Clear visual distinction** | Page headers, placeholders, colors differ | LOW | MEDIUM | P1 |
 
-**Current 8 Tabs (v2.0):**
-1. Docs (home)
-2. Getting Started
-3. Guides
-4. Examples
-5. Workflows
-6. Advanced
-7. Reference
-8. Try
+**Current state:**
+- `/try` → Docs RAG chat (already exists, uses Vectra + OpenAI)
+- `/playground` → Data exploration (new, uses MCP + Daytona)
 
-**Proposed 3 Tabs (v2.1):**
-1. **Docs** - All learning content (Getting Started → Guides → Examples → Workflows → Advanced)
-2. **API** - Tool reference (25 tools, auto-generated)
-3. **Try** - Interactive testing page
+**Critical:** Don't try to combine these interfaces. Users doing "How do I search datasets?" (docs) vs "Show me health data" (exploration) have different intents.
 
-**Why 3 is better:**
-- **Cognitive load:** Users scan 3 tabs vs 8
-- **Clear purpose:** Learn / Reference / Try maps to user journey
-- **Industry standard:** Next.js (3 tabs), Stripe (4 tabs), AI SDK (3 tabs)
-- **Mobile friendly:** Fits in mobile nav without scrolling
+### Security-First Design
+
+| Feature | Value Proposition | Complexity | User Value | Priority |
+|---------|-------------------|------------|------------|----------|
+| **Approval required** | No competitor requires explicit user consent | LOW | HIGH | P0 |
+| **Code preview** | See exact code before execution | LOW | HIGH | P0 |
+| **Sandbox audit logs** | Track what was executed when | MEDIUM | LOW | P3 |
+| **Resource limits** | 30s timeout, memory caps | LOW | HIGH | P1 |
+| **No persistent storage** | Sandbox is ephemeral, data doesn't leak | LOW | MEDIUM | P1 |
+
+**Why this matters:** Jupyter/Colab auto-execute cells. ChatGPT auto-executes code. We require explicit approval → builds trust for enterprise use cases.
 
 ## Anti-Features
 
 Features to deliberately NOT build. Common mistakes that bloat scope without user value.
 
-### Anti-Feature 1: Real-Time Collaboration (Chat)
+### Anti-Feature 1: Real-Time Collaboration
 
-**What:** Multiple users in same chat session
+**What:** Multiple users editing same conversation simultaneously
 **Why NOT:**
-- Documentation chat is single-user by nature
-- Complexity: WebSocket infrastructure, state sync, auth
-- Marginal value: Users read docs solo, not in groups
-- Fumadocs is static site (SSG), not real-time platform
+- Exploratory data analysis is single-user by nature (individual hypotheses, trial-and-error)
+- Requires WebSocket infrastructure, conflict resolution, presence indicators
+- Auth required (who owns the conversation?)
+- No competitor offers this (Jupyter/Colab have static sharing, not real-time co-editing)
 
 **What to do instead:**
-- Focus on individual user experience
-- Fast, accurate responses for single user
-- Share chat links (future: permalink to conversation)
+- Guest mode: One user per conversation
+- Export conversation to .ipynb for sharing offline
+- Defer collaboration to v3.0+ if user demand materializes
 
-### Anti-Feature 2: Video Commenting/Annotations
+### Anti-Feature 2: Dashboard Builder
 
-**What:** Users add comments at specific video timestamps
+**What:** Drag-and-drop interface to arrange charts into dashboards
 **Why NOT:**
-- Maintenance burden: Moderation, spam, outdated comments
-- GitHub Discussions already exists for Q&A
-- Videos update frequently, comments become stale
-- Adds complexity to video player embed
+- Different product paradigm (chat-first vs drag-and-drop)
+- Requires state management for dashboard layouts, chart configurations
+- Observable/Hex already do this well; we'd be playing catch-up
+- Increases complexity 3x for marginal v1 value
 
 **What to do instead:**
-- Link to GitHub Discussions for questions
-- Add "Was this helpful?" feedback button
-- Use YouTube if community comments are truly needed (defer to v2.2+)
+- Focus on exploratory chat interface (our differentiator)
+- Generate good standalone visualizations
+- Defer dashboards to v2.3+ or separate product if demand exists
 
-### Anti-Feature 3: CLI GUI Wrapper
+### Anti-Feature 3: Multiple Programming Languages
 
-**What:** Electron app with visual UI for MCP installation
+**What:** Support R, Julia, JavaScript sandboxes
 **Why NOT:**
-- Target audience (developers) prefer CLI
-- Maintenance: Two UIs (CLI + GUI) to keep in sync
-- Bundle size: Electron adds 100MB+ download
-- CLI is faster for automation (scripts, CI/CD)
+- Each language needs different sandbox template, library ecosystem, runtime
+- 95% of data analysis happens in Python (pandas, matplotlib are standard)
+- Increases testing surface 3x
+- Complicates MCP integration (different APIs for loading data)
 
 **What to do instead:**
-- Make CLI so good GUI is unnecessary
-- Clear prompts, colored output, progress bars
-- If GUI needed later, separate project (mcp-installer-gui)
+- Python-only for v1 (covers vast majority of use cases)
+- If users demand R, add in v2.3+ as separate sandbox template
+- Document how to export data for use in other tools
 
-### Anti-Feature 4: Chat Memory Persistence (Cross-Session)
+### Anti-Feature 4: Unlimited Execution Time
 
-**What:** Store chat history in database, restore on return
+**What:** Let code run for 5+ minutes without timeout
 **Why NOT:**
-- Privacy concerns: User queries may contain sensitive info
-- Complexity: Database, auth, data retention policies
-- Marginal value: Doc questions are ephemeral, not ongoing projects
-- Fumadocs is static site, adding backend is scope creep
+- Resource abuse risk on free tier (crypto mining, denial of service)
+- Poor UX (user waiting 5 minutes doesn't know if code is stuck)
+- Cost explosion (Daytona sandbox costs scale with time)
+- No feedback mechanism (progress bars require code instrumentation)
 
 **What to do instead:**
-- Store in browser localStorage (client-only)
-- Expire after 7 days
-- Clear button prominently visible
-- Never send history to server
+- 30-second timeout for v1 (covers 95% of exploratory queries)
+- Clear error message: "Execution timed out. Try sampling the dataset."
+- Defer long-running jobs to v2.4+ with queue system and email notifications
 
-### Anti-Feature 5: Multi-Language Video Narration
+### Anti-Feature 5: Public Sharing with URLs
 
-**What:** Record videos in German + English with voice-over
+**What:** Share conversation via public link like Observable notebooks
 **Why NOT:**
-- High production cost: 2x recording, translation, sync
-- Text captions are faster to translate
-- Programmatic voice synthesis is low quality (uncanny valley)
-- German translation deferred to v2.3+ anyway
+- Requires auth (who owns the conversation? who can edit?)
+- Storage costs (who pays to host public conversations?)
+- Moderation (spam, inappropriate content, GDPR)
+- Privacy (user might share sensitive queries accidentally)
 
 **What to do instead:**
-- English narration with German/English captions
-- Use clear, simple English (easy to auto-translate)
-- Fumadocs language switcher applies to captions
+- Export to .ipynb (user controls where to share)
+- "Copy conversation" button (paste into email/Slack)
+- Defer public sharing to v2.3+ when auth exists
 
-### Anti-Feature 6: CLI Plugin System
+### Anti-Feature 6: Interactive Widgets
 
-**What:** Allow third-party plugins to extend mcp-installer
+**What:** Sliders, dropdowns to adjust parameters like Jupyter widgets
 **Why NOT:**
-- Scope creep: Turns simple installer into framework
-- Security: User-installed code runs during setup
-- Maintenance: Breaking changes impact ecosystem
-- Current CLI is 20% of codebase, plugins double complexity
+- Doesn't fit chat paradigm (widget state vs conversation history)
+- Complex state management (widget values ↔ code ↔ outputs)
+- Implementation complexity (need widget library, state sync, re-execution logic)
+- Chat-based re-generation is simpler: "Now show me for year 2023"
 
 **What to do instead:**
-- Make core installer excellent at one thing
-- Document how to fork for custom needs
-- Provide clear extension points (config hooks)
+- Re-run with new parameters via new message
+- AI generates modified code based on conversation history
+- Keeps interaction model simple (chat, not GUI)
 
-### Anti-Feature 7: Video Editing in Browser
+### Anti-Feature 7: Data Upload
 
-**What:** Remotion editor embedded in docs for user video generation
+**What:** Let users upload their own CSV/Excel files
 **Why NOT:**
-- Remotion Studio is development tool, not user-facing
-- Requires Node.js environment (can't run in browser)
-- Users want to watch videos, not create them
-- Creates expectation we support custom video generation
+- Storage required (where do files go? how long?)
+- Privacy/security (PII in uploaded data? malicious files?)
+- Scope creep (we're about Austrian open data discovery, not generic analysis)
+- Competes with Jupyter/Colab who do this better
 
 **What to do instead:**
-- Pre-render videos, host as static MP4
-- Document how we make videos (for contributors)
-- Keep Remotion tooling in separate /video directory
+- Focus on 60,000+ Austrian datasets (our differentiator)
+- Document how to use Jupyter for private data analysis
+- If upload is critical, defer to v3.0+ with auth and storage strategy
 
 ## Feature Dependencies
 
 ```
-Foundation (Existing v2.0):
-├── 112 MDX documentation files
-├── Auto-generated tool reference
-├── Progressive disclosure (Tabs)
-├── Interactive components (Steps, Mermaid)
-├── /try page infrastructure
-└── Search button placeholder
+Foundation (Existing v2.1):
+├── Next.js documentation site
+├── Vercel AI SDK (already used in /try)
+├── 25 MCP tools for data.gv.at
+├── /try page demonstrates tool integration
+└── Neon Postgres + Drizzle ORM (new addition)
 
-RAG Documentation Chat:
-├── Depends on: MDX content (exists)
-├── Depends on: Vercel AI SDK (new dependency)
-├── Depends on: Embedding model (OpenAI, Cohere, or local)
-├── Depends on: Vector store (Pinecone, Supabase, or file-based)
-├── Enables: Code generation feature
-├── Enables: Troubleshooting assistant
-└── Enables: Semantic search fallback
+Chat Interface:
+├── Depends on: AI SDK useChat hook (exists)
+├── Depends on: Neon Postgres (new)
+├── Depends on: Drizzle ORM (new)
+├── Enables: Conversation history
+└── Enables: Multi-turn exploration
 
-Video Tutorials:
-├── Depends on: Remotion (new dependency)
-├── Depends on: Screen recording tools (OBS, QuickTime)
-├── Depends on: Hosting (Vercel blob, YouTube, or S3)
-├── Independent of: Other v2.1 features
-└── Enhances: Getting Started documentation
+Code Execution:
+├── Depends on: Daytona MCP integration (new)
+├── Depends on: User approval dialog (new)
+├── Depends on: Sandbox configuration (new)
+├── Requires: Chat interface (for displaying code)
+└── Enables: Visualization rendering
 
-CLI Excellence:
-├── Depends on: @clack/prompts (new dependency)
-├── Depends on: Existing @datagvat/mcp-installer (exists)
-├── Depends on: Node fs, path, JSON validation
-├── Independent of: Documentation site
-└── Enhances: Installation experience
+Visualization:
+├── Depends on: Code execution (generates images)
+├── Depends on: Base64 encoding in sandbox
+├── Depends on: React image rendering
+└── Independent of: Dataset discovery (can render any image)
 
-Navigation Simplification:
-├── Depends on: MDX frontmatter cleanup
-├── Depends on: Fumadocs meta.json restructure
-├── Blocks: Nothing (can proceed immediately)
-└── Enables: Clearer information architecture for chat/videos
+Dataset Integration:
+├── Depends on: Existing 25 MCP tools (exists)
+├── Depends on: Multi-server MCP orchestration (new)
+├── Depends on: Tool call routing logic (new)
+├── Enhances: Code generation (provides context)
+└── Enables: Austrian data focus (differentiator)
+
+Two-Chat Architecture:
+├── Depends on: Different routes (/try vs /playground)
+├── Depends on: Different system prompts
+├── Depends on: Tool routing (docs RAG vs MCP)
+└── Prevents: User confusion between Q&A and exploration
 ```
 
-## Recommended Feature Prioritization
+### Critical Path (Must Build in Order)
 
-### Phase 1: Navigation Simplification (Quick Win)
-**Why first:** Unblocks clear structure for chat and videos to integrate into.
+1. **Neon Postgres + Drizzle setup** → Enables message persistence
+2. **Daytona MCP integration** → Enables code execution
+3. **User approval dialog** → Enables safe execution
+4. **Chat interface on /playground** → Enables interaction
+5. **Multi-MCP orchestration** → Enables dataset discovery + execution
+6. **Base64 visualization** → Enables inline charts
 
-1. Restructure from 8 tabs to 3 (Docs/API/Try)
-2. Clean up duplicate titles in MDX frontmatter
-3. Update meta.json files for new hierarchy
-4. Add tab icons (Book/Code/Wrench)
-5. Test mobile navigation
+**Can build in parallel:**
+- Chat UI (frontend) while setting up database (backend)
+- Daytona integration while building approval dialog
+- Visualization rendering while testing code execution
 
-**Estimated effort:** 1-2 days
-**Risk:** Low (mostly config changes)
+## MVP Definition
 
-### Phase 2: CLI Excellence (High Value, Low Risk)
-**Why second:** Independent of documentation site, immediate user value.
+### Launch With (v1)
 
-1. Add @clack/prompts for interactive setup
-2. Implement diff preview for config changes
-3. Add config validation before installation
-4. Add health check command
-5. Add update command
+Minimum viable product — what's needed to validate "AI-powered Austrian dataset exploration."
 
-**Estimated effort:** 3-4 days
-**Risk:** Low (isolated to CLI codebase)
+- [x] Chat interface at `/playground` with useChat — Core interaction paradigm
+- [x] Message persistence (Neon Postgres + Drizzle) — Essential for multi-turn exploration
+- [x] User approval dialog before code execution — Security requirement
+- [x] Daytona sandbox integration — Core functionality (code execution)
+- [x] Inline visualization rendering (base64 images) — Primary output format
+- [x] MCP multi-server orchestration — Route between data.gv.at and Daytona
+- [x] Context-aware code generation — AI sees dataset schema before generating code
+- [x] Error handling with clear messages — Execution fails often
+- [x] Loading states during execution — Provide feedback (5-30s waits)
+- [x] Two-chat architecture — Separate /playground from /try
 
-### Phase 3: RAG Documentation Chat (Core Value)
-**Why third:** Requires navigation structure (Phase 1) to be clear.
+**Success criteria:**
+- User can ask "show me pollution data" → get working chart in <2 minutes
+- Conversation persists across page reload
+- Code never executes without explicit approval
+- 80% of generated code runs successfully on first try
+- Visualizations render inline without manual download
 
-1. Set up AI SDK + embedding model
-2. Index MDX content to vector store
-3. Implement basic Q&A with citations
-4. Add suggested questions
-5. Add code generation feature
-6. Add troubleshooting assistant
+### Add After Validation (v1.x)
 
-**Estimated effort:** 5-7 days
-**Risk:** Medium (new dependencies, LLM behavior unpredictable)
+Features to add once core is working and users validate the concept.
 
-### Phase 4: Video Tutorials (Polish)
-**Why last:** Enhances documentation but not blocking other features.
+- [ ] Conversation export to .ipynb — User feedback on shareability
+- [ ] Code syntax highlighting — Polish for readability
+- [ ] Conversation threading — Power users want to branch explorations
+- [ ] Dataset quality indicators inline — Show completeness/freshness before code generation
+- [ ] Suggested follow-up questions — "Also try: Show trend over time"
+- [ ] Execution history sidebar — See all code runs in conversation
+- [ ] Sandbox template customization — Add specialized libraries on request
 
-1. Set up Remotion project structure
-2. Create quickstart video (2-3 min)
-3. Create search workflow video (3-4 min)
-4. Create data preview video (2-3 min)
-5. Add captions and embed in docs
+### Future Consideration (v2.3+)
 
-**Estimated effort:** 7-10 days
-**Risk:** High (production quality, recording/editing time)
+Features to defer until product-market fit is established.
+
+- [ ] User authentication — Required for private conversations
+- [ ] Public sharing with URLs — Requires auth + storage + moderation
+- [ ] Multiple sandbox templates (R, Julia) — Different language ecosystems
+- [ ] Dashboard builder from conversation — Different product paradigm
+- [ ] Real-time collaboration — Complex engineering
+- [ ] Data upload (user CSV files) — Storage + privacy concerns
+- [ ] Interactive widgets — Complex state management
+- [ ] Long-running jobs (>30s) — Queue system required
+
+## Feature Prioritization Matrix
+
+| Feature | User Value | Implementation Cost | Priority |
+|---------|------------|---------------------|----------|
+| Chat interface at /playground | HIGH | MEDIUM | P0 |
+| Message persistence (DB) | HIGH | MEDIUM | P0 |
+| Daytona sandbox integration | HIGH | HIGH | P0 |
+| User approval dialog | HIGH | LOW | P0 |
+| Multi-MCP orchestration | HIGH | HIGH | P0 |
+| Inline visualizations | HIGH | MEDIUM | P0 |
+| Context-aware code generation | HIGH | HIGH | P0 |
+| Two-chat architecture | HIGH | MEDIUM | P0 |
+| Error handling | HIGH | LOW | P0 |
+| Loading states | MEDIUM | LOW | P0 |
+| Code syntax highlighting | LOW | LOW | P1 |
+| Conversation export | MEDIUM | MEDIUM | P1 |
+| Quality indicators inline | MEDIUM | LOW | P1 |
+| Conversation threading | LOW | MEDIUM | P2 |
+| Suggested follow-up questions | MEDIUM | LOW | P2 |
+| Sandbox customization | MEDIUM | HIGH | P2 |
+| User authentication | LOW (v1) | HIGH | P3 |
+| Public sharing URLs | LOW (v1) | HIGH | P3 |
+| Multiple languages (R, Julia) | LOW | HIGH | P3 |
+| Dashboard builder | LOW | HIGH | P3 |
+| Data upload | LOW | HIGH | P3 |
+
+**Priority key:**
+- P0: Must have for launch (table stakes + core differentiators)
+- P1: Should have, add shortly after launch (polish)
+- P2: Nice to have, add based on user feedback (power user features)
+- P3: Future consideration, defer until PMF (requires auth or paradigm shift)
+
+## Competitor Feature Analysis
+
+| Feature | Jupyter/Colab | Observable | ChatGPT Code Interpreter | Our Approach (v2.2) |
+|---------|--------------|------------|---------------------------|---------------------|
+| **Code execution** | ✓ Cell-based | ✓ Cell-based | ✓ Hidden from user | ✓ Chat-based with preview |
+| **Visualizations** | ✓ Inline matplotlib | ✓ Reactive D3 | ✓ Auto-rendered | ✓ Inline base64 images |
+| **Persistence** | ✓ Manual save | ✓ Auto-save | ✓ Conversation history | ✓ Database-backed |
+| **Data access** | Manual upload/URL | Manual import | Manual upload only | ✓ MCP-powered discovery |
+| **User approval** | ✗ Auto-executes | ✗ Auto-executes | ✗ Auto-executes | ✓ Explicit approval required |
+| **Multi-language** | ✓ 40+ languages | ✓ JS only | ✗ Python only | Python only (v1) |
+| **Collaboration** | ✓ Via sharing | ✓ Real-time | ✗ No sharing | ✗ Guest mode (v1) |
+| **Dataset discovery** | ✗ Manual search | ✗ Manual import | ✗ Upload only | ✓ AI-powered 60K+ datasets |
+| **Chat interface** | ✗ Cell-based | ✗ Cell-based | ✓ Chat-first | ✓ Chat-first |
+| **Schema awareness** | ✗ User inspects | ✓ Reactive cells | ✓ Limited | ✓ MCP preview → context |
+
+### Key Differentiators
+
+**vs Jupyter/Colab:**
+- We have chat-first interface (not cell-based notebook)
+- We require user approval (they auto-execute)
+- We integrate 60K+ datasets (they require manual data loading)
+
+**vs Observable:**
+- We focus on Python data analysis (they focus on JavaScript visualization)
+- We have chat interface (they have reactive cells)
+- We integrate Austrian open data (they have no corpus)
+
+**vs ChatGPT Code Interpreter:**
+- We require explicit approval (they auto-execute)
+- We show code before execution (they hide implementation)
+- We integrate 60K+ datasets (they only support upload)
+- We provide schema context to LLM (they work blind)
+
+**Unique to us:**
+1. MCP-powered dataset discovery (no competitor has this)
+2. Context-aware code generation (AI sees schema first)
+3. Austrian open data focus (domain-specific value)
+4. Security-first (approval required)
+
+## UX Pattern Distinctions
+
+### Docs RAG Chat (Already Exists at /try)
+
+**Purpose:** Answer questions about documentation and MCP tools
+**Use cases:**
+- "How do I search for datasets?"
+- "What parameters does preview_data accept?"
+- "Show me examples of quality analysis"
+
+**Architecture:**
+- Route: `/try`
+- System prompt: "You are a documentation assistant for the Austria MCP server..."
+- Tools: RAG retrieval (Vectra vector DB + OpenAI embeddings)
+- LLM: Claude Sonnet 4 via Vercel AI Gateway
+- No code execution
+- No MCP tool calls
+- Persistence: Optional (ephemeral sessions OK)
+
+**Output:** Text responses with source citations linking to documentation pages
+
+### Data Playground Chat (New Feature for v2.2)
+
+**Purpose:** Explore datasets and create visualizations
+**Use cases:**
+- "Show me air quality trends in Vienna"
+- "Compare unemployment rates across Austrian cities"
+- "What's the correlation between pollution and weather?"
+
+**Architecture:**
+- Route: `/playground`
+- System prompt: "You are a data analysis assistant with access to 60,000+ Austrian datasets..."
+- Tools: 25 MCP tools (data.gv.at) + Daytona code execution
+- LLM: Claude Sonnet 4 via Vercel AI Gateway
+- Code execution required (Daytona MCP)
+- Multi-MCP orchestration (route tool calls)
+- Persistence: Required (Neon Postgres + Drizzle)
+
+**Output:** Generated Python code + execution results + inline visualizations
+
+### Critical Distinction
+
+**These are fundamentally different interfaces with different mental models.**
+
+| Aspect | Docs RAG (/try) | Data Playground (/playground) |
+|--------|-----------------|-------------------------------|
+| Intent | Learn how to use the system | Explore actual data |
+| Input | Questions about documentation | Natural language data queries |
+| Output | Text explanations | Code + charts |
+| Tools | RAG retrieval only | MCP discovery + code execution |
+| Persistence | Optional | Required |
+| Security | No risk (no execution) | High risk (arbitrary code) |
+
+**Don't try to combine these.** Users asking "How do I search datasets?" (docs) vs "Show me health data" (exploration) have completely different intents and expectations.
+
+**Navigation approach:**
+- Keep `/try` for documentation Q&A (v2.1 investment)
+- Add `/playground` for data exploration (v2.2 new feature)
+- Clear visual distinction: Different page headers, different placeholder text, different system prompts
+
+**Header examples:**
+- `/try`: "Ask questions about the Austria MCP documentation"
+- `/playground`: "Explore 60,000+ Austrian datasets with AI"
 
 ## Implementation Patterns
 
-### RAG Chat Architecture
+### Multi-MCP Server Orchestration
 
-**Tech stack:**
-- **Frontend:** Vercel AI SDK `useChat` hook (already React/Next.js)
-- **Backend:** Next.js API route `/api/chat` with streaming
-- **Embeddings:** OpenAI `text-embedding-3-small` (1536 dimensions)
-- **Vector store:** Simple file-based JSON (100KB for 112 docs) or Supabase pgvector
-- **LLM:** OpenAI GPT-4 or Claude 3.5 Sonnet via AI SDK
+**Challenge:** Route tool calls between data.gv.at MCP (25 tools) and Daytona MCP (sandbox execution)
 
-**Data flow:**
-```
-User types question
-  → useChat sends to /api/chat
-  → Embed question with OpenAI
-  → Query vector store (top 5 chunks)
-  → Construct prompt: system + context + question
-  → Stream response from LLM
-  → Parse source citations
-  → Display with links back to docs
-```
-
-**Indexing strategy:**
+**Architecture:**
 ```typescript
-// Pre-build script: index-docs.ts
-for each MDX file:
-  1. Parse frontmatter + content
-  2. Split into chunks (500 tokens overlap 50)
-  3. Generate embedding for each chunk
-  4. Store: { embedding, text, source_url, title }
-  5. Write to .embeddings/index.json
-```
-
-**Citation pattern (AI SDK):**
-```typescript
-// Server: /api/chat/route.ts
+// Server: /api/playground/route.ts
+import { createMCPClient } from '@mcp/client'
 import { streamText } from 'ai'
 
-const result = await streamText({
-  model: openai('gpt-4-turbo'),
-  messages: [
-    { role: 'system', content: systemPrompt },
-    ...messages
-  ],
-  experimental_providerMetadata: {
-    sources: relevantChunks.map(c => ({
-      type: 'source-url',
-      url: c.source_url,
-      title: c.title
-    }))
+const datagovClient = createMCPClient({
+  transport: 'stdio',
+  command: 'python',
+  args: ['-m', 'mcp']
+})
+
+const daytonaClient = createMCPClient({
+  transport: 'stdio',
+  command: 'daytona',
+  args: ['mcp']
+})
+
+// Register all tools from both servers
+const allTools = [
+  ...datagovClient.listTools(),
+  ...daytonaClient.listTools()
+]
+
+// Route tool calls based on tool name
+async function executeTool(toolName: string, args: any) {
+  if (toolName.startsWith('datagov_')) {
+    return await datagovClient.executeTool(toolName, args)
+  } else if (toolName === 'execute_code') {
+    return await daytonaClient.executeTool(toolName, args)
   }
-})
-
-return result.toUIMessageStreamResponse({
-  sendSources: true
-})
-
-// Client: components/chat.tsx
-{message.parts?.filter(p => p.type === 'source-url').map(source => (
-  <a href={source.url}>{source.title}</a>
-))}
-```
-
-### Video Production Workflow
-
-**Remotion project structure:**
-```
-/video
-├── package.json (remotion deps)
-├── remotion.config.ts
-├── src/
-│   ├── Root.tsx (composition registry)
-│   ├── Quickstart.tsx (2-3 min)
-│   ├── SearchWorkflow.tsx (3-4 min)
-│   ├── DataPreview.tsx (2-3 min)
-│   └── components/
-│       ├── CodeBlock.tsx (syntax highlighting)
-│       ├── Terminal.tsx (CLI simulation)
-│       └── BrowserFrame.tsx (website recording)
-└── public/
-    ├── recordings/ (OBS screen captures)
-    └── assets/ (logos, icons)
-```
-
-**Composition example:**
-```typescript
-// src/Quickstart.tsx
-export const Quickstart: React.FC = () => {
-  const frame = useCurrentFrame()
-  const { fps } = useVideoConfig()
-
-  return (
-    <AbsoluteFill style={{ backgroundColor: '#0f1419' }}>
-      {/* 0-5s: Title card */}
-      {frame < 5 * fps && <TitleCard text="Quickstart: 0 to First Query" />}
-
-      {/* 5-30s: CLI installation */}
-      {frame >= 5 * fps && frame < 30 * fps && (
-        <Terminal
-          command="npx @datagvat/mcp-installer@latest"
-          output={installOutput}
-          delay={frame - 5 * fps}
-        />
-      )}
-
-      {/* 30-90s: Claude Desktop configuration */}
-      {frame >= 30 * fps && frame < 90 * fps && (
-        <VideoRecording
-          src="recordings/claude-desktop-config.mp4"
-          startFrom={frame - 30 * fps}
-        />
-      )}
-
-      {/* 90-120s: First query success */}
-      {frame >= 90 * fps && (
-        <VideoRecording
-          src="recordings/first-query.mp4"
-          startFrom={frame - 90 * fps}
-        />
-      )}
-    </AbsoluteFill>
-  )
+  throw new Error(`Unknown tool: ${toolName}`)
 }
 
-registerRoot(() => <Quickstart />, 'Quickstart', {
-  durationInFrames: 120 * 30, // 120 seconds at 30fps
-  fps: 30,
-  width: 1920,
-  height: 1080
-})
-```
+export async function POST(req: Request) {
+  const { messages } = await req.json()
 
-**Render pipeline:**
-```bash
-# Development: Preview in browser
-npm run remotion
-
-# Production: Render to MP4
-npx remotion render Quickstart out/quickstart.mp4 --codec h264
-
-# Captions: Generate SRT from script
-npx remotion render Quickstart out/quickstart.srt --codec captions
-
-# Optimize: Compress for web
-ffmpeg -i out/quickstart.mp4 -vcodec h264 -crf 28 out/quickstart-web.mp4
-```
-
-### CLI Interactive Patterns
-
-**@clack/prompts usage:**
-```typescript
-import * as p from '@clack/prompts'
-import { readFile, writeFile } from 'fs/promises'
-
-async function install() {
-  p.intro('Austria MCP Installer')
-
-  // Detect config path
-  const configPath = await p.text({
-    message: 'Where is your Claude Desktop config?',
-    initialValue: getDefaultConfigPath(),
-    validate: (value) => {
-      if (!existsSync(value)) return 'File not found'
+  const result = await streamText({
+    model: 'anthropic/claude-sonnet-4',
+    messages,
+    tools: allTools,
+    onToolCall: async (toolCall) => {
+      return await executeTool(toolCall.toolName, toolCall.args)
     }
   })
 
-  // Choose install mode
-  const mode = await p.select({
-    message: 'How should we install?',
-    options: [
-      { value: 'add', label: 'Add to existing config', hint: 'Recommended' },
-      { value: 'replace', label: 'Replace entire config', hint: 'Dangerous' },
-      { value: 'preview', label: 'Preview changes only' }
-    ]
+  return result.toDataStreamResponse()
+}
+```
+
+### User Approval Dialog
+
+**Pattern:** AI SDK `experimental_needsApproval` flag
+
+```typescript
+// Server: /api/playground/route.ts
+const result = await streamText({
+  model: 'anthropic/claude-sonnet-4',
+  messages,
+  tools: {
+    execute_code: {
+      description: 'Execute Python code in Daytona sandbox',
+      parameters: z.object({
+        code: z.string(),
+        language: z.literal('python')
+      }),
+      execute: async ({ code }) => {
+        return await daytonaClient.executeTool('execute_code', { code })
+      },
+      experimental_needsApproval: true  // Requires user confirmation
+    }
+  }
+})
+
+// Client: components/playground-chat.tsx
+import { useChat } from 'ai/react'
+
+export function PlaygroundChat() {
+  const { messages, input, handleInputChange, handleSubmit, handleApproval } = useChat({
+    api: '/api/playground'
   })
 
-  // Show diff
-  const existingConfig = JSON.parse(await readFile(configPath, 'utf-8'))
-  const newConfig = { ...existingConfig, mcpServers: { ...existingConfig.mcpServers, datagvat: {...} }}
+  return (
+    <div>
+      {messages.map(message => (
+        <div key={message.id}>
+          {message.content}
 
-  p.note(formatDiff(existingConfig, newConfig), 'Preview changes')
+          {/* Show approval dialog for code execution */}
+          {message.needsApproval && (
+            <div className="approval-dialog">
+              <h3>Approve code execution?</h3>
+              <pre><code>{message.toolCall.args.code}</code></pre>
+              <button onClick={() => handleApproval(message.id, true)}>
+                Execute
+              </button>
+              <button onClick={() => handleApproval(message.id, false)}>
+                Reject
+              </button>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
 
-  // Confirm
-  const shouldApply = await p.confirm({
-    message: 'Apply these changes?'
+### Message Persistence
+
+**Pattern:** AI SDK 6 parts array with Drizzle ORM
+
+```typescript
+// Schema: db/schema.ts
+import { pgTable, text, timestamp, jsonb, uuid } from 'drizzle-orm/pg-core'
+
+export const conversations = pgTable('conversations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  createdAt: timestamp('created_at').defaultNow()
+})
+
+export const messages = pgTable('messages', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  conversationId: uuid('conversation_id').references(() => conversations.id),
+  role: text('role', { enum: ['user', 'assistant', 'system'] }),
+  parts: jsonb('parts').$type<Array<{type: string, content: string}>>(),
+  createdAt: timestamp('created_at').defaultNow()
+})
+
+// Server: /api/playground/route.ts
+export async function POST(req: Request) {
+  const { messages, conversationId } = await req.json()
+
+  // Load conversation history from DB
+  const history = await db.select().from(messages)
+    .where(eq(messages.conversationId, conversationId))
+    .orderBy(messages.createdAt)
+
+  const result = await streamText({
+    model: 'anthropic/claude-sonnet-4',
+    messages: [...history, ...messages],
+    // ... tools, etc
   })
 
-  if (shouldApply) {
-    const spinner = p.spinner()
-    spinner.start('Installing...')
+  // Save new messages to DB
+  await db.insert(messages).values({
+    conversationId,
+    role: 'assistant',
+    parts: result.parts,
+    createdAt: new Date()
+  })
 
-    await writeFile(configPath, JSON.stringify(newConfig, null, 2))
+  return result.toDataStreamResponse()
+}
+```
 
-    spinner.stop('Installation complete!')
+### Context-Aware Code Generation
+
+**Pattern:** Pass MCP tool results to LLM context
+
+```typescript
+// Server: /api/playground/route.ts
+const result = await streamText({
+  model: 'anthropic/claude-sonnet-4',
+  messages,
+  tools: {
+    search_datasets: {
+      execute: async (args) => {
+        const results = await datagovClient.executeTool('search_datasets', args)
+        return results  // Returns list of dataset IDs + metadata
+      }
+    },
+    preview_data: {
+      execute: async (args) => {
+        const preview = await datagovClient.executeTool('preview_data', args)
+        // preview contains: schema (column names + types), sample rows
+        return preview
+      }
+    },
+    execute_code: {
+      execute: async ({ code }) => {
+        // AI has already seen dataset schema from preview_data call
+        // So generated code uses correct column names
+        return await daytonaClient.executeTool('execute_code', { code })
+      },
+      experimental_needsApproval: true
+    }
+  },
+  systemPrompt: `You are a data analyst. When user asks for data:
+    1. Use search_datasets to find relevant datasets
+    2. Use preview_data to inspect schema and sample rows
+    3. Generate Python code using EXACT column names from schema
+    4. Use execute_code to run the code
+
+    Example:
+    User: "Show air quality in Vienna"
+    1. search_datasets(query="air quality vienna", theme="Umwelt")
+    2. preview_data(distribution_id="...") → sees columns: ["Station", "PM25_Mittelwert", "Datum"]
+    3. Generate code: df = pd.read_csv(url); df["PM25_Mittelwert"].plot()
+       NOT: df["pm25"].plot()  (wrong column name would fail)
+  `
+})
+```
+
+### Inline Visualization Rendering
+
+**Pattern:** Base64 image encoding in sandbox → display in chat
+
+```python
+# In Daytona sandbox (executed code):
+import matplotlib.pyplot as plt
+import base64
+from io import BytesIO
+
+# User's plotting code
+df['PM25'].plot()
+
+# Encode to base64 (added by AI automatically)
+buf = BytesIO()
+plt.savefig(buf, format='png')
+buf.seek(0)
+img_base64 = base64.b64encode(buf.read()).decode('utf-8')
+
+# Return as output
+print(f"IMAGE:{img_base64}")
+```
+
+```typescript
+// Client: components/message.tsx
+export function Message({ message }) {
+  // Parse output for base64 images
+  const imageMatch = message.content.match(/IMAGE:([A-Za-z0-9+/=]+)/)
+
+  if (imageMatch) {
+    return (
+      <div className="message">
+        <img
+          src={`data:image/png;base64,${imageMatch[1]}`}
+          alt="Generated visualization"
+        />
+      </div>
+    )
   }
 
-  p.outro('Restart Claude Desktop to activate the MCP server.')
+  return <div className="message">{message.content}</div>
 }
-```
-
-**Diff formatting:**
-```typescript
-function formatDiff(before: any, after: any): string {
-  const beforeStr = JSON.stringify(before, null, 2)
-  const afterStr = JSON.stringify(after, null, 2)
-
-  // Use diff library or simple line-by-line comparison
-  const diff = diffLines(beforeStr, afterStr)
-
-  return diff.map(part => {
-    if (part.added) return chalk.green('+ ' + part.value)
-    if (part.removed) return chalk.red('- ' + part.value)
-    return chalk.gray('  ' + part.value)
-  }).join('\n')
-}
-```
-
-### Navigation Restructuring
-
-**Before (8 tabs in meta.json files):**
-```
-docs/content/docs/
-├── index.mdx (Docs)
-├── getting-started/meta.json (Getting Started tab)
-├── guides/meta.json (Guides tab)
-├── examples/meta.json (Examples tab)
-├── workflows/meta.json (Workflows tab)
-├── advanced/meta.json (Advanced tab)
-├── reference/meta.json (Reference tab)
-└── try/meta.json (Try tab)
-```
-
-**After (3 tabs):**
-```
-docs/content/docs/
-├── index.mdx (Docs tab root)
-├── getting-started/ (subsection)
-├── guides/ (subsection)
-├── examples/ (subsection)
-├── workflows/ (subsection)
-├── advanced/ (subsection)
-├── api/
-│   └── meta.json (API tab root: true)
-└── try/
-    └── meta.json (Try tab root: true)
-```
-
-**meta.json changes:**
-```json
-// Before: docs/content/docs/getting-started/meta.json
-{
-  "title": "Getting Started",
-  "icon": "Rocket",
-  "root": true  // Creates separate tab
-}
-
-// After: Same file
-{
-  "title": "Getting Started",
-  "icon": "Rocket"
-  // No "root": true - becomes subsection of Docs tab
-}
-
-// New: docs/content/docs/api/meta.json
-{
-  "$schema": "../.source/json-schema/docs.meta.json",
-  "title": "API",
-  "description": "Complete tool reference",
-  "icon": "Code",
-  "root": true,  // Creates API tab
-  "pages": ["---[Wrench]Tools---", "...tools"]
-}
-```
-
-**Frontmatter cleanup:**
-```mdx
-<!-- Before: Duplicate title -->
----
-title: Getting Started
----
-
-# Getting Started
-
-Content...
-
-<!-- After: Title only in frontmatter -->
----
-title: Getting Started
----
-
-Content starts immediately...
 ```
 
 ## Success Metrics
 
-### RAG Chat
-- [ ] Answers 80% of questions accurately (validated by manual review of 50 test questions)
-- [ ] Provides source citations for 100% of factual responses
-- [ ] Responds within 3 seconds for simple queries
-- [ ] Handles 95% of error cases gracefully (no crashes)
-- [ ] Zero hallucinations about tools that don't exist
+### Core Functionality (Must Work)
 
-### Video Tutorials
-- [ ] 5 videos produced: Quickstart + 4 workflows
-- [ ] All videos 2-5 minutes (no 10+ minute marathons)
-- [ ] 100% captioned (English + German SRT files)
-- [ ] Embedded in relevant doc pages with thumbnails
-- [ ] Updated when MCP protocol changes (programmatic regeneration works)
+- [ ] Chat interface loads on /playground without errors
+- [ ] Messages persist across page reload (database queries work)
+- [ ] User approval dialog appears before code execution
+- [ ] Code executes in Daytona sandbox (not local environment)
+- [ ] Visualizations render inline as base64 images
+- [ ] MCP tools (search, preview, quality) callable from chat
+- [ ] Error messages display clearly when code fails
+- [ ] Loading states show during 5-30s execution waits
 
-### CLI Excellence
-- [ ] Interactive prompts replace 80% of CLI flags
-- [ ] Diff preview shows file changes before applying
-- [ ] Health check validates full MCP stack
-- [ ] Update command works for major version bumps
-- [ ] Installation success rate >95% (measured by telemetry opt-in)
+### User Experience (Quality Indicators)
 
-### Navigation
-- [ ] 3 tabs visible without scrolling on mobile
-- [ ] Deep links work to all pages
-- [ ] No duplicate titles in nav vs page content
-- [ ] Users find Getting Started in <10 seconds (task timing study)
+- [ ] 80% of generated code runs successfully on first try (measured by error rate)
+- [ ] Average time from query to chart: <90 seconds (measured by timestamps)
+- [ ] Code uses correct column names 95% of time (measured by schema match)
+- [ ] Zero hallucinated datasets (AI only references real data.gv.at IDs)
+- [ ] Conversations load in <500ms (database query performance)
+
+### Security (Non-Negotiable)
+
+- [ ] No code executes without explicit user approval (manual testing)
+- [ ] Sandboxes are isolated (no access to production DB/secrets)
+- [ ] 30-second timeout enforced (no infinite loops)
+- [ ] Approval dialog shows code preview before execution
 
 ## Open Questions
 
-### RAG Chat
-1. **Embedding model:** OpenAI text-embedding-3-small ($0.02/1M tokens) vs Cohere embed-v3 vs local model?
-   - **Action:** Benchmark quality on 20 test queries; check cost for 112 docs (est. 100K tokens = $0.002)
+### Database Strategy
 
-2. **Vector store:** File-based JSON (simple, 100KB) vs Supabase pgvector (scalable) vs Pinecone (managed)?
-   - **Action:** Start with file-based; migrate if index exceeds 1MB or search >500ms
+**Question:** Neon Postgres or alternative (Supabase, PlanetScale)?
+**Action:**
+- Neon chosen for v2.2 (serverless, generous free tier, Drizzle ORM support)
+- Verify Neon connection pooling works with Next.js App Router
+- Test query performance for conversation history (<500ms target)
 
-3. **Chat scope:** Only documentation or also MCP server logs (troubleshooting)?
-   - **Decision:** Documentation only for v2.1; logs in v2.2 if needed
+### MCP Multi-Server Orchestration
 
-4. **Rate limiting:** Prevent abuse of LLM API?
-   - **Action:** 10 queries/minute per IP; use Vercel KV for tracking
+**Question:** How to route tool calls between multiple MCP servers?
+**Options:**
+1. AI SDK custom tool executor (manually route based on tool name)
+2. MCP protocol multiplexer (forward to correct server)
+3. Single MCP server that proxies to others
 
-### Video Tutorials
-1. **Hosting:** Vercel blob storage (paid) vs YouTube unlisted vs self-hosted CDN?
-   - **Action:** Start with Vercel blob (simple, fast); YouTube for public reach in v2.2
+**Action:**
+- Start with Option 1 (AI SDK custom executor) — simplest to implement
+- Monitor for performance issues (two stdio processes)
+- Consider Option 2 if latency >2s
 
-2. **Recording method:** Screen recording (real) vs Remotion-rendered terminal (fake but controllable)?
-   - **Decision:** Hybrid - Remotion for CLI, screen recordings for Claude Desktop
+### Sandbox Template Configuration
 
-3. **Narration:** Human voice (expensive) vs text-to-speech (synthetic) vs silent with music?
-   - **Decision:** Silent with captions + background music for v2.1; human narration if budget allows v2.2
+**Question:** Which Python libraries to pre-install in Daytona sandbox?
+**Must-haves:**
+- pandas, numpy (data manipulation)
+- matplotlib, seaborn (visualization)
+- requests, httpx (data fetching)
 
-4. **Update frequency:** Re-render on every release or only major versions?
-   - **Decision:** Major versions only (v2.x → v3.0); minor versions update docs not videos
+**Nice-to-haves:**
+- scikit-learn (ML)
+- geopandas (geographic data)
+- plotly (interactive charts)
 
-### CLI Excellence
-1. **Config backup:** Auto-backup before modifying config.json?
-   - **Decision:** YES - Create config.json.backup with timestamp before any writes
+**Action:**
+- Start with must-haves only for v1
+- Add nice-to-haves based on user requests in v1.x
+- Document how users can request library additions
 
-2. **Multiple MCP servers:** Handle configs with existing MCP servers gracefully?
-   - **Decision:** YES - Only add/update datagvat entry, preserve others
+### Conversation Threading
 
-3. **Telemetry:** Track installation success/failure for debugging?
-   - **Decision:** Opt-in only with explicit consent; use PostHog or simple analytics
+**Question:** Support branching conversations (explore multiple hypotheses)?
+**Defer to v1.x:**
+- Complex UX (how to visualize branches?)
+- Complex DB schema (tree structure vs linear messages)
+- Low priority for v1 MVP
 
-4. **Auto-update:** Check for updates on every run?
-   - **Decision:** NO for v2.1 (annoying); explicit `update` command only
+**Action:**
+- Build linear conversations for v1
+- Add threading in v1.1 if users explicitly request it
+
+### Code Execution Output Limits
+
+**Question:** How much stdout/stderr to capture?
+**Options:**
+1. First 1000 lines (prevent spam)
+2. First 10KB (size limit)
+3. All output (risk: massive DataFrames)
+
+**Action:**
+- Limit to 10KB stdout + 10KB stderr for v1
+- Truncate with message: "Output truncated. Use df.head() to limit output."
 
 ## Sources
 
-**HIGH Confidence (Official Documentation):**
-- Vercel AI SDK Chat: https://ai-sdk.dev/docs/ai-sdk-ui/chatbot
-- Vercel AI SDK Sources: https://ai-sdk.dev/docs/ai-sdk-ui/chatbot (citation patterns)
-- Remotion Documentation: https://www.remotion.dev/docs
-- shadcn CLI: https://ui.shadcn.com (CLI features and patterns)
-- Next.js Docs Navigation: https://nextjs.org/docs (3-section pattern)
-- @clack/prompts: https://github.com/natemoo-re/clack (interactive CLI patterns)
+**HIGH Confidence (Official Documentation + Product Analysis):**
+- Jupyter.org: Multi-language kernels, interactive widgets, notebook format
+- Google Colab: AI code generation, data inspector, GPU support, Drive integration
+- ObservableHQ.com: AI integration, reactive visualizations, database connectivity
+- Hex.tech: AI-powered analysis, collaborative notebooks
+- Vercel AI SDK Chat: https://sdk.vercel.ai/docs/ai-sdk-ui/chatbot (useChat hook, streaming)
+- Vercel AI SDK Approval: https://sdk.vercel.ai/docs/ai-sdk-ui/chatbot#experimental_needsApproval (user consent pattern)
+- Vercel AI SDK Parts: https://sdk.vercel.ai/docs/ai-sdk-core/generating-structured-data#parts (message persistence)
+- Daytona MCP: Code execution via CLI stdio transport
+- MCP Protocol: Multi-server orchestration patterns
 
-**MEDIUM Confidence (Verified Patterns):**
-- Documentation navigation patterns (3-4 tabs standard across Next.js, Stripe, AI SDK)
-- Video tutorial length (2-5 minutes optimal for engagement based on training data)
-- RAG architecture (vector search + LLM generation well-established pattern)
+**MEDIUM Confidence (Established Patterns):**
+- Base64 image encoding for inline visualization (standard web practice)
+- 30-second timeout for exploratory queries (prevents abuse, covers 95% of use cases)
+- Chat-first interface for data exploration (ChatGPT Code Interpreter demonstrates viability)
+- Two-chat architecture (separation of concerns: Q&A vs exploration)
 
 **Existing Project Context (HIGH Confidence):**
-- v2.0 Documentation: 112 MDX files, 8 tabs, progressive disclosure
-- Existing CLI: @datagvat/mcp-installer basic implementation
-- Search button: Placeholder in header ready for enhancement
-- /try page: Infrastructure for MCP tool testing
+- v2.1: 25 MCP tools for data.gv.at already built and working
+- v2.1: Documentation site with Next.js + Vercel AI SDK at /try
+- v2.1: RAG chat demonstrates AI SDK integration patterns
+- PROJECT.md: Explicit scope for v2.2 (guest mode only, no auth)
 
-**Notes:**
-- AI SDK sources feature is current (2026 documentation fetched)
-- Remotion patterns verified with official docs
-- CLI patterns inspired by shadcn (industry-leading CLI UX)
-- Navigation simplification based on Next.js, Stripe, AI SDK analysis (all use 3-4 main sections)
+**Confidence Assessment:**
+- Table stakes features: HIGH (well-established in notebook/playground domain)
+- Differentiators: MEDIUM-HIGH (MCP integration is novel, but technical feasibility validated)
+- Anti-features: HIGH (learned from competitor analysis and common product mistakes)
+- UX patterns: HIGH (clear distinction between docs Q&A and data exploration)
+- Implementation patterns: MEDIUM-HIGH (AI SDK and MCP are new integrations, but patterns documented)
+
+---
+*Feature research for: Interactive Data Playground for Austrian Open Data (v2.2)*
+*Researched: 2026-01-31*
