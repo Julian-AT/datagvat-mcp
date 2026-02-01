@@ -9,6 +9,7 @@ import {
   Check as CheckIcon,
   ChevronDown as ChevronDownIcon,
   Code as CodeIcon,
+  Download as DownloadIcon,
   Edit as EditIcon,
   File as FileIcon,
   Folder as FolderIcon,
@@ -27,6 +28,9 @@ export const BookOpenIcon = BookOpen;
 export const Book = () => <BookIcon className={iconClass} />;
 export const Home = () => <HomeIcon className={iconClass} />;
 export const Code = () => <CodeIcon className={iconClass} />;
+export { CodeIcon };
+export { DownloadIcon };
+export { SearchIcon };
 export const File = () => <FileIcon className={iconClass} />;
 export const Folder = () => <FolderIcon className={iconClass} />;
 export const Search = () => <SearchIcon className={iconClass} />;
