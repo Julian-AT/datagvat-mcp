@@ -1,7 +1,35 @@
+export interface ExecutionError {
+  name: string;
+  message: string;
+  traceback: string;
+  isTimeout: boolean;
+}
+
+export interface ProjectFile {
+  path: string;
+  content: string;
+}
+
+export interface ExecutionOptions {
+  timeoutMs?: number;
+  workingDirectory?: string;
+  files?: ProjectFile[];
+}
+
 export interface SandboxExecutionResult {
+  success: boolean;
   text: string;
-  error?: string;
-  logs?: string[];
+  error?: ExecutionError;
+  logs: {
+    stdout: string[];
+    stderr: string[];
+  };
+  visualizations?: Array<{
+    formats: string[];
+    png?: string;
+    svg?: string;
+    html?: string;
+  }>;
 }
 
 export interface E2BClientConfig {
