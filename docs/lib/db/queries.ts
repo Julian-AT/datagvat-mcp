@@ -117,10 +117,8 @@ export async function getChatsByUserId({ userId }: { userId: string }) {
  * Without this conversion, the LLM only sees the new message, not conversation history
  */
 export function convertToUIMessages(dbMessages: Message[]): UIMessage[] {
-  return dbMessages.map((msg) => ({
-    id: msg.id,
-    role: msg.role as "user" | "assistant" | "system",
-    content: msg.parts.map((part) => {
+  return dbMessages.map((msg) => {
+    const contentArray = msg.parts.map((part) => {
       if (part.type === "text") {
         return { type: "text", text: part.text };
       }
@@ -148,7 +146,14 @@ export function convertToUIMessages(dbMessages: Message[]): UIMessage[] {
         };
       }
       return part;
-    }),
-    createdAt: msg.createdAt
-  }));
+    });
+
+    return {
+      id: msg.id,
+      role: msg.role as "user" | "assistant" | "system",
+      content: contentArray as any,
+      parts: contentArray as any, // UIMessage requires parts property
+      createdAt: msg.createdAt
+    } as UIMessage;
+  });
 }
