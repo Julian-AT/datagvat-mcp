@@ -2,7 +2,7 @@
 
 ## Overview
 
-Multi-milestone roadmap transforming Austrian Open Government Data access from MCP server to interactive data playground. v1.0-v2.1 delivered comprehensive documentation infrastructure with AI-powered features. v2.2 adds chat-based data exploration with code execution in Daytona sandboxes, inline visualizations, and multi-MCP orchestration across 60,000+ datasets.
+Multi-milestone roadmap transforming Austrian Open Government Data access from MCP server to interactive data playground. v1.0-v2.1 delivered comprehensive documentation infrastructure with AI-powered features. v2.2 adds chat-based data exploration with code execution in E2B sandboxes, inline visualizations, and multi-MCP orchestration across 60,000+ datasets.
 
 ## Milestones
 
@@ -146,10 +146,10 @@ Plans:
 
 ### 🚧 v2.2 Interactive Data Playground (In Progress)
 
-**Milestone Goal:** Transform docs from static site into interactive data playground where users chat with AI to explore 60,000+ Austrian datasets, execute Python code in Daytona sandboxes after explicit approval, create visualizations, and persist conversations across sessions.
+**Milestone Goal:** Transform docs from static site into interactive data playground where users chat with AI to explore 60,000+ Austrian datasets, execute Python code in E2B sandboxes after explicit approval, create visualizations, and persist conversations across sessions.
 
 - [x] **Phase 14: Database Foundation & Message Persistence** - Neon Postgres with Drizzle ORM, message parts array, security-first schema
-- [ ] **Phase 15: Daytona MCP Integration & Sandbox Setup** - Multi-MCP orchestration, health checks, graceful degradation
+- [ ] **Phase 15: E2B MCP Integration & Sandbox Setup** - Multi-MCP orchestration, health checks, graceful degradation
 - [ ] **Phase 16: Multi-MCP Orchestration & Data Discovery** - Tool aggregation, AI Gateway, context-aware dataset search
 - [ ] **Phase 17: Code Execution Pipeline** - Sandbox lifecycle, timeout enforcement, error recovery
 - [ ] **Phase 18: Tool Approval Flow** - Approval dialog, security layer, execution state tracking
@@ -181,8 +181,8 @@ Plans:
 - [x] 14-02-PLAN.md — Session management (better-auth with anonymous sessions, 7-day cookies)
 - [x] 14-03-PLAN.md — Message persistence API (CRUD operations, cursor pagination, blob storage)
 
-### Phase 15: Daytona MCP Integration & Sandbox Setup
-**Goal**: Both data.gv.at and Daytona MCP servers connect reliably with health checks, and sandboxes clean up automatically to prevent resource exhaustion
+### Phase 15: E2B MCP Integration & Sandbox Setup
+**Goal**: Both data.gv.at and E2B sandbox servers connect reliably with health checks, and sandboxes clean up automatically to prevent resource exhaustion
 
 **Depends on**: Phase 14 (sandbox tracking in database)
 
@@ -190,19 +190,19 @@ Plans:
 
 **Success Criteria** (what must be TRUE):
 1. User sees clear connection status for both MCP servers before sending first message
-2. User sends message when Daytona unavailable and receives graceful error explaining only dataset search works
+2. User sends message when E2B unavailable and receives graceful error explaining only dataset search works
 3. Developer inspects logs and sees health check pings for both MCP servers on startup
-4. User creates 20+ sandboxes in sequence and system remains responsive (automatic cleanup after 15 minutes)
+4. User creates 20+ sandboxes in sequence and system remains responsive (automatic cleanup after 1 hour)
 5. Developer inspects database and sees sandbox_id column tracking active workspaces with timestamps
 6. User's sandbox executes in isolated environment without network access to production data
 7. System recovers automatically when MCP server crashes (reconnection logic triggers)
 
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 15-01: TBD
-- [ ] 15-02: TBD
-- [ ] 15-03: TBD
+- [ ] 15-01-PLAN.md — E2B client setup and data.gv.at MCP client with HTTP transport
+- [ ] 15-02-PLAN.md — Health checks via tool discovery and graceful degradation
+- [ ] 15-03-PLAN.md — Sandbox lifecycle management with database tracking and Vercel Cron cleanup
 
 ### Phase 16: Multi-MCP Orchestration & Data Discovery
 **Goal**: AI coordinates tools from both MCP servers and generates code using actual dataset schemas discovered via search
@@ -215,7 +215,7 @@ Plans:
 1. User asks "analyze Vienna air quality" and AI searches datasets then generates code using discovered schema
 2. User sees dataset quality metrics (completeness, freshness) before code generation
 3. User receives code that references correct column names from dataset schema
-4. Developer inspects AI requests and sees tools from both data.gv.at and Daytona merged in single call
+4. Developer inspects AI requests and sees tools from both data.gv.at and E2B merged in single call
 5. User asks question about Austrian energy data and AI uses semantic search to find relevant datasets
 6. User clicks dataset download link from chat and receives CSV file
 7. Developer verifies AI provider is Vercel AI Gateway with claude-sonnet-4.5 model
@@ -271,7 +271,7 @@ Plans:
 - [ ] 18-02: TBD
 
 ### Phase 19: Visualization Rendering
-**Goal**: User sees matplotlib, seaborn, and plotly charts inline in chat, with automatic compression for large images and support for Daytona preview URLs
+**Goal**: User sees matplotlib, seaborn, and plotly charts inline in chat, with automatic compression for large images and support for E2B preview URLs
 
 **Depends on**: Phase 18 (approved code executes and returns results)
 
@@ -279,7 +279,7 @@ Plans:
 
 **Success Criteria** (what must be TRUE):
 1. User requests chart and sees matplotlib PNG rendered inline in chat as base64 image
-2. User creates plotly interactive chart and clicks Daytona preview URL to view in browser
+2. User creates plotly interactive chart and clicks E2B preview URL to view in browser
 3. User generates 2MB visualization and sees it compress automatically to under 500KB
 4. User's visualization fails to render and receives clear error message with debugging context
 5. Developer inspects tool results and sees AI receives stdout/stderr for error diagnosis
@@ -323,7 +323,7 @@ v2.2 phases execute in numeric order: 14 → 15 → 16 → 17 → 18 → 19 → 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 14. Database Foundation | 3/3 | ✓ Complete | 2026-02-01 |
-| 15. Daytona MCP Integration | 0/TBD | Not started | - |
+| 15. E2B MCP Integration | 0/3 | Planned | - |
 | 16. Multi-MCP Orchestration | 0/TBD | Not started | - |
 | 17. Code Execution Pipeline | 0/TBD | Not started | - |
 | 18. Tool Approval Flow | 0/TBD | Not started | - |
@@ -332,4 +332,4 @@ v2.2 phases execute in numeric order: 14 → 15 → 16 → 17 → 18 → 19 → 
 
 ---
 
-*Last updated: 2026-02-01 after Phase 14 execution*
+*Last updated: 2026-02-01 after Phase 15 planning*
