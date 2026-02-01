@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 17.1 of 20 (Chat Foundation Reset - INSERTED)
-Plan: 8 of TBD in current phase
+Plan: 9 of TBD in current phase
 Status: In progress
-Last activity: 2026-02-01 — Completed 17.1-08-PLAN.md (Chat Route Replacement)
+Last activity: 2026-02-01 — Completed 17.1-09-PLAN.md (UI Component Refactor)
 
-Progress: [█████░░░░░] 73% (19/24 plans complete in v2.2, 17.1-01 through 17.1-08 complete)
+Progress: [█████░░░░░] 74% (20/24 plans complete in v2.2, 17.1-01 through 17.1-09 complete)
 
 ## Performance Metrics
 
@@ -25,9 +25,9 @@ Progress: [█████░░░░░] 73% (19/24 plans complete in v2.2, 17
 - Build time: 152s (<5 min target maintained)
 
 **v2.2 Milestone (Starting):**
-- Plans completed: 19
-- Average duration: 5.2 min ((19 + 2 + 3 + 4 + 4 + 2 + 1 + 4 + 2 + 2 + 3 + 30 + 3 + 2 + 2 + 4 + 2 + 2 + 5) / 19)
-- Phase: Phase 17.1 in progress (8 plans complete)
+- Plans completed: 20
+- Average duration: 5.1 min ((19 + 2 + 3 + 4 + 4 + 2 + 1 + 4 + 2 + 2 + 3 + 30 + 3 + 2 + 2 + 4 + 2 + 2 + 5 + 2) / 20)
+- Phase: Phase 17.1 in progress (9 plans complete)
 
 **Recent Trend:**
 - v2.1 completed with 15 plans across 4 phases
@@ -53,7 +53,8 @@ Progress: [█████░░░░░] 73% (19/24 plans complete in v2.2, 17
 - Phase 17.1-06: 2 min (Vercel schema migration - chat/message/document with UUID primary keys)
 - Phase 17.1-07: 2 min (query layer replacement - convertToUIMessages fixes conversation history)
 - Phase 17.1-08: 5 min (chat route replacement - Vercel streaming pattern with history loading)
-- Trend: Phase 17.1 in progress (8/TBD plans), Vercel ai-chatbot foundation complete with working chat memory
+- Phase 17.1-09: 2 min (UI component refactor - artifact/canvas pattern replaces blob rendering)
+- Trend: Phase 17.1 in progress (9/TBD plans), UI components match Vercel ai-chatbot proven patterns
 
 *Updated after v2.2 roadmap creation*
 
@@ -66,6 +67,9 @@ Recent decisions affecting current work:
 
 | ID | Decision | Status | Phase |
 |----|----------|--------|-------|
+| 17.1-09-artifact-canvas-pattern | Use Vercel's artifact/canvas pattern for visualizations (user directive: "use the artifacts logic that is already there") | Implemented | 17.1-09 |
+| 17.1-09-parts-map-pure | Message.tsx simplified to pure parts.map with type-based component selection (no custom logic) | Implemented | 17.1-09 |
+| 17.1-09-canvas-fullscreen | Canvas component handles fullscreen mode and format-specific rendering (HTML iframe vs image) | Implemented | 17.1-09 |
 | 17.1-08-anthropic-direct | Use anthropic model directly via @ai-sdk/anthropic (not getLanguageModel abstraction) | Implemented | 17.1-08 |
 | 17.1-08-chatid-terminology | chatId (string UUID) replaces conversationId (number) system-wide for Vercel compatibility | Implemented | 17.1-08 |
 | 17.1-08-parts-filtering | Filter reasoning parts from AI SDK before database persistence | Implemented | 17.1-08 |
@@ -190,10 +194,10 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-01 19:57 UTC
-Stopped at: Completed 17.1-08-PLAN.md (Chat Route Replacement)
+Last session: 2026-02-01 20:04 UTC
+Stopped at: Completed 17.1-09-PLAN.md (UI Component Refactor)
 Resume file: None
-Next step: Phase 17.1 in progress (8/TBD plans done) - Chat route with history loading complete, proceed to Plan 09 or 10
+Next step: Phase 17.1 in progress (9/TBD plans done) - UI components refactored, proceed to Plan 10 or complete phase
 
 ---
 
