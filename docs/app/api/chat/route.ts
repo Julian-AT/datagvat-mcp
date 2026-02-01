@@ -22,9 +22,57 @@ import type { MessagePart } from "@/db/schema";
 import { createGuestSession } from "@/lib/auth";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { db } from "@/db";
+import { conversations, messages as messagesTable } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 
 export const maxDuration = 60;
+
+// Helper functions for chat route that bypass session checks
+// (session is already validated at request start)
+async function createConversationForUser(userId: string, title?: string) {
+  const [conversation] = await db
+    .insert(conversations)
+    .values({
+      userId,
+      title: title || 'New Conversation',
+    })
+    .returning();
+  return conversation;
+}
+
+async function createMessageForConversation(
+  conversationId: number,
+  role: 'user' | 'assistant' | 'system',
+  parts: MessagePart[],
+  options?: {
+    executionStatus?: string;
+    sandboxId?: string;
+    mcpSource?: string;
+    metadata?: Record<string, unknown>;
+  }
+) {
+  const [message] = await db
+    .insert(messagesTable)
+    .values({
+      conversationId,
+      role,
+      parts,
+      executionStatus: options?.executionStatus || 'pending',
+      sandboxId: options?.sandboxId,
+      mcpSource: options?.mcpSource,
+      metadata: options?.metadata,
+    })
+    .returning();
+
+  await db
+    .update(conversations)
+    .set({ updatedAt: new Date() })
+    .where(eq(conversations.id, conversationId));
+
+  return message;
+}
 
 function getStreamContext() {
   try {
@@ -53,14 +101,20 @@ export async function POST(request: Request) {
 
   try {
     // Ensure guest session exists for message persistence
-    const session = await auth.api.getSession({
+    let session = await auth.api.getSession({
       headers: await headers(),
     });
 
+    let currentUserId: string;
+
     if (!session?.user) {
       // Create guest session for anonymous users
-      await createGuestSession();
-      // Note: Session cookie will be set automatically by better-auth
+      const guestData = await createGuestSession();
+      currentUserId = guestData.user.id;
+      // Note: Session cookie needs to be set for future requests
+      // For now, we pass userId directly to avoid async session lookup issues
+    } else {
+      currentUserId = session.user.id;
     }
 
     const { messages, message, selectedChatModel, conversationId } = requestBody;
@@ -117,13 +171,13 @@ export async function POST(request: Request) {
               // Create conversation if this is first message
               let convId = activeConversationId;
               if (!convId) {
-                const conversation = await createConversation('New Conversation');
+                const conversation = await createConversationForUser(currentUserId, 'New Conversation');
                 convId = conversation.id;
               }
 
               // Save user message
               const userMessage = uiMessages[uiMessages.length - 1];
-              await createMessage(
+              await createMessageForConversation(
                 convId,
                 'user',
                 userMessage.parts as MessagePart[]
@@ -162,7 +216,7 @@ export async function POST(request: Request) {
                 }
               }
 
-              await createMessage(
+              await createMessageForConversation(
                 convId,
                 'assistant',
                 responseParts
