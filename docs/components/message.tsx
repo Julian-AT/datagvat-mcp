@@ -1,12 +1,25 @@
 "use client";
 
 import { type UIMessage } from "ai";
+import type { UseChatHelpers } from '@ai-sdk/react';
+import type { ChatMessage } from '@/lib/types';
 import { Artifact } from "./artifact";
 import { Canvas } from "./canvas";
 import { Response } from "@/components/ai-elements/response";
 
 interface MessageProps {
   message: UIMessage;
+}
+
+interface PreviewMessageProps {
+  addToolApprovalResponse: UseChatHelpers<ChatMessage>['addToolApprovalResponse'];
+  chatId: string;
+  isLoading: boolean;
+  isReadonly: boolean;
+  message: ChatMessage;
+  regenerate: UseChatHelpers<ChatMessage>['regenerate'];
+  requiresScrollPadding: boolean;
+  setMessages: UseChatHelpers<ChatMessage>['setMessages'];
 }
 
 export function Message({ message }: MessageProps) {
@@ -101,6 +114,36 @@ export function Message({ message }: MessageProps) {
 
         return null;
       })}
+    </div>
+  );
+}
+
+// PreviewMessage wrapper component with all interactive features
+export function PreviewMessage({
+  message,
+  isLoading,
+  isReadonly,
+  addToolApprovalResponse,
+  chatId,
+  regenerate,
+  requiresScrollPadding,
+  setMessages,
+}: PreviewMessageProps) {
+  return (
+    <div className={requiresScrollPadding ? 'pb-24' : undefined}>
+      <Message message={message as UIMessage} />
+    </div>
+  );
+}
+
+// ThinkingMessage for submitted state
+export function ThinkingMessage() {
+  return (
+    <div className="flex items-center gap-2 text-muted-foreground">
+      <div className="size-2 animate-pulse rounded-full bg-muted-foreground" />
+      <div className="size-2 animate-pulse rounded-full bg-muted-foreground animation-delay-200" />
+      <div className="size-2 animate-pulse rounded-full bg-muted-foreground animation-delay-400" />
+      <span className="ml-2 text-sm">Thinking...</span>
     </div>
   );
 }
