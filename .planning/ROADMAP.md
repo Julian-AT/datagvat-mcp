@@ -227,9 +227,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 16-01-PLAN.md — AI model configuration (claude-sonnet-4.5 default) and specialized system prompts (dataset discovery, code generation)
-- [ ] 16-02-PLAN.md — Production chat endpoint with streamText integration and multi-MCP tool orchestration
-- [ ] 16-03-PLAN.md — Message persistence integration (conversation history, tool interaction storage)
+- [x] 16-01-PLAN.md — AI model configuration (claude-sonnet-4.5 default) and specialized system prompts (dataset discovery, code generation)
+- [x] 16-02-PLAN.md — Production chat endpoint with streamText integration and multi-MCP tool orchestration
+- [x] 16-03-PLAN.md — Message persistence integration (conversation history, tool interaction storage)
 
 ### Phase 17: Code Execution Pipeline
 **Goal**: AI-generated Python code executes in sandboxes with timeout enforcement, multi-file support, and automatic error recovery
@@ -250,7 +250,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 17-01-PLAN.md — Enhanced execute-python tool with timeout, multi-file support, and structured error recovery
+- [x] 17-01-PLAN.md — Enhanced execute-python tool with timeout, multi-file support, and structured error recovery
 - [ ] 17-02-PLAN.md — Human verification of execution pipeline with real-world testing scenarios
 
 ### Phase 17.1: Chat Foundation Reset (INSERTED)
@@ -262,31 +262,42 @@ Plans:
 **Requirements:** FOUNDATION-01 (Clone & analyze vercel/ai-chatbot), FOUNDATION-02 (Adopt their DB schema), FOUNDATION-03 (Adopt their API routes), FOUNDATION-04 (Adopt their UI components), FOUNDATION-05 (Integrate our MCP tools), FOUNDATION-06 (Migration strategy for existing data)
 
 **Success Criteria** (what must be TRUE):
-1. Developer clones vercel/ai-chatbot and maps architecture to our requirements (chat, persistence, attachments, streaming)
-2. User sends message and sees it persist using their proven schema (not our custom approach)
-3. User uploads image and sees it handled via their attachment system (battle-tested)
-4. Developer inspects codebase and sees Vercel's data stream annotations pattern (not custom transforms)
-5. User's visualizations from E2B render inline using their proven patterns
-6. Developer runs build and all TypeScript errors resolved (their types + our tools)
-7. User's conversations from old schema migrate cleanly to new schema (data preserved)
+1. Database uses Vercel's chat/message/document schema (not custom conversations/messages)
+2. User sends message and sees conversation history in AI responses (historical messages loaded correctly)
+3. User's visualizations render in Canvas component using artifact/canvas pattern (not blob image tags)
+4. Developer inspects code and sees Vercel's query patterns (getMessagesByChatId, convertToUIMessages, saveMessages)
+5. Developer runs build with zero TypeScript errors
+6. User's existing conversations migrate cleanly to new schema (data preserved)
+7. All three checkpoint rejection issues resolved (chat memory, rendering approach, schema mismatch)
 
-**Plans:** 5 plans
+**Plans:** 5 plans (10 total with gap closure)
 
 Plans:
-- [ ] 17.1-01-PLAN.md — Schema analysis and GIN index (vercel/ai-chatbot architecture review + DB preparation)
-- [ ] 17.1-02-PLAN.md — File upload infrastructure (/api/files/upload route + blob helpers)
-- [ ] 17.1-03-PLAN.md — Chat route refactor (immediate persistence + clean streaming)
-- [ ] 17.1-04-PLAN.md — Execute-python upload integration (immediate visualization upload)
-- [ ] 17.1-05-PLAN.md — Message rendering and verification (parts-based UI + end-to-end testing)
+- [x] 17.1-01-PLAN.md — Schema analysis and GIN index (vercel/ai-chatbot architecture review + DB preparation)
+- [x] 17.1-02-PLAN.md — File upload infrastructure (/api/files/upload route + blob helpers)
+- [x] 17.1-03-PLAN.md — Chat route refactor (immediate persistence + clean streaming)
+- [x] 17.1-04-PLAN.md — Execute-python upload integration (immediate visualization upload)
+- [x] 17.1-05-PLAN.md — Message rendering and verification (parts-based UI + end-to-end testing) - REJECTED
+- [ ] 17.1-06-PLAN.md — Database schema replacement (complete Vercel schema adoption + migration script)
+- [ ] 17.1-07-PLAN.md — Query layer rebuild (Vercel's proven query patterns + convertToUIMessages)
+- [ ] 17.1-08-PLAN.md — Chat route complete rebuild (conversation history loading + clean streaming)
+- [ ] 17.1-09-PLAN.md — UI components with artifact/canvas pattern (Vercel's rendering approach)
+- [ ] 17.1-10-PLAN.md — Migration execution and end-to-end verification (all issues resolved)
 
 **Rationale:**
-Custom visualization handling attempted (b6be233) encountered:
-- Context window explosion (236K tokens from base64 in tool results)
+Plans 17.1-01 through 17.1-05 attempted partial integration, discovered fundamental issues:
+- Issue 1: Chat memory not working (conversation history not loading)
+- Issue 2: Wrong rendering (blob upload instead of artifacts/canvas pattern)
+- Issue 3: Database schema mismatch (user unhappy with current schema)
+
+User directive: "Use the GSD tools to completely rebuild it based on vercels approach which works much better. Everything where we overlap, vercels approach should be prioritized. This also includes critical decisions like the db schema etc."
+
+Plans 17.1-06 through 17.1-10 implement complete Vercel foundation rebuild.
 
 ### Phase 18: Tool Approval Flow
 **Goal**: User explicitly approves every code execution with full code preview, and approval state persists to prevent replay attacks
 
-**Depends on**: Phase 17 (execution pipeline working)
+**Depends on**: Phase 17.1 (Vercel foundation complete)
 
 **Requirements**: SEC-01, SEC-02, SEC-05, SEC-06, EXEC-02, EXEC-03, PERSIST-05
 
@@ -361,11 +372,11 @@ v2.2 phases execute in order: 14 → 15 → 16 → 17 (partial) → **17.1 (INSE
 | 15. E2B MCP Integration | 6/6 | ✓ Complete | 2026-02-01 |
 | 16. Multi-MCP Orchestration | 3/3 | ✓ Complete | 2026-02-01 |
 | 17. Code Execution Pipeline | 1/2 | ⏸️ Paused | 2026-02-01 |
-| **17.1. Chat Foundation Reset** | **0/TBD** | **▶️ Next** | - |
+| **17.1. Chat Foundation Reset** | **4/10** | **▶️ Gap Closure** | - |
 | 18. Tool Approval Flow | 0/TBD | Blocked by 17.1 | - |
 | 19. Visualization Rendering | 0/TBD | Blocked by 17.1 | - |
 | 20. Chat Interface & Polish | 0/TBD | Blocked by 17.1 | - |
 
 ---
 
-*Last updated: 2026-02-01 after Phase 16 planning*
+*Last updated: 2026-02-01 after Phase 17.1 gap closure planning*
