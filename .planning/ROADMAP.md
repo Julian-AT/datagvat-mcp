@@ -200,9 +200,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 15-01-PLAN.md — E2B client setup and data.gv.at MCP client with HTTP transport
-- [ ] 15-02-PLAN.md — Health checks via tool discovery and graceful degradation
-- [ ] 15-03-PLAN.md — Sandbox lifecycle management with database tracking and Vercel Cron cleanup
+- [x] 15-01-PLAN.md — E2B client setup and data.gv.at MCP client with HTTP transport
+- [x] 15-02-PLAN.md — Health checks via tool discovery and graceful degradation
+- [x] 15-03-PLAN.md — Sandbox lifecycle management with lazy cleanup (no cron)
 
 ### Phase 16: Multi-MCP Orchestration & Data Discovery
 **Goal**: AI coordinates tools from both MCP servers and generates code using actual dataset schemas discovered via search
@@ -323,7 +323,7 @@ v2.2 phases execute in numeric order: 14 → 15 → 16 → 17 → 18 → 19 → 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 14. Database Foundation | 3/3 | ✓ Complete | 2026-02-01 |
-| 15. E2B MCP Integration | 0/3 | Planned | - |
+| 15. E2B MCP Integration | 3/3 | ⚠ Gaps found | 2026-02-01 |
 | 16. Multi-MCP Orchestration | 0/TBD | Not started | - |
 | 17. Code Execution Pipeline | 0/TBD | Not started | - |
 | 18. Tool Approval Flow | 0/TBD | Not started | - |
