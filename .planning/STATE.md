@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 17.1 of 20 (Chat Foundation Reset - INSERTED)
-Plan: 7 of TBD in current phase
+Plan: 8 of TBD in current phase
 Status: In progress
-Last activity: 2026-02-01 — Completed 17.1-07-PLAN.md (Query Layer Replacement)
+Last activity: 2026-02-01 — Completed 17.1-08-PLAN.md (Chat Route Replacement)
 
-Progress: [█████░░░░░] 71% (18/24 plans complete in v2.2, 17.1-01 through 17.1-07 complete)
+Progress: [█████░░░░░] 73% (19/24 plans complete in v2.2, 17.1-01 through 17.1-08 complete)
 
 ## Performance Metrics
 
@@ -25,9 +25,9 @@ Progress: [█████░░░░░] 71% (18/24 plans complete in v2.2, 17
 - Build time: 152s (<5 min target maintained)
 
 **v2.2 Milestone (Starting):**
-- Plans completed: 18
-- Average duration: 5.3 min ((19 + 2 + 3 + 4 + 4 + 2 + 1 + 4 + 2 + 2 + 3 + 30 + 3 + 2 + 2 + 4 + 2 + 2) / 18)
-- Phase: Phase 17.1 in progress (7 plans complete)
+- Plans completed: 19
+- Average duration: 5.2 min ((19 + 2 + 3 + 4 + 4 + 2 + 1 + 4 + 2 + 2 + 3 + 30 + 3 + 2 + 2 + 4 + 2 + 2 + 5) / 19)
+- Phase: Phase 17.1 in progress (8 plans complete)
 
 **Recent Trend:**
 - v2.1 completed with 15 plans across 4 phases
@@ -52,7 +52,8 @@ Progress: [█████░░░░░] 71% (18/24 plans complete in v2.2, 17
 - Phase 17.1-05: 2 min (parts-based message rendering - replaced custom visualization handling)
 - Phase 17.1-06: 2 min (Vercel schema migration - chat/message/document with UUID primary keys)
 - Phase 17.1-07: 2 min (query layer replacement - convertToUIMessages fixes conversation history)
-- Trend: Phase 17.1 in progress (7/TBD plans), Vercel ai-chatbot foundation complete
+- Phase 17.1-08: 5 min (chat route replacement - Vercel streaming pattern with history loading)
+- Trend: Phase 17.1 in progress (8/TBD plans), Vercel ai-chatbot foundation complete with working chat memory
 
 *Updated after v2.2 roadmap creation*
 
@@ -65,6 +66,10 @@ Recent decisions affecting current work:
 
 | ID | Decision | Status | Phase |
 |----|----------|--------|-------|
+| 17.1-08-anthropic-direct | Use anthropic model directly via @ai-sdk/anthropic (not getLanguageModel abstraction) | Implemented | 17.1-08 |
+| 17.1-08-chatid-terminology | chatId (string UUID) replaces conversationId (number) system-wide for Vercel compatibility | Implemented | 17.1-08 |
+| 17.1-08-parts-filtering | Filter reasoning parts from AI SDK before database persistence | Implemented | 17.1-08 |
+| 17.1-08-blob-folder | Blob storage uses chats/{chatId}/ folder structure | Implemented | 17.1-08 |
 | 17.1-06-uuid-primary-keys | Use UUID primary keys with gen_random_uuid() for chat/message/document tables | Implemented | 17.1-06 |
 | 17.1-06-attachments-separate | Separate attachments JSONB column from parts array for cleaner file metadata | Implemented | 17.1-06 |
 | 17.1-06-document-table | Create document table for artifacts/canvas pattern (kind: text | code) | Implemented | 17.1-06 |
@@ -185,10 +190,10 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-01 19:48 UTC
-Stopped at: Completed 17.1-07-PLAN.md (Query Layer Replacement)
+Last session: 2026-02-01 19:57 UTC
+Stopped at: Completed 17.1-08-PLAN.md (Chat Route Replacement)
 Resume file: None
-Next step: Phase 17.1 in progress (7/TBD plans done) - Query layer complete with convertToUIMessages, proceed to Plan 08 or 09
+Next step: Phase 17.1 in progress (8/TBD plans done) - Chat route with history loading complete, proceed to Plan 09 or 10
 
 ---
 
