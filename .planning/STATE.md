@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 
 ## Current Position
 
-Phase: 14 of 20 (Database Foundation & Message Persistence)
-Plan: 3 of 3 in current phase
-Status: Complete
-Last activity: 2026-02-01 — Phase 14 verified and complete
+Phase: 15 of 20 (Daytona MCP Integration & Sandbox Setup)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-01 — Completed 15-01-PLAN.md
 
-Progress: [█░░░░░░░░░] 15% (3/20 plans complete in v2.2 estimate)
+Progress: [█░░░░░░░░░] 20% (4/20 plans complete in v2.2 estimate)
 
 ## Performance Metrics
 
@@ -25,17 +25,18 @@ Progress: [█░░░░░░░░░] 15% (3/20 plans complete in v2.2 esti
 - Build time: 152s (<5 min target maintained)
 
 **v2.2 Milestone (Starting):**
-- Plans completed: 3
-- Average duration: 8 min (19 + 2 + 3) / 3
-- Phase: Phase 14 in progress (3 plans complete)
+- Plans completed: 4
+- Average duration: 7 min ((19 + 2 + 3 + 4) / 4)
+- Phase: Phase 15 in progress (1 plan complete)
 
 **Recent Trend:**
 - v2.1 completed with 15 plans across 4 phases
-- v2.2: 3 plans complete - average 8 min (trend accelerating)
+- v2.2: 4 plans complete - average 7 min (trend accelerating)
 - Phase 14-01: 19 min (database setup, migrations)
 - Phase 14-02: 2 min (configuration task)
 - Phase 14-03: 3 min (API routes with validation)
-- Trend: Database foundation complete, API layer rapid development
+- Phase 15-01: 4 min (E2B + MCP client setup)
+- Trend: MCP foundation rapid, building on Phase 14 database
 
 *Updated after v2.2 roadmap creation*
 
@@ -48,6 +49,10 @@ Recent decisions affecting current work:
 
 | ID | Decision | Status | Phase |
 |----|----------|--------|-------|
+| 15-01-e2b-not-daytona | E2B Code Interpreter instead of Daytona MCP (Daytona MCP doesn't exist) | Implemented | 15-01 |
+| 15-01-http-transport | HTTP transport for data.gv.at MCP client (serverless compatible) | Implemented | 15-01 |
+| 15-01-1hour-timeout | 1-hour sandbox timeout default (EXEC-06 requirement) | Implemented | 15-01 |
+| 15-01-expose-sandboxid | Expose sandboxId from createSandbox for database tracking | Implemented | 15-01 |
 | 14-03-session-ownership | Session validates conversation ownership only (not access control) | Implemented | 14-03 |
 | 14-03-cursor-pagination | Cursor pagination with limit + 1 pattern for hasMore detection | Implemented | 14-03 |
 | 14-03-replay-prevention | execution_status prevents replay attacks (enforced in Phase 18) | Implemented | 14-03 |
@@ -62,7 +67,7 @@ Recent decisions affecting current work:
 
 **Prior v2.2 decisions:**
 - v2.2: Vercel AI Gateway - Single endpoint for 100+ models, no separate API keys (pending verification)
-- v2.2: Daytona MCP for sandboxes - Secure code execution, CLI-based integration (pending verification)
+- v2.2: E2B Code Interpreter for sandboxes - ✅ VERIFIED (15-01): Daytona MCP doesn't exist, E2B is production-ready alternative
 - v2.2: Neon Postgres for persistence - Serverless, generous free tier, Drizzle ORM support (✅ implemented in 14-01)
 - v2.2: Guest mode only (no auth) - Simplify v2.2 scope, defer user accounts to v3.0 (schema ready for v3.0)
 
@@ -73,40 +78,37 @@ Recent decisions affecting current work:
 - 5-7 Claude Desktop screenshots (non-blocking)
 
 **v2.2 phase planning:**
-- Phase 14: ✅ Schema complete (14-01), ✅ Session infrastructure complete (14-02), ✅ Message API complete (14-03)
-- Phase 14-04: Additional message persistence features (if needed for Phase 18/19/20)
-- Phase 15: Daytona MCP verification (CRITICAL - confirm CLI availability, define fallback)
+- Phase 14: ✅ Complete (14-01: schema, 14-02: sessions, 14-03: message APIs)
+- Phase 15: In progress (15-01: ✅ MCP clients, 15-02: health checks pending, 15-03: tool aggregation pending)
+- Phase 16: Tool aggregation and multi-MCP orchestration
 - Phase 18: Security patterns (approval flow builds on execution_status)
 - Phase 19: Image extraction (uses uploadImageFromBase64 from 14-03)
 - Phase 20: Chat UI (uses message APIs from 14-03)
 
 ### Blockers/Concerns
 
-**Phase 15 (Daytona MCP):**
-- LOW confidence on Daytona MCP server availability - needs verification during Phase 15 planning
-- Fallback to restricted Python sandbox (subprocess + RestrictedPython) if Daytona unavailable
-- Research task required: Verify `daytona mcp` command exists and document CLI integration
+**Phase 15 (MCP Integration):**
+- ✅ RESOLVED: Daytona MCP verified non-existent via research (15-RESEARCH.md), using E2B Code Interpreter instead
+- ❌ BLOCKER for testing: E2B_API_KEY required (get from https://e2b.dev/dashboard - free tier available)
+- ❌ BLOCKER for testing: DATAGVAT_MCP_URL required (FastMCP server deployment in Phase 15-02)
+- Pending: Health check implementation for MCP service monitoring (15-02)
+- Pending: Graceful degradation when MCP services unavailable (15-02)
 
 **Phase 14 (Database):**
-- ✅ RESOLVED: JSONB parts array implemented with GIN index (14-01)
-- ✅ RESOLVED: execution_status column prevents replay attacks (14-01)
-- ✅ RESOLVED: Blob URL pattern documented (14-01)
-- ✅ RESOLVED: better-auth session infrastructure complete (14-02)
-- ✅ RESOLVED: Message CRUD API with cursor pagination complete (14-03)
-- ✅ RESOLVED: Vercel Blob integration for image uploads (14-03)
+- ✅ RESOLVED: All database schema and API infrastructure complete
 - ❌ BLOCKER for testing: DATABASE_URL + BETTER_AUTH_SECRET + BLOB_READ_WRITE_TOKEN required (user must configure services)
 - See: 14-03-USER-SETUP.md for Vercel Blob configuration
 
 **Phase 15 (Sandbox Cleanup):**
-- Sandbox resource exhaustion requires cleanup logic (15-minute timeout)
-- Background job needed for orphaned sandbox cleanup
+- Sandbox resource exhaustion requires cleanup logic (1-hour timeout implemented in 15-01)
+- Background job needed for orphaned sandbox cleanup (Phase 15-03)
 
 ## Session Continuity
 
-Last session: 2026-02-01 07:54 UTC
-Stopped at: Phase 14 execution complete and verified
+Last session: 2026-02-01 09:04 UTC
+Stopped at: Completed 15-01-PLAN.md (MCP client foundation)
 Resume file: None
-Next step: Plan Phase 15 (Daytona MCP Integration & Sandbox Setup)
+Next step: Continue Phase 15 (15-02: Health checks, 15-03: Tool aggregation)
 
 ---
 
