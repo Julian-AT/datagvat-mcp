@@ -100,24 +100,31 @@ export async function POST(request: Request) {
           system: datasetDiscoveryPrompt,
           messages: allMessages,  // Include full conversation history
           tools: await getAvailableTools(chatId),
-          maxSteps: 10
+          maxToolRoundtrips: 10
         });
 
         writer.merge(result.toUIMessageStream());
       },
       onFinish: async ({ messages: finishedMessages }) => {
         // 7. Save assistant response after stream completes
-        const assistantMessage = {
-          id: generateId(),
-          chatId,
-          role: "assistant" as const,
-          parts: finishedMessages[finishedMessages.length - 1].parts,
-          attachments: [],
-          createdAt: new Date()
-        };
+        const assistantMessage = finishedMessages[finishedMessages.length - 1];
+
+        // Filter out reasoning parts - only save content parts compatible with MessagePart
+        const compatibleParts = assistantMessage.parts.filter((part: any) =>
+          part.type !== 'reasoning'
+        );
 
         try {
-          await saveMessages({ messages: [assistantMessage] });
+          await saveMessages({
+            messages: [{
+              id: generateId(),
+              chatId,
+              role: "assistant" as const,
+              parts: compatibleParts as any,
+              attachments: [],
+              createdAt: new Date()
+            }]
+          });
         } catch (error) {
           console.error("Failed to save assistant message:", error);
           // Don't throw - message already streamed to user
