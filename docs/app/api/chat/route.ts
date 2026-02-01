@@ -21,11 +21,11 @@ import {
   getChatById,
   deleteChatById,
   updateMessage,
+  type DBMessage,
 } from "@/lib/db/queries";
 import { anthropic } from "@ai-sdk/anthropic";
 import { convertToUIMessages, generateUUID } from "@/lib/utils";
 import type { ChatMessage } from "@/lib/types";
-import type { DBMessage } from "@/lib/db/schema";
 
 export const maxDuration = 60;
 
@@ -136,15 +136,15 @@ export async function POST(request: Request) {
             if (existingMsg) {
               await updateMessage({
                 id: finishedMsg.id,
-                parts: finishedMsg.parts,
+                parts: finishedMsg.parts as any,
               });
             } else {
               await saveMessages({
                 messages: [
                   {
                     id: finishedMsg.id,
-                    role: finishedMsg.role,
-                    parts: finishedMsg.parts,
+                    role: finishedMsg.role as "user" | "assistant" | "system",
+                    parts: finishedMsg.parts as any,
                     createdAt: new Date(),
                     attachments: [],
                     chatId: id,
@@ -158,8 +158,8 @@ export async function POST(request: Request) {
           await saveMessages({
             messages: finishedMessages.map((currentMessage) => ({
               id: currentMessage.id,
-              role: currentMessage.role,
-              parts: currentMessage.parts,
+              role: currentMessage.role as "user" | "assistant" | "system",
+              parts: currentMessage.parts as any,
               createdAt: new Date(),
               attachments: [],
               chatId: id,
