@@ -17,6 +17,8 @@ import type { ChatMessage } from "@/lib/types";
 import { convertToUIMessages, generateUUID } from "@/lib/utils";
 import { type PostRequestBody, postRequestBodySchema } from "./schema";
 import { getAvailableTools } from "@/lib/mcp/aggregate-tools";
+import { createMessage, getMessages, createConversation } from "@/app/actions/messages";
+import type { MessagePart } from "@/db/schema";
 
 
 export const maxDuration = 60;
@@ -37,7 +39,7 @@ export async function POST(request: Request) {
   try {
     const json = await request.json();
 
-    console.log(json);   
+    console.log(json);
     requestBody = postRequestBodySchema.parse(json);
     console.log(requestBody);
   } catch (_) {
@@ -47,13 +49,37 @@ export async function POST(request: Request) {
   console.log(requestBody);
 
   try {
-    const { messages, message, selectedChatModel } = requestBody;
+    const { messages, message, selectedChatModel, conversationId } = requestBody;
 
     const isToolApprovalFlow = Boolean(messages);
 
     const uiMessages = isToolApprovalFlow
     ? (messages as ChatMessage[])
-    : [message as ChatMessage];    const modelMessages = await convertToModelMessages(uiMessages);
+    : [message as ChatMessage];
+
+    // Load conversation history from database if conversationId provided
+    let historicalMessages: ChatMessage[] = [];
+    let activeConversationId = conversationId;
+
+    if (conversationId) {
+      try {
+        const { messages: loadedMessages } = await getMessages(conversationId, 50);
+        // Convert database messages to UI message format
+        historicalMessages = loadedMessages.map(msg => ({
+          id: generateUUID(),
+          role: msg.role as 'user' | 'assistant',
+          parts: msg.parts,
+          createdAt: msg.createdAt.toISOString(),
+        })) as ChatMessage[];
+      } catch (error) {
+        console.error('Failed to load conversation history:', error);
+        // Continue without history rather than failing the request
+      }
+    }
+
+    // Combine historical messages with new messages
+    const allUIMessages = [...historicalMessages, ...uiMessages];
+    const modelMessages = await convertToModelMessages(allUIMessages);
 
     // Aggregate tools from data.gv.at MCP and E2B
     const tools = await getAvailableTools();
@@ -70,6 +96,69 @@ export async function POST(request: Request) {
           experimental_telemetry: {
             isEnabled: true,
             functionId: "stream-text",
+          },
+          onFinish: async ({ text, toolCalls, toolResults }) => {
+            // Save messages after stream completes
+            try {
+              // Create conversation if this is first message
+              let convId = activeConversationId;
+              if (!convId) {
+                const conversation = await createConversation('New Conversation');
+                convId = conversation.id;
+              }
+
+              // Save user message
+              const userMessage = uiMessages[uiMessages.length - 1];
+              await createMessage(
+                convId,
+                'user',
+                userMessage.parts as MessagePart[]
+              );
+
+              // Save assistant response
+              // Convert response to MessagePart format
+              const responseParts: MessagePart[] = [];
+
+              // Add text content
+              if (text) {
+                responseParts.push({ type: 'text', text });
+              }
+
+              // Add tool calls
+              if (toolCalls && toolCalls.length > 0) {
+                for (const toolCall of toolCalls) {
+                  responseParts.push({
+                    type: 'tool-call',
+                    toolCallId: toolCall.toolCallId,
+                    toolName: toolCall.toolName,
+                    args: toolCall.input as Record<string, unknown>,
+                  });
+                }
+              }
+
+              // Add tool results
+              if (toolResults && toolResults.length > 0) {
+                for (const toolResult of toolResults) {
+                  responseParts.push({
+                    type: 'tool-result',
+                    toolCallId: toolResult.toolCallId,
+                    toolName: toolResult.toolName,
+                    result: toolResult.output,
+                  });
+                }
+              }
+
+              await createMessage(
+                convId,
+                'assistant',
+                responseParts
+              );
+
+              console.log(`Messages saved to conversation ${convId}`);
+            } catch (error) {
+              // Don't fail the stream if persistence fails
+              console.error('Failed to save messages:', error);
+            }
           },
         });
 
@@ -101,7 +190,7 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.log(error);
-    
+
     const vercelId = request.headers.get("x-vercel-id");
 
     if (error instanceof ChatSDKError) {

@@ -33,6 +33,7 @@ export const postRequestBodySchema = z.object({
   message: userMessageSchema.optional(),
   messages: z.array(messageSchema).optional(),
   selectedChatModel: z.string(),
+  conversationId: z.number().optional(), // Optional for first message in conversation
 });
 
 export type PostRequestBody = z.infer<typeof postRequestBodySchema>;
