@@ -9,7 +9,7 @@ const visualizationCache = new Map<string, any>();
 
 export { visualizationCache };
 
-export async function getAvailableTools() {
+export async function getAvailableTools(conversationId?: number) {
   const tools: Record<string, any> = {};
 
   try {

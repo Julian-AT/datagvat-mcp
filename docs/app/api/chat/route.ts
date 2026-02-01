@@ -1,4 +1,3 @@
-import { geolocation } from "@vercel/functions";
 import {
   convertToModelMessages,
   createUIMessageStream,
@@ -9,23 +8,22 @@ import {
 } from "ai";
 import { after } from "next/server";
 import { createResumableStreamContext } from "resumable-stream";
-import { entitlementsByUserType } from "@/lib/ai/entitlements";
 import { datasetDiscoveryPrompt } from "@/lib/ai/prompts";
 import { getLanguageModel } from "@/lib/ai/providers";
 import { ChatSDKError } from "@/lib/errors";
 import type { ChatMessage } from "@/lib/types";
-import { convertToUIMessages, generateUUID } from "@/lib/utils";
+import { generateUUID } from "@/lib/utils";
 import { type PostRequestBody, postRequestBodySchema } from "./schema";
-import { getAvailableTools, visualizationCache } from "@/lib/mcp/aggregate-tools";
-import { createMessage, getMessages, createConversation } from "@/app/actions/messages";
+import { getAvailableTools } from "@/lib/mcp/aggregate-tools";
 import type { MessagePart } from "@/db/schema";
 import { createGuestSession } from "@/lib/auth";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { db } from "@/db";
-import { conversations, messages as messagesTable } from "@/db/schema";
-import { uploadImageFromBase64, uploadVisualization } from "@/lib/blob";
-import { eq } from "drizzle-orm";
+import {
+  saveMessages,
+  getMessagesByChatId,
+  saveConversation
+} from "@/lib/db/queries";
 
 
 export const maxDuration = 60;
@@ -258,8 +256,8 @@ export async function POST(request: Request) {
     const stream = createUIMessageStream({
       originalMessages: isToolApprovalFlow ? uiMessages : undefined,
       execute: async ({ writer: dataStream }) => {
-        // Get tools
-        const tools = await getAvailableTools();
+        // Get tools with conversationId for visualization upload
+        const tools = await getAvailableTools(activeConversationId);
 
         const result = streamText({
           model: getLanguageModel(selectedChatModel),
