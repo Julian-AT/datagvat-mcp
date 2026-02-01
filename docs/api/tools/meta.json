@@ -1,6 +1,0 @@
-{
-  "title": "Tools",
-  "description": "Complete MCP tools reference",
-  "icon": "Wrench",
-  "pages": ["index", "discovery", "analysis", "management", "preview", "vocabularies"]
-}

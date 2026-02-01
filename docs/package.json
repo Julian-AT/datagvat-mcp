@@ -14,7 +14,8 @@
     "start": "next start",
     "prepare": "simple-git-hooks",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.18",
@@ -64,6 +65,7 @@
     "cmdk": "^1.1.1",
     "d3-force": "^3.0.0",
     "date-fns": "^4.1.0",
+    "dotenv": "^17.2.3",
     "drizzle-orm": "^0.38.0",
     "embla-carousel-react": "^8.6.0",
     "fumadocs-core": "^16.4.11",

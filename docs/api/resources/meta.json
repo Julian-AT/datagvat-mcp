@@ -1,6 +1,0 @@
-{
-  "title": "Resources",
-  "description": "MCP resources reference",
-  "icon": "Database",
-  "pages": ["index", "catalogues", "datasets"]
-}

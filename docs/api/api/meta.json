@@ -1,6 +1,0 @@
-{
-  "title": "API Reference",
-  "description": "Complete technical reference for all tools, resources, and MCP protocol integration",
-  "icon": "BookOpen",
-  "pages": ["tools", "resources", "prompts"]
-}
