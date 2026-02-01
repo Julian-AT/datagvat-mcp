@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 17.1 of 20 (Chat Foundation Reset - INSERTED)
-Plan: 4 of TBD in current phase
+Plan: 3 of TBD in current phase
 Status: In progress
-Last activity: 2026-02-01 — Completed 17.1-04-PLAN.md (Execute-Python Immediate Upload)
+Last activity: 2026-02-01 — Completed 17.1-03-PLAN.md (Chat Route Immediate Persistence)
 
-Progress: [█████░░░░░] 70% (17/24 plans complete in v2.2, 17.1-01 through 17.1-04 complete)
+Progress: [█████░░░░░] 68% (16/24 plans complete in v2.2, 17.1-01 through 17.1-03 complete)
 
 ## Performance Metrics
 
@@ -25,9 +25,9 @@ Progress: [█████░░░░░] 70% (17/24 plans complete in v2.2, 17
 - Build time: 152s (<5 min target maintained)
 
 **v2.2 Milestone (Starting):**
-- Plans completed: 17
-- Average duration: 5.8 min ((19 + 2 + 3 + 4 + 4 + 2 + 1 + 4 + 2 + 2 + 3 + 30 + 3 + 2 + 2 + 2 + 2) / 17)
-- Phase: Phase 17.1 in progress (4 plans complete)
+- Plans completed: 16
+- Average duration: 5.7 min ((19 + 2 + 3 + 4 + 4 + 2 + 1 + 4 + 2 + 2 + 3 + 30 + 3 + 2 + 2 + 4) / 16)
+- Phase: Phase 17.1 in progress (3 plans complete)
 
 **Recent Trend:**
 - v2.1 completed with 15 plans across 4 phases
@@ -47,7 +47,8 @@ Progress: [█████░░░░░] 70% (17/24 plans complete in v2.2, 17
 - Phase 17-01: 3 min (enhanced execute-python tool with timeout + multi-file support)
 - Phase 17.1-01: 2 min (schema foundation + architecture analysis - GIN index migration ready)
 - Phase 17.1-02: 2 min (blob upload helpers with format support)
-- Phase 17.1-03: 2 min (database query helpers following ai-chatbot pattern)
+- Phase 17.1-03: 4 min (immediate persistence pattern + clean streaming)
+- Trend: Phase 17.1 in progress (3/TBD plans), foundation reset on track with proven ai-chatbot patterns
 - Phase 17.1-04: 2 min (execute-python immediate upload - eliminates context explosion)
 - Trend: Phase 17.1 in progress (4/TBD plans), upload-first pattern implemented
 
@@ -62,6 +63,10 @@ Recent decisions affecting current work:
 
 | ID | Decision | Status | Phase |
 |----|----------|--------|-------|
+| 17.1-03-immediate-persistence | User message saved BEFORE streaming starts (never lost if stream fails) | Implemented | 17.1-03 |
+| 17.1-03-no-transform | Removed experimental_transform for clean stream flow | Implemented | 17.1-03 |
+| 17.1-03-simple-onfinish | onFinish only saves assistant message (no visualization processing) | Implemented | 17.1-03 |
+| 17.1-03-queries-helpers | Created queries.ts with saveMessages, getMessagesByChatId, getConversationById, saveConversation | Implemented | 17.1-03 |
 | 17.1-04-upload-first | Visualizations upload immediately DURING tool execution (not after stream) | Implemented | 17.1-04 |
 | 17.1-04-no-cache | Remove visualizationCache - upload immediately, return URLs only | Implemented | 17.1-04 |
 | 17.1-04-parallel-upload | Upload all formats (PNG, SVG, HTML) in parallel via Promise.all | Implemented | 17.1-04 |
@@ -174,10 +179,10 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-01 16:33 UTC
-Stopped at: Completed 17.1-04-PLAN.md (Execute-Python Immediate Upload)
+Last session: 2026-02-01 18:54 UTC
+Stopped at: Completed 17.1-03-PLAN.md (Chat Route Immediate Persistence)
 Resume file: None
-Next step: Phase 17.1 in progress (4/TBD plans done) - Upload-first pattern complete, proceed to Plan 05 (migration execution or message persistence)
+Next step: Phase 17.1 in progress (3/TBD plans done) - Immediate persistence pattern complete, proceed to Plan 04 or 05
 
 ---
 
