@@ -203,9 +203,9 @@ Plans:
 - [x] 15-01-PLAN.md — E2B client setup and data.gv.at MCP client with HTTP transport
 - [x] 15-02-PLAN.md — Health checks via tool discovery and graceful degradation
 - [x] 15-03-PLAN.md — Sandbox lifecycle management with lazy cleanup (no cron)
-- [ ] 15-04-PLAN.md — Health status UI component (gap closure: wire /api/mcp/health to chat page)
-- [ ] 15-05-PLAN.md — Startup health checks with server-side logging (gap closure: automatic health checks on app init)
-- [ ] 15-06-PLAN.md — Reconnection logic with exponential backoff (gap closure: retry on MCP server crashes)
+- [x] 15-04-PLAN.md — Health status UI component (gap closure: wire /api/mcp/health to chat page)
+- [x] 15-05-PLAN.md — Startup health checks with server-side logging (gap closure: automatic health checks on app init)
+- [x] 15-06-PLAN.md — Reconnection logic with exponential backoff (gap closure: retry on MCP server crashes)
 
 ### Phase 16: Multi-MCP Orchestration & Data Discovery
 **Goal**: AI coordinates tools from both MCP servers and generates code using actual dataset schemas discovered via search
@@ -223,11 +223,12 @@ Plans:
 6. User clicks dataset download link from chat and receives CSV file
 7. Developer verifies AI provider is Vercel AI Gateway with claude-sonnet-4.5 model
 
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 16-01: TBD
-- [ ] 16-02: TBD
+- [ ] 16-01-PLAN.md — AI model configuration (claude-sonnet-4.5 default) and specialized system prompts (dataset discovery, code generation)
+- [ ] 16-02-PLAN.md — Production chat endpoint with streamText integration and multi-MCP tool orchestration
+- [ ] 16-03-PLAN.md — Message persistence integration (conversation history, tool interaction storage)
 
 ### Phase 17: Code Execution Pipeline
 **Goal**: AI-generated Python code executes in sandboxes with timeout enforcement, multi-file support, and automatic error recovery
@@ -327,7 +328,7 @@ v2.2 phases execute in numeric order: 14 → 15 → 16 → 17 → 18 → 19 → 
 |-------|----------------|--------|-----------|
 | 14. Database Foundation | 3/3 | ✓ Complete | 2026-02-01 |
 | 15. E2B MCP Integration | 6/6 | ✓ Complete | 2026-02-01 |
-| 16. Multi-MCP Orchestration | 0/TBD | Not started | - |
+| 16. Multi-MCP Orchestration | 0/3 | Not started | - |
 | 17. Code Execution Pipeline | 0/TBD | Not started | - |
 | 18. Tool Approval Flow | 0/TBD | Not started | - |
 | 19. Visualization Rendering | 0/TBD | Not started | - |
@@ -335,4 +336,4 @@ v2.2 phases execute in numeric order: 14 → 15 → 16 → 17 → 18 → 19 → 
 
 ---
 
-*Last updated: 2026-02-01 after Phase 15 execution*
+*Last updated: 2026-02-01 after Phase 16 planning*
