@@ -48,13 +48,13 @@ Requirements for Interactive Data Playground milestone. Each maps to roadmap pha
 
 ### Persistence
 
-- [ ] **PERSIST-01**: Message history stores in Neon Postgres
-- [ ] **PERSIST-02**: Messages use AI SDK 6 parts array pattern
-- [ ] **PERSIST-03**: Conversation loads 50 messages per page
-- [ ] **PERSIST-04**: MCP tool calls and results store with messages
+- [x] **PERSIST-01**: Message history stores in Neon Postgres
+- [x] **PERSIST-02**: Messages use AI SDK 6 parts array pattern
+- [x] **PERSIST-03**: Conversation loads 50 messages per page
+- [x] **PERSIST-04**: MCP tool calls and results store with messages
 - [ ] **PERSIST-05**: Tool approval state persists to prevent replay attacks
-- [ ] **PERSIST-06**: Database uses JSONB for flexible message parts
-- [ ] **PERSIST-07**: Large images (>500KB) store in blob storage (not JSONB)
+- [x] **PERSIST-06**: Database uses JSONB for flexible message parts
+- [x] **PERSIST-07**: Large images (>500KB) store in blob storage (not JSONB)
 
 ### AI Provider
 
@@ -76,7 +76,7 @@ Requirements for Interactive Data Playground milestone. Each maps to roadmap pha
 
 - [ ] **SEC-01**: User approval required before ANY code execution
 - [ ] **SEC-02**: Approval dialog shows complete code to be executed
-- [ ] **SEC-03**: Tool approval bypass via message replay prevented
+- [x] **SEC-03**: Tool approval bypass via message replay prevented
 - [ ] **SEC-04**: Each conversation uses isolated sandbox
 - [ ] **SEC-05**: Sandboxes have network access only to approved domains
 - [ ] **SEC-06**: Guest mode only (no authentication for v2.2)
