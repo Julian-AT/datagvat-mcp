@@ -150,8 +150,9 @@ Plans:
 
 - [x] **Phase 14: Database Foundation & Message Persistence** - Neon Postgres with Drizzle ORM, message parts array, security-first schema
 - [x] **Phase 15: E2B MCP Integration & Sandbox Setup** - Multi-MCP orchestration, health checks, graceful degradation
-- [ ] **Phase 16: Multi-MCP Orchestration & Data Discovery** - Tool aggregation, AI Gateway, context-aware dataset search
-- [ ] **Phase 17: Code Execution Pipeline** - Sandbox lifecycle, timeout enforcement, error recovery
+- [x] **Phase 16: Multi-MCP Orchestration & Data Discovery** - Tool aggregation, AI Gateway, context-aware dataset search
+- [ ] **Phase 17: Code Execution Pipeline** - Sandbox lifecycle, timeout enforcement, error recovery (1/2 complete, paused)
+- [ ] **Phase 17.1: Chat Foundation Reset** - ⚡ URGENT: Adopt vercel/ai-chatbot proven architecture before continuing
 - [ ] **Phase 18: Tool Approval Flow** - Approval dialog, security layer, execution state tracking
 - [ ] **Phase 19: Visualization Rendering** - Inline charts, base64 extraction, preview URLs
 - [ ] **Phase 20: Chat Interface & Polish** - Streaming UI, debug mode, loading states, custom cards
@@ -252,6 +253,36 @@ Plans:
 - [ ] 17-01-PLAN.md — Enhanced execute-python tool with timeout, multi-file support, and structured error recovery
 - [ ] 17-02-PLAN.md — Human verification of execution pipeline with real-world testing scenarios
 
+### Phase 17.1: Chat Foundation Reset (INSERTED)
+
+**Goal:** Replace custom chat implementation with proven vercel/ai-chatbot architecture - their components, routes, DB schema, and patterns provide battle-tested foundation for our MCP integration and visualization needs
+
+**Depends on:** Phase 17 (execution pipeline partially working, issues discovered)
+
+**Requirements:** FOUNDATION-01 (Clone & analyze vercel/ai-chatbot), FOUNDATION-02 (Adopt their DB schema), FOUNDATION-03 (Adopt their API routes), FOUNDATION-04 (Adopt their UI components), FOUNDATION-05 (Integrate our MCP tools), FOUNDATION-06 (Migration strategy for existing data)
+
+**Success Criteria** (what must be TRUE):
+1. Developer clones vercel/ai-chatbot and maps architecture to our requirements (chat, persistence, attachments, streaming)
+2. User sends message and sees it persist using their proven schema (not our custom approach)
+3. User uploads image and sees it handled via their attachment system (battle-tested)
+4. Developer inspects codebase and sees Vercel's data stream annotations pattern (not custom transforms)
+5. User's visualizations from E2B render inline using their proven patterns
+6. Developer runs build and all TypeScript errors resolved (their types + our tools)
+7. User's conversations from old schema migrate cleanly to new schema (data preserved)
+
+**Plans:** 5 plans
+
+Plans:
+- [ ] 17.1-01-PLAN.md — Schema analysis and GIN index (vercel/ai-chatbot architecture review + DB preparation)
+- [ ] 17.1-02-PLAN.md — File upload infrastructure (/api/files/upload route + blob helpers)
+- [ ] 17.1-03-PLAN.md — Chat route refactor (immediate persistence + clean streaming)
+- [ ] 17.1-04-PLAN.md — Execute-python upload integration (immediate visualization upload)
+- [ ] 17.1-05-PLAN.md — Message rendering and verification (parts-based UI + end-to-end testing)
+
+**Rationale:**
+Custom visualization handling attempted (b6be233) encountered:
+- Context window explosion (236K tokens from base64 in tool results)
+
 ### Phase 18: Tool Approval Flow
 **Goal**: User explicitly approves every code execution with full code preview, and approval state persists to prevent replay attacks
 
@@ -322,17 +353,18 @@ Plans:
 ## Progress
 
 **Execution Order:**
-v2.2 phases execute in numeric order: 14 → 15 → 16 → 17 → 18 → 19 → 20
+v2.2 phases execute in order: 14 → 15 → 16 → 17 (partial) → **17.1 (INSERTED)** → 17 (continued) → 18 → 19 → 20
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 14. Database Foundation | 3/3 | ✓ Complete | 2026-02-01 |
 | 15. E2B MCP Integration | 6/6 | ✓ Complete | 2026-02-01 |
-| 16. Multi-MCP Orchestration | 0/3 | Not started | - |
-| 17. Code Execution Pipeline | 0/TBD | Not started | - |
-| 18. Tool Approval Flow | 0/TBD | Not started | - |
-| 19. Visualization Rendering | 0/TBD | Not started | - |
-| 20. Chat Interface & Polish | 0/TBD | Not started | - |
+| 16. Multi-MCP Orchestration | 3/3 | ✓ Complete | 2026-02-01 |
+| 17. Code Execution Pipeline | 1/2 | ⏸️ Paused | 2026-02-01 |
+| **17.1. Chat Foundation Reset** | **0/TBD** | **▶️ Next** | - |
+| 18. Tool Approval Flow | 0/TBD | Blocked by 17.1 | - |
+| 19. Visualization Rendering | 0/TBD | Blocked by 17.1 | - |
+| 20. Chat Interface & Polish | 0/TBD | Blocked by 17.1 | - |
 
 ---
 
