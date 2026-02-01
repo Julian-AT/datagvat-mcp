@@ -8,7 +8,8 @@ export async function getAvailableTools() {
 
   try {
     const dataGvatClient = await createDataGvatClient(
-      process.env.DATAGVAT_MCP_URL || ''
+      process.env.DATAGVAT_MCP_URL || '',
+      process.env.DATAGVAT_MCP_BEARER_TOKEN
     );
     const dataGvatTools = await dataGvatClient.tools();
     Object.assign(tools, dataGvatTools);

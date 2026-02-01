@@ -20,11 +20,12 @@ export async function performStartupHealthCheck(): Promise<void> {
       // Check data.gv.at MCP server
       (async () => {
         const url = process.env.DATAGVAT_MCP_URL || '';
+        const bearerToken = process.env.DATAGVAT_MCP_BEARER_TOKEN;
         if (!url) {
           console.warn('[MCP Startup] data.gv.at: DATAGVAT_MCP_URL not configured');
           return { server: 'data.gv.at', status: 'unhealthy' as const, error: 'URL not configured' };
         }
-        const client = await createDataGvatClient(url);
+        const client = await createDataGvatClient(url, bearerToken);
         return await checkMCPHealth(client, 'data.gv.at');
       })(),
 

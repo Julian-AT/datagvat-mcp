@@ -1,15 +1,21 @@
 import { createMCPClient } from '@ai-sdk/mcp';
 import { createResilientMCPClient } from './reconnection';
 
-async function createDataGvatClientOnce(url: string) {
+async function createDataGvatClientOnce(url: string, bearerToken?: string) {
   try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    if (bearerToken) {
+      headers.Authorization = `Bearer ${bearerToken}`;
+    }
+
     const client = await createMCPClient({
       transport: {
         type: 'http',
         url,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       },
     });
 
@@ -20,9 +26,9 @@ async function createDataGvatClientOnce(url: string) {
   }
 }
 
-export async function createDataGvatClient(url: string) {
+export async function createDataGvatClient(url: string, bearerToken?: string) {
   const resilientClient = createResilientMCPClient({
-    createClient: () => createDataGvatClientOnce(url),
+    createClient: () => createDataGvatClientOnce(url, bearerToken),
     reconnectionConfig: {
       maxRetries: 5,
       initialDelayMs: 1000,

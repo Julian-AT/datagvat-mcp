@@ -9,7 +9,10 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   const results = await Promise.allSettled([
     (async () => {
-      const client = await createDataGvatClient(process.env.DATAGVAT_MCP_URL || '');
+      const client = await createDataGvatClient(
+        process.env.DATAGVAT_MCP_URL || '',
+        process.env.DATAGVAT_MCP_BEARER_TOKEN
+      );
       return await checkMCPHealth(client, 'data.gv.at');
     })(),
     (async () => {
