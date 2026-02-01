@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 
 ## Current Position
 
-Phase: 17 of 20 (Code Execution Pipeline)
-Plan: 1 of 2 in current phase
+Phase: 17.1 of 20 (Chat Foundation Reset - INSERTED)
+Plan: 2 of TBD in current phase
 Status: In progress
-Last activity: 2026-02-01 — Completed 17-01-PLAN.md (Enhanced Execute-Python Tool)
+Last activity: 2026-02-01 — Completed 17.1-02-PLAN.md (File Upload API)
 
-Progress: [████░░░░░░] 65% (13/20 plans complete in v2.2 estimate)
+Progress: [█████░░░░░] 70% (14/20 plans complete in v2.2)
 
 ## Performance Metrics
 
@@ -25,9 +25,9 @@ Progress: [████░░░░░░] 65% (13/20 plans complete in v2.2 est
 - Build time: 152s (<5 min target maintained)
 
 **v2.2 Milestone (Starting):**
-- Plans completed: 13
-- Average duration: 6.6 min ((19 + 2 + 3 + 4 + 4 + 2 + 1 + 4 + 2 + 2 + 3 + 30 + 3) / 13)
-- Phase: Phase 17 in progress (1/2 plans)
+- Plans completed: 14
+- Average duration: 6.1 min ((19 + 2 + 3 + 4 + 4 + 2 + 1 + 4 + 2 + 2 + 3 + 30 + 3 + 1) / 14)
+- Phase: Phase 17.1 in progress (2 plans complete)
 
 **Recent Trend:**
 - v2.1 completed with 15 plans across 4 phases
@@ -45,7 +45,8 @@ Progress: [████░░░░░░] 65% (13/20 plans complete in v2.2 est
 - Phase 16-02: 3 min (streaming chat endpoint + multi-MCP tool orchestration)
 - Phase 16-03: 30 min (chat persistence integration with message history + tool preservation)
 - Phase 17-01: 3 min (enhanced execute-python tool with timeout + multi-file support)
-- Trend: Phase 17 in progress, ready for Phase 17-02 (Human verification)
+- Phase 17-02: 1 min (file upload API route with validation)
+- Trend: Phase 17.1 in progress (2/TBD plans), upload-first pattern infrastructure complete
 
 *Updated after v2.2 roadmap creation*
 
@@ -58,6 +59,9 @@ Recent decisions affecting current work:
 
 | ID | Decision | Status | Phase |
 |----|----------|--------|-------|
+| 17-02-5mb-limit | File size limit set to 5MB for visualization support | Implemented | 17-02 |
+| 17-02-mime-types | Accept JPEG, PNG, SVG, HTML for images and visualizations | Implemented | 17-02 |
+| 17-02-random-suffix | addRandomSuffix prevents filename collisions | Implemented | 17-02 |
 | 17-01-30s-timeout | Enforce 30-second execution timeout via EXECUTION_TIMEOUT_MS constant | Implemented | 17-01 |
 | 17-01-structured-error | ExecutionError with traceback enables AI-driven error recovery | Implemented | 17-01 |
 | 17-01-multi-file-write | Multi-file support via sandbox.files.write() before code execution | Implemented | 17-01 |
@@ -122,12 +126,24 @@ Recent decisions affecting current work:
 - Phase 14: ✅ Complete (14-01: schema, 14-02: sessions, 14-03: message APIs)
 - Phase 15: ✅ Complete (15-01: MCP clients, 15-02: health checks + graceful degradation, 15-03: sandbox lifecycle, 15-04-06: gap closure)
 - Phase 16: ✅ Complete (16-01: AI config, 16-02: chat endpoint, 16-03: message persistence)
-- Phase 17: 🚧 In progress (17-01: enhanced execute-python tool)
+- Phase 17.1: 🚧 In progress (17-01: enhanced execute-python tool, 17-02: file upload API)
 - Phase 18: Security patterns (approval flow builds on execution_status)
 - Phase 19: Image extraction (uses uploadImageFromBase64 from 14-03)
 - Phase 20: Chat UI (uses message APIs from 14-03)
 
 ### Blockers/Concerns
+
+**Phase 17.1 (Chat Foundation Reset): ⚡ ARCHITECTURAL PIVOT**
+- Custom visualization handling (commit b6be233) hit fundamental issues:
+  - Context window explosion: 236K tokens from base64 in tool results
+  - WebSocket payload errors from streaming large data
+  - Tool results not appearing in onFinish callback
+  - Visualizations not persisting to database
+  - Fighting AI SDK framework instead of using it properly
+- **Solution**: Adopt vercel/ai-chatbot proven architecture (2-3 hour investment vs days of debugging)
+- **Scope**: Their components, API routes, DB schema, data stream patterns - all battle-tested
+- **Commitment saved**: b6be233 for potential revert if needed
+- **User authorization**: Full permission to replace custom code with their proven patterns
 
 **Phase 15 (MCP Integration): ✅ GAP CLOSURE COMPLETE**
 - ✅ CORE PLANS COMPLETE: 15-01, 15-02, 15-03 (MCP clients, health checks, sandbox lifecycle)
@@ -148,10 +164,10 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-01 16:25 UTC
-Stopped at: Completed 17-01-PLAN.md (Enhanced Execute-Python Tool)
+Last session: 2026-02-01 18:47 UTC
+Stopped at: Completed 17.1-02-PLAN.md (File Upload API)
 Resume file: None
-Next step: Phase 17 in progress (1/2 plans done) - ready for Phase 17-02 (Human verification)
+Next step: Phase 17.1 in progress (2/TBD plans done) - upload-first pattern ready for execute-python integration
 
 ---
 
