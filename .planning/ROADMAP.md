@@ -246,11 +246,11 @@ Plans:
 6. User sees stdout/stderr output from code execution for debugging
 7. User's long-running code stops at 30 seconds with clear timeout message
 
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 17-01: TBD
-- [ ] 17-02: TBD
+- [ ] 17-01-PLAN.md — Enhanced execute-python tool with timeout, multi-file support, and structured error recovery
+- [ ] 17-02-PLAN.md — Human verification of execution pipeline with real-world testing scenarios
 
 ### Phase 18: Tool Approval Flow
 **Goal**: User explicitly approves every code execution with full code preview, and approval state persists to prevent replay attacks
