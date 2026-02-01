@@ -148,7 +148,7 @@ Plans:
 
 **Milestone Goal:** Transform docs from static site into interactive data playground where users chat with AI to explore 60,000+ Austrian datasets, execute Python code in Daytona sandboxes after explicit approval, create visualizations, and persist conversations across sessions.
 
-- [ ] **Phase 14: Database Foundation & Message Persistence** - Neon Postgres with Drizzle ORM, message parts array, security-first schema
+- [x] **Phase 14: Database Foundation & Message Persistence** - Neon Postgres with Drizzle ORM, message parts array, security-first schema
 - [ ] **Phase 15: Daytona MCP Integration & Sandbox Setup** - Multi-MCP orchestration, health checks, graceful degradation
 - [ ] **Phase 16: Multi-MCP Orchestration & Data Discovery** - Tool aggregation, AI Gateway, context-aware dataset search
 - [ ] **Phase 17: Code Execution Pipeline** - Sandbox lifecycle, timeout enforcement, error recovery
