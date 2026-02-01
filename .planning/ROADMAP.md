@@ -270,7 +270,7 @@ Plans:
 6. User's existing conversations migrate cleanly to new schema (data preserved)
 7. All three checkpoint rejection issues resolved (chat memory, rendering approach, schema mismatch)
 
-**Plans:** 5 plans (10 total with gap closure)
+**Plans:** 11 plans (5 initial + 6 gap closure)
 
 Plans:
 - [x] 17.1-01-PLAN.md — Schema analysis and GIN index (vercel/ai-chatbot architecture review + DB preparation)
@@ -278,11 +278,12 @@ Plans:
 - [x] 17.1-03-PLAN.md — Chat route refactor (immediate persistence + clean streaming)
 - [x] 17.1-04-PLAN.md — Execute-python upload integration (immediate visualization upload)
 - [x] 17.1-05-PLAN.md — Message rendering and verification (parts-based UI + end-to-end testing) - REJECTED
-- [ ] 17.1-06-PLAN.md — Database schema replacement (complete Vercel schema adoption + migration script)
-- [ ] 17.1-07-PLAN.md — Query layer rebuild (Vercel's proven query patterns + convertToUIMessages)
-- [ ] 17.1-08-PLAN.md — Chat route complete rebuild (conversation history loading + clean streaming)
-- [ ] 17.1-09-PLAN.md — UI components with artifact/canvas pattern (Vercel's rendering approach)
+- [x] 17.1-06-PLAN.md — Database schema replacement (complete Vercel schema adoption + migration script)
+- [x] 17.1-07-PLAN.md — Query layer rebuild (Vercel's proven query patterns + convertToUIMessages)
+- [x] 17.1-08-PLAN.md — Chat route complete rebuild (conversation history loading + clean streaming)
+- [x] 17.1-09-PLAN.md — UI components with artifact/canvas pattern (Vercel's rendering approach)
 - [ ] 17.1-10-PLAN.md — Migration execution and end-to-end verification (all issues resolved)
+- [ ] 17.1-11-PLAN.md — TypeScript error fixes (gap closure: type compatibility and schema alignment)
 
 **Rationale:**
 Plans 17.1-01 through 17.1-05 attempted partial integration, discovered fundamental issues:
@@ -292,7 +293,8 @@ Plans 17.1-01 through 17.1-05 attempted partial integration, discovered fundamen
 
 User directive: "Use the GSD tools to completely rebuild it based on vercels approach which works much better. Everything where we overlap, vercels approach should be prioritized. This also includes critical decisions like the db schema etc."
 
-Plans 17.1-06 through 17.1-10 implement complete Vercel foundation rebuild.
+Plans 17.1-06 through 17.1-09 implemented complete Vercel foundation rebuild.
+Plans 17.1-10 and 17.1-11 close verification gaps (migration execution and TypeScript errors).
 
 ### Phase 18: Tool Approval Flow
 **Goal**: User explicitly approves every code execution with full code preview, and approval state persists to prevent replay attacks
@@ -372,7 +374,7 @@ v2.2 phases execute in order: 14 → 15 → 16 → 17 (partial) → **17.1 (INSE
 | 15. E2B MCP Integration | 6/6 | ✓ Complete | 2026-02-01 |
 | 16. Multi-MCP Orchestration | 3/3 | ✓ Complete | 2026-02-01 |
 | 17. Code Execution Pipeline | 1/2 | ⏸️ Paused | 2026-02-01 |
-| **17.1. Chat Foundation Reset** | **4/10** | **▶️ Gap Closure** | - |
+| **17.1. Chat Foundation Reset** | **9/11** | **▶️ Gap Closure** | - |
 | 18. Tool Approval Flow | 0/TBD | Blocked by 17.1 | - |
 | 19. Visualization Rendering | 0/TBD | Blocked by 17.1 | - |
 | 20. Chat Interface & Polish | 0/TBD | Blocked by 17.1 | - |
