@@ -22,6 +22,7 @@
     "@ai-sdk/openai-compatible": "^2.0.24",
     "@ai-sdk/react": "^3.0.66",
     "@base-ui/react": "^1.1.0",
+    "@e2b/code-interpreter": "^2.3.3",
     "@fumadocs/story": "^0.0.1",
     "@modelcontextprotocol/sdk": "^1.25.3",
     "@neondatabase/serverless": "^0.10.4",
