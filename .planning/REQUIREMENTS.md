@@ -30,13 +30,13 @@ Requirements for Interactive Data Playground milestone. Each maps to roadmap pha
 - [ ] **EXEC-01**: AI generates Python code based on dataset schema
 - [ ] **EXEC-02**: User sees approval dialog before code execution
 - [ ] **EXEC-03**: User sees code preview in approval dialog
-- [ ] **EXEC-04**: Code executes in isolated Daytona sandbox
+- [x] **EXEC-04**: Code executes in isolated E2B sandbox
 - [ ] **EXEC-05**: Code execution stops after 30 second timeout
-- [ ] **EXEC-06**: Sandbox automatically cleans up after 1 hour
+- [x] **EXEC-06**: Sandbox automatically cleans up after 1 hour
 - [ ] **EXEC-07**: User can create multi-file mini-apps (not just single scripts)
-- [ ] **EXEC-08**: Daytona sandbox supports full project structure
+- [ ] **EXEC-08**: E2B sandbox supports full project structure
 - [ ] **EXEC-09**: AI automatically fixes code errors when execution fails
-- [ ] **EXEC-10**: User sees graceful error message when Daytona unavailable
+- [x] **EXEC-10**: User sees graceful error message when E2B unavailable
 
 ### Visualization
 
@@ -66,18 +66,18 @@ Requirements for Interactive Data Playground milestone. Each maps to roadmap pha
 
 ### MCP Integration
 
-- [ ] **MCP-01**: Daytona MCP client connects via stdio transport
-- [ ] **MCP-02**: Data.gv.at MCP client connects via existing FastMCP server
-- [ ] **MCP-03**: Both MCP servers aggregate tools in single AI SDK call
-- [ ] **MCP-04**: MCP server spawning includes health checks
-- [ ] **MCP-05**: Connection failures trigger graceful degradation (no crash)
+- [x] **MCP-01**: E2B client connects via SDK (Daytona MCP doesn't exist)
+- [x] **MCP-02**: Data.gv.at MCP client connects via existing FastMCP server
+- [x] **MCP-03**: Both MCP servers aggregate tools in single AI SDK call
+- [x] **MCP-04**: MCP server spawning includes health checks
+- [x] **MCP-05**: Connection failures trigger graceful degradation (no crash)
 
 ### Security
 
 - [ ] **SEC-01**: User approval required before ANY code execution
 - [ ] **SEC-02**: Approval dialog shows complete code to be executed
 - [x] **SEC-03**: Tool approval bypass via message replay prevented
-- [ ] **SEC-04**: Each conversation uses isolated sandbox
+- [x] **SEC-04**: Each conversation uses isolated sandbox
 - [ ] **SEC-05**: Sandboxes have network access only to approved domains
 - [ ] **SEC-06**: Guest mode only (no authentication for v2.2)
 
