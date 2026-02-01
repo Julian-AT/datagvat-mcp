@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 17.1 of 20 (Chat Foundation Reset - INSERTED)
-Plan: 3 of TBD in current phase
+Plan: 6 of TBD in current phase
 Status: In progress
-Last activity: 2026-02-01 — Completed 17.1-03-PLAN.md (Chat Route Immediate Persistence)
+Last activity: 2026-02-01 — Completed 17.1-06-PLAN.md (Vercel Schema Migration)
 
-Progress: [█████░░░░░] 68% (16/24 plans complete in v2.2, 17.1-01 through 17.1-03 complete)
+Progress: [█████░░░░░] 70% (17/24 plans complete in v2.2, 17.1-01 through 17.1-06 complete)
 
 ## Performance Metrics
 
@@ -25,9 +25,9 @@ Progress: [█████░░░░░] 68% (16/24 plans complete in v2.2, 17
 - Build time: 152s (<5 min target maintained)
 
 **v2.2 Milestone (Starting):**
-- Plans completed: 16
-- Average duration: 5.7 min ((19 + 2 + 3 + 4 + 4 + 2 + 1 + 4 + 2 + 2 + 3 + 30 + 3 + 2 + 2 + 4) / 16)
-- Phase: Phase 17.1 in progress (3 plans complete)
+- Plans completed: 17
+- Average duration: 5.5 min ((19 + 2 + 3 + 4 + 4 + 2 + 1 + 4 + 2 + 2 + 3 + 30 + 3 + 2 + 2 + 4 + 2) / 17)
+- Phase: Phase 17.1 in progress (6 plans complete)
 
 **Recent Trend:**
 - v2.1 completed with 15 plans across 4 phases
@@ -50,7 +50,9 @@ Progress: [█████░░░░░] 68% (16/24 plans complete in v2.2, 17
 - Phase 17.1-03: 4 min (immediate persistence pattern + clean streaming)
 - Trend: Phase 17.1 in progress (3/TBD plans), foundation reset on track with proven ai-chatbot patterns
 - Phase 17.1-04: 2 min (execute-python immediate upload - eliminates context explosion)
-- Trend: Phase 17.1 in progress (4/TBD plans), upload-first pattern implemented
+- Phase 17.1-05: 2 min (parts-based message rendering - replaced custom visualization handling)
+- Phase 17.1-06: 2 min (Vercel schema migration - chat/message/document with UUID primary keys)
+- Trend: Phase 17.1 in progress (6/TBD plans), Vercel ai-chatbot foundation complete
 
 *Updated after v2.2 roadmap creation*
 
@@ -63,6 +65,10 @@ Recent decisions affecting current work:
 
 | ID | Decision | Status | Phase |
 |----|----------|--------|-------|
+| 17.1-06-uuid-primary-keys | Use UUID primary keys with gen_random_uuid() for chat/message/document tables | Implemented | 17.1-06 |
+| 17.1-06-attachments-separate | Separate attachments JSONB column from parts array for cleaner file metadata | Implemented | 17.1-06 |
+| 17.1-06-document-table | Create document table for artifacts/canvas pattern (kind: text | code) | Implemented | 17.1-06 |
+| 17.1-06-data-preservation | Migrate existing conversations/messages via user_id + created_at mapping | Implemented | 17.1-06 |
 | 17.1-03-immediate-persistence | User message saved BEFORE streaming starts (never lost if stream fails) | Implemented | 17.1-03 |
 | 17.1-03-no-transform | Removed experimental_transform for clean stream flow | Implemented | 17.1-03 |
 | 17.1-03-simple-onfinish | onFinish only saves assistant message (no visualization processing) | Implemented | 17.1-03 |
@@ -179,10 +185,10 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-01 18:54 UTC
-Stopped at: Completed 17.1-03-PLAN.md (Chat Route Immediate Persistence)
+Last session: 2026-02-01 19:43 UTC
+Stopped at: Completed 17.1-06-PLAN.md (Vercel Schema Migration)
 Resume file: None
-Next step: Phase 17.1 in progress (3/TBD plans done) - Immediate persistence pattern complete, proceed to Plan 04 or 05
+Next step: Phase 17.1 in progress (6/TBD plans done) - Database schema replaced with Vercel architecture, proceed to Plan 07 (artifact UI)
 
 ---
 
