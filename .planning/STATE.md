@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 16 of 20 (Multi-MCP Orchestration & Data Discovery)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-02-01 — Completed 16-02-PLAN.md (Streaming Chat Endpoint with Multi-MCP Tool Orchestration)
+Plan: 3 of 3 in current phase
+Status: Complete
+Last activity: 2026-02-01 — Completed 16-03-PLAN.md (Chat Persistence Integration)
 
-Progress: [████░░░░░░] 55% (11/20 plans complete in v2.2 estimate)
+Progress: [████░░░░░░] 60% (12/20 plans complete in v2.2 estimate)
 
 ## Performance Metrics
 
@@ -25,13 +25,13 @@ Progress: [████░░░░░░] 55% (11/20 plans complete in v2.2 est
 - Build time: 152s (<5 min target maintained)
 
 **v2.2 Milestone (Starting):**
-- Plans completed: 11
-- Average duration: 4.2 min ((19 + 2 + 3 + 4 + 4 + 2 + 1 + 4 + 2 + 2 + 3) / 11)
-- Phase: Phase 16 in progress (2/3 plans)
+- Plans completed: 12
+- Average duration: 6.9 min ((19 + 2 + 3 + 4 + 4 + 2 + 1 + 4 + 2 + 2 + 3 + 30) / 12)
+- Phase: Phase 16 complete (3/3 plans)
 
 **Recent Trend:**
 - v2.1 completed with 15 plans across 4 phases
-- v2.2: 10 plans complete - average 4.4 min
+- v2.2: 12 plans complete - average 6.9 min
 - Phase 14-01: 19 min (database setup, migrations)
 - Phase 14-02: 2 min (configuration task)
 - Phase 14-03: 3 min (API routes with validation)
@@ -43,7 +43,8 @@ Progress: [████░░░░░░] 55% (11/20 plans complete in v2.2 est
 - Phase 15-06: 2 min (reconnection logic - Gap 3 closure)
 - Phase 16-01: 2 min (AI model config + dataset discovery prompt)
 - Phase 16-02: 3 min (streaming chat endpoint + multi-MCP tool orchestration)
-- Trend: Phase 15 complete, Phase 16 in progress (API layer integration)
+- Phase 16-03: 30 min (chat persistence integration with message history + tool preservation)
+- Trend: Phase 16 complete, ready for Phase 18 (Security Patterns & Approval Flow)
 
 *Updated after v2.2 roadmap creation*
 
@@ -56,6 +57,11 @@ Recent decisions affecting current work:
 
 | ID | Decision | Status | Phase |
 |----|----------|--------|-------|
+| 16-03-uuid-preference | User prefers UUIDs over serial IDs for future phases (security + Vercel compatibility) | Noted | 16-03 |
+| 16-03-graceful-persistence | Wrap message persistence in try/catch - never block streaming | Implemented | 16-03 |
+| 16-03-onfinish-pattern | Use AI SDK onFinish callback to save messages after stream completes | Implemented | 16-03 |
+| 16-03-history-merge | Load conversation history and merge with new messages before AI processing | Implemented | 16-03 |
+| 16-03-auto-conversation | Create conversation automatically on first message if no conversationId | Implemented | 16-03 |
 | 16-02-runtime-tool-aggregation | Call getAvailableTools() per request for dynamic tool availability | Implemented | 16-02 |
 | 16-02-single-agent-direct-prompt | Use datasetDiscoveryPrompt directly, no routing helper | Implemented | 16-02 |
 | 16-02-remove-geolocation | Removed geolocation/RequestHints (not needed for Austrian dataset focus) | Implemented | 16-02 |
@@ -109,7 +115,7 @@ Recent decisions affecting current work:
 **v2.2 phase planning:**
 - Phase 14: ✅ Complete (14-01: schema, 14-02: sessions, 14-03: message APIs)
 - Phase 15: ✅ Complete (15-01: MCP clients, 15-02: health checks + graceful degradation, 15-03: sandbox lifecycle, 15-04-06: gap closure)
-- Phase 16: In progress (16-01: AI config ✅, 16-02: chat endpoint ✅, 16-03: frontend integration pending)
+- Phase 16: ✅ Complete (16-01: AI config, 16-02: chat endpoint, 16-03: message persistence)
 - Phase 18: Security patterns (approval flow builds on execution_status)
 - Phase 19: Image extraction (uses uploadImageFromBase64 from 14-03)
 - Phase 20: Chat UI (uses message APIs from 14-03)
@@ -135,10 +141,10 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-01 11:10 UTC
-Stopped at: Completed 16-02-PLAN.md (Streaming Chat Endpoint with Multi-MCP Tool Orchestration)
+Last session: 2026-02-01 09:51 UTC
+Stopped at: Completed 16-03-PLAN.md (Chat Persistence Integration)
 Resume file: None
-Next step: Phase 16 complete (2/2 core plans done) - ready for Phase 18 (Security Patterns & Approval Flow)
+Next step: Phase 16 complete (3/3 plans done) - ready for Phase 18 (Security Patterns & Approval Flow)
 
 ---
 
