@@ -155,17 +155,62 @@ const PurePreviewMessage = ({
               }
             }
 
-            if (type === "dynamic-tool") {
-              console.log(part);
+            // Tool invocation rendering (handle both stream and persisted)
+            if (type.startsWith("tool-") || "toolName" in part) {
+              const partAny = part as any;
+
+              // @ts-expect-error - tool-call type from database MessagePart, not in UIMessage part types
+              if ((type === "tool-call" || partAny.toolName) && "toolName" in part) {
+                return (
+                  <div
+                    key={key}
+                    className="my-2 rounded-lg border border-border bg-muted/50 p-3"
+                  >
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="font-medium text-primary">
+                        Tool Call:
+                      </span>
+                      <code className="text-xs">{partAny.toolName}</code>
+                    </div>
+                    {"args" in part && partAny.args && (
+                      <pre className="mt-2 overflow-x-auto text-xs text-muted-foreground">
+                        {JSON.stringify(partAny.args, null, 2)}
+                      </pre>
+                    )}
+                  </div>
+                );
+              }
+
+              // @ts-expect-error - tool-result type from database MessagePart, not in UIMessage part types
+              if ((type === "tool-result" || partAny.result !== undefined) && "result" in part) {
+                return (
+                  <div
+                    key={key}
+                    className="my-2 rounded-lg border border-border bg-muted/30 p-3"
+                  >
+                    <div className="text-sm font-medium text-muted-foreground mb-2">
+                      Tool Result:
+                    </div>
+                    <pre className="overflow-x-auto text-xs">
+                      {typeof partAny.result === "string"
+                        ? partAny.result
+                        : JSON.stringify(partAny.result, null, 2)}
+                    </pre>
+                  </div>
+                );
+              }
             }
 
-            if (type === "visualization") {
+            // Visualization rendering (custom type from persistence)
+            // @ts-expect-error - visualization type from database MessagePart, not in UIMessage part types
+            if ((type === "visualization" || ("format" in part && "url" in part)) && "url" in part) {
+              const partAny = part as any;
               return (
                 <Visualization
                   key={key}
-                  format={part.format}
-                  url={part.url}
-                  metadata={part.metadata}
+                  format={partAny.format as "png" | "svg" | "html"}
+                  url={partAny.url as string}
+                  metadata={partAny.metadata as Record<string, unknown> | undefined}
                 />
               );
             }

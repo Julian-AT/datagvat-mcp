@@ -24,6 +24,11 @@ export type CustomUIDataTypes = {
   clear: null;
   finish: null;
   'chat-title': string;
+  visualization: {
+    format: 'png' | 'svg' | 'html';
+    url: string;
+    metadata?: Record<string, unknown>;
+  };
 };
 
 export type ChatMessage = UIMessage<MessageMetadata, CustomUIDataTypes, ChatTools>;
