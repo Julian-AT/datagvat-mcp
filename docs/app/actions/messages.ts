@@ -1,23 +1,22 @@
 'use server';
 
 import { db } from '@/db';
-import { conversations, messages, type MessagePart } from '@/db/schema';
+import { chat, message, type MessagePart } from '@/db/schema';
 import { eq, desc, lt, and } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 
 interface PaginatedMessages {
   messages: Array<{
-    id: number;
+    id: string;
     role: string;
     parts: MessagePart[];
     createdAt: Date;
-    executionStatus: string | null;
   }>;
-  nextCursor: number | null;
+  nextCursor: string | null;
 }
 
-export async function createConversation(title?: string) {
+export async function createChat(title?: string) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -26,36 +25,30 @@ export async function createConversation(title?: string) {
     throw new Error('Unauthorized');
   }
 
-  const [conversation] = await db
-    .insert(conversations)
+  const [newChat] = await db
+    .insert(chat)
     .values({
       userId: session.user.id,
-      title: title || 'New Conversation',
+      title: title || 'New Chat',
     })
     .returning();
 
-  return conversation;
+  return newChat;
 }
 
-export async function getConversations(userId: string) {
+export async function getChats(userId: string) {
   return await db
     .select()
-    .from(conversations)
-    .where(eq(conversations.userId, userId))
-    .orderBy(desc(conversations.updatedAt))
+    .from(chat)
+    .where(eq(chat.userId, userId))
+    .orderBy(desc(chat.createdAt))
     .limit(20);
 }
 
 export async function createMessage(
-  conversationId: number,
+  chatId: string,
   role: 'user' | 'assistant' | 'system',
   parts: MessagePart[],
-  options?: {
-    executionStatus?: string;
-    sandboxId?: string;
-    mcpSource?: string;
-    metadata?: Record<string, unknown>;
-  }
 ) {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -65,59 +58,49 @@ export async function createMessage(
     throw new Error('Unauthorized');
   }
 
-  const [conversation] = await db
+  const [existingChat] = await db
     .select()
-    .from(conversations)
-    .where(eq(conversations.id, conversationId))
+    .from(chat)
+    .where(eq(chat.id, chatId))
     .limit(1);
 
-  if (!conversation || conversation.userId !== session.user.id) {
-    throw new Error('Unauthorized: conversation not found or access denied');
+  if (!existingChat || existingChat.userId !== session.user.id) {
+    throw new Error('Unauthorized: chat not found or access denied');
   }
 
-  const [message] = await db
-    .insert(messages)
+  const [msg] = await db
+    .insert(message)
     .values({
-      conversationId,
+      chatId,
       role,
       parts,
-      executionStatus: options?.executionStatus || 'pending',
-      sandboxId: options?.sandboxId,
-      mcpSource: options?.mcpSource,
-      metadata: options?.metadata,
     })
     .returning();
 
-  await db
-    .update(conversations)
-    .set({ updatedAt: new Date() })
-    .where(eq(conversations.id, conversationId));
-
-  return message;
+  return msg;
 }
 
 export async function getMessages(
-  conversationId: number,
-  cursor?: number,
+  chatId: string,
+  cursor?: string,
   limit = 50
 ): Promise<PaginatedMessages> {
-  const conditions = [eq(messages.conversationId, conversationId)];
+  const conditions = [eq(message.chatId, chatId)];
 
   if (cursor) {
-    conditions.push(lt(messages.id, cursor));
+    conditions.push(lt(message.id, cursor));
   }
 
   const results = await db
     .select({
-      id: messages.id,
-      role: messages.role,
-      parts: messages.parts,
-      createdAt: messages.createdAt,
-      executionStatus: messages.executionStatus,
+      id: message.id,
+      role: message.role,
+      parts: message.parts,
+      createdAt: message.createdAt,
     })
-    .from(messages)
+    .from(message)
     .where(and(...conditions))
-    .orderBy(desc(messages.createdAt))
+    .orderBy(desc(message.createdAt))
     .limit(limit + 1);
 
   const hasMore = results.length > limit;
@@ -125,28 +108,4 @@ export async function getMessages(
   const nextCursor = hasMore ? items[items.length - 1].id : null;
 
   return { messages: items, nextCursor };
-}
-
-export async function updateMessageExecutionStatus(
-  messageId: number,
-  status: 'pending' | 'approved' | 'executed' | 'rejected'
-) {
-  const [existing] = await db
-    .select()
-    .from(messages)
-    .where(eq(messages.id, messageId))
-    .limit(1);
-
-  if (!existing) {
-    throw new Error('Message not found');
-  }
-
-  if (existing.executionStatus === 'executed') {
-    throw new Error('Cannot change status of already executed message');
-  }
-
-  await db
-    .update(messages)
-    .set({ executionStatus: status })
-    .where(eq(messages.id, messageId));
 }

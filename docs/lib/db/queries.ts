@@ -3,7 +3,7 @@ import { chat, message, type Chat, type Message, type MessagePart, type Attachme
 import { eq, desc, asc } from "drizzle-orm";
 import { generateId } from "ai";
 import { ChatSDKError } from "@/lib/errors";
-import type { Message as UIMessage } from "ai";
+import type { UIMessage } from "ai";
 
 // DBMessage type for inserting messages
 export type DBMessage = {

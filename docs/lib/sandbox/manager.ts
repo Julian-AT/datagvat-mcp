@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { messages } from '@/db/schema';
+import { message } from '@/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { createE2BClient } from '@/lib/mcp/e2b-client';
 import type { SandboxExecutionResult, ExecutionOptions } from '@/lib/mcp/types';
@@ -26,41 +26,41 @@ export async function createTrackedSandbox(
   const sandbox = await e2bClient.createSandbox();
 
   await db
-    .update(messages)
+    .update(message)
     .set({
       sandboxId: sandbox.sandboxId,
     })
-    .where(eq(messages.id, messageId));
+    .where(eq(message.id, messageId));
 
   return { sandbox, messageId };
 }
 
 export async function cleanupSandbox(messageId: number): Promise<void> {
-  const message = await db.query.messages.findFirst({
-    where: eq(messages.id, messageId),
+  const msg = await db.query.message.findFirst({
+    where: eq(message.id, messageId),
   });
 
-  if (!message?.sandboxId) {
+  if (!msg?.sandboxId) {
     return;
   }
 
   await db
-    .update(messages)
+    .update(message)
     .set({
       sandboxId: null,
     })
-    .where(eq(messages.id, messageId));
+    .where(eq(message.id, messageId));
 }
 
 export async function cleanupStaleSandbox(messageId: number): Promise<void> {
   await db
-    .update(messages)
+    .update(message)
     .set({
       sandboxId: null,
     })
     .where(
       and(
-        eq(messages.id, messageId),
+        eq(message.id, messageId),
         sql`sandbox_id IS NOT NULL`,
         sql`created_at < NOW() - INTERVAL '1 hour'`
       )
@@ -70,12 +70,12 @@ export async function cleanupStaleSandbox(messageId: number): Promise<void> {
 export async function getSandboxForMessage(messageId: number): Promise<string | null> {
   await cleanupStaleSandbox(messageId);
 
-  const message = await db.query.messages.findFirst({
-    where: eq(messages.id, messageId),
+  const msg = await db.query.message.findFirst({
+    where: eq(message.id, messageId),
     columns: {
       sandboxId: true,
     },
   });
 
-  return message?.sandboxId || null;
+  return msg?.sandboxId || null;
 }
