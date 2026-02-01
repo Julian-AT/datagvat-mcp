@@ -19,6 +19,9 @@ import { type PostRequestBody, postRequestBodySchema } from "./schema";
 import { getAvailableTools } from "@/lib/mcp/aggregate-tools";
 import { createMessage, getMessages, createConversation } from "@/app/actions/messages";
 import type { MessagePart } from "@/db/schema";
+import { createGuestSession } from "@/lib/auth";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 
 export const maxDuration = 60;
@@ -49,6 +52,17 @@ export async function POST(request: Request) {
   console.log(requestBody);
 
   try {
+    // Ensure guest session exists for message persistence
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user) {
+      // Create guest session for anonymous users
+      await createGuestSession();
+      // Note: Session cookie will be set automatically by better-auth
+    }
+
     const { messages, message, selectedChatModel, conversationId } = requestBody;
 
     const isToolApprovalFlow = Boolean(messages);
