@@ -3,11 +3,7 @@ import { z } from 'zod/v4';
 import { createDataGvatClient } from './datagvat-client';
 import { createE2BClient } from './e2b-client';
 import type { ProjectFile } from './types';
-
-// Store visualization data temporarily to avoid passing base64 to LLM
-const visualizationCache = new Map<string, any>();
-
-export { visualizationCache };
+import { uploadImageFromBase64, uploadVisualization } from '@/lib/blob';
 
 export async function getAvailableTools(conversationId?: number) {
   const tools: Record<string, any> = {};
@@ -41,6 +37,16 @@ Use 'files' parameter for multi-file projects with proper directory structure.`,
         workingDirectory: z.string().optional().describe('Working directory for imports (default: /home/user)'),
       }),
       execute: async ({ code, files, workingDirectory }) => {
+        if (!conversationId) {
+          return {
+            success: false,
+            error: {
+              name: 'ConfigurationError',
+              message: 'Conversation ID required for visualization upload',
+            },
+          };
+        }
+
         const sandbox = await e2bClient.createSandbox();
         try {
           const result = await sandbox.runCode(code, {
@@ -53,36 +59,64 @@ Use 'files' parameter for multi-file projects with proper directory structure.`,
             result.error.message += '\n\nCode execution exceeded 30-second limit. Consider:\n- Breaking into smaller chunks\n- Reducing dataset size\n- Optimizing loops or vectorizing operations';
           }
 
-          // If visualizations exist, cache them (never send base64 to LLM or stream)
+          // If visualizations exist, upload immediately
           if (result.visualizations && result.visualizations.length > 0) {
-            const vizId = `viz_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+            const uploadedViz = await Promise.all(
+              result.visualizations.map(async (viz, index) => {
+                const urls: { format: string; url: string }[] = [];
 
-            // Always cache - onFinish will upload to blob storage
-            visualizationCache.set(vizId, result.visualizations);
+                // Upload PNG if present
+                if (viz.png) {
+                  const url = await uploadImageFromBase64(
+                    viz.png,
+                    `viz-${Date.now()}-${index}.png`,
+                    conversationId
+                  );
+                  urls.push({ format: 'png', url });
+                }
 
-            console.log('[E2B] Cached visualizations:', {
-              vizId,
-              count: result.visualizations.length,
-              formats: result.visualizations.map(v => v.formats),
-              cacheSize: visualizationCache.size
-            });
+                // Upload SVG if present
+                if (viz.svg) {
+                  const url = await uploadImageFromBase64(
+                    viz.svg,
+                    `viz-${Date.now()}-${index}.svg`,
+                    conversationId
+                  );
+                  urls.push({ format: 'svg', url });
+                }
 
-            // Return result without base64 data for LLM context
+                // Upload HTML if present
+                if (viz.html) {
+                  const url = await uploadVisualization(
+                    viz.html,
+                    `viz-${Date.now()}-${index}.html`,
+                    conversationId,
+                    'text/html'
+                  );
+                  urls.push({ format: 'html', url });
+                }
+
+                return urls;
+              })
+            );
+
+            // Flatten array of arrays
+            const allUrls = uploadedViz.flat();
+
             return {
-              success: result.success,
+              success: true,
               text: result.text,
-              error: result.error,
               logs: result.logs,
-              visualizations: [{
-                id: vizId,
-                count: result.visualizations.length,
-                formats: result.visualizations.map(v => v.formats),
-                message: `Generated ${result.visualizations.length} visualization(s).`
-              }],
+              visualizations: allUrls, // URLs only, no base64
             };
           }
 
-          return result;
+          return {
+            success: result.success,
+            text: result.text,
+            error: result.error,
+            logs: result.logs,
+          };
         } finally {
           await sandbox.kill();
         }
