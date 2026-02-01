@@ -37,16 +37,18 @@ function getStreamContext() {
 export { getStreamContext };
 
 export async function POST(request: Request) {
-  let requestBody: PostRequestBody;
-
   try {
     const json = await request.json();
-    requestBody = postRequestBodySchema.parse(json);
-  } catch (_) {
-    return new ChatSDKError("bad_request:api").toResponse();
-  }
 
-  try {
+    // AI SDK sends: { id, message, messages, ... }
+    // Extract chatId and messages from the request
+    const chatId = json.id; // AI SDK uses 'id' for chat identifier
+    const uiMessages = json.messages || (json.message ? [json.message] : []);
+
+    if (!chatId || !uiMessages.length) {
+      return new ChatSDKError("bad_request:api").toResponse();
+    }
+
     // 1. Ensure guest session exists
     let session = await auth.api.getSession({
       headers: await headers(),
@@ -60,8 +62,6 @@ export async function POST(request: Request) {
     } else {
       userId = session.user.id;
     }
-
-    const { messages: uiMessages, chatId } = requestBody;
 
     // 2. Ensure chat exists
     let existingChat = await getChatById({ id: chatId });
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
 
     // 4. Merge historical messages with new message
     // Ensure incoming messages have both content and parts for ModelMessage compatibility
-    const normalizedUiMessages = uiMessages.map(msg => ({
+    const normalizedUiMessages = uiMessages.map((msg: any) => ({
       ...msg,
       content: msg.parts,
       parts: msg.parts
@@ -158,7 +158,7 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    console.log(error);
+    console.error("Chat API error:", error);
 
     const vercelId = request.headers.get("x-vercel-id");
 
