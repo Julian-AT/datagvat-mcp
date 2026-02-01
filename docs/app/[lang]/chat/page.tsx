@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { Suspense } from 'react';
 import { Chat } from '@/components/chat';
 import { DataStreamHandler } from '@/components/data-stream-handler';
+import { HealthStatus } from '@/components/mcp/health-status';
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
 import { generateUUID } from '@/lib/utils';
 
@@ -21,6 +22,7 @@ async function NewChatPage() {
   if (!modelIdFromCookie) {
     return (
       <>
+        <HealthStatus />
         <Chat
           autoResume={false}
           id={id}
@@ -36,6 +38,7 @@ async function NewChatPage() {
 
   return (
     <>
+      <HealthStatus />
       <Chat
         autoResume={false}
         id={id}
