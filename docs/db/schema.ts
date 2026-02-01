@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, jsonb, varchar, index, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, jsonb, varchar, index, uuid, integer } from "drizzle-orm/pg-core";
 
 // better-auth required tables
 export const user = pgTable("user", {
@@ -20,31 +20,6 @@ export const session = pgTable("session", {
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
   userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
-});
-
-export const account = pgTable("account", {
-  id: text("id").primaryKey(),
-  accountId: text("account_id").notNull(),
-  providerId: text("provider_id").notNull(),
-  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
-  accessToken: text("access_token"),
-  refreshToken: text("refresh_token"),
-  idToken: text("id_token"),
-  accessTokenExpiresAt: timestamp("access_token_expires_at", { mode: "date" }),
-  refreshTokenExpiresAt: timestamp("refresh_token_expires_at", { mode: "date" }),
-  scope: text("scope"),
-  password: text("password"),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { mode: "date" }).$onUpdate(() => new Date()),
-});
-
-export const verification = pgTable("verification", {
-  id: text("id").primaryKey(),
-  identifier: text("identifier").notNull(),
-  value: text("value").notNull(),
-  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
-  updatedAt: timestamp("updated_at", { mode: "date" }).$onUpdate(() => new Date()),
 });
 
 // Vercel ai-chatbot schema: chat table (replaces conversations)
@@ -102,7 +77,36 @@ export const document = pgTable("document", {
   index("document_created_idx").on(table.createdAt),
 ]);
 
+// Vercel ai-chatbot schema: suggestion table for chat suggestions
+export const suggestion = pgTable("suggestion", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  documentId: uuid("document_id").notNull().references(() => document.id, { onDelete: "cascade" }),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  originalText: text("original_text").notNull(),
+  suggestedText: text("suggested_text").notNull(),
+  description: text("description"),
+  isResolved: varchar("is_resolved", { length: 10 }).notNull().default("pending"),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+}, (table) => [
+  index("suggestion_document_idx").on(table.documentId),
+  index("suggestion_user_idx").on(table.userId),
+]);
+
+// Vercel ai-chatbot schema: vote table for message feedback
+export const vote = pgTable("vote", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  chatId: uuid("chat_id").notNull().references(() => chat.id, { onDelete: "cascade" }),
+  messageId: uuid("message_id").notNull().references(() => message.id, { onDelete: "cascade" }),
+  isUpvoted: varchar("is_upvoted", { length: 10 }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+}, (table) => [
+  index("vote_chat_idx").on(table.chatId),
+  index("vote_message_idx").on(table.messageId),
+]);
+
 // TypeScript types for Drizzle inference
 export type Chat = typeof chat.$inferSelect;
 export type Message = typeof message.$inferSelect;
 export type Document = typeof document.$inferSelect;
+export type Suggestion = typeof suggestion.$inferSelect;
+export type Vote = typeof vote.$inferSelect;

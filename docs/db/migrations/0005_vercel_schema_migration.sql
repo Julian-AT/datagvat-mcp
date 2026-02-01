@@ -1,6 +1,6 @@
 -- Migration: Replace conversations/messages schema with Vercel ai-chatbot schema
 -- Date: 2026-02-01
--- Description: Create chat/message/document tables with UUID primary keys, migrate existing data
+-- Description: Create chat/message/document/suggestion/vote tables with UUID primary keys, migrate existing data
 
 -- =============================================================================
 -- PART 1: Create new tables (Vercel ai-chatbot schema)
@@ -44,6 +44,33 @@ CREATE TABLE IF NOT EXISTS document (
 
 CREATE INDEX IF NOT EXISTS document_user_idx ON document(user_id);
 CREATE INDEX IF NOT EXISTS document_created_idx ON document(created_at);
+
+-- Create suggestion table for chat suggestions
+CREATE TABLE IF NOT EXISTS suggestion (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  document_id UUID NOT NULL REFERENCES document(id) ON DELETE CASCADE,
+  user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+  original_text TEXT NOT NULL,
+  suggested_text TEXT NOT NULL,
+  description TEXT,
+  is_resolved VARCHAR(10) NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS suggestion_document_idx ON suggestion(document_id);
+CREATE INDEX IF NOT EXISTS suggestion_user_idx ON suggestion(user_id);
+
+-- Create vote table for message feedback
+CREATE TABLE IF NOT EXISTS vote (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  chat_id UUID NOT NULL REFERENCES chat(id) ON DELETE CASCADE,
+  message_id UUID NOT NULL REFERENCES message(id) ON DELETE CASCADE,
+  is_upvoted VARCHAR(10) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS vote_chat_idx ON vote(chat_id);
+CREATE INDEX IF NOT EXISTS vote_message_idx ON vote(message_id);
 
 -- =============================================================================
 -- PART 2: Migrate existing data (if tables exist)
