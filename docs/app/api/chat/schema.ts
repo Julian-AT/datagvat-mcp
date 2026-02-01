@@ -28,8 +28,11 @@ const messageSchema = z.object({
 });
 
 export const postRequestBodySchema = z.object({
-  chatId: z.string().uuid(),
-  messages: z.array(messageSchema),
+  id: z.string().uuid(),
+  message: userMessageSchema.optional(),
+  messages: z.array(messageSchema).optional(),
+  selectedChatModel: z.string(),
+  selectedVisibilityType: z.enum(["public", "private"]),
 });
 
 export type PostRequestBody = z.infer<typeof postRequestBodySchema>;

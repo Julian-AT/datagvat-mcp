@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { chat, message, type Chat, type Message, type MessagePart, type Attachment } from "@/db/schema";
+import { chat, message, type Chat, type Message, type MessagePart, type Attachment } from "@/lib/db/schema";
 import { eq, desc, asc } from "drizzle-orm";
 import { generateId } from "ai";
 import { ChatSDKError } from "@/lib/errors";
@@ -156,4 +156,42 @@ export function convertToUIMessages(dbMessages: Message[]): UIMessage[] {
       createdAt: msg.createdAt
     } as UIMessage;
   });
+}
+
+/**
+ * Update a message's parts (for tool approval flow)
+ * From Vercel ai-chatbot pattern
+ */
+export async function updateMessage({
+  id,
+  parts
+}: {
+  id: string;
+  parts: MessagePart[];
+}) {
+  try {
+    return await db
+      .update(message)
+      .set({ parts })
+      .where(eq(message.id, id));
+  } catch (error) {
+    console.error("Failed to update message:", error);
+    throw new ChatSDKError("bad_request:database", "Failed to update message");
+  }
+}
+
+/**
+ * Delete a chat and all its messages (cascade)
+ * From Vercel ai-chatbot pattern
+ */
+export async function deleteChatById({ id }: { id: string }) {
+  try {
+    return await db
+      .delete(chat)
+      .where(eq(chat.id, id))
+      .returning();
+  } catch (error) {
+    console.error("Failed to delete chat:", error);
+    throw new ChatSDKError("bad_request:database", "Failed to delete chat");
+  }
 }

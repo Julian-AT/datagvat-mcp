@@ -1,4 +1,5 @@
 import {
+  convertToModelMessages,
   createUIMessageStream,
   createUIMessageStreamResponse,
   generateId,
@@ -7,7 +8,6 @@ import {
 import { after } from "next/server";
 import { createResumableStreamContext } from "resumable-stream";
 import { datasetDiscoveryPrompt } from "@/lib/ai/prompts";
-import { getLanguageModel } from "@/lib/ai/providers";
 import { ChatSDKError } from "@/lib/errors";
 import { type PostRequestBody, postRequestBodySchema } from "./schema";
 import { getAvailableTools } from "@/lib/mcp/aggregate-tools";
@@ -19,10 +19,13 @@ import {
   getMessagesByChatId,
   saveChat,
   getChatById,
-  convertToUIMessages,
+  deleteChatById,
+  updateMessage,
 } from "@/lib/db/queries";
 import { anthropic } from "@ai-sdk/anthropic";
-
+import { convertToUIMessages, generateUUID } from "@/lib/utils";
+import type { ChatMessage } from "@/lib/types";
+import type { DBMessage } from "@/lib/db/schema";
 
 export const maxDuration = 60;
 
@@ -37,17 +40,18 @@ function getStreamContext() {
 export { getStreamContext };
 
 export async function POST(request: Request) {
+  let requestBody: PostRequestBody;
+
   try {
     const json = await request.json();
+    requestBody = postRequestBodySchema.parse(json);
+  } catch (error) {
+    console.error("Schema validation error:", error);
+    return new ChatSDKError("bad_request:api").toResponse();
+  }
 
-    // AI SDK sends: { id, message, messages, ... }
-    // Extract chatId and messages from the request
-    const chatId = json.id; // AI SDK uses 'id' for chat identifier
-    const uiMessages = json.messages || (json.message ? [json.message] : []);
-
-    if (!chatId || !uiMessages.length) {
-      return new ChatSDKError("bad_request:api").toResponse();
-    }
+  try {
+    const { id, message, messages, selectedVisibilityType } = requestBody;
 
     // 1. Ensure guest session exists
     let session = await auth.api.getSession({
@@ -63,78 +67,107 @@ export async function POST(request: Request) {
       userId = session.user.id;
     }
 
-    // 2. Ensure chat exists
-    let existingChat = await getChatById({ id: chatId });
-    if (!existingChat) {
+    // 2. Determine if this is a tool approval flow
+    const isToolApprovalFlow = Boolean(messages);
+
+    // 3. Get or create chat
+    const chat = await getChatById({ id });
+    let messagesFromDb: DBMessage[] = [];
+
+    if (chat) {
+      // Chat exists, load history if NOT tool approval flow
+      if (!isToolApprovalFlow) {
+        messagesFromDb = await getMessagesByChatId({ id });
+      }
+    } else if (message?.role === "user") {
+      // New chat - create it
       await saveChat({
-        id: chatId,
+        id,
         userId: userId,
-        title: uiMessages[0]?.parts?.[0]?.text?.slice(0, 100) || "New Chat",
-        visibility: "private"
+        title: "New chat",
+        visibility: selectedVisibilityType,
       });
     }
 
-    // 3. CRITICAL: Load conversation history from database
-    const dbMessages = await getMessagesByChatId({ id: chatId });
-    const historicalMessages = convertToUIMessages(dbMessages);
+    // 4. Build UI messages array
+    const uiMessages = isToolApprovalFlow
+      ? (messages as ChatMessage[])
+      : [...convertToUIMessages(messagesFromDb), message as ChatMessage];
 
-    // 4. Merge historical messages with new message
-    // Ensure incoming messages have both content and parts for ModelMessage compatibility
-    const normalizedUiMessages = uiMessages.map((msg: any) => ({
-      ...msg,
-      content: msg.parts,
-      parts: msg.parts
-    }));
-    const allMessages = [...historicalMessages, ...normalizedUiMessages] as any;
+    // 5. Save user message if present
+    if (message?.role === "user") {
+      await saveMessages({
+        messages: [
+          {
+            chatId: id,
+            id: message.id,
+            role: "user",
+            parts: message.parts,
+            attachments: [],
+            createdAt: new Date(),
+          },
+        ],
+      });
+    }
 
-    // 5. Save user message BEFORE streaming starts (fixes data loss on stream failure)
-    const userMessage = {
-      id: generateId(),
-      chatId,
-      role: "user" as const,
-      parts: uiMessages[0].parts,
-      attachments: [],
-      createdAt: new Date()
-    };
-    await saveMessages({ messages: [userMessage] });
+    // 6. Convert to model messages format
+    const modelMessages = await convertToModelMessages(uiMessages);
 
-    // 6. Stream response with ALL messages (historical + new)
+    // 7. Stream AI response
     const stream = createUIMessageStream({
-      execute: async ({ writer }) => {
+      originalMessages: isToolApprovalFlow ? uiMessages : undefined,
+      execute: async ({ writer: dataStream }) => {
         const result = streamText({
           model: anthropic("claude-sonnet-4-20250514"),
           system: datasetDiscoveryPrompt,
-          messages: allMessages,  // Include full conversation history
-          tools: await getAvailableTools(chatId)
+          messages: modelMessages,
+          tools: await getAvailableTools(id),
         });
 
-        writer.merge(result.toUIMessageStream());
+        dataStream.merge(result.toUIMessageStream());
       },
+      generateId: generateUUID,
       onFinish: async ({ messages: finishedMessages }) => {
-        // 7. Save assistant response after stream completes
-        const assistantMessage = finishedMessages[finishedMessages.length - 1];
-
-        // Filter out reasoning parts - only save content parts compatible with MessagePart
-        const compatibleParts = assistantMessage.parts.filter((part: any) =>
-          part.type !== 'reasoning'
-        );
-
-        try {
+        // Save messages after streaming completes
+        if (isToolApprovalFlow) {
+          // Tool approval flow: update existing messages or create new ones
+          for (const finishedMsg of finishedMessages) {
+            const existingMsg = uiMessages.find((m) => m.id === finishedMsg.id);
+            if (existingMsg) {
+              await updateMessage({
+                id: finishedMsg.id,
+                parts: finishedMsg.parts,
+              });
+            } else {
+              await saveMessages({
+                messages: [
+                  {
+                    id: finishedMsg.id,
+                    role: finishedMsg.role,
+                    parts: finishedMsg.parts,
+                    createdAt: new Date(),
+                    attachments: [],
+                    chatId: id,
+                  },
+                ],
+              });
+            }
+          }
+        } else if (finishedMessages.length > 0) {
+          // Normal flow: save all finished messages
           await saveMessages({
-            messages: [{
-              id: generateId(),
-              chatId,
-              role: "assistant" as const,
-              parts: compatibleParts as any,
+            messages: finishedMessages.map((currentMessage) => ({
+              id: currentMessage.id,
+              role: currentMessage.role,
+              parts: currentMessage.parts,
+              createdAt: new Date(),
               attachments: [],
-              createdAt: new Date()
-            }]
+              chatId: id,
+            })),
           });
-        } catch (error) {
-          console.error("Failed to save assistant message:", error);
-          // Don't throw - message already streamed to user
         }
-      }
+      },
+      onError: () => "Oops, an error occurred!",
     });
 
     return createUIMessageStreamResponse({
@@ -178,4 +211,31 @@ export async function POST(request: Request) {
     console.error("Unhandled error in chat API:", error, { vercelId });
     return new ChatSDKError("offline:chat").toResponse();
   }
+}
+
+export async function DELETE(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get("id");
+
+  if (!id) {
+    return new ChatSDKError("bad_request:api").toResponse();
+  }
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    return new ChatSDKError("unauthorized:chat").toResponse();
+  }
+
+  const chat = await getChatById({ id });
+
+  if (!chat || chat.userId !== session.user.id) {
+    return new ChatSDKError("forbidden:chat").toResponse();
+  }
+
+  const deletedChat = await deleteChatById({ id });
+
+  return Response.json(deletedChat, { status: 200 });
 }
