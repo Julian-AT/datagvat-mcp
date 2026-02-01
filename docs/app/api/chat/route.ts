@@ -79,7 +79,13 @@ export async function POST(request: Request) {
     const historicalMessages = convertToUIMessages(dbMessages);
 
     // 4. Merge historical messages with new message
-    const allMessages = [...historicalMessages, ...uiMessages];
+    // Ensure incoming messages have both content and parts for ModelMessage compatibility
+    const normalizedUiMessages = uiMessages.map(msg => ({
+      ...msg,
+      content: msg.parts,
+      parts: msg.parts
+    }));
+    const allMessages = [...historicalMessages, ...normalizedUiMessages] as any;
 
     // 5. Save user message BEFORE streaming starts (fixes data loss on stream failure)
     const userMessage = {
@@ -99,8 +105,7 @@ export async function POST(request: Request) {
           model: anthropic("claude-sonnet-4-20250514"),
           system: datasetDiscoveryPrompt,
           messages: allMessages,  // Include full conversation history
-          tools: await getAvailableTools(chatId),
-          maxToolRoundtrips: 10
+          tools: await getAvailableTools(chatId)
         });
 
         writer.merge(result.toUIMessageStream());

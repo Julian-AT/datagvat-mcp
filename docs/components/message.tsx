@@ -1,6 +1,6 @@
 "use client";
 
-import { type Message as UIMessage } from "ai";
+import { type UIMessage } from "ai";
 import { Artifact } from "./artifact";
 import { Canvas } from "./canvas";
 import { Response } from "@/components/ai-elements/response";
@@ -15,7 +15,7 @@ export function Message({ message }: MessageProps) {
       className="flex flex-col gap-4"
       data-role={message.role}
     >
-      {message.parts.map((part, index) => {
+      {message.parts.map((part: any, index: number) => {
         const key = `${message.id}-part-${index}`;
 
         // Text parts - render as markdown
@@ -62,7 +62,6 @@ export function Message({ message }: MessageProps) {
         }
 
         // Visualization parts - render in Canvas
-        // @ts-expect-error - visualization type is custom extension
         if (part.type === "visualization") {
           const vizPart = part as any;
           return (
