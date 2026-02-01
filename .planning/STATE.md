@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 15 of 20 (Daytona MCP Integration & Sandbox Setup)
-Plan: 4 of 7 in current phase (3 core + 4 gap closure)
+Plan: 5 of 7 in current phase (3 core + 4 gap closure)
 Status: In progress - gap closure
-Last activity: 2026-02-01 — Completed 15-04-PLAN.md (gap closure)
+Last activity: 2026-02-01 — Completed 15-05-PLAN.md (Startup Health Checks - Gap 2 closure)
 
-Progress: [█░░░░░░░░░] 35% (7/20 plans complete in v2.2 estimate)
+Progress: [█░░░░░░░░░] 40% (8/20 plans complete in v2.2 estimate)
 
 ## Performance Metrics
 
@@ -25,13 +25,13 @@ Progress: [█░░░░░░░░░] 35% (7/20 plans complete in v2.2 esti
 - Build time: 152s (<5 min target maintained)
 
 **v2.2 Milestone (Starting):**
-- Plans completed: 7
-- Average duration: 5.0 min ((19 + 2 + 3 + 4 + 4 + 2 + 1) / 7)
-- Phase: Phase 15 in progress (4/7 plans - 3 core + 4 gap closure)
+- Plans completed: 8
+- Average duration: 5.0 min ((19 + 2 + 3 + 4 + 4 + 2 + 1 + 4) / 8)
+- Phase: Phase 15 in progress (5/7 plans - 3 core + 4 gap closure)
 
 **Recent Trend:**
 - v2.1 completed with 15 plans across 4 phases
-- v2.2: 6 plans complete - average 5.7 min (trend accelerating)
+- v2.2: 8 plans complete - average 5.0 min
 - Phase 14-01: 19 min (database setup, migrations)
 - Phase 14-02: 2 min (configuration task)
 - Phase 14-03: 3 min (API routes with validation)
@@ -39,7 +39,8 @@ Progress: [█░░░░░░░░░] 35% (7/20 plans complete in v2.2 esti
 - Phase 15-02: 4 min (health checks + graceful degradation)
 - Phase 15-03: 2 min (sandbox lifecycle manager)
 - Phase 15-04: 1 min (health status UI - gap closure)
-- Trend: Phase 15 gap closure in progress, building on MCP foundation
+- Phase 15-05: 4 min (startup health checks - Gap 2 closure)
+- Trend: Phase 15 gap closure in progress (2 of 3 gaps closed)
 
 *Updated after v2.2 roadmap creation*
 
@@ -52,6 +53,9 @@ Recent decisions affecting current work:
 
 | ID | Decision | Status | Phase |
 |----|----------|--------|-------|
+| 15-05-startup-no-throw | Startup health checks log but don't throw errors (app continues even if MCP unhealthy) | Implemented | 15-05 |
+| 15-05-separate-routes | Separate /api/mcp/startup (logging) from /api/mcp/health (data) routes | Implemented | 15-05 |
+| 15-05-log-prefix | [MCP Startup] prefix distinguishes startup checks from runtime health checks | Implemented | 15-05 |
 | 15-04-30s-polling | 30-second polling interval for health status updates | Implemented | 15-04 |
 | 15-04-always-visible | Health status always visible (not lazy loaded or conditional) | Implemented | 15-04 |
 | 15-03-message-sandbox-tracking | Message-level sandbox tracking (not conversation-level) for accurate resource association | Implemented | 15-03 |
@@ -102,7 +106,8 @@ Recent decisions affecting current work:
 **Phase 15 (MCP Integration): In Progress - Gap Closure**
 - ✅ CORE PLANS COMPLETE: 15-01, 15-02, 15-03 (MCP clients, health checks, sandbox lifecycle)
 - ✅ GAP 1 CLOSED (15-04): Users see MCP server connection status before sending first message
-- ⏳ GAPS REMAINING: Gap 2 (startup health check), Gap 3 (manual trigger), Gap 4 (startup delay fix)
+- ✅ GAP 2 CLOSED (15-05): Developers see startup health check logs with performStartupHealthCheck + /api/mcp/startup
+- ⏳ GAPS REMAINING: Gap 3 (reconnection logic with exponential backoff)
 - ✅ RESOLVED: Daytona MCP verified non-existent via research (15-RESEARCH.md), using E2B Code Interpreter instead
 - ✅ RESOLVED: Health check implementation complete (15-02: checkMCPHealth via tools() method)
 - ✅ RESOLVED: Graceful degradation implemented (15-02: separate try/catch per service, fallback error tools)
@@ -117,10 +122,10 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-01 09:37 UTC
-Stopped at: Completed 15-04-PLAN.md (Health status UI - gap closure)
+Last session: 2026-02-01 09:40 UTC
+Stopped at: Completed 15-05-PLAN.md (Startup Health Checks - Gap 2 closure)
 Resume file: None
-Next step: Continue Phase 15 gap closure (15-05, 15-06, 15-07) or proceed to Phase 16
+Next step: Continue Phase 15 gap closure (15-06 - Reconnection Logic) or proceed to Phase 16
 
 ---
 
