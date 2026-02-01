@@ -2,9 +2,10 @@ import { db } from '@/db';
 import { messages } from '@/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { createE2BClient } from '@/lib/mcp/e2b-client';
+import type { SandboxExecutionResult, ExecutionOptions } from '@/lib/mcp/types';
 
 type SandboxWrapper = {
-  runCode: (code: string) => Promise<{ text: string; error?: string; logs?: string[] }>;
+  runCode: (code: string, options?: ExecutionOptions) => Promise<SandboxExecutionResult>;
   kill: () => Promise<void>;
   sandboxId: string;
 };
