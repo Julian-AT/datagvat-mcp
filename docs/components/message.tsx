@@ -1,265 +1,107 @@
 "use client";
-import type { UseChatHelpers } from "@ai-sdk/react";
-import { Sparkles } from "lucide-react";
-import { useState } from "react";
-import { MessageContent } from "@/components/ai-elements/message";
+
+import { type Message as UIMessage } from "ai";
+import { Artifact } from "./artifact";
+import { Canvas } from "./canvas";
 import { Response } from "@/components/ai-elements/response";
-import { MessageActions } from "@/components/message-actions";
-import { MessageEditor } from "@/components/message-editor";
-import { MessageReasoning } from "@/components/message-reasoning";
-import { Visualization } from "@/components/visualization";
-import type { ChatMessage } from "@/lib/types";
-import { cn, sanitizeText } from "@/lib/utils";
-import { useDataStream } from "./data-stream-provider";
-import { PreviewAttachment } from "./preview-attachment";
 
-const PurePreviewMessage = ({
-  addToolApprovalResponse,
-  chatId,
-  message,
-  isLoading,
-  setMessages,
-  regenerate,
-  isReadonly,
-  requiresScrollPadding: _requiresScrollPadding,
-}: {
-  addToolApprovalResponse: UseChatHelpers<ChatMessage>["addToolApprovalResponse"];
-  chatId: string;
-  message: ChatMessage;
-  isLoading: boolean;
-  setMessages: UseChatHelpers<ChatMessage>["setMessages"];
-  regenerate: UseChatHelpers<ChatMessage>["regenerate"];
-  isReadonly: boolean;
-  requiresScrollPadding: boolean;
-}) => {
-  const [mode, setMode] = useState<"view" | "edit">("view");
+interface MessageProps {
+  message: UIMessage;
+}
 
-  const attachmentsFromMessage = message.parts.filter(
-    (part) => part.type === "file"
-  );
-
-  useDataStream();
-
+export function Message({ message }: MessageProps) {
   return (
     <div
-      className="group/message fade-in w-full animate-in duration-200"
+      className="flex flex-col gap-4"
       data-role={message.role}
-      data-testid={`message-${message.role}`}
     >
-      <div
-        className={cn("flex w-full items-start gap-2 md:gap-3", {
-          "justify-end": message.role === "user" && mode !== "edit",
-          "justify-start": message.role === "assistant",
-        })}
-      >
-        {message.role === "assistant" && (
-          <div className="-mt-1 flex size-8 shrink-0 items-center justify-center rounded-full bg-background ring-1 ring-border">
-            <Sparkles className="size-[14px]" />
-          </div>
-        )}
+      {message.parts.map((part, index) => {
+        const key = `${message.id}-part-${index}`;
 
-        <div
-          className={cn("flex flex-col", {
-            "gap-2 md:gap-4": message.parts?.some(
-              (p) => p.type === "text" && p.text?.trim()
-            ),
-            "w-full":
-              (message.role === "assistant" &&
-                (message.parts?.some(
-                  (p) => p.type === "text" && p.text?.trim()
-                ) ||
-                  message.parts?.some((p) => p.type.startsWith("tool-")))) ||
-              mode === "edit",
-            "max-w-[calc(100%-2.5rem)] sm:max-w-[min(fit-content,80%)]":
-              message.role === "user" && mode !== "edit",
-          })}
-        >
-          {attachmentsFromMessage.length > 0 && (
-            <div
-              className="flex flex-row justify-end gap-2"
-              data-testid={"message-attachments"}
-            >
-              {attachmentsFromMessage.map((attachment) => (
-                <PreviewAttachment
-                  attachment={{
-                    name: attachment.filename ?? "file",
-                    contentType: attachment.mediaType,
-                    url: attachment.url,
-                  }}
-                  key={attachment.url}
-                />
-              ))}
+        // Text parts - render as markdown
+        if (part.type === "text") {
+          return (
+            <div key={key} className="prose dark:prose-invert max-w-none">
+              <Response>{part.text}</Response>
             </div>
-          )}
+          );
+        }
 
-          {message.parts?.map((part, index) => {
-            const { type } = part;
-            const key = `message-${message.id}-part-${index}`;
+        // Tool call parts - show tool invocation
+        if (part.type === "tool-call") {
+          return (
+            <div key={key} className="border rounded-lg p-3 bg-muted/50">
+              <div className="font-mono text-sm">
+                <span className="text-muted-foreground">Calling:</span>{" "}
+                <span className="font-semibold">{part.toolName}</span>
+              </div>
+              <pre className="mt-2 text-xs overflow-x-auto">
+                {JSON.stringify(part.args, null, 2)}
+              </pre>
+            </div>
+          );
+        }
 
-            if (type === "reasoning") {
-              const hasContent = part.text?.trim().length > 0;
-              const isStreaming = "state" in part && part.state === "streaming";
-              if (hasContent || isStreaming) {
-                return (
-                  <MessageReasoning
-                    isLoading={isLoading || isStreaming}
-                    key={key}
-                    reasoning={part.text || ""}
-                  />
-                );
-              }
-            }
-
-            if (type === "text") {
-              if (mode === "view") {
-                return (
-                  <div key={key}>
-                    <MessageContent
-                      className={cn({
-                        "wrap-break-word w-fit rounded-2xl px-3 py-2 text-right text-white":
-                          message.role === "user",
-                        "bg-transparent px-0 py-0 text-left":
-                          message.role === "assistant",
-                      })}
-                      data-testid="message-content"
-                      style={
-                        message.role === "user"
-                          ? { backgroundColor: "#006cff" }
-                          : undefined
-                      }
-                    >
-                      <Response>{sanitizeText(part.text)}</Response>
-                    </MessageContent>
-                  </div>
-                );
-              }
-
-              if (mode === "edit") {
-                return (
-                  <div
-                    className="flex w-full flex-row items-start gap-3"
-                    key={key}
-                  >
-                    <div className="size-8" />
-                    <div className="min-w-0 flex-1">
-                      <MessageEditor
-                        key={message.id}
-                        message={message}
-                        regenerate={regenerate}
-                        setMessages={setMessages}
-                        setMode={setMode}
-                      />
-                    </div>
-                  </div>
-                );
-              }
-            }
-
-            // Tool invocation rendering (handle both stream and persisted)
-            if (type.startsWith("tool-") || "toolName" in part) {
-              const partAny = part as any;
-
-              // @ts-expect-error - tool-call type from database MessagePart, not in UIMessage part types
-              if ((type === "tool-call" || partAny.toolName) && "toolName" in part) {
-                return (
-                  <div
-                    key={key}
-                    className="my-2 rounded-lg border border-border bg-muted/50 p-3"
-                  >
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="font-medium text-primary">
-                        Tool Call:
-                      </span>
-                      <code className="text-xs">{partAny.toolName}</code>
-                    </div>
-                    {"args" in part && partAny.args && (
-                      <pre className="mt-2 overflow-x-auto text-xs text-muted-foreground">
-                        {JSON.stringify(partAny.args, null, 2)}
-                      </pre>
-                    )}
-                  </div>
-                );
-              }
-
-              // @ts-expect-error - tool-result type from database MessagePart, not in UIMessage part types
-              if ((type === "tool-result" || partAny.result !== undefined) && "result" in part) {
-                return (
-                  <div
-                    key={key}
-                    className="my-2 rounded-lg border border-border bg-muted/30 p-3"
-                  >
-                    <div className="text-sm font-medium text-muted-foreground mb-2">
-                      Tool Result:
-                    </div>
-                    <pre className="overflow-x-auto text-xs">
-                      {typeof partAny.result === "string"
-                        ? partAny.result
-                        : JSON.stringify(partAny.result, null, 2)}
+        // Tool result parts - show result
+        if (part.type === "tool-result") {
+          return (
+            <div key={key} className="border rounded-lg p-3 bg-muted/30">
+              <div className="font-mono text-sm text-muted-foreground mb-2">
+                Result from {part.toolName}
+              </div>
+              <div className="text-sm">
+                {typeof part.result === "string"
+                  ? part.result
+                  : <pre className="text-xs overflow-x-auto">
+                      {JSON.stringify(part.result, null, 2)}
                     </pre>
-                  </div>
-                );
-              }
-            }
+                }
+              </div>
+            </div>
+          );
+        }
 
-            // Visualization rendering (custom type from persistence)
-            // @ts-expect-error - visualization type from database MessagePart, not in UIMessage part types
-            if ((type === "visualization" || ("format" in part && "url" in part)) && "url" in part) {
-              const partAny = part as any;
-              return (
-                <Visualization
-                  key={key}
-                  format={partAny.format as "png" | "svg" | "html"}
-                  url={partAny.url as string}
-                  metadata={partAny.metadata as Record<string, unknown> | undefined}
-                />
-              );
-            }
-
-            return null;
-          })}
-
-          {!isReadonly && (
-            <MessageActions
-              chatId={chatId}
-              isLoading={isLoading}
-              key={`action-${message.id}`}
-              message={message}
-              setMode={setMode}
+        // Visualization parts - render in Canvas
+        // @ts-expect-error - visualization type is custom extension
+        if (part.type === "visualization") {
+          const vizPart = part as any;
+          return (
+            <Canvas
+              key={key}
+              url={vizPart.url}
+              format={vizPart.format}
+              metadata={vizPart.metadata}
             />
-          )}
-        </div>
-      </div>
+          );
+        }
+
+        // File parts - render based on MIME type
+        if (part.type === "file") {
+          if (part.data?.startsWith("image/") || part.mimeType?.startsWith("image/")) {
+            return (
+              <img
+                key={key}
+                src={part.data || ""}
+                alt={part.name || "Uploaded file"}
+                className="max-w-md rounded-lg"
+              />
+            );
+          }
+          return (
+            <a
+              key={key}
+              href={part.data || ""}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary underline"
+            >
+              {part.name || "Download file"}
+            </a>
+          );
+        }
+
+        return null;
+      })}
     </div>
   );
-};
-
-export const PreviewMessage = PurePreviewMessage;
-
-export const ThinkingMessage = () => {
-  return (
-    <div
-      className="group/message fade-in w-full animate-in duration-300"
-      data-role="assistant"
-      data-testid="message-assistant-loading"
-    >
-      <div className="flex items-start justify-start gap-3">
-        <div className="-mt-1 flex size-8 shrink-0 items-center justify-center rounded-full bg-background ring-1 ring-border">
-          <div className="animate-pulse">
-            <Sparkles className="size-[14px]" />
-          </div>
-        </div>
-
-        <div className="flex w-full flex-col gap-2 md:gap-4">
-          <div className="flex items-center gap-1 p-0 text-muted-foreground text-sm">
-            <span className="animate-pulse">Thinking</span>
-            <span className="inline-flex">
-              <span className="animate-bounce [animation-delay:0ms]">.</span>
-              <span className="animate-bounce [animation-delay:150ms]">.</span>
-              <span className="animate-bounce [animation-delay:300ms]">.</span>
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+}
