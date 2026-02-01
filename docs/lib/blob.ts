@@ -1,7 +1,7 @@
 import { put } from '@vercel/blob';
 
-export async function uploadImage(file: File, conversationId: number): Promise<string> {
-  const blob = await put(`conversations/${conversationId}/${file.name}`, file, {
+export async function uploadImage(file: File, chatId: string): Promise<string> {
+  const blob = await put(`chats/${chatId}/${file.name}`, file, {
     access: 'public',
     addRandomSuffix: true,
   });
@@ -12,10 +12,10 @@ export async function uploadImage(file: File, conversationId: number): Promise<s
 export async function uploadVisualization(
   content: string | Blob,
   filename: string,
-  conversationId: number,
+  chatId: string,
   contentType: string
 ): Promise<string> {
-  const blob = await put(`conversations/${conversationId}/${filename}`, content, {
+  const blob = await put(`chats/${chatId}/${filename}`, content, {
     access: 'public',
     addRandomSuffix: true,
     contentType,
@@ -27,7 +27,7 @@ export async function uploadVisualization(
 export async function uploadImageFromBase64(
   base64Data: string,
   filename: string,
-  conversationId: number
+  chatId: string
 ): Promise<string> {
   // Handle both data URI format and raw base64
   const isDataUri = base64Data.startsWith('data:');
@@ -46,5 +46,5 @@ export async function uploadImageFromBase64(
   const blob = new Blob([ab], { type: mimeString });
   const file = new File([blob], filename, { type: mimeString });
 
-  return uploadImage(file, conversationId);
+  return uploadImage(file, chatId);
 }

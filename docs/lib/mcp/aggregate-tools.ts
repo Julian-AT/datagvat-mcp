@@ -5,7 +5,7 @@ import { createE2BClient } from './e2b-client';
 import type { ProjectFile } from './types';
 import { uploadImageFromBase64, uploadVisualization } from '@/lib/blob';
 
-export async function getAvailableTools(conversationId?: number) {
+export async function getAvailableTools(chatId?: string) {
   const tools: Record<string, any> = {};
 
   try {
@@ -37,12 +37,12 @@ Use 'files' parameter for multi-file projects with proper directory structure.`,
         workingDirectory: z.string().optional().describe('Working directory for imports (default: /home/user)'),
       }),
       execute: async ({ code, files, workingDirectory }) => {
-        if (!conversationId) {
+        if (!chatId) {
           return {
             success: false,
             error: {
               name: 'ConfigurationError',
-              message: 'Conversation ID required for visualization upload',
+              message: 'Chat ID required for visualization upload',
             },
           };
         }
@@ -70,7 +70,7 @@ Use 'files' parameter for multi-file projects with proper directory structure.`,
                   const url = await uploadImageFromBase64(
                     viz.png,
                     `viz-${Date.now()}-${index}.png`,
-                    conversationId
+                    chatId
                   );
                   urls.push({ format: 'png', url });
                 }
@@ -80,7 +80,7 @@ Use 'files' parameter for multi-file projects with proper directory structure.`,
                   const url = await uploadImageFromBase64(
                     viz.svg,
                     `viz-${Date.now()}-${index}.svg`,
-                    conversationId
+                    chatId
                   );
                   urls.push({ format: 'svg', url });
                 }
@@ -90,7 +90,7 @@ Use 'files' parameter for multi-file projects with proper directory structure.`,
                   const url = await uploadVisualization(
                     viz.html,
                     `viz-${Date.now()}-${index}.html`,
-                    conversationId,
+                    chatId,
                     'text/html'
                   );
                   urls.push({ format: 'html', url });
