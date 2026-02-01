@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 15 of 20 (Daytona MCP Integration & Sandbox Setup)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-01 — Completed 15-01-PLAN.md
+Last activity: 2026-02-01 — Completed 15-02-PLAN.md
 
-Progress: [█░░░░░░░░░] 20% (4/20 plans complete in v2.2 estimate)
+Progress: [█░░░░░░░░░] 25% (5/20 plans complete in v2.2 estimate)
 
 ## Performance Metrics
 
@@ -25,17 +25,18 @@ Progress: [█░░░░░░░░░] 20% (4/20 plans complete in v2.2 esti
 - Build time: 152s (<5 min target maintained)
 
 **v2.2 Milestone (Starting):**
-- Plans completed: 4
-- Average duration: 7 min ((19 + 2 + 3 + 4) / 4)
-- Phase: Phase 15 in progress (1 plan complete)
+- Plans completed: 5
+- Average duration: 6.4 min ((19 + 2 + 3 + 4 + 4) / 5)
+- Phase: Phase 15 in progress (2 plans complete)
 
 **Recent Trend:**
 - v2.1 completed with 15 plans across 4 phases
-- v2.2: 4 plans complete - average 7 min (trend accelerating)
+- v2.2: 5 plans complete - average 6.4 min (trend accelerating)
 - Phase 14-01: 19 min (database setup, migrations)
 - Phase 14-02: 2 min (configuration task)
 - Phase 14-03: 3 min (API routes with validation)
 - Phase 15-01: 4 min (E2B + MCP client setup)
+- Phase 15-02: 4 min (health checks + graceful degradation)
 - Trend: MCP foundation rapid, building on Phase 14 database
 
 *Updated after v2.2 roadmap creation*
@@ -49,6 +50,10 @@ Recent decisions affecting current work:
 
 | ID | Decision | Status | Phase |
 |----|----------|--------|-------|
+| 15-02-tools-health-probe | Use tools() method as health probe for MCP servers (no health protocol in spec) | Implemented | 15-02 |
+| 15-02-e2b-not-mcp | E2B health check via direct SDK (E2B is not an MCP server) | Implemented | 15-02 |
+| 15-02-isolated-failures | Separate try/catch blocks per service to isolate failures | Implemented | 15-02 |
+| 15-02-fallback-tools | Provide fallback error tools when services unavailable (EXEC-10) | Implemented | 15-02 |
 | 15-01-e2b-not-daytona | E2B Code Interpreter instead of Daytona MCP (Daytona MCP doesn't exist) | Implemented | 15-01 |
 | 15-01-http-transport | HTTP transport for data.gv.at MCP client (serverless compatible) | Implemented | 15-01 |
 | 15-01-1hour-timeout | 1-hour sandbox timeout default (EXEC-06 requirement) | Implemented | 15-01 |
@@ -79,7 +84,7 @@ Recent decisions affecting current work:
 
 **v2.2 phase planning:**
 - Phase 14: ✅ Complete (14-01: schema, 14-02: sessions, 14-03: message APIs)
-- Phase 15: In progress (15-01: ✅ MCP clients, 15-02: health checks pending, 15-03: tool aggregation pending)
+- Phase 15: In progress (15-01: ✅ MCP clients, 15-02: ✅ health checks + graceful degradation, 15-03: tool aggregation pending)
 - Phase 16: Tool aggregation and multi-MCP orchestration
 - Phase 18: Security patterns (approval flow builds on execution_status)
 - Phase 19: Image extraction (uses uploadImageFromBase64 from 14-03)
@@ -89,10 +94,11 @@ Recent decisions affecting current work:
 
 **Phase 15 (MCP Integration):**
 - ✅ RESOLVED: Daytona MCP verified non-existent via research (15-RESEARCH.md), using E2B Code Interpreter instead
+- ✅ RESOLVED: Health check implementation complete (15-02: checkMCPHealth via tools() method)
+- ✅ RESOLVED: Graceful degradation implemented (15-02: separate try/catch per service, fallback error tools)
 - ❌ BLOCKER for testing: E2B_API_KEY required (get from https://e2b.dev/dashboard - free tier available)
-- ❌ BLOCKER for testing: DATAGVAT_MCP_URL required (FastMCP server deployment in Phase 15-02)
-- Pending: Health check implementation for MCP service monitoring (15-02)
-- Pending: Graceful degradation when MCP services unavailable (15-02)
+- ❌ BLOCKER for testing: DATAGVAT_MCP_URL required (FastMCP server deployment needed)
+- Pending: Tool aggregation for chat integration (Phase 15-03)
 
 **Phase 14 (Database):**
 - ✅ RESOLVED: All database schema and API infrastructure complete
@@ -105,10 +111,10 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-01 09:04 UTC
-Stopped at: Completed 15-01-PLAN.md (MCP client foundation)
+Last session: 2026-02-01 09:12 UTC
+Stopped at: Completed 15-02-PLAN.md (Health monitoring and graceful degradation)
 Resume file: None
-Next step: Continue Phase 15 (15-02: Health checks, 15-03: Tool aggregation)
+Next step: Continue Phase 15 (15-03: Tool aggregation for chat integration)
 
 ---
 
