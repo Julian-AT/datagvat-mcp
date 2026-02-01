@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 17.1 of 20 (Chat Foundation Reset - INSERTED)
-Plan: 6 of TBD in current phase
+Plan: 7 of TBD in current phase
 Status: In progress
-Last activity: 2026-02-01 — Completed 17.1-06-PLAN.md (Vercel Schema Migration)
+Last activity: 2026-02-01 — Completed 17.1-07-PLAN.md (Query Layer Replacement)
 
-Progress: [█████░░░░░] 70% (17/24 plans complete in v2.2, 17.1-01 through 17.1-06 complete)
+Progress: [█████░░░░░] 71% (18/24 plans complete in v2.2, 17.1-01 through 17.1-07 complete)
 
 ## Performance Metrics
 
@@ -25,9 +25,9 @@ Progress: [█████░░░░░] 70% (17/24 plans complete in v2.2, 17
 - Build time: 152s (<5 min target maintained)
 
 **v2.2 Milestone (Starting):**
-- Plans completed: 17
-- Average duration: 5.5 min ((19 + 2 + 3 + 4 + 4 + 2 + 1 + 4 + 2 + 2 + 3 + 30 + 3 + 2 + 2 + 4 + 2) / 17)
-- Phase: Phase 17.1 in progress (6 plans complete)
+- Plans completed: 18
+- Average duration: 5.3 min ((19 + 2 + 3 + 4 + 4 + 2 + 1 + 4 + 2 + 2 + 3 + 30 + 3 + 2 + 2 + 4 + 2 + 2) / 18)
+- Phase: Phase 17.1 in progress (7 plans complete)
 
 **Recent Trend:**
 - v2.1 completed with 15 plans across 4 phases
@@ -48,11 +48,11 @@ Progress: [█████░░░░░] 70% (17/24 plans complete in v2.2, 17
 - Phase 17.1-01: 2 min (schema foundation + architecture analysis - GIN index migration ready)
 - Phase 17.1-02: 2 min (blob upload helpers with format support)
 - Phase 17.1-03: 4 min (immediate persistence pattern + clean streaming)
-- Trend: Phase 17.1 in progress (3/TBD plans), foundation reset on track with proven ai-chatbot patterns
 - Phase 17.1-04: 2 min (execute-python immediate upload - eliminates context explosion)
 - Phase 17.1-05: 2 min (parts-based message rendering - replaced custom visualization handling)
 - Phase 17.1-06: 2 min (Vercel schema migration - chat/message/document with UUID primary keys)
-- Trend: Phase 17.1 in progress (6/TBD plans), Vercel ai-chatbot foundation complete
+- Phase 17.1-07: 2 min (query layer replacement - convertToUIMessages fixes conversation history)
+- Trend: Phase 17.1 in progress (7/TBD plans), Vercel ai-chatbot foundation complete
 
 *Updated after v2.2 roadmap creation*
 
@@ -185,10 +185,10 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-01 19:43 UTC
-Stopped at: Completed 17.1-06-PLAN.md (Vercel Schema Migration)
+Last session: 2026-02-01 19:48 UTC
+Stopped at: Completed 17.1-07-PLAN.md (Query Layer Replacement)
 Resume file: None
-Next step: Phase 17.1 in progress (6/TBD plans done) - Database schema replaced with Vercel architecture, proceed to Plan 07 (artifact UI)
+Next step: Phase 17.1 in progress (7/TBD plans done) - Query layer complete with convertToUIMessages, proceed to Plan 08 or 09
 
 ---
 
