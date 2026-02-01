@@ -64,7 +64,8 @@ export type MessagePart =
   | { type: "text"; text: string }
   | { type: "tool-call"; toolCallId: string; toolName: string; args: Record<string, unknown> }
   | { type: "tool-result"; toolCallId: string; toolName: string; result: unknown }
-  | { type: "file"; filename: string; mediaType: string; url: string };
+  | { type: "file"; filename: string; mediaType: string; url: string }
+  | { type: "visualization"; format: "png" | "svg" | "html"; url: string; metadata?: Record<string, unknown> };
 
 // Messages with AI SDK parts array pattern
 export const messages = pgTable("messages", {

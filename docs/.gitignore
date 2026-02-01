@@ -43,3 +43,4 @@ yarn.lock
 
 # Rendered videos (too large for git)
 public/videos/*.mp4
+.vercel

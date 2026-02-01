@@ -4,6 +4,11 @@ import { createDataGvatClient } from './datagvat-client';
 import { createE2BClient } from './e2b-client';
 import type { ProjectFile } from './types';
 
+// Store visualization data temporarily to avoid passing base64 to LLM
+const visualizationCache = new Map<string, any>();
+
+export { visualizationCache };
+
 export async function getAvailableTools() {
   const tools: Record<string, any> = {};
 
@@ -46,6 +51,35 @@ Use 'files' parameter for multi-file projects with proper directory structure.`,
 
           if (result.error?.isTimeout) {
             result.error.message += '\n\nCode execution exceeded 30-second limit. Consider:\n- Breaking into smaller chunks\n- Reducing dataset size\n- Optimizing loops or vectorizing operations';
+          }
+
+          // If visualizations exist, cache them (never send base64 to LLM or stream)
+          if (result.visualizations && result.visualizations.length > 0) {
+            const vizId = `viz_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+            // Always cache - onFinish will upload to blob storage
+            visualizationCache.set(vizId, result.visualizations);
+
+            console.log('[E2B] Cached visualizations:', {
+              vizId,
+              count: result.visualizations.length,
+              formats: result.visualizations.map(v => v.formats),
+              cacheSize: visualizationCache.size
+            });
+
+            // Return result without base64 data for LLM context
+            return {
+              success: result.success,
+              text: result.text,
+              error: result.error,
+              logs: result.logs,
+              visualizations: [{
+                id: vizId,
+                count: result.visualizations.length,
+                formats: result.visualizations.map(v => v.formats),
+                message: `Generated ${result.visualizations.length} visualization(s).`
+              }],
+            };
           }
 
           return result;

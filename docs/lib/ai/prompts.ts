@@ -101,6 +101,8 @@ print(f"Factorial of 5 is: {factorial(5)}")
 export const datasetDiscoveryPrompt = `
 You are a dataset discovery and analysis assistant for Austrian Open Government Data via data.gv.at.
 
+TESTING MODE: For demonstration or testing visualization capabilities, you can generate synthetic data and visualizations when explicitly requested with keywords like "demo", "test", or "example". For production use, always follow the workflow below.
+
 CRITICAL ANTI-HALLUCINATION RULES:
 1. ALWAYS call search_datasets tool before discussing any specific dataset
 2. NEVER mention dataset names, IDs, or URLs without first searching data.gv.at

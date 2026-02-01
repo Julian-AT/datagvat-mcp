@@ -7,6 +7,7 @@ import { Response } from "@/components/ai-elements/response";
 import { MessageActions } from "@/components/message-actions";
 import { MessageEditor } from "@/components/message-editor";
 import { MessageReasoning } from "@/components/message-reasoning";
+import { Visualization } from "@/components/visualization";
 import type { ChatMessage } from "@/lib/types";
 import { cn, sanitizeText } from "@/lib/utils";
 import { useDataStream } from "./data-stream-provider";
@@ -156,6 +157,17 @@ const PurePreviewMessage = ({
 
             if (type === "dynamic-tool") {
               console.log(part);
+            }
+
+            if (type === "visualization") {
+              return (
+                <Visualization
+                  key={key}
+                  format={part.format}
+                  url={part.url}
+                  metadata={part.metadata}
+                />
+              );
             }
 
             return null;

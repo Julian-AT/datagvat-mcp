@@ -95,3 +95,5 @@ nul
 remotion-cache/
 *.mp4
 !public/**/*.mp4
+.vercel
+.env*.local
