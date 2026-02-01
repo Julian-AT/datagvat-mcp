@@ -197,12 +197,15 @@ Plans:
 6. User's sandbox executes in isolated environment without network access to production data
 7. System recovers automatically when MCP server crashes (reconnection logic triggers)
 
-**Plans**: 3 plans
+**Plans**: 6 plans (3 initial + 3 gap closure)
 
 Plans:
 - [x] 15-01-PLAN.md — E2B client setup and data.gv.at MCP client with HTTP transport
 - [x] 15-02-PLAN.md — Health checks via tool discovery and graceful degradation
 - [x] 15-03-PLAN.md — Sandbox lifecycle management with lazy cleanup (no cron)
+- [ ] 15-04-PLAN.md — Health status UI component (gap closure: wire /api/mcp/health to chat page)
+- [ ] 15-05-PLAN.md — Startup health checks with server-side logging (gap closure: automatic health checks on app init)
+- [ ] 15-06-PLAN.md — Reconnection logic with exponential backoff (gap closure: retry on MCP server crashes)
 
 ### Phase 16: Multi-MCP Orchestration & Data Discovery
 **Goal**: AI coordinates tools from both MCP servers and generates code using actual dataset schemas discovered via search
@@ -323,7 +326,7 @@ v2.2 phases execute in numeric order: 14 → 15 → 16 → 17 → 18 → 19 → 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 14. Database Foundation | 3/3 | ✓ Complete | 2026-02-01 |
-| 15. E2B MCP Integration | 3/3 | ⚠ Gaps found | 2026-02-01 |
+| 15. E2B MCP Integration | 3/6 | ⚠ Gap closure in progress | 2026-02-01 |
 | 16. Multi-MCP Orchestration | 0/TBD | Not started | - |
 | 17. Code Execution Pipeline | 0/TBD | Not started | - |
 | 18. Tool Approval Flow | 0/TBD | Not started | - |
@@ -332,4 +335,4 @@ v2.2 phases execute in numeric order: 14 → 15 → 16 → 17 → 18 → 19 → 
 
 ---
 
-*Last updated: 2026-02-01 after Phase 15 planning*
+*Last updated: 2026-02-01 after Phase 15 gap closure planning*
