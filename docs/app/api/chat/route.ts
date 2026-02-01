@@ -10,13 +10,13 @@ import {
 import { after } from "next/server";
 import { createResumableStreamContext } from "resumable-stream";
 import { entitlementsByUserType } from "@/lib/ai/entitlements";
-import { type RequestHints, systemPrompt } from "@/lib/ai/prompts";
+import { datasetDiscoveryPrompt } from "@/lib/ai/prompts";
 import { getLanguageModel } from "@/lib/ai/providers";
 import { ChatSDKError } from "@/lib/errors";
 import type { ChatMessage } from "@/lib/types";
 import { convertToUIMessages, generateUUID } from "@/lib/utils";
 import { type PostRequestBody, postRequestBodySchema } from "./schema";
-import { createMCPClient } from '@ai-sdk/mcp';
+import { getAvailableTools } from "@/lib/mcp/aggregate-tools";
 
 
 export const maxDuration = 60;
@@ -30,16 +30,6 @@ function getStreamContext() {
 }
 
 export { getStreamContext };
-
-const datagvatMCPClient = await createMCPClient({
-    transport: {
-        type: 'http',
-        url: 'https://data-gv-at.fastmcp.app/mcp',
-        headers: { Authorization: 'Bearer fmcp_3Zu1SNSprZ1MRhX6GzPxICQme9aAUhrXMmqqZt6UusQ' },
-    },
-});
-
-const datagvatMCPTools = await datagvatMCPClient.tools();
 
 export async function POST(request: Request) {
   let requestBody: PostRequestBody;
@@ -61,35 +51,22 @@ export async function POST(request: Request) {
 
     const isToolApprovalFlow = Boolean(messages);
 
-    const { longitude, latitude, city, country } = geolocation(request);
-
-    const requestHints: RequestHints = {
-      longitude,
-      latitude,
-      city,
-      country,
-    };
-
-
-    console.log(messages);
     const uiMessages = isToolApprovalFlow
     ? (messages as ChatMessage[])
     : [message as ChatMessage];    const modelMessages = await convertToModelMessages(uiMessages);
 
-    console.log(modelMessages);
-    
+    // Aggregate tools from data.gv.at MCP and E2B
+    const tools = await getAvailableTools();
 
     const stream = createUIMessageStream({
       originalMessages: isToolApprovalFlow ? uiMessages : undefined,
       execute: async ({ writer: dataStream }) => {
         const result = streamText({
           model: getLanguageModel(selectedChatModel),
-          system: systemPrompt({ selectedChatModel, requestHints }),
+          system: datasetDiscoveryPrompt,
           messages: modelMessages,
           stopWhen: stepCountIs(5),
-          tools: {
-            ...datagvatMCPTools,
-          },
+          tools,
           experimental_telemetry: {
             isEnabled: true,
             functionId: "stream-text",
