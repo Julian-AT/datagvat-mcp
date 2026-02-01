@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-31)
 ## Current Position
 
 Phase: 16 of 20 (Multi-MCP Orchestration & Data Discovery)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-01 — Completed 16-01-PLAN.md (AI Model Configuration & Dataset Discovery Prompt)
+Last activity: 2026-02-01 — Completed 16-02-PLAN.md (Streaming Chat Endpoint with Multi-MCP Tool Orchestration)
 
-Progress: [████░░░░░░] 50% (10/20 plans complete in v2.2 estimate)
+Progress: [████░░░░░░] 55% (11/20 plans complete in v2.2 estimate)
 
 ## Performance Metrics
 
@@ -25,9 +25,9 @@ Progress: [████░░░░░░] 50% (10/20 plans complete in v2.2 est
 - Build time: 152s (<5 min target maintained)
 
 **v2.2 Milestone (Starting):**
-- Plans completed: 10
-- Average duration: 4.4 min ((19 + 2 + 3 + 4 + 4 + 2 + 1 + 4 + 2 + 2) / 10)
-- Phase: Phase 16 in progress (1/3 plans)
+- Plans completed: 11
+- Average duration: 4.2 min ((19 + 2 + 3 + 4 + 4 + 2 + 1 + 4 + 2 + 2 + 3) / 11)
+- Phase: Phase 16 in progress (2/3 plans)
 
 **Recent Trend:**
 - v2.1 completed with 15 plans across 4 phases
@@ -42,7 +42,8 @@ Progress: [████░░░░░░] 50% (10/20 plans complete in v2.2 est
 - Phase 15-05: 4 min (startup health checks - Gap 2 closure)
 - Phase 15-06: 2 min (reconnection logic - Gap 3 closure)
 - Phase 16-01: 2 min (AI model config + dataset discovery prompt)
-- Trend: Phase 15 complete, Phase 16 started (AI configuration layer)
+- Phase 16-02: 3 min (streaming chat endpoint + multi-MCP tool orchestration)
+- Trend: Phase 15 complete, Phase 16 in progress (API layer integration)
 
 *Updated after v2.2 roadmap creation*
 
@@ -55,6 +56,9 @@ Recent decisions affecting current work:
 
 | ID | Decision | Status | Phase |
 |----|----------|--------|-------|
+| 16-02-runtime-tool-aggregation | Call getAvailableTools() per request for dynamic tool availability | Implemented | 16-02 |
+| 16-02-single-agent-direct-prompt | Use datasetDiscoveryPrompt directly, no routing helper | Implemented | 16-02 |
+| 16-02-remove-geolocation | Removed geolocation/RequestHints (not needed for Austrian dataset focus) | Implemented | 16-02 |
 | 16-01-model-claude-sonnet-4.5 | claude-sonnet-4.5 as DEFAULT_CHAT_MODEL for superior tool calling | Implemented | 16-01 |
 | 16-01-unified-prompt | Single datasetDiscoveryPrompt for both discovery and code generation | Implemented | 16-01 |
 | 16-01-anti-hallucination-priority | Enforce "always verify datasets from trusted sources" workflow | Implemented | 16-01 |
@@ -105,7 +109,7 @@ Recent decisions affecting current work:
 **v2.2 phase planning:**
 - Phase 14: ✅ Complete (14-01: schema, 14-02: sessions, 14-03: message APIs)
 - Phase 15: ✅ Complete (15-01: MCP clients, 15-02: health checks + graceful degradation, 15-03: sandbox lifecycle, 15-04-06: gap closure)
-- Phase 16: In progress (16-01: AI config ✅, 16-02: tool aggregation, 16-03: chat endpoint)
+- Phase 16: In progress (16-01: AI config ✅, 16-02: chat endpoint ✅, 16-03: frontend integration pending)
 - Phase 18: Security patterns (approval flow builds on execution_status)
 - Phase 19: Image extraction (uses uploadImageFromBase64 from 14-03)
 - Phase 20: Chat UI (uses message APIs from 14-03)
@@ -131,10 +135,10 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-01 11:01 UTC
-Stopped at: Completed 16-01-PLAN.md (AI Model Configuration & Dataset Discovery Prompt)
+Last session: 2026-02-01 11:10 UTC
+Stopped at: Completed 16-02-PLAN.md (Streaming Chat Endpoint with Multi-MCP Tool Orchestration)
 Resume file: None
-Next step: Phase 16-02 (Tool Aggregation) - merge MCP and E2B tools for AI
+Next step: Phase 16 complete (2/2 core plans done) - ready for Phase 18 (Security Patterns & Approval Flow)
 
 ---
 
