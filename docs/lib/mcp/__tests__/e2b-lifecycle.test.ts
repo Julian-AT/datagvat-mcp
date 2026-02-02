@@ -54,7 +54,8 @@ describe('E2B Sandbox Lifecycle', () => {
     try {
       const result = await sandbox.runCode('import os; print(os.environ.get("HOME"))');
       expect(result.success).toBe(true);
-      expect(result.logs.stdout.join('\n')).toContain('/home/user');
+      // E2B sandboxes run as root user
+      expect(result.logs.stdout.join('\n')).toContain('/root');
     } finally {
       await sandbox.kill();
       tracker.untrack(sandbox.sandboxId);
@@ -71,8 +72,10 @@ describe('E2B Sandbox Lifecycle', () => {
       await sandbox.kill();
       tracker.untrack(sandbox.sandboxId);
 
-      // Verify sandbox is killed (subsequent operations should fail)
-      await expect(sandbox.runCode('print("test")')).rejects.toThrow();
+      // Verify sandbox is killed (subsequent operations should return errors)
+      const result = await sandbox.runCode('print("test")');
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
     } catch (error) {
       // Clean up on assertion failure
       await sandbox.kill().catch(() => {});
@@ -127,7 +130,10 @@ describe('E2B Sandbox Lifecycle', () => {
       await sandbox.kill();
       tracker.untrack(sandbox.sandboxId);
 
-      await expect(sandbox.runCode('print(x)')).rejects.toThrow();
+      // Verify sandbox is killed (subsequent operations should return errors)
+      const postKillResult = await sandbox.runCode('print(x)');
+      expect(postKillResult.success).toBe(false);
+      expect(postKillResult.error).toBeDefined();
     } catch (error) {
       // Clean up on assertion failure
       await sandbox.kill().catch(() => {});
