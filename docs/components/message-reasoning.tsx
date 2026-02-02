@@ -1,14 +1,21 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Reasoning, ReasoningContent, ReasoningTrigger } from '@/components/ai-elements/reasoning';
+import { useEffect, useState } from "react";
+import {
+  Reasoning,
+  ReasoningContent,
+  ReasoningTrigger,
+} from "./elements/reasoning";
 
 type MessageReasoningProps = {
   isLoading: boolean;
   reasoning: string;
 };
 
-export function MessageReasoning({ isLoading, reasoning }: MessageReasoningProps) {
+export function MessageReasoning({
+  isLoading,
+  reasoning,
+}: MessageReasoningProps) {
   const [hasBeenStreaming, setHasBeenStreaming] = useState(isLoading);
 
   useEffect(() => {

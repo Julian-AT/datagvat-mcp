@@ -1,7 +1,13 @@
-import type { AssistantModelMessage, ToolModelMessage, UIMessage, UIMessagePart } from 'ai';
+import type {
+  AssistantModelMessage,
+  ToolModelMessage,
+  UIMessage,
+  UIMessagePart,
+} from 'ai';
 import { type ClassValue, clsx } from 'clsx';
 import { formatISO } from 'date-fns';
 import { twMerge } from 'tailwind-merge';
+import type { DBMessage, Document } from '@/lib/db/schema';
 import { ChatSDKError, type ErrorCode } from './errors';
 import type { ChatMessage, ChatTools, CustomUIDataTypes } from './types';
 
@@ -20,7 +26,10 @@ export const fetcher = async (url: string) => {
   return response.json();
 };
 
-export async function fetchWithErrorHandlers(input: RequestInfo | URL, init?: RequestInit) {
+export async function fetchWithErrorHandlers(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+) {
   try {
     const response = await fetch(input, init);
 
@@ -31,8 +40,6 @@ export async function fetchWithErrorHandlers(input: RequestInfo | URL, init?: Re
 
     return response;
   } catch (error: unknown) {
-    console.log(error);
-    
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
       throw new ChatSDKError('offline:chat');
     }
@@ -61,15 +68,27 @@ type ResponseMessage = ResponseMessageWithoutId & { id: string };
 
 export function getMostRecentUserMessage(messages: UIMessage[]) {
   const userMessages = messages.filter((message) => message.role === 'user');
-  return userMessages[userMessages.length - 1];
+  return userMessages.at(-1);
 }
 
-export function getTrailingMessageId({ messages }: { messages: ResponseMessage[] }): string | null {
-  const trailingMessage = messages[messages.length - 1];
+export function getDocumentTimestampByIndex(
+  documents: Document[],
+  index: number,
+) {
+  if (!documents) { return new Date(); }
+  if (index > documents.length) { return new Date(); }
 
-  if (!trailingMessage) {
-    return null;
-  }
+  return documents[index].createdAt;
+}
+
+export function getTrailingMessageId({
+  messages,
+}: {
+  messages: ResponseMessage[];
+}): string | null {
+  const trailingMessage = messages.at(-1);
+
+  if (!trailingMessage) { return null; }
 
   return trailingMessage.id;
 }
@@ -78,7 +97,7 @@ export function sanitizeText(text: string) {
   return text.replace('<has_function_call>', '');
 }
 
-export function convertToUIMessages(messages: any[]): ChatMessage[] {
+export function convertToUIMessages(messages: DBMessage[]): ChatMessage[] {
   return messages.map((message) => ({
     id: message.id,
     role: message.role as 'user' | 'assistant' | 'system',
@@ -92,6 +111,6 @@ export function convertToUIMessages(messages: any[]): ChatMessage[] {
 export function getTextFromMessage(message: ChatMessage | UIMessage): string {
   return message.parts
     .filter((part) => part.type === 'text')
-    .map((part) => (part as { type: 'text'; text: string }).text)
+    .map((part) => (part as { type: 'text'; text: string}).text)
     .join('');
 }

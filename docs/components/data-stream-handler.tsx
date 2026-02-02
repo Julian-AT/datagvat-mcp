@@ -1,15 +1,12 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useSWRConfig } from 'swr';
-import { unstable_serialize } from 'swr/infinite';
-import { initialArtifactData, useArtifact } from '@/hooks/use-artifact';
-import { useDataStream } from './data-stream-provider';
-
-// Store visualizations that arrive via stream before message is saved
-const pendingVisualizations = new Map<string, { format: string; data: string; index: number }>();
-
-export { pendingVisualizations };
+import { useEffect } from "react";
+import { useSWRConfig } from "swr";
+import { unstable_serialize } from "swr/infinite";
+import { initialArtifactData, useArtifact } from "@/hooks/use-artifact";
+import { artifactDefinitions } from "./artifact";
+import { useDataStream } from "./data-stream-provider";
+import { getChatHistoryPaginationKey } from "./sidebar-history";
 
 export function DataStreamHandler() {
   const { dataStream, setDataStream } = useDataStream();
@@ -27,28 +24,69 @@ export function DataStreamHandler() {
 
     for (const delta of newDeltas) {
       // Handle chat title updates
-      if (delta.type === 'data-chat-title') {
-        // Existing title handling
+      if (delta.type === "data-chat-title") {
+        mutate(unstable_serialize(getChatHistoryPaginationKey));
+        continue;
       }
+      const artifactDefinition = artifactDefinitions.find(
+        (currentArtifactDefinition) =>
+          currentArtifactDefinition.kind === artifact.kind
+      );
 
-      // Handle visualization data from execute-python tool
-      if (delta.type === 'visualization') {
-        console.log('[DataStreamHandler] Received visualization:', {
-          id: delta.id,
-          format: delta.format,
-          index: delta.index,
-          dataLength: delta.data?.length
-        });
-
-        // Store visualization data temporarily
-        pendingVisualizations.set(delta.id, {
-          format: delta.format,
-          data: delta.data,
-          index: delta.index
+      if (artifactDefinition?.onStreamPart) {
+        artifactDefinition.onStreamPart({
+          streamPart: delta,
+          setArtifact,
+          setMetadata,
         });
       }
+
+      setArtifact((draftArtifact) => {
+        if (!draftArtifact) {
+          return { ...initialArtifactData, status: "streaming" };
+        }
+
+        switch (delta.type) {
+          case "data-id":
+            return {
+              ...draftArtifact,
+              documentId: delta.data,
+              status: "streaming",
+            };
+
+          case "data-title":
+            return {
+              ...draftArtifact,
+              title: delta.data,
+              status: "streaming",
+            };
+
+          case "data-kind":
+            return {
+              ...draftArtifact,
+              kind: delta.data,
+              status: "streaming",
+            };
+
+          case "data-clear":
+            return {
+              ...draftArtifact,
+              content: "",
+              status: "streaming",
+            };
+
+          case "data-finish":
+            return {
+              ...draftArtifact,
+              status: "idle",
+            };
+
+          default:
+            return draftArtifact;
+        }
+      });
     }
-  }, [dataStream, setDataStream]);
+  }, [dataStream, setArtifact, setMetadata, artifact, setDataStream, mutate]);
 
   return null;
 }

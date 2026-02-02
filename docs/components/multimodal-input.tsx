@@ -3,7 +3,7 @@
 import type { UseChatHelpers } from "@ai-sdk/react";
 import type { UIMessage } from "ai";
 import equal from "fast-deep-equal";
-import { ArrowUp, Check, Paperclip, Square } from "lucide-react";
+import { CheckIcon } from "lucide-react";
 import {
   type ChangeEvent,
   type Dispatch,
@@ -28,28 +28,29 @@ import {
   ModelSelectorTrigger,
 } from "@/components/ai-elements/model-selector";
 import {
-  PromptInput,
-  PromptInputSubmit,
-  PromptInputTextarea,
-  PromptInputToolbar,
-  PromptInputTools,
-} from "@/components/ai-elements/prompt-input";
-import {
   chatModels,
   DEFAULT_CHAT_MODEL,
   modelsByProvider,
 } from "@/lib/ai/models";
 import type { Attachment, ChatMessage } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import {
+  PromptInput,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  PromptInputToolbar,
+  PromptInputTools,
+} from "./elements/prompt-input";
+import { ArrowUpIcon, PaperclipIcon, StopIcon } from "./icons";
 import { PreviewAttachment } from "./preview-attachment";
+import { SuggestedActions } from "./suggested-actions";
 import { Button } from "./ui/button";
+import type { VisibilityType } from "./visibility-selector";
 
 function setCookie(name: string, value: string) {
   const maxAge = 60 * 60 * 24 * 365; // 1 year
   // biome-ignore lint/suspicious/noDocumentCookie: needed for client-side cookie setting
-  document.cookie = `${name}=${encodeURIComponent(
-    value
-  )}; path=/; max-age=${maxAge}`;
+  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAge}`;
 }
 
 function PureMultimodalInput({
@@ -64,6 +65,7 @@ function PureMultimodalInput({
   setMessages,
   sendMessage,
   className,
+  selectedVisibilityType,
   selectedModelId,
   onModelChange,
 }: {
@@ -78,6 +80,7 @@ function PureMultimodalInput({
   setMessages: UseChatHelpers<ChatMessage>["setMessages"];
   sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
   className?: string;
+  selectedVisibilityType: VisibilityType;
   selectedModelId: string;
   onModelChange?: (modelId: string) => void;
 }) {
@@ -142,7 +145,7 @@ function PureMultimodalInput({
   const [uploadQueue, setUploadQueue] = useState<string[]>([]);
 
   const submitForm = useCallback(() => {
-    window.history.pushState({}, "", `/chat`);
+    window.history.pushState({}, "", `/chat/${chatId}`);
 
     sendMessage({
       role: "user",
@@ -294,7 +297,15 @@ function PureMultimodalInput({
 
   return (
     <div className={cn("relative flex w-full flex-col gap-4", className)}>
-      {messages.length === 0 && attachments.length === 0}
+      {messages.length === 0 &&
+        attachments.length === 0 &&
+        uploadQueue.length === 0 && (
+          <SuggestedActions
+            chatId={chatId}
+            selectedVisibilityType={selectedVisibilityType}
+            sendMessage={sendMessage}
+          />
+        )}
 
       <input
         className="pointer-events-none fixed -top-4 -left-4 size-0.5 opacity-0"
@@ -307,7 +318,7 @@ function PureMultimodalInput({
 
       <PromptInput
         className="rounded-xl border border-border bg-background p-3 shadow-xs transition-all duration-200 focus-within:border-border hover:border-muted-foreground/50"
-        onSubmit={(event: { preventDefault: () => void }) => {
+        onSubmit={(event) => {
           event.preventDefault();
           if (!input.trim() && attachments.length === 0) {
             return;
@@ -388,7 +399,7 @@ function PureMultimodalInput({
               disabled={!input.trim() || uploadQueue.length > 0}
               status={status}
             >
-              <ArrowUp className="size-[14px]" />
+              <ArrowUpIcon size={14} />
             </PromptInputSubmit>
           )}
         </PromptInputToolbar>
@@ -407,6 +418,9 @@ export const MultimodalInput = memo(
       return false;
     }
     if (!equal(prevProps.attachments, nextProps.attachments)) {
+      return false;
+    }
+    if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType) {
       return false;
     }
     if (prevProps.selectedModelId !== nextProps.selectedModelId) {
@@ -440,7 +454,7 @@ function PureAttachmentsButton({
       }}
       variant="ghost"
     >
-      <Paperclip className="size-[14px]" />
+      <PaperclipIcon size={14} style={{ width: 14, height: 14 }} />
     </Button>
   );
 }
@@ -457,8 +471,8 @@ function PureModelSelectorCompact({
   const [open, setOpen] = useState(false);
 
   const selectedModel =
-    chatModels.find((m: { id: string }) => m.id === selectedModelId) ??
-    chatModels.find((m: { id: any }) => m.id === DEFAULT_CHAT_MODEL) ??
+    chatModels.find((m) => m.id === selectedModelId) ??
+    chatModels.find((m) => m.id === DEFAULT_CHAT_MODEL) ??
     chatModels[0];
   const [provider] = selectedModel.id.split("/");
 
@@ -473,7 +487,7 @@ function PureModelSelectorCompact({
 
   return (
     <ModelSelector onOpenChange={setOpen} open={open}>
-      <ModelSelectorTrigger>
+      <ModelSelectorTrigger asChild>
         <Button className="h-8 w-[200px] justify-between px-2" variant="ghost">
           {provider && <ModelSelectorLogo provider={provider} />}
           <ModelSelectorName>{selectedModel.name}</ModelSelectorName>
@@ -488,7 +502,7 @@ function PureModelSelectorCompact({
                 heading={providerNames[providerKey] ?? providerKey}
                 key={providerKey}
               >
-                {providerModels.map((model: { id: string; name: any }) => {
+                {providerModels.map((model) => {
                   const logoProvider = model.id.split("/")[0];
                   return (
                     <ModelSelectorItem
@@ -503,7 +517,7 @@ function PureModelSelectorCompact({
                       <ModelSelectorLogo provider={logoProvider} />
                       <ModelSelectorName>{model.name}</ModelSelectorName>
                       {model.id === selectedModel.id && (
-                        <Check className="ml-auto size-4" />
+                        <CheckIcon className="ml-auto size-4" />
                       )}
                     </ModelSelectorItem>
                   );
@@ -536,7 +550,7 @@ function PureStopButton({
         setMessages((messages) => messages);
       }}
     >
-      <Square className="size-[14px]" />
+      <StopIcon size={14} />
     </Button>
   );
 }

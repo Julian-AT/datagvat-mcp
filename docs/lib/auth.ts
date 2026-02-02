@@ -1,12 +1,67 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "@/db";
-import { user, session } from "@/db/schema";
+import { db } from "@/lib/db";
+import { user, session, account, verification } from "@/lib/db/schema";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
+    schema: {
+      user: {
+        tableName: "User",
+        fields: {
+          email: "email",
+          emailVerified: "emailVerified",
+          name: "name",
+          createdAt: "createdAt",
+          updatedAt: "updatedAt",
+          image: "image",
+        },
+      },
+      session: {
+        tableName: "Session",
+        fields: {
+          userId: "userId",
+          expiresAt: "expiresAt",
+          token: "token",
+          ipAddress: "ipAddress",
+          userAgent: "userAgent",
+          createdAt: "createdAt",
+          updatedAt: "updatedAt",
+        },
+      },
+      account: {
+        tableName: "Account",
+        fields: {
+          userId: "userId",
+          accountId: "accountId",
+          providerId: "providerId",
+          accessToken: "accessToken",
+          refreshToken: "refreshToken",
+          idToken: "idToken",
+          accessTokenExpiresAt: "accessTokenExpiresAt",
+          refreshTokenExpiresAt: "refreshTokenExpiresAt",
+          scope: "scope",
+          createdAt: "createdAt",
+          updatedAt: "updatedAt",
+        },
+      },
+      verification: {
+        tableName: "Verification",
+        fields: {
+          identifier: "identifier",
+          value: "value",
+          expiresAt: "expiresAt",
+          createdAt: "createdAt",
+          updatedAt: "updatedAt",
+        },
+      },
+    },
   }),
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: false,
+  },
   session: {
     expiresIn: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24,
@@ -20,16 +75,14 @@ export const auth = betterAuth({
 });
 
 export async function createGuestSession() {
-  const guestId = crypto.randomUUID();
-  const sessionId = crypto.randomUUID();
   const sessionToken = crypto.randomUUID();
 
-  // Create guest user with null email (indicates anonymous)
+  // Create guest user (DB will generate UUID)
   const [guestUser] = await db.insert(user).values({
-    id: guestId,
-    name: `Guest_${guestId.slice(0, 8)}`,
-    email: null,
-    emailVerified: null,
+    email: `guest_${crypto.randomUUID()}@guest.local`,
+    name: `Guest`,
+    emailVerified: false,
+    password: null,
   }).returning();
 
   // Create session directly in database
@@ -39,7 +92,6 @@ export async function createGuestSession() {
   expiresAt.setDate(expiresAt.getDate() + 7); // 7 days from now
 
   const [guestSession] = await db.insert(session).values({
-    id: sessionId,
     userId: guestUser.id,
     token: sessionToken,
     expiresAt,
