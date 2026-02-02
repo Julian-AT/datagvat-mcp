@@ -29,16 +29,15 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 - E2B execution verification (sandbox lifecycle testing)
 - TypeScript cleanup (~50 UI component type warnings)
 
-## Next Milestone: v2.3
+## Current Milestone: v2.3 Production Playground
 
-**Focus:** Build on v2.2 foundation with security, testing, and polish
+**Goal:** Make the interactive data playground production-ready with security, working visualizations, and polished UX.
 
-**Priorities:**
-1. Tool approval flow (user must approve before code execution)
-2. Visualization rendering (verify artifact/canvas components work)
-3. E2B execution testing (end-to-end sandbox verification)
-4. Chat UI improvements (streaming, loading states, error handling)
-5. TypeScript quality (fix UI component type issues)
+**Target features:**
+- Tool approval flow (user confirms before code execution)
+- Visualization rendering (test artifact/canvas components with real data)
+- E2B sandbox lifecycle (end-to-end execution + cleanup testing)
+- Chat UI polish (streaming states, loading indicators, error handling)
 
 ## Requirements
 
@@ -117,23 +116,38 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 - ✓ Complete repository cleanup (EditorConfig, .gitignore, dependency audit) — v2.1
 - ✓ Build verification after every phase (152s build time under 5-minute constraint) — v2.1
 
+**v2.2 Interactive Data Playground Foundation (shipped 2026-02-02):**
+- ✓ Chat foundation (Vercel ai-chatbot architecture: schema, routes, components) — v2.2
+- ✓ MCP integration (tool aggregation from data.gv.at + E2B servers with health monitoring) — v2.2
+- ✓ Message persistence (chat history with parts array pattern, UUID primary keys) — v2.2
+- ✓ Database (Neon Postgres with Drizzle ORM, migrations working) — v2.2
+- ✓ UI components (artifact/canvas pattern for visualizations, created but untested) — v2.2
+- ✓ Build pipeline (481 static pages, successful builds, TypeScript compiling) — v2.2
+
 ### Active
 
-<!-- v2.2 scope -->
+<!-- v2.3 scope: Security, testing, and polish -->
 
-**v2.2 Interactive Data Playground:**
-- [ ] Chat interface with AI SDK useChat hook
-- [ ] Multiple MCP server integration (data.gv.at + Daytona via stdio)
-- [ ] Vercel AI Gateway configuration (anthropic/claude-sonnet-4)
-- [ ] Neon Postgres database setup with Drizzle ORM
-- [ ] Message persistence (AI SDK 6 parts array pattern)
-- [ ] User approval dialog before sandbox execution (experimental_needsApproval)
-- [ ] Daytona sandbox creation and code execution
-- [ ] Inline visualization output (base64 image rendering)
+**v2.3 Production Playground:**
+- [ ] Tool approval flow (experimental_needsApproval implementation)
+- [ ] Visualization rendering verification (artifact/canvas components with matplotlib/plotly)
+- [ ] E2B execution testing (sandbox create/execute/cleanup lifecycle)
+- [ ] Chat UI polish (streaming states, loading indicators, error messages, retry flows)
+- [ ] End-to-end testing (dataset discovery → code generation → execution → visualization)
+- [ ] Error recovery patterns (failed execution, sandbox errors, network issues)
+- [ ] Documentation updates (playground usage guide, security model, troubleshooting)
 
 ### Out of Scope
 
 <!-- Explicit boundaries. Includes reasoning to prevent re-adding. -->
+
+**v2.3 Explicit Exclusions:**
+- TypeScript cleanup (~50 UI warnings) — defer to v2.4, functional features take priority
+- User authentication — still guest mode only, defer to v3.0
+- Public sharing with URLs — requires auth + storage, defer to v3.0
+- Multiple programming languages (R, Julia) — Python covers 95% of use cases
+- Real-time collaboration — complex engineering, single-user sufficient for now
+- Data upload (user CSV files) — focus on Austrian open data differentiator
 
 **v2.2 Explicit Exclusions:**
 - User authentication — guest mode only, defer to v3.0
@@ -238,4 +252,4 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 | Clean code without AI slop | Minimize comments, self-explanatory code, best practices | ✓ Good — v2.2 coding standard |
 
 ---
-*Last updated: 2026-02-02 after v2.2 milestone completion
+*Last updated: 2026-02-02 after v2.3 milestone started

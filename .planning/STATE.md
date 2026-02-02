@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
-**Current focus:** Planning v2.3 milestone (build on v2.2 foundation)
+**Current focus:** v2.3 Production Playground (security, testing, and polish)
 
 ## Current Position
 
-Phase: Not started (v2.3 milestone planning needed)
+Phase: Not started (defining requirements)
 Plan: N/A
-Status: Ready to plan next milestone
-Last activity: 2026-02-02 — v2.2 milestone archived
+Status: Defining requirements
+Last activity: 2026-02-02 — Milestone v2.3 started
 
-Progress: v2.2 complete (foundation delivered via manual implementation)
+Progress: v2.2 complete, v2.3 requirements being defined
 
 ## Performance Metrics
 
