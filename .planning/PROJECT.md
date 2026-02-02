@@ -10,41 +10,35 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 
 ## Current State
 
-**Latest shipped:** v2.1 Documentation Excellence & AI Features (2026-01-23)
+**Latest shipped:** v2.2 Interactive Data Playground (Foundation Complete) (2026-02-02)
 
 **What's working:**
-- MCP server with 25 tools for Austrian open data discovery and analysis
-- Enterprise infrastructure (retry, rate limiting, logging, graceful degradation)
-- Smart search with semantic matching, quality ranking, and autocomplete
-- Data preview and schema introspection for CSV/JSON
-- Bilingual documentation framework (EN/DE) with Fumadocs
-- Comprehensive English documentation (112 MDX files, 481 static routes)
-- Auto-generated tool reference from Python docstrings
-- Progressive disclosure patterns serving multiple expertise levels
-- 6 end-to-end workflow guides with Steps component
-- Visual architecture aids (4 Mermaid diagrams)
-- Production-ready quality (60/60 requirements verified, 100% sampled examples work)
+- **Chat Foundation:** Vercel ai-chatbot architecture (schema, routes, components)
+- **MCP Integration:** Tool aggregation from data.gv.at + E2B servers with health monitoring
+- **Message Persistence:** Chat history with parts array pattern, UUID primary keys
+- **Database:** Neon Postgres with Drizzle ORM, migrations working
+- **UI Components:** Artifact/canvas pattern for visualizations (created, untested)
+- **Build Pipeline:** 481 static pages, successful builds
+- **MCP Server:** 25 tools for Austrian open data discovery
+- **Documentation:** Comprehensive docs with RAG chat, video tutorials, CLI
 
-**Recent improvements (v2.1):**
-- Simplified 3-tab navigation (Docs/API/Try) with comprehensive redirects
-- State-of-the-art README with badges and quick start guide
-- shadcn-quality CLI with interactive prompts, health checks, and self-updates
-- RAG-powered documentation chat with source citations and streaming responses
-- Programmatic video tutorials via Remotion (3 videos: quickstart, workflow, architecture)
-- Comprehensive repository cleanup and standardization
+**What needs work (v2.3 goals):**
+- Tool approval flow (security layer before code execution)
+- Visualization rendering (test artifact/canvas components)
+- Chat UI polish (streaming indicators, debug mode)
+- E2B execution verification (sandbox lifecycle testing)
+- TypeScript cleanup (~50 UI component type warnings)
 
-## Current Milestone: v2.2 Interactive Data Playground
+## Next Milestone: v2.3
 
-**Goal:** Transform docs/ from a static documentation site into an interactive data playground where users can chat with AI to explore 60,000+ Austrian datasets, execute Python code in Daytona sandboxes, create visualizations, and share results.
+**Focus:** Build on v2.2 foundation with security, testing, and polish
 
-**Target features:**
-- Chat interface with AI SDK useChat hook
-- Multiple MCP server integration (data.gv.at + Daytona)
-- Vercel AI Gateway with anthropic/claude-sonnet-4
-- Neon Postgres + Drizzle ORM for message persistence
-- User approval dialog before sandbox execution
-- Inline visualization output (base64 images)
-- Code execution in Daytona sandboxes
+**Priorities:**
+1. Tool approval flow (user must approve before code execution)
+2. Visualization rendering (verify artifact/canvas components work)
+3. E2B execution testing (end-to-end sandbox verification)
+4. Chat UI improvements (streaming, loading states, error handling)
+5. TypeScript quality (fix UI component type issues)
 
 ## Requirements
 
@@ -244,4 +238,4 @@ Smart, relevant dataset discovery — users ask natural questions and get the ri
 | Clean code without AI slop | Minimize comments, self-explanatory code, best practices | ✓ Good — v2.2 coding standard |
 
 ---
-*Last updated: 2026-01-31 after v2.2 coding standards defined*
+*Last updated: 2026-02-02 after v2.2 milestone completion
