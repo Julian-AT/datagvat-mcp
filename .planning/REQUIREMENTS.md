@@ -18,14 +18,14 @@ Requirements for production-ready playground with security, testing, and polish.
 
 ### E2B Lifecycle Testing
 
-- [ ] **E2B-01**: Sandbox creates successfully with required Python libraries
-- [ ] **E2B-02**: Code executes in isolated sandbox (not production environment)
-- [ ] **E2B-03**: Sandbox cleanup (kill) runs after execution completes
-- [ ] **E2B-04**: Sandbox cleanup runs even when execution fails or times out
-- [ ] **E2B-05**: Timeout enforcement prevents infinite loops (30-second limit)
-- [ ] **E2B-06**: Lifecycle tests verify create → execute → kill → verify cleanup
-- [ ] **E2B-07**: No orphaned sandboxes after 100 sequential test runs
-- [ ] **E2B-08**: Error handling preserves sandbox cleanup in try/finally pattern
+- [x] **E2B-01**: Sandbox creates successfully with required Python libraries
+- [x] **E2B-02**: Code executes in isolated sandbox (not production environment)
+- [x] **E2B-03**: Sandbox cleanup (kill) runs after execution completes
+- [x] **E2B-04**: Sandbox cleanup runs even when execution fails or times out
+- [x] **E2B-05**: Timeout enforcement prevents infinite loops (30-second limit)
+- [x] **E2B-06**: Lifecycle tests verify create → execute → kill → verify cleanup
+- [x] **E2B-07**: No orphaned sandboxes after 100 sequential test runs
+- [x] **E2B-08**: Error handling preserves sandbox cleanup in try/finally pattern
 
 ### Visualization Rendering
 
