@@ -1,12 +1,12 @@
-import equal from "fast-deep-equal";
-import { memo } from "react";
-import { toast } from "sonner";
-import { useSWRConfig } from "swr";
-import { useCopyToClipboard } from "usehooks-ts";
-import type { Vote } from "@/lib/db/schema";
-import type { ChatMessage } from "@/lib/types";
-import { Action, Actions } from "./elements/actions";
-import { CopyIcon, PencilEditIcon, ThumbDownIcon, ThumbUpIcon } from "./icons";
+import equal from 'fast-deep-equal';
+import { memo } from 'react';
+import { toast } from 'sonner';
+import { useSWRConfig } from 'swr';
+import { useCopyToClipboard } from 'usehooks-ts';
+import type { Vote } from '@/lib/db/schema';
+import type { ChatMessage } from '@/lib/types';
+import { Action, Actions } from './elements/actions';
+import { CopyIcon, PencilEditIcon, ThumbDownIcon, ThumbUpIcon } from './icons';
 
 export function PureMessageActions({
   chatId,
@@ -19,7 +19,7 @@ export function PureMessageActions({
   message: ChatMessage;
   vote: Vote | undefined;
   isLoading: boolean;
-  setMode?: (mode: "view" | "edit") => void;
+  setMode?: (mode: 'view' | 'edit') => void;
 }) {
   const { mutate } = useSWRConfig();
   const [_, copyToClipboard] = useCopyToClipboard();
@@ -29,9 +29,9 @@ export function PureMessageActions({
   }
 
   const textFromParts = message.parts
-    ?.filter((part) => part.type === "text")
+    ?.filter((part) => part.type === 'text')
     .map((part) => part.text)
-    .join("\n")
+    .join('\n')
     .trim();
 
   const handleCopy = async () => {
@@ -41,11 +41,11 @@ export function PureMessageActions({
     }
 
     await copyToClipboard(textFromParts);
-    toast.success("Copied to clipboard!");
+    toast.success('Copied to clipboard!');
   };
 
   // User messages get edit (on hover) and copy actions
-  if (message.role === "user") {
+  if (message.role === 'user') {
     return (
       <Actions className="-mr-0.5 justify-end">
         <div className="relative">
@@ -53,7 +53,7 @@ export function PureMessageActions({
             <Action
               className="absolute top-0 -left-10 opacity-0 transition-opacity focus-visible:opacity-100 group-hover/message:opacity-100"
               data-testid="message-edit-button"
-              onClick={() => setMode("edit")}
+              onClick={() => setMode('edit')}
               tooltip="Edit"
             >
               <PencilEditIcon />
@@ -77,17 +77,17 @@ export function PureMessageActions({
         data-testid="message-upvote"
         disabled={vote?.isUpvoted}
         onClick={() => {
-          const upvote = fetch("/api/vote", {
-            method: "PATCH",
+          const upvote = fetch('/api/vote', {
+            method: 'PATCH',
             body: JSON.stringify({
               chatId,
               messageId: message.id,
-              type: "up",
+              type: 'up',
             }),
           });
 
           toast.promise(upvote, {
-            loading: "Upvoting Response...",
+            loading: 'Upvoting Response...',
             success: () => {
               mutate<Vote[]>(
                 `/api/vote?chatId=${chatId}`,
@@ -112,9 +112,9 @@ export function PureMessageActions({
                 { revalidate: false }
               );
 
-              return "Upvoted Response!";
+              return 'Upvoted Response!';
             },
-            error: "Failed to upvote response.",
+            error: 'Failed to upvote response.',
           });
         }}
         tooltip="Upvote Response"
@@ -126,17 +126,17 @@ export function PureMessageActions({
         data-testid="message-downvote"
         disabled={vote && !vote.isUpvoted}
         onClick={() => {
-          const downvote = fetch("/api/vote", {
-            method: "PATCH",
+          const downvote = fetch('/api/vote', {
+            method: 'PATCH',
             body: JSON.stringify({
               chatId,
               messageId: message.id,
-              type: "down",
+              type: 'down',
             }),
           });
 
           toast.promise(downvote, {
-            loading: "Downvoting Response...",
+            loading: 'Downvoting Response...',
             success: () => {
               mutate<Vote[]>(
                 `/api/vote?chatId=${chatId}`,
@@ -161,9 +161,9 @@ export function PureMessageActions({
                 { revalidate: false }
               );
 
-              return "Downvoted Response!";
+              return 'Downvoted Response!';
             },
-            error: "Failed to downvote response.",
+            error: 'Failed to downvote response.',
           });
         }}
         tooltip="Downvote Response"
@@ -174,16 +174,13 @@ export function PureMessageActions({
   );
 }
 
-export const MessageActions = memo(
-  PureMessageActions,
-  (prevProps, nextProps) => {
-    if (!equal(prevProps.vote, nextProps.vote)) {
-      return false;
-    }
-    if (prevProps.isLoading !== nextProps.isLoading) {
-      return false;
-    }
-
-    return true;
+export const MessageActions = memo(PureMessageActions, (prevProps, nextProps) => {
+  if (!equal(prevProps.vote, nextProps.vote)) {
+    return false;
   }
-);
+  if (prevProps.isLoading !== nextProps.isLoading) {
+    return false;
+  }
+
+  return true;
+});

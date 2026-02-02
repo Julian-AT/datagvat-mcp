@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { isToday, isYesterday, subMonths, subWeeks } from "date-fns";
-import { motion } from "framer-motion";
-import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
-import useSWRInfinite from "swr/infinite";
+import { isToday, isYesterday, subMonths, subWeeks } from 'date-fns';
+import { motion } from 'framer-motion';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import useSWRInfinite from 'swr/infinite';
 
 type User = {
   id: string;
@@ -13,6 +13,7 @@ type User = {
   email: string;
   image?: string | null;
 };
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,17 +23,17 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
   useSidebar,
-} from "@/components/ui/sidebar";
-import type { Chat } from "@/lib/db/schema";
-import { fetcher } from "@/lib/utils";
-import { LoaderIcon } from "./icons";
-import { ChatItem } from "./sidebar-history-item";
+} from '@/components/ui/sidebar';
+import type { Chat } from '@/lib/db/schema';
+import { fetcher } from '@/lib/utils';
+import { LoaderIcon } from './icons';
+import { ChatItem } from './sidebar-history-item';
 
 type GroupedChats = {
   today: Chat[];
@@ -82,10 +83,7 @@ const groupChatsByDate = (chats: Chat[]): GroupedChats => {
   );
 };
 
-export function getChatHistoryPaginationKey(
-  pageIndex: number,
-  previousPageData: ChatHistory
-) {
+export function getChatHistoryPaginationKey(pageIndex: number, previousPageData: ChatHistory) {
   if (previousPageData && previousPageData.hasMore === false) {
     return null;
   }
@@ -106,7 +104,7 @@ export function getChatHistoryPaginationKey(
 export function SidebarHistory({ user }: { user: User | undefined }) {
   const { setOpenMobile } = useSidebar();
   const pathname = usePathname();
-  const id = pathname?.startsWith("/chat/") ? pathname.split("/")[2] : null;
+  const id = pathname?.startsWith('/chat/') ? pathname.split('/')[2] : null;
 
   const {
     data: paginatedChatHistories,
@@ -137,31 +135,29 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
     setShowDeleteDialog(false);
 
     const deletePromise = fetch(`/api/chat?id=${chatToDelete}`, {
-      method: "DELETE",
+      method: 'DELETE',
     });
 
     toast.promise(deletePromise, {
-      loading: "Deleting chat...",
+      loading: 'Deleting chat...',
       success: () => {
         mutate((chatHistories) => {
           if (chatHistories) {
             return chatHistories.map((chatHistory) => ({
               ...chatHistory,
-              chats: chatHistory.chats.filter(
-                (chat) => chat.id !== chatToDelete
-              ),
+              chats: chatHistory.chats.filter((chat) => chat.id !== chatToDelete),
             }));
           }
         });
 
         if (isCurrentChat) {
-          router.replace("/");
+          router.replace('/');
           router.refresh();
         }
 
-        return "Chat deleted successfully";
+        return 'Chat deleted successfully';
       },
-      error: "Failed to delete chat",
+      error: 'Failed to delete chat',
     });
   };
 
@@ -180,21 +176,16 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
   if (isLoading) {
     return (
       <SidebarGroup>
-        <div className="px-2 py-1 text-sidebar-foreground/50 text-xs">
-          Today
-        </div>
+        <div className="px-2 py-1 text-sidebar-foreground/50 text-xs">Today</div>
         <SidebarGroupContent>
           <div className="flex flex-col">
             {[44, 32, 28, 64, 52].map((item) => (
-              <div
-                className="flex h-8 items-center gap-2 rounded-md px-2"
-                key={item}
-              >
+              <div className="flex h-8 items-center gap-2 rounded-md px-2" key={item}>
                 <div
                   className="h-4 max-w-(--skeleton-width) flex-1 rounded-md bg-sidebar-accent-foreground/10"
                   style={
                     {
-                      "--skeleton-width": `${item}%`,
+                      '--skeleton-width': `${item}%`,
                     } as React.CSSProperties
                   }
                 />
@@ -235,9 +226,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
                   <div className="flex flex-col gap-6">
                     {groupedChats.today.length > 0 && (
                       <div>
-                        <div className="px-2 py-1 text-sidebar-foreground/50 text-xs">
-                          Today
-                        </div>
+                        <div className="px-2 py-1 text-sidebar-foreground/50 text-xs">Today</div>
                         {groupedChats.today.map((chat) => (
                           <ChatItem
                             chat={chat}
@@ -365,15 +354,13 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              chat and remove it from our servers.
+              This action cannot be undone. This will permanently delete your chat and remove it
+              from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>
-              Continue
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleDelete}>Continue</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

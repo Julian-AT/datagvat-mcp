@@ -1,25 +1,21 @@
-"use client";
+'use client';
 
-import { ChevronUp } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
-import { useTheme } from "next-themes";
+import { ChevronUp } from 'lucide-react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useTheme } from 'next-themes';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { guestRegex } from "@/lib/constants";
-import { LoaderIcon } from "./icons";
-import { toast } from "./toast";
+} from '@/components/ui/dropdown-menu';
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { authClient } from '@/lib/auth-client';
+import { guestRegex } from '@/lib/constants';
+import { LoaderIcon } from './icons';
+import { toast } from './toast';
 
 type User = {
   id: string;
@@ -33,7 +29,7 @@ export function SidebarUserNav({ user }: { user: User }) {
   const { data: session, isPending } = authClient.useSession();
   const { setTheme, resolvedTheme } = useTheme();
 
-  const isGuest = guestRegex.test(session?.user?.email ?? "");
+  const isGuest = guestRegex.test(session?.user?.email ?? '');
 
   return (
     <SidebarMenu>
@@ -58,14 +54,14 @@ export function SidebarUserNav({ user }: { user: User }) {
                 data-testid="user-nav-button"
               >
                 <Image
-                  alt={user.email ?? "User Avatar"}
+                  alt={user.email ?? 'User Avatar'}
                   className="rounded-full"
                   height={24}
                   src={`https://avatar.vercel.sh/${user.email}`}
                   width={24}
                 />
                 <span className="truncate" data-testid="user-email">
-                  {isGuest ? "Guest" : user?.email}
+                  {isGuest ? 'Guest' : user?.email}
                 </span>
                 <ChevronUp className="ml-auto" />
               </SidebarMenuButton>
@@ -79,11 +75,9 @@ export function SidebarUserNav({ user }: { user: User }) {
             <DropdownMenuItem
               className="cursor-pointer"
               data-testid="user-nav-item-theme"
-              onSelect={() =>
-                setTheme(resolvedTheme === "dark" ? "light" : "dark")
-              }
+              onSelect={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
             >
-              {`Toggle ${resolvedTheme === "light" ? "dark" : "light"} mode`}
+              {`Toggle ${resolvedTheme === 'light' ? 'dark' : 'light'} mode`}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild data-testid="user-nav-item-auth">
@@ -92,21 +86,20 @@ export function SidebarUserNav({ user }: { user: User }) {
                 onClick={async () => {
                   if (isPending) {
                     toast({
-                      type: "error",
-                      description:
-                        "Checking authentication status, please try again!",
+                      type: 'error',
+                      description: 'Checking authentication status, please try again!',
                     });
 
                     return;
                   }
 
                   if (isGuest) {
-                    router.push("/login");
+                    router.push('/login');
                   } else {
                     await authClient.signOut({
                       fetchOptions: {
                         onSuccess: () => {
-                          router.push("/");
+                          router.push('/');
                           router.refresh();
                         },
                       },
@@ -115,7 +108,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                 }}
                 type="button"
               >
-                {isGuest ? "Login to your account" : "Sign out"}
+                {isGuest ? 'Login to your account' : 'Sign out'}
               </button>
             </DropdownMenuItem>
           </DropdownMenuContent>

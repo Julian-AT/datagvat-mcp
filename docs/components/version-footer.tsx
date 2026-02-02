@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { isAfter } from "date-fns";
-import { motion } from "framer-motion";
-import { useState } from "react";
-import { useSWRConfig } from "swr";
-import { useWindowSize } from "usehooks-ts";
-import { useArtifact } from "@/hooks/use-artifact";
-import type { Document } from "@/lib/db/schema";
-import { getDocumentTimestampByIndex } from "@/lib/utils";
-import { LoaderIcon } from "./icons";
-import { Button } from "./ui/button";
+import { isAfter } from 'date-fns';
+import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { useSWRConfig } from 'swr';
+import { useWindowSize } from 'usehooks-ts';
+import { useArtifact } from '@/hooks/use-artifact';
+import type { Document } from '@/lib/db/schema';
+import { getDocumentTimestampByIndex } from '@/lib/utils';
+import { LoaderIcon } from './icons';
+import { Button } from './ui/button';
 
 type VersionFooterProps = {
-  handleVersionChange: (type: "next" | "prev" | "toggle" | "latest") => void;
+  handleVersionChange: (type: 'next' | 'prev' | 'toggle' | 'latest') => void;
   documents: Document[] | undefined;
   currentVersionIndex: number;
 };
@@ -40,13 +40,11 @@ export const VersionFooter = ({
       className="absolute bottom-0 z-50 flex w-full flex-col justify-between gap-4 border-t bg-background p-4 lg:flex-row"
       exit={{ y: isMobile ? 200 : 77 }}
       initial={{ y: isMobile ? 200 : 77 }}
-      transition={{ type: "spring", stiffness: 140, damping: 20 }}
+      transition={{ type: 'spring', stiffness: 140, damping: 20 }}
     >
       <div>
         <div>You are viewing a previous version</div>
-        <div className="text-muted-foreground text-sm">
-          Restore this version to make edits
-        </div>
+        <div className="text-muted-foreground text-sm">Restore this version to make edits</div>
       </div>
 
       <div className="flex flex-row gap-4">
@@ -63,7 +61,7 @@ export const VersionFooter = ({
                   currentVersionIndex
                 )}`,
                 {
-                  method: "DELETE",
+                  method: 'DELETE',
                 }
               ),
               {
@@ -72,12 +70,7 @@ export const VersionFooter = ({
                       ...documents.filter((document) =>
                         isAfter(
                           new Date(document.createdAt),
-                          new Date(
-                            getDocumentTimestampByIndex(
-                              documents,
-                              currentVersionIndex
-                            )
-                          )
+                          new Date(getDocumentTimestampByIndex(documents, currentVersionIndex))
                         )
                       ),
                     ]
@@ -95,7 +88,7 @@ export const VersionFooter = ({
         </Button>
         <Button
           onClick={() => {
-            handleVersionChange("latest");
+            handleVersionChange('latest');
           }}
           variant="outline"
         >

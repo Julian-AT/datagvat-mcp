@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { Download, Maximize2, X } from "lucide-react";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Download, Maximize2, X } from 'lucide-react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 interface VisualizationProps {
-  format: "png" | "svg" | "html";
+  format: 'png' | 'svg' | 'html';
   url: string;
   metadata?: Record<string, unknown>;
 }
@@ -21,7 +21,7 @@ export function Visualization({ format, url, metadata }: VisualizationProps) {
       const response = await fetch(url);
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
+      const a = document.createElement('a');
       a.href = downloadUrl;
       a.download = `visualization.${format}`;
       document.body.appendChild(a);
@@ -29,7 +29,7 @@ export function Visualization({ format, url, metadata }: VisualizationProps) {
       window.URL.revokeObjectURL(downloadUrl);
       document.body.removeChild(a);
     } catch (err) {
-      console.error("Failed to download visualization:", err);
+      console.error('Failed to download visualization:', err);
     }
   };
 
@@ -39,34 +39,34 @@ export function Visualization({ format, url, metadata }: VisualizationProps) {
 
   const handleError = () => {
     setIsLoading(false);
-    setError("Failed to load visualization");
+    setError('Failed to load visualization');
   };
 
   const renderVisualization = (fullscreen = false) => {
     const className = fullscreen
-      ? "w-full h-full object-contain"
-      : "max-w-full h-auto rounded-lg border border-border";
+      ? 'w-full h-full object-contain'
+      : 'max-w-full h-auto rounded-lg border border-border';
 
-    if (format === "html") {
+    if (format === 'html') {
       return (
         <iframe
           src={url}
-          className={`${className} ${isLoading ? "hidden" : ""}`}
+          className={`${className} ${isLoading ? 'hidden' : ''}`}
           onLoad={handleLoad}
           onError={handleError}
           title="Visualization"
           sandbox="allow-scripts"
-          style={{ minHeight: fullscreen ? "100%" : "400px" }}
+          style={{ minHeight: fullscreen ? '100%' : '400px' }}
         />
       );
     }
 
-    if (format === "svg") {
+    if (format === 'svg') {
       return (
         <object
           data={url}
           type="image/svg+xml"
-          className={`${className} ${isLoading ? "hidden" : ""}`}
+          className={`${className} ${isLoading ? 'hidden' : ''}`}
           onLoad={handleLoad}
           onError={handleError}
           aria-label="Visualization"
@@ -87,7 +87,7 @@ export function Visualization({ format, url, metadata }: VisualizationProps) {
       <img
         src={url}
         alt="Visualization"
-        className={`${className} ${isLoading ? "hidden" : ""}`}
+        className={`${className} ${isLoading ? 'hidden' : ''}`}
         onLoad={handleLoad}
         onError={handleError}
       />
@@ -99,9 +99,7 @@ export function Visualization({ format, url, metadata }: VisualizationProps) {
       <div className="relative w-full my-4 group">
         {isLoading && (
           <div className="flex items-center justify-center p-8 bg-muted rounded-lg">
-            <div className="animate-pulse text-muted-foreground">
-              Loading visualization...
-            </div>
+            <div className="animate-pulse text-muted-foreground">Loading visualization...</div>
           </div>
         )}
 

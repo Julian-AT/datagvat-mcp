@@ -1,9 +1,9 @@
-"use server";
+'use server';
 
-import { z } from "zod";
-import { cookies } from "next/headers";
-import { createUser, getUser } from "@/lib/db/queries";
-import { auth } from "@/lib/auth";
+import { cookies } from 'next/headers';
+import { z } from 'zod';
+import { auth } from '@/lib/auth';
+import { createUser, getUser } from '@/lib/db/queries';
 
 const authFormSchema = z.object({
   email: z.string().email(),
@@ -11,17 +11,14 @@ const authFormSchema = z.object({
 });
 
 export type LoginActionState = {
-  status: "idle" | "in_progress" | "success" | "failed" | "invalid_data";
+  status: 'idle' | 'in_progress' | 'success' | 'failed' | 'invalid_data';
 };
 
-export const login = async (
-  _: LoginActionState,
-  formData: FormData
-): Promise<LoginActionState> => {
+export const login = async (_: LoginActionState, formData: FormData): Promise<LoginActionState> => {
   try {
     const validatedData = authFormSchema.parse({
-      email: formData.get("email"),
-      password: formData.get("password"),
+      email: formData.get('email'),
+      password: formData.get('password'),
     });
 
     const result = await auth.api.signInEmail({
@@ -32,27 +29,21 @@ export const login = async (
     });
 
     if (result?.error) {
-      return { status: "failed" };
+      return { status: 'failed' };
     }
 
-    return { status: "success" };
+    return { status: 'success' };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { status: "invalid_data" };
+      return { status: 'invalid_data' };
     }
 
-    return { status: "failed" };
+    return { status: 'failed' };
   }
 };
 
 export type RegisterActionState = {
-  status:
-    | "idle"
-    | "in_progress"
-    | "success"
-    | "failed"
-    | "user_exists"
-    | "invalid_data";
+  status: 'idle' | 'in_progress' | 'success' | 'failed' | 'user_exists' | 'invalid_data';
 };
 
 export const register = async (
@@ -61,34 +52,34 @@ export const register = async (
 ): Promise<RegisterActionState> => {
   try {
     const validatedData = authFormSchema.parse({
-      email: formData.get("email"),
-      password: formData.get("password"),
+      email: formData.get('email'),
+      password: formData.get('password'),
     });
 
     const existingUsers = await getUser(validatedData.email);
 
     if (existingUsers.length > 0) {
-      return { status: "user_exists" } as RegisterActionState;
+      return { status: 'user_exists' } as RegisterActionState;
     }
 
     const result = await auth.api.signUpEmail({
       body: {
         email: validatedData.email,
         password: validatedData.password,
-        name: validatedData.email.split("@")[0],
+        name: validatedData.email.split('@')[0],
       },
     });
 
     if (result?.error) {
-      return { status: "failed" };
+      return { status: 'failed' };
     }
 
-    return { status: "success" };
+    return { status: 'success' };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { status: "invalid_data" };
+      return { status: 'invalid_data' };
     }
 
-    return { status: "failed" };
+    return { status: 'failed' };
   }
 };

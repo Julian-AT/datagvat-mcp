@@ -1,29 +1,23 @@
-"use client";
-import type { ToolUIPart } from "ai";
-import type { UseChatHelpers } from "@ai-sdk/react";
-import { useState } from "react";
-import type { Vote } from "@/lib/db/schema";
-import type { ArtifactKind } from "@/components/artifact";
-import type { ChatMessage } from "@/lib/types";
-import { cn, sanitizeText } from "@/lib/utils";
-import { useDataStream } from "./data-stream-provider";
-import { DocumentToolResult } from "./document";
-import { DocumentPreview } from "./document-preview";
-import { MessageContent } from "./elements/message";
-import { Response } from "./elements/response";
-import {
-  Tool,
-  ToolContent,
-  ToolHeader,
-  ToolInput,
-  ToolOutput,
-} from "./elements/tool";
-import { SparklesIcon } from "./icons";
-import { MessageActions } from "./message-actions";
-import { MessageEditor } from "./message-editor";
-import { MessageReasoning } from "./message-reasoning";
-import { PreviewAttachment } from "./preview-attachment";
-import { Weather } from "./weather";
+'use client';
+import type { UseChatHelpers } from '@ai-sdk/react';
+import type { ToolUIPart } from 'ai';
+import { useState } from 'react';
+import type { ArtifactKind } from '@/components/artifact';
+import type { Vote } from '@/lib/db/schema';
+import type { ChatMessage } from '@/lib/types';
+import { cn, sanitizeText } from '@/lib/utils';
+import { useDataStream } from './data-stream-provider';
+import { DocumentToolResult } from './document';
+import { DocumentPreview } from './document-preview';
+import { MessageContent } from './elements/message';
+import { Response } from './elements/response';
+import { Tool, ToolContent, ToolHeader, ToolInput, ToolOutput } from './elements/tool';
+import { SparklesIcon } from './icons';
+import { MessageActions } from './message-actions';
+import { MessageEditor } from './message-editor';
+import { MessageReasoning } from './message-reasoning';
+import { PreviewAttachment } from './preview-attachment';
+import { Weather } from './weather';
 
 const PurePreviewMessage = ({
   addToolApprovalResponse,
@@ -36,21 +30,19 @@ const PurePreviewMessage = ({
   isReadonly,
   requiresScrollPadding: _requiresScrollPadding,
 }: {
-  addToolApprovalResponse: UseChatHelpers<ChatMessage>["addToolApprovalResponse"];
+  addToolApprovalResponse: UseChatHelpers<ChatMessage>['addToolApprovalResponse'];
   chatId: string;
   message: ChatMessage;
   vote: Vote | undefined;
   isLoading: boolean;
-  setMessages: UseChatHelpers<ChatMessage>["setMessages"];
-  regenerate: UseChatHelpers<ChatMessage>["regenerate"];
+  setMessages: UseChatHelpers<ChatMessage>['setMessages'];
+  regenerate: UseChatHelpers<ChatMessage>['regenerate'];
   isReadonly: boolean;
   requiresScrollPadding: boolean;
 }) => {
-  const [mode, setMode] = useState<"view" | "edit">("view");
+  const [mode, setMode] = useState<'view' | 'edit'>('view');
 
-  const attachmentsFromMessage = message.parts.filter(
-    (part) => part.type === "file"
-  );
+  const attachmentsFromMessage = message.parts.filter((part) => part.type === 'file');
 
   useDataStream();
 
@@ -61,44 +53,37 @@ const PurePreviewMessage = ({
       data-testid={`message-${message.role}`}
     >
       <div
-        className={cn("flex w-full items-start gap-2 md:gap-3", {
-          "justify-end": message.role === "user" && mode !== "edit",
-          "justify-start": message.role === "assistant",
+        className={cn('flex w-full items-start gap-2 md:gap-3', {
+          'justify-end': message.role === 'user' && mode !== 'edit',
+          'justify-start': message.role === 'assistant',
         })}
       >
-        {message.role === "assistant" && (
+        {message.role === 'assistant' && (
           <div className="-mt-1 flex size-8 shrink-0 items-center justify-center rounded-full bg-background ring-1 ring-border">
             <SparklesIcon size={14} />
           </div>
         )}
 
         <div
-          className={cn("flex flex-col", {
-            "gap-2 md:gap-4": message.parts?.some(
-              (p) => p.type === "text" && p.text?.trim()
-            ),
-            "w-full":
-              (message.role === "assistant" &&
-                (message.parts?.some(
-                  (p) => p.type === "text" && p.text?.trim()
-                ) ||
+          className={cn('flex flex-col', {
+            'gap-2 md:gap-4': message.parts?.some((p) => p.type === 'text' && p.text?.trim()),
+            'w-full':
+              (message.role === 'assistant' &&
+                (message.parts?.some((p) => p.type === 'text' && p.text?.trim()) ||
                   message.parts?.some(
-              (p) => p.type.startsWith("tool-") || p.type === "dynamic-tool"
-            ))) ||
-              mode === "edit",
-            "max-w-[calc(100%-2.5rem)] sm:max-w-[min(fit-content,80%)]":
-              message.role === "user" && mode !== "edit",
+                    (p) => p.type.startsWith('tool-') || p.type === 'dynamic-tool'
+                  ))) ||
+              mode === 'edit',
+            'max-w-[calc(100%-2.5rem)] sm:max-w-[min(fit-content,80%)]':
+              message.role === 'user' && mode !== 'edit',
           })}
         >
           {attachmentsFromMessage.length > 0 && (
-            <div
-              className="flex flex-row justify-end gap-2"
-              data-testid={"message-attachments"}
-            >
+            <div className="flex flex-row justify-end gap-2" data-testid={'message-attachments'}>
               {attachmentsFromMessage.map((attachment) => (
                 <PreviewAttachment
                   attachment={{
-                    name: attachment.filename ?? "file",
+                    name: attachment.filename ?? 'file',
                     contentType: attachment.mediaType,
                     url: attachment.url,
                   }}
@@ -112,37 +97,32 @@ const PurePreviewMessage = ({
             const { type } = part;
             const key = `message-${message.id}-part-${index}`;
 
-            if (type === "reasoning") {
+            if (type === 'reasoning') {
               const hasContent = part.text?.trim().length > 0;
-              const isStreaming = "state" in part && part.state === "streaming";
+              const isStreaming = 'state' in part && part.state === 'streaming';
               if (hasContent || isStreaming) {
                 return (
                   <MessageReasoning
                     isLoading={isLoading || isStreaming}
                     key={key}
-                    reasoning={part.text || ""}
+                    reasoning={part.text || ''}
                   />
                 );
               }
             }
 
-            if (type === "text") {
-              if (mode === "view") {
+            if (type === 'text') {
+              if (mode === 'view') {
                 return (
                   <div key={key}>
                     <MessageContent
                       className={cn({
-                        "wrap-break-word w-fit rounded-2xl px-3 py-2 text-right text-white":
-                          message.role === "user",
-                        "bg-transparent px-0 py-0 text-left":
-                          message.role === "assistant",
+                        'wrap-break-word w-fit rounded-2xl px-3 py-2 text-right text-white':
+                          message.role === 'user',
+                        'bg-transparent px-0 py-0 text-left': message.role === 'assistant',
                       })}
                       data-testid="message-content"
-                      style={
-                        message.role === "user"
-                          ? { backgroundColor: "#006cff" }
-                          : undefined
-                      }
+                      style={message.role === 'user' ? { backgroundColor: '#006cff' } : undefined}
                     >
                       <Response>{sanitizeText(part.text)}</Response>
                     </MessageContent>
@@ -150,12 +130,9 @@ const PurePreviewMessage = ({
                 );
               }
 
-              if (mode === "edit") {
+              if (mode === 'edit') {
                 return (
-                  <div
-                    className="flex w-full flex-row items-start gap-3"
-                    key={key}
-                  >
+                  <div className="flex w-full flex-row items-start gap-3" key={key}>
                     <div className="size-8" />
                     <div className="min-w-0 flex-1">
                       <MessageEditor
@@ -172,9 +149,9 @@ const PurePreviewMessage = ({
             }
 
             // New AI SDK: dynamic tools use type "dynamic-tool" and expose toolName
-            if (type === "dynamic-tool") {
+            if (type === 'dynamic-tool') {
               const toolPart = part as {
-                type: "dynamic-tool";
+                type: 'dynamic-tool';
                 toolName: string;
                 toolCallId: string;
                 state: string;
@@ -186,21 +163,20 @@ const PurePreviewMessage = ({
               const { toolCallId, state, toolName } = toolPart;
               const approvalId = toolPart.approval?.id;
               const isDenied =
-                state === "output-denied" ||
-                (state === "approval-responded" &&
-                  toolPart.approval?.approved === false);
-              const widthClass = "w-[min(100%,450px)]";
+                state === 'output-denied' ||
+                (state === 'approval-responded' && toolPart.approval?.approved === false);
+              const widthClass = 'w-[min(100%,450px)]';
 
               switch (toolName) {
-                case "getWeather": {
-                  if (state === "output-available") {
+                case 'getWeather': {
+                  if (state === 'output-available') {
                     return (
                       <div className={widthClass} key={toolCallId}>
                         <Weather
                           weatherAtLocation={
                             toolPart.output as React.ComponentProps<
                               typeof Weather
-                            >["weatherAtLocation"]
+                            >['weatherAtLocation']
                           }
                         />
                       </div>
@@ -210,10 +186,7 @@ const PurePreviewMessage = ({
                     return (
                       <div className={widthClass} key={toolCallId}>
                         <Tool className="w-full" defaultOpen={true}>
-                          <ToolHeader
-                            state="output-denied"
-                            type="tool-getWeather"
-                          />
+                          <ToolHeader state="output-denied" type="tool-getWeather" />
                           <ToolContent>
                             <div className="px-4 py-3 text-muted-foreground text-sm">
                               Weather lookup was denied.
@@ -223,14 +196,11 @@ const PurePreviewMessage = ({
                       </div>
                     );
                   }
-                  if (state === "approval-responded") {
+                  if (state === 'approval-responded') {
                     return (
                       <div className={widthClass} key={toolCallId}>
                         <Tool className="w-full" defaultOpen={true}>
-                          <ToolHeader
-                            state={state as ToolUIPart["state"]}
-                            type="tool-getWeather"
-                          />
+                          <ToolHeader state={state as ToolUIPart['state']} type="tool-getWeather" />
                           <ToolContent>
                             <ToolInput input={toolPart.input} />
                           </ToolContent>
@@ -241,16 +211,12 @@ const PurePreviewMessage = ({
                   return (
                     <div className={widthClass} key={toolCallId}>
                       <Tool className="w-full" defaultOpen={true}>
-                        <ToolHeader
-                          state={state as ToolUIPart["state"]}
-                          type="tool-getWeather"
-                        />
+                        <ToolHeader state={state as ToolUIPart['state']} type="tool-getWeather" />
                         <ToolContent>
-                          {(state === "input-available" ||
-                            state === "approval-requested") && (
+                          {(state === 'input-available' || state === 'approval-requested') && (
                             <ToolInput input={toolPart.input} />
                           )}
-                          {state === "approval-requested" && approvalId && (
+                          {state === 'approval-requested' && approvalId && (
                             <div className="flex items-center justify-end gap-2 border-t px-4 py-3">
                               <button
                                 className="rounded-md px-3 py-1.5 text-muted-foreground text-sm transition-colors hover:bg-muted hover:text-foreground"
@@ -258,7 +224,7 @@ const PurePreviewMessage = ({
                                   addToolApprovalResponse({
                                     id: approvalId,
                                     approved: false,
-                                    reason: "User denied weather lookup",
+                                    reason: 'User denied weather lookup',
                                   });
                                 }}
                                 type="button"
@@ -285,14 +251,18 @@ const PurePreviewMessage = ({
                   );
                 }
 
-                case "createDocument": {
-                  if (toolPart.output && typeof toolPart.output === "object" && "error" in toolPart.output) {
+                case 'createDocument': {
+                  if (
+                    toolPart.output &&
+                    typeof toolPart.output === 'object' &&
+                    'error' in toolPart.output
+                  ) {
                     return (
                       <div
                         className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-500 dark:bg-red-950/50"
                         key={toolCallId}
                       >
-                        Error creating document:{" "}
+                        Error creating document:{' '}
                         {String((toolPart.output as { error: unknown }).error)}
                       </div>
                     );
@@ -306,14 +276,18 @@ const PurePreviewMessage = ({
                   );
                 }
 
-                case "updateDocument": {
-                  if (toolPart.output && typeof toolPart.output === "object" && "error" in toolPart.output) {
+                case 'updateDocument': {
+                  if (
+                    toolPart.output &&
+                    typeof toolPart.output === 'object' &&
+                    'error' in toolPart.output
+                  ) {
                     return (
                       <div
                         className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-500 dark:bg-red-950/50"
                         key={toolCallId}
                       >
-                        Error updating document:{" "}
+                        Error updating document:{' '}
                         {String((toolPart.output as { error: unknown }).error)}
                       </div>
                     );
@@ -322,7 +296,7 @@ const PurePreviewMessage = ({
                     <div className="relative" key={toolCallId}>
                       <DocumentPreview
                         args={{
-                          ...(typeof toolPart.output === "object" && toolPart.output !== null
+                          ...(typeof toolPart.output === 'object' && toolPart.output !== null
                             ? toolPart.output
                             : {}),
                           isUpdate: true,
@@ -334,29 +308,24 @@ const PurePreviewMessage = ({
                   );
                 }
 
-                case "requestSuggestions": {
+                case 'requestSuggestions': {
                   return (
                     <Tool defaultOpen={true} key={toolCallId}>
                       <ToolHeader
-                        state={state as ToolUIPart["state"]}
+                        state={state as ToolUIPart['state']}
                         type="tool-requestSuggestions"
                       />
                       <ToolContent>
-                        {state === "input-available" && (
-                          <ToolInput input={toolPart.input} />
-                        )}
-                        {state === "output-available" && (
+                        {state === 'input-available' && <ToolInput input={toolPart.input} />}
+                        {state === 'output-available' && (
                           <ToolOutput
                             errorText={toolPart.errorText}
                             output={
                               toolPart.output &&
-                              typeof toolPart.output === "object" &&
-                              "error" in toolPart.output ? (
+                              typeof toolPart.output === 'object' &&
+                              'error' in toolPart.output ? (
                                 <div className="rounded border p-2 text-red-500">
-                                  Error:{" "}
-                                  {String(
-                                    (toolPart.output as { error: unknown }).error
-                                  )}
+                                  Error: {String((toolPart.output as { error: unknown }).error)}
                                 </div>
                               ) : (
                                 <DocumentToolResult
@@ -384,15 +353,14 @@ const PurePreviewMessage = ({
                   return (
                     <Tool defaultOpen={true} key={toolCallId}>
                       <ToolHeader
-                        state={state as ToolUIPart["state"]}
-                        type={`tool-${toolName}` as "tool-getWeather"}
+                        state={state as ToolUIPart['state']}
+                        type={`tool-${toolName}` as 'tool-getWeather'}
                       />
                       <ToolContent>
-                        {(state === "input-available" ||
-                          state === "approval-requested") && (
+                        {(state === 'input-available' || state === 'approval-requested') && (
                           <ToolInput input={toolPart.input} />
                         )}
-                        {state === "output-available" && toolPart.output !== undefined && (
+                        {state === 'output-available' && toolPart.output !== undefined && (
                           <ToolOutput
                             errorText={toolPart.errorText}
                             output={
@@ -402,7 +370,7 @@ const PurePreviewMessage = ({
                             }
                           />
                         )}
-                        {state === "output-error" && toolPart.errorText && (
+                        {state === 'output-error' && toolPart.errorText && (
                           <div className="rounded border p-2 text-red-500">
                             {toolPart.errorText}
                           </div>

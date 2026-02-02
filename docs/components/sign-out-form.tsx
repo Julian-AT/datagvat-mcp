@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
+import { useRouter } from 'next/navigation';
+import { authClient } from '@/lib/auth-client';
 
 export const SignOutForm = () => {
   const router = useRouter();
@@ -15,7 +15,7 @@ export const SignOutForm = () => {
           await authClient.signOut({
             fetchOptions: {
               onSuccess: () => {
-                router.push("/");
+                router.push('/');
                 router.refresh();
               },
             },

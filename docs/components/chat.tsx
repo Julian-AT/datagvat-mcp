@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import useSWR, { useSWRConfig } from "swr";
-import { unstable_serialize } from "swr/infinite";
-import { ChatHeader } from "@/components/chat-header";
+import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import useSWR, { useSWRConfig } from 'swr';
+import { unstable_serialize } from 'swr/infinite';
+import { ChatHeader } from '@/components/chat-header';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,21 +16,21 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useArtifactSelector } from "@/hooks/use-artifact";
-import { useAutoResume } from "@/hooks/use-auto-resume";
-import { useChatVisibility } from "@/hooks/use-chat-visibility";
-import type { Vote } from "@/lib/db/schema";
-import { ChatSDKError } from "@/lib/errors";
-import type { Attachment, ChatMessage } from "@/lib/types";
-import { fetcher, fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
-import { Artifact } from "./artifact";
-import { useDataStream } from "./data-stream-provider";
-import { Messages } from "./messages";
-import { MultimodalInput } from "./multimodal-input";
-import { getChatHistoryPaginationKey } from "./sidebar-history";
-import { toast } from "./toast";
-import type { VisibilityType } from "./visibility-selector";
+} from '@/components/ui/alert-dialog';
+import { useArtifactSelector } from '@/hooks/use-artifact';
+import { useAutoResume } from '@/hooks/use-auto-resume';
+import { useChatVisibility } from '@/hooks/use-chat-visibility';
+import type { Vote } from '@/lib/db/schema';
+import { ChatSDKError } from '@/lib/errors';
+import type { Attachment, ChatMessage } from '@/lib/types';
+import { fetcher, fetchWithErrorHandlers, generateUUID } from '@/lib/utils';
+import { Artifact } from './artifact';
+import { useDataStream } from './data-stream-provider';
+import { Messages } from './messages';
+import { MultimodalInput } from './multimodal-input';
+import { getChatHistoryPaginationKey } from './sidebar-history';
+import { toast } from './toast';
+import type { VisibilityType } from './visibility-selector';
 
 export function Chat({
   id,
@@ -63,12 +63,12 @@ export function Chat({
       router.refresh();
     };
 
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, [router]);
   const { setDataStream } = useDataStream();
 
-  const [input, setInput] = useState<string>("");
+  const [input, setInput] = useState<string>('');
   const [showCreditCardAlert, setShowCreditCardAlert] = useState(false);
   const [currentModelId, setCurrentModelId] = useState(initialChatModel);
   const currentModelIdRef = useRef(currentModelId);
@@ -95,26 +95,24 @@ export function Chat({
       const shouldContinue =
         lastMessage?.parts?.some(
           (part) =>
-            "state" in part &&
-            part.state === "approval-responded" &&
-            "approval" in part &&
+            'state' in part &&
+            part.state === 'approval-responded' &&
+            'approval' in part &&
             (part.approval as { approved?: boolean })?.approved === true
         ) ?? false;
       return shouldContinue;
     },
     transport: new DefaultChatTransport({
-      api: "/api/chat",
+      api: '/api/chat',
       fetch: fetchWithErrorHandlers,
       prepareSendMessagesRequest(request) {
         const lastMessage = request.messages.at(-1);
         const isToolApprovalContinuation =
-          lastMessage?.role !== "user" ||
+          lastMessage?.role !== 'user' ||
           request.messages.some((msg) =>
             msg.parts?.some((part) => {
               const state = (part as { state?: string }).state;
-              return (
-                state === "approval-responded" || state === "output-denied"
-              );
+              return state === 'approval-responded' || state === 'output-denied';
             })
           );
 
@@ -139,13 +137,11 @@ export function Chat({
     },
     onError: (error) => {
       if (error instanceof ChatSDKError) {
-        if (
-          error.message?.includes("AI Gateway requires a valid credit card")
-        ) {
+        if (error.message?.includes('AI Gateway requires a valid credit card')) {
           setShowCreditCardAlert(true);
         } else {
           toast({
-            type: "error",
+            type: 'error',
             description: error.message,
           });
         }
@@ -154,19 +150,19 @@ export function Chat({
   });
 
   const searchParams = useSearchParams();
-  const query = searchParams.get("query");
+  const query = searchParams.get('query');
 
   const [hasAppendedQuery, setHasAppendedQuery] = useState(false);
 
   useEffect(() => {
     if (query && !hasAppendedQuery) {
       sendMessage({
-        role: "user" as const,
-        parts: [{ type: "text", text: query }],
+        role: 'user' as const,
+        parts: [{ type: 'text', text: query }],
       });
 
       setHasAppendedQuery(true);
-      window.history.replaceState({}, "", `/chat/${id}`);
+      window.history.replaceState({}, '', `/chat/${id}`);
     }
   }, [query, sendMessage, hasAppendedQuery, id]);
 
@@ -247,17 +243,14 @@ export function Chat({
         votes={votes}
       />
 
-      <AlertDialog
-        onOpenChange={setShowCreditCardAlert}
-        open={showCreditCardAlert}
-      >
+      <AlertDialog onOpenChange={setShowCreditCardAlert} open={showCreditCardAlert}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Activate AI Gateway</AlertDialogTitle>
             <AlertDialogDescription>
-              This application requires{" "}
-              {process.env.NODE_ENV === "production" ? "the owner" : "you"} to
-              activate Vercel AI Gateway.
+              This application requires{' '}
+              {process.env.NODE_ENV === 'production' ? 'the owner' : 'you'} to activate Vercel AI
+              Gateway.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -265,10 +258,10 @@ export function Chat({
             <AlertDialogAction
               onClick={() => {
                 window.open(
-                  "https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai%3Fmodal%3Dadd-credit-card",
-                  "_blank"
+                  'https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai%3Fmodal%3Dadd-credit-card',
+                  '_blank'
                 );
-                window.location.href = "/";
+                window.location.href = '/';
               }}
             >
               Activate

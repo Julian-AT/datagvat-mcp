@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useSWRConfig } from "swr";
-import { unstable_serialize } from "swr/infinite";
-import { initialArtifactData, useArtifact } from "@/hooks/use-artifact";
-import { artifactDefinitions } from "./artifact";
-import { useDataStream } from "./data-stream-provider";
-import { getChatHistoryPaginationKey } from "./sidebar-history";
+import { useEffect } from 'react';
+import { useSWRConfig } from 'swr';
+import { unstable_serialize } from 'swr/infinite';
+import { initialArtifactData, useArtifact } from '@/hooks/use-artifact';
+import { artifactDefinitions } from './artifact';
+import { useDataStream } from './data-stream-provider';
+import { getChatHistoryPaginationKey } from './sidebar-history';
 
 export function DataStreamHandler() {
   const { dataStream, setDataStream } = useDataStream();
@@ -24,13 +24,12 @@ export function DataStreamHandler() {
 
     for (const delta of newDeltas) {
       // Handle chat title updates
-      if (delta.type === "data-chat-title") {
+      if (delta.type === 'data-chat-title') {
         mutate(unstable_serialize(getChatHistoryPaginationKey));
         continue;
       }
       const artifactDefinition = artifactDefinitions.find(
-        (currentArtifactDefinition) =>
-          currentArtifactDefinition.kind === artifact.kind
+        (currentArtifactDefinition) => currentArtifactDefinition.kind === artifact.kind
       );
 
       if (artifactDefinition?.onStreamPart) {
@@ -43,42 +42,42 @@ export function DataStreamHandler() {
 
       setArtifact((draftArtifact) => {
         if (!draftArtifact) {
-          return { ...initialArtifactData, status: "streaming" };
+          return { ...initialArtifactData, status: 'streaming' };
         }
 
         switch (delta.type) {
-          case "data-id":
+          case 'data-id':
             return {
               ...draftArtifact,
               documentId: delta.data,
-              status: "streaming",
+              status: 'streaming',
             };
 
-          case "data-title":
+          case 'data-title':
             return {
               ...draftArtifact,
               title: delta.data,
-              status: "streaming",
+              status: 'streaming',
             };
 
-          case "data-kind":
+          case 'data-kind':
             return {
               ...draftArtifact,
               kind: delta.data,
-              status: "streaming",
+              status: 'streaming',
             };
 
-          case "data-clear":
+          case 'data-clear':
             return {
               ...draftArtifact,
-              content: "",
-              status: "streaming",
+              content: '',
+              status: 'streaming',
             };
 
-          case "data-finish":
+          case 'data-finish':
             return {
               ...draftArtifact,
-              status: "idle",
+              status: 'idle',
             };
 
           default:

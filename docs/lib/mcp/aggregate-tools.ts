@@ -1,9 +1,9 @@
 import { tool } from 'ai';
 import { z } from 'zod/v4';
+import { uploadImageFromBase64, uploadVisualization } from '@/lib/blob';
 import { createDataGvatClient } from './datagvat-client';
 import { createE2BClient } from './e2b-client';
 import type { ProjectFile } from './types';
-import { uploadImageFromBase64, uploadVisualization } from '@/lib/blob';
 
 export async function getAvailableTools(chatId?: string) {
   const tools: Record<string, any> = {};
@@ -30,11 +30,25 @@ Supports multi-file projects with imports. Pre-installed packages: pandas, matpl
 Use 'files' parameter for multi-file projects with proper directory structure.`,
       inputSchema: z.object({
         code: z.string().describe('Python code to execute'),
-        files: z.array(z.object({
-          path: z.string().describe('File path relative to /home/user (e.g., utils.py or mypackage/helpers.py)'),
-          content: z.string().describe('File content'),
-        })).optional().describe('Additional files for multi-file projects. Files are written before code execution.'),
-        workingDirectory: z.string().optional().describe('Working directory for imports (default: /home/user)'),
+        files: z
+          .array(
+            z.object({
+              path: z
+                .string()
+                .describe(
+                  'File path relative to /home/user (e.g., utils.py or mypackage/helpers.py)'
+                ),
+              content: z.string().describe('File content'),
+            })
+          )
+          .optional()
+          .describe(
+            'Additional files for multi-file projects. Files are written before code execution.'
+          ),
+        workingDirectory: z
+          .string()
+          .optional()
+          .describe('Working directory for imports (default: /home/user)'),
       }),
       execute: async ({ code, files, workingDirectory }) => {
         if (!chatId) {
@@ -51,12 +65,13 @@ Use 'files' parameter for multi-file projects with proper directory structure.`,
         try {
           const result = await sandbox.runCode(code, {
             timeoutMs: 30 * 1000,
-            files: files?.map(f => ({ path: f.path, content: f.content })),
+            files: files?.map((f) => ({ path: f.path, content: f.content })),
             workingDirectory,
           });
 
           if (result.error?.isTimeout) {
-            result.error.message += '\n\nCode execution exceeded 30-second limit. Consider:\n- Breaking into smaller chunks\n- Reducing dataset size\n- Optimizing loops or vectorizing operations';
+            result.error.message +=
+              '\n\nCode execution exceeded 30-second limit. Consider:\n- Breaking into smaller chunks\n- Reducing dataset size\n- Optimizing loops or vectorizing operations';
           }
 
           // If visualizations exist, upload immediately
@@ -129,7 +144,8 @@ Use 'files' parameter for multi-file projects with proper directory structure.`,
       description: 'Code execution unavailable',
       inputSchema: z.object({}),
       execute: async () => ({
-        error: 'Code execution sandbox is temporarily unavailable. Only dataset search is available.',
+        error:
+          'Code execution sandbox is temporarily unavailable. Only dataset search is available.',
       }),
     });
   }

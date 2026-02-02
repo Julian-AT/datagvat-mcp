@@ -61,15 +61,15 @@ export function HealthStatus() {
   }
 
   return (
-    <div className={`border-b px-4 py-2 ${health.allHealthy ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+    <div
+      className={`border-b px-4 py-2 ${health.allHealthy ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}
+    >
       <div className="flex flex-wrap items-center gap-4 text-sm">
         {health.servers.map((server) => (
           <div key={server.server} className="flex items-center gap-2">
             <div
               className={`h-2 w-2 rounded-full ${
-                server.status === 'healthy'
-                  ? 'bg-green-500'
-                  : 'bg-red-500'
+                server.status === 'healthy' ? 'bg-green-500' : 'bg-red-500'
               }`}
             />
             <span className={server.status === 'healthy' ? 'text-green-700' : 'text-red-700'}>

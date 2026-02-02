@@ -1,8 +1,4 @@
-import type {
-  ConnectionState,
-  ReconnectionConfig,
-  ResilientClientOptions,
-} from './types';
+import type { ConnectionState, ReconnectionConfig, ResilientClientOptions } from './types';
 
 const DEFAULT_CONFIG: ReconnectionConfig = {
   maxRetries: 5,
@@ -31,8 +27,7 @@ export function createResilientMCPClient(options: ResilientClientOptions): {
   };
 
   const calculateBackoff = (attemptNumber: number): number => {
-    const delay =
-      config.initialDelayMs * Math.pow(config.backoffMultiplier, attemptNumber);
+    const delay = config.initialDelayMs * config.backoffMultiplier ** attemptNumber;
     return Math.min(delay, config.maxDelayMs);
   };
 
@@ -74,9 +69,7 @@ export function createResilientMCPClient(options: ResilientClientOptions): {
 
       setState('disconnected');
       reconnectionPromise = null;
-      throw new Error(
-        `Failed to connect after ${config.maxRetries} attempts`
-      );
+      throw new Error(`Failed to connect after ${config.maxRetries} attempts`);
     })();
 
     return reconnectionPromise;

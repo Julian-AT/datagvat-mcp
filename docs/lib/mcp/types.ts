@@ -37,11 +37,7 @@ export interface E2BClientConfig {
   timeoutMs?: number;
 }
 
-export type ConnectionState =
-  | 'connecting'
-  | 'connected'
-  | 'disconnected'
-  | 'retrying';
+export type ConnectionState = 'connecting' | 'connected' | 'disconnected' | 'retrying';
 
 export interface ReconnectionConfig {
   maxRetries: number;

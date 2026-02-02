@@ -1,10 +1,10 @@
-import { cookies, headers } from "next/headers";
-import Script from "next/script";
-import { Suspense } from "react";
-import { AppSidebar } from "@/components/app-sidebar";
-import { DataStreamProvider } from "@/components/data-stream-provider";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { auth } from "@/lib/auth";
+import { cookies, headers } from 'next/headers';
+import Script from 'next/script';
+import { Suspense } from 'react';
+import { AppSidebar } from '@/components/app-sidebar';
+import { DataStreamProvider } from '@/components/data-stream-provider';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { auth } from '@/lib/auth';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -27,7 +27,7 @@ async function SidebarWrapper({ children }: { children: React.ReactNode }) {
     auth.api.getSession({ headers: await headers() }),
     cookies(),
   ]);
-  const isCollapsed = cookieStore.get("sidebar_state")?.value !== "true";
+  const isCollapsed = cookieStore.get('sidebar_state')?.value !== 'true';
 
   return (
     <SidebarProvider defaultOpen={!isCollapsed}>

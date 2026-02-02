@@ -32,9 +32,7 @@ export async function uploadImageFromBase64(
   // Handle both data URI format and raw base64
   const isDataUri = base64Data.startsWith('data:');
   const byteString = isDataUri ? atob(base64Data.split(',')[1]) : atob(base64Data);
-  const mimeString = isDataUri
-    ? base64Data.split(',')[0].split(':')[1].split(';')[0]
-    : 'image/png'; // default for E2B outputs
+  const mimeString = isDataUri ? base64Data.split(',')[0].split(':')[1].split(';')[0] : 'image/png'; // default for E2B outputs
 
   const ab = new ArrayBuffer(byteString.length);
   const ia = new Uint8Array(ab);

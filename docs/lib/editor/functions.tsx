@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { defaultMarkdownSerializer } from "prosemirror-markdown";
-import { DOMParser, type Node } from "prosemirror-model";
-import { Decoration, DecorationSet, type EditorView } from "prosemirror-view";
-import { renderToString } from "react-dom/server";
+import { defaultMarkdownSerializer } from 'prosemirror-markdown';
+import { DOMParser, type Node } from 'prosemirror-model';
+import { Decoration, DecorationSet, type EditorView } from 'prosemirror-view';
+import { renderToString } from 'react-dom/server';
 
-import { Response } from "@/components/elements/response";
+import { Response } from '@/components/elements/response';
 
-import { documentSchema } from "./config";
-import { createSuggestionWidget, type UISuggestion } from "./suggestions";
+import { documentSchema } from './config';
+import { createSuggestionWidget, type UISuggestion } from './suggestions';
 
 export const buildDocumentFromContent = (content: string) => {
   const parser = DOMParser.fromSchema(documentSchema);
   const stringFromMarkdown = renderToString(<Response>{content}</Response>);
-  const tempContainer = document.createElement("div");
+  const tempContainer = document.createElement('div');
   tempContainer.innerHTML = stringFromMarkdown;
   return parser.parse(tempContainer);
 };
@@ -22,10 +22,7 @@ export const buildContentFromDocument = (document: Node) => {
   return defaultMarkdownSerializer.serialize(document);
 };
 
-export const createDecorations = (
-  suggestions: UISuggestion[],
-  view: EditorView
-) => {
+export const createDecorations = (suggestions: UISuggestion[], view: EditorView) => {
   const decorations: Decoration[] = [];
 
   for (const suggestion of suggestions) {
@@ -34,11 +31,11 @@ export const createDecorations = (
         suggestion.selectionStart,
         suggestion.selectionEnd,
         {
-          class: "suggestion-highlight",
+          class: 'suggestion-highlight',
         },
         {
           suggestionId: suggestion.id,
-          type: "highlight",
+          type: 'highlight',
         }
       )
     );
@@ -52,7 +49,7 @@ export const createDecorations = (
         },
         {
           suggestionId: suggestion.id,
-          type: "widget",
+          type: 'widget',
         }
       )
     );

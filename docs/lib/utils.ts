@@ -1,9 +1,4 @@
-import type {
-  AssistantModelMessage,
-  ToolModelMessage,
-  UIMessage,
-  UIMessagePart,
-} from 'ai';
+import type { AssistantModelMessage, ToolModelMessage, UIMessage, UIMessagePart } from 'ai';
 import { type ClassValue, clsx } from 'clsx';
 import { formatISO } from 'date-fns';
 import { twMerge } from 'tailwind-merge';
@@ -26,10 +21,7 @@ export const fetcher = async (url: string) => {
   return response.json();
 };
 
-export async function fetchWithErrorHandlers(
-  input: RequestInfo | URL,
-  init?: RequestInit,
-) {
+export async function fetchWithErrorHandlers(input: RequestInfo | URL, init?: RequestInit) {
   try {
     const response = await fetch(input, init);
 
@@ -71,24 +63,23 @@ export function getMostRecentUserMessage(messages: UIMessage[]) {
   return userMessages.at(-1);
 }
 
-export function getDocumentTimestampByIndex(
-  documents: Document[],
-  index: number,
-) {
-  if (!documents) { return new Date(); }
-  if (index > documents.length) { return new Date(); }
+export function getDocumentTimestampByIndex(documents: Document[], index: number) {
+  if (!documents) {
+    return new Date();
+  }
+  if (index > documents.length) {
+    return new Date();
+  }
 
   return documents[index].createdAt;
 }
 
-export function getTrailingMessageId({
-  messages,
-}: {
-  messages: ResponseMessage[];
-}): string | null {
+export function getTrailingMessageId({ messages }: { messages: ResponseMessage[] }): string | null {
   const trailingMessage = messages.at(-1);
 
-  if (!trailingMessage) { return null; }
+  if (!trailingMessage) {
+    return null;
+  }
 
   return trailingMessage.id;
 }
@@ -111,6 +102,6 @@ export function convertToUIMessages(messages: DBMessage[]): ChatMessage[] {
 export function getTextFromMessage(message: ChatMessage | UIMessage): string {
   return message.parts
     .filter((part) => part.type === 'text')
-    .map((part) => (part as { type: 'text'; text: string}).text)
+    .map((part) => (part as { type: 'text'; text: string }).text)
     .join('');
 }

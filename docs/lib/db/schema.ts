@@ -1,4 +1,4 @@
-import type { InferSelectModel } from "drizzle-orm";
+import type { InferSelectModel } from 'drizzle-orm';
 import {
   boolean,
   foreignKey,
@@ -9,118 +9,118 @@ import {
   timestamp,
   uuid,
   varchar,
-} from "drizzle-orm/pg-core";
+} from 'drizzle-orm/pg-core';
 
-export const user = pgTable("User", {
-  id: uuid("id").primaryKey().notNull().defaultRandom(),
-  email: varchar("email", { length: 64 }).notNull(),
-  password: varchar("password", { length: 64 }),
-  name: varchar("name", { length: 255 }),
-  emailVerified: boolean("emailVerified").default(false),
-  image: text("image"),
-  createdAt: timestamp("createdAt").notNull().defaultNow(),
-  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+export const user = pgTable('User', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  email: varchar('email', { length: 64 }).notNull(),
+  password: varchar('password', { length: 64 }),
+  name: varchar('name', { length: 255 }),
+  emailVerified: boolean('emailVerified').default(false),
+  image: text('image'),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
 });
 
 export type User = InferSelectModel<typeof user>;
 
-export const session = pgTable("Session", {
-  id: uuid("id").primaryKey().notNull().defaultRandom(),
-  userId: uuid("userId")
+export const session = pgTable('Session', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  userId: uuid('userId')
     .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  expiresAt: timestamp("expiresAt").notNull(),
-  token: text("token").notNull().unique(),
-  ipAddress: text("ipAddress"),
-  userAgent: text("userAgent"),
-  createdAt: timestamp("createdAt").notNull().defaultNow(),
-  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+    .references(() => user.id, { onDelete: 'cascade' }),
+  expiresAt: timestamp('expiresAt').notNull(),
+  token: text('token').notNull().unique(),
+  ipAddress: text('ipAddress'),
+  userAgent: text('userAgent'),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
 });
 
 export type Session = InferSelectModel<typeof session>;
 
-export const account = pgTable("Account", {
-  id: uuid("id").primaryKey().notNull().defaultRandom(),
-  userId: uuid("userId")
+export const account = pgTable('Account', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  userId: uuid('userId')
     .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  accountId: text("accountId").notNull(),
-  providerId: text("providerId").notNull(),
-  accessToken: text("accessToken"),
-  password: text("password"),
-  refreshToken: text("refreshToken"),
-  idToken: text("idToken"),
-  accessTokenExpiresAt: timestamp("accessTokenExpiresAt"),
-  refreshTokenExpiresAt: timestamp("refreshTokenExpiresAt"),
-  scope: text("scope"),
-  createdAt: timestamp("createdAt").notNull().defaultNow(),
-  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+    .references(() => user.id, { onDelete: 'cascade' }),
+  accountId: text('accountId').notNull(),
+  providerId: text('providerId').notNull(),
+  accessToken: text('accessToken'),
+  password: text('password'),
+  refreshToken: text('refreshToken'),
+  idToken: text('idToken'),
+  accessTokenExpiresAt: timestamp('accessTokenExpiresAt'),
+  refreshTokenExpiresAt: timestamp('refreshTokenExpiresAt'),
+  scope: text('scope'),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
 });
 
 export type Account = InferSelectModel<typeof account>;
 
-export const verification = pgTable("Verification", {
-  id: uuid("id").primaryKey().notNull().defaultRandom(),
-  identifier: text("identifier").notNull(),
-  value: text("value").notNull(),
-  expiresAt: timestamp("expiresAt").notNull(),
-  createdAt: timestamp("createdAt").notNull().defaultNow(),
-  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
+export const verification = pgTable('Verification', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  identifier: text('identifier').notNull(),
+  value: text('value').notNull(),
+  expiresAt: timestamp('expiresAt').notNull(),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
 });
 
 export type Verification = InferSelectModel<typeof verification>;
 
-export const chat = pgTable("Chat", {
-  id: uuid("id").primaryKey().notNull().defaultRandom(),
-  createdAt: timestamp("createdAt").notNull().defaultNow(),
-  title: text("title").notNull(),
-  userId: uuid("userId")
+export const chat = pgTable('Chat', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  title: text('title').notNull(),
+  userId: uuid('userId')
     .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  visibility: varchar("visibility", { enum: ["public", "private"] })
+    .references(() => user.id, { onDelete: 'cascade' }),
+  visibility: varchar('visibility', { enum: ['public', 'private'] })
     .notNull()
-    .default("private"),
+    .default('private'),
 });
 
 export type Chat = InferSelectModel<typeof chat>;
 
 // DEPRECATED: The following schema is deprecated and will be removed in the future.
 // Read the migration guide at https://chat-sdk.dev/docs/migration-guides/message-parts
-export const messageDeprecated = pgTable("Message", {
-  id: uuid("id").primaryKey().notNull().defaultRandom(),
-  chatId: uuid("chatId")
+export const messageDeprecated = pgTable('Message', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  chatId: uuid('chatId')
     .notNull()
-    .references(() => chat.id, { onDelete: "cascade" }),
-  role: varchar("role").notNull(),
-  content: json("content").notNull(),
-  createdAt: timestamp("createdAt").notNull().defaultNow(),
+    .references(() => chat.id, { onDelete: 'cascade' }),
+  role: varchar('role').notNull(),
+  content: json('content').notNull(),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
 });
 
 export type MessageDeprecated = InferSelectModel<typeof messageDeprecated>;
 
-export const message = pgTable("Message_v2", {
-  id: uuid("id").primaryKey().notNull().defaultRandom(),
-  chatId: uuid("chatId")
+export const message = pgTable('Message_v2', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  chatId: uuid('chatId')
     .notNull()
-    .references(() => chat.id, { onDelete: "cascade" }),
-  role: varchar("role").notNull(),
-  parts: json("parts").notNull(),
-  attachments: json("attachments").notNull(),
-  createdAt: timestamp("createdAt").notNull().defaultNow(),
+    .references(() => chat.id, { onDelete: 'cascade' }),
+  role: varchar('role').notNull(),
+  parts: json('parts').notNull(),
+  attachments: json('attachments').notNull(),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
 });
 
 export type DBMessage = InferSelectModel<typeof message>;
 
 export const voteDeprecated = pgTable(
-  "Vote",
+  'Vote',
   {
-    chatId: uuid("chatId")
+    chatId: uuid('chatId')
       .notNull()
-      .references(() => chat.id, { onDelete: "cascade" }),
-    messageId: uuid("messageId")
+      .references(() => chat.id, { onDelete: 'cascade' }),
+    messageId: uuid('messageId')
       .notNull()
-      .references(() => messageDeprecated.id, { onDelete: "cascade" }),
-    isUpvoted: boolean("isUpvoted").notNull(),
+      .references(() => messageDeprecated.id, { onDelete: 'cascade' }),
+    isUpvoted: boolean('isUpvoted').notNull(),
   },
   (table) => {
     return {
@@ -132,15 +132,15 @@ export const voteDeprecated = pgTable(
 export type VoteDeprecated = InferSelectModel<typeof voteDeprecated>;
 
 export const vote = pgTable(
-  "Vote_v2",
+  'Vote_v2',
   {
-    chatId: uuid("chatId")
+    chatId: uuid('chatId')
       .notNull()
-      .references(() => chat.id, { onDelete: "cascade" }),
-    messageId: uuid("messageId")
+      .references(() => chat.id, { onDelete: 'cascade' }),
+    messageId: uuid('messageId')
       .notNull()
-      .references(() => message.id, { onDelete: "cascade" }),
-    isUpvoted: boolean("isUpvoted").notNull(),
+      .references(() => message.id, { onDelete: 'cascade' }),
+    isUpvoted: boolean('isUpvoted').notNull(),
   },
   (table) => {
     return {
@@ -152,18 +152,18 @@ export const vote = pgTable(
 export type Vote = InferSelectModel<typeof vote>;
 
 export const document = pgTable(
-  "Document",
+  'Document',
   {
-    id: uuid("id").notNull().defaultRandom(),
-    createdAt: timestamp("createdAt").notNull().defaultNow(),
-    title: text("title").notNull(),
-    content: text("content"),
-    kind: varchar("kind", { enum: ["text", "code", "image", "sheet"] })
+    id: uuid('id').notNull().defaultRandom(),
+    createdAt: timestamp('createdAt').notNull().defaultNow(),
+    title: text('title').notNull(),
+    content: text('content'),
+    kind: varchar('kind', { enum: ['text', 'code', 'image', 'sheet'] })
       .notNull()
-      .default("text"),
-    userId: uuid("userId")
+      .default('text'),
+    userId: uuid('userId')
       .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+      .references(() => user.id, { onDelete: 'cascade' }),
   },
   (table) => {
     return {
@@ -175,19 +175,19 @@ export const document = pgTable(
 export type Document = InferSelectModel<typeof document>;
 
 export const suggestion = pgTable(
-  "Suggestion",
+  'Suggestion',
   {
-    id: uuid("id").notNull().defaultRandom(),
-    documentId: uuid("documentId").notNull(),
-    documentCreatedAt: timestamp("documentCreatedAt").notNull(),
-    originalText: text("originalText").notNull(),
-    suggestedText: text("suggestedText").notNull(),
-    description: text("description"),
-    isResolved: boolean("isResolved").notNull().default(false),
-    userId: uuid("userId")
+    id: uuid('id').notNull().defaultRandom(),
+    documentId: uuid('documentId').notNull(),
+    documentCreatedAt: timestamp('documentCreatedAt').notNull(),
+    originalText: text('originalText').notNull(),
+    suggestedText: text('suggestedText').notNull(),
+    description: text('description'),
+    isResolved: boolean('isResolved').notNull().default(false),
+    userId: uuid('userId')
       .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    createdAt: timestamp("createdAt").notNull().defaultNow(),
+      .references(() => user.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('createdAt').notNull().defaultNow(),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.id] }),
@@ -201,11 +201,11 @@ export const suggestion = pgTable(
 export type Suggestion = InferSelectModel<typeof suggestion>;
 
 export const stream = pgTable(
-  "Stream",
+  'Stream',
   {
-    id: uuid("id").notNull().defaultRandom(),
-    chatId: uuid("chatId").notNull(),
-    createdAt: timestamp("createdAt").notNull().defaultNow(),
+    id: uuid('id').notNull().defaultRandom(),
+    chatId: uuid('chatId').notNull(),
+    createdAt: timestamp('createdAt').notNull().defaultNow(),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.id] }),

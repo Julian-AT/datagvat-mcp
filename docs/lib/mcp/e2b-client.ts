@@ -1,5 +1,10 @@
 import { Sandbox } from '@e2b/code-interpreter';
-import type { E2BClientConfig, SandboxExecutionResult, ExecutionOptions, ProjectFile } from './types';
+import type {
+  E2BClientConfig,
+  ExecutionOptions,
+  ProjectFile,
+  SandboxExecutionResult,
+} from './types';
 
 const DEFAULT_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour (EXEC-06 requirement)
 const EXECUTION_TIMEOUT_MS = 30 * 1000; // 30 seconds (EXEC-05)
@@ -22,7 +27,7 @@ export async function createSandbox(apiKey: string, timeoutMs: number = DEFAULT_
     runCode: async (code: string, options?: ExecutionOptions): Promise<SandboxExecutionResult> => {
       if (options?.files && options.files.length > 0) {
         await sandbox.files.write(
-          options.files.map(f => ({
+          options.files.map((f) => ({
             path: `/home/user/${f.path}`,
             data: f.content,
           }))
@@ -43,19 +48,21 @@ export async function createSandbox(apiKey: string, timeoutMs: number = DEFAULT_
       return {
         success: !execution.error,
         text: execution.text ?? '',
-        error: execution.error ? {
-          name: execution.error.name,
-          message: execution.error.value,
-          traceback: execution.error.traceback,
-          isTimeout: execution.error.name === 'TimeoutError',
-        } : undefined,
+        error: execution.error
+          ? {
+              name: execution.error.name,
+              message: execution.error.value,
+              traceback: execution.error.traceback,
+              isTimeout: execution.error.name === 'TimeoutError',
+            }
+          : undefined,
         logs: {
           stdout: stdoutLines,
           stderr: stderrLines,
         },
         visualizations: execution.results
-          .filter(r => r.png || r.svg || r.html)
-          .map(r => ({
+          .filter((r) => r.png || r.svg || r.html)
+          .map((r) => ({
             formats: r.formats(),
             png: r.png,
             svg: r.svg,

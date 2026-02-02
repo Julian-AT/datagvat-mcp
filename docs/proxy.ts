@@ -9,24 +9,24 @@ const i18nMiddleware = createI18nMiddleware(i18n);
 
 export default function proxy(request: NextRequest, event?: unknown) {
   const pathname = request.nextUrl.pathname;
-  
-  if (pathname.startsWith("/api")) {
+
+  if (pathname.startsWith('/api')) {
     return NextResponse.next();
   }
-  
-  const isChatRoute = pathname.includes("/chat");
-  const isLoginRegister = pathname.includes("/login") || pathname.includes("/register");
-  
+
+  const isChatRoute = pathname.includes('/chat');
+  const isLoginRegister = pathname.includes('/login') || pathname.includes('/register');
+
   if (isChatRoute && !isLoginRegister) {
-    const sessionCookie = request.cookies.get("better-auth.session_token");
-    
+    const sessionCookie = request.cookies.get('better-auth.session_token');
+
     if (!sessionCookie) {
-      const guestUrl = new URL("/api/auth/guest", request.url);
-      guestUrl.searchParams.set("redirectUrl", pathname);
+      const guestUrl = new URL('/api/auth/guest', request.url);
+      guestUrl.searchParams.set('redirectUrl', pathname);
       return NextResponse.redirect(guestUrl);
     }
   }
-  
+
   if (isMarkdownPreferred(request)) {
     const result = rewriteLLM(request.nextUrl.pathname);
     if (result) {

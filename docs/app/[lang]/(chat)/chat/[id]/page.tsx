@@ -1,13 +1,12 @@
-import { cookies, headers } from "next/headers";
-import { notFound, redirect } from "next/navigation";
-import { Suspense } from "react";
-
-import { auth } from "@/lib/auth";
-import { Chat } from "@/components/chat";
-import { DataStreamHandler } from "@/components/data-stream-handler";
-import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
-import { getChatById, getMessagesByChatId } from "@/lib/db/queries";
-import { convertToUIMessages } from "@/lib/utils";
+import { cookies, headers } from 'next/headers';
+import { notFound, redirect } from 'next/navigation';
+import { Suspense } from 'react';
+import { Chat } from '@/components/chat';
+import { DataStreamHandler } from '@/components/data-stream-handler';
+import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
+import { auth } from '@/lib/auth';
+import { getChatById, getMessagesByChatId } from '@/lib/db/queries';
+import { convertToUIMessages } from '@/lib/utils';
 
 export default function Page(props: { params: Promise<{ id: string }> }) {
   return (
@@ -22,7 +21,7 @@ async function ChatPage({ params }: { params: Promise<{ id: string }> }) {
   const chat = await getChatById({ id });
 
   if (!chat) {
-    redirect("/");
+    redirect('/');
   }
 
   const session = await auth.api.getSession({
@@ -30,10 +29,10 @@ async function ChatPage({ params }: { params: Promise<{ id: string }> }) {
   });
 
   if (!session) {
-    redirect("/api/auth/guest");
+    redirect('/api/auth/guest');
   }
 
-  if (chat.visibility === "private") {
+  if (chat.visibility === 'private') {
     if (!session.user) {
       return notFound();
     }
@@ -50,7 +49,7 @@ async function ChatPage({ params }: { params: Promise<{ id: string }> }) {
   const uiMessages = convertToUIMessages(messagesFromDb);
 
   const cookieStore = await cookies();
-  const chatModelFromCookie = cookieStore.get("chat-model");
+  const chatModelFromCookie = cookieStore.get('chat-model');
 
   if (!chatModelFromCookie) {
     return (
