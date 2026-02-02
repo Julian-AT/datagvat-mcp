@@ -20,6 +20,11 @@ Transform the v2.2 playground foundation into a production-ready system with sec
 
 **Dependencies:** None (foundation phase)
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 18-01-PLAN.md — E2B lifecycle test suite with 100-sandbox sequential tests
+
 **Requirements:**
 - E2B-01: Sandbox creates successfully with required Python libraries
 - E2B-02: Code executes in isolated sandbox (not production environment)
@@ -48,6 +53,11 @@ Transform the v2.2 playground foundation into a production-ready system with sec
 
 **Dependencies:** Phase 18 (validated E2B infrastructure)
 
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (created by /gsd:plan-phase 19)
+
 **Requirements:**
 - APPROVAL-01: User can review generated code with syntax highlighting before execution
 - APPROVAL-02: User must explicitly approve before any code executes
@@ -73,6 +83,11 @@ Transform the v2.2 playground foundation into a production-ready system with sec
 **Goal:** Charts and plots render inline in chat messages with multi-format support, blob storage for memory efficiency, and grid layout for multiple visualizations.
 
 **Dependencies:** Phase 19 (approved execution flow)
+
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (created by /gsd:plan-phase 20)
 
 **Requirements:**
 - VIZ-01: Charts render inline in chat messages (not as downloads)
@@ -103,6 +118,11 @@ Transform the v2.2 playground foundation into a production-ready system with sec
 **Goal:** Production-ready UX with clear loading states, friendly error messages, streaming indicators, and smooth approval integration that makes execution feel responsive and trustworthy.
 
 **Dependencies:** Phase 19 (approval flow), Phase 20 (visualization rendering)
+
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (created by /gsd:plan-phase 21)
 
 **Requirements:**
 - UI-01: Loading state shows "Creating sandbox..." during sandbox creation
@@ -153,10 +173,10 @@ Phase 19 (Tool Approval) → Phase 20 (Visualization)
 ## Next Steps
 
 1. Review roadmap structure and phase goals
-2. Run `/gsd:plan-phase 18` to start E2B lifecycle testing implementation
+2. Run `/gsd:execute-phase 18` to start E2B lifecycle testing implementation
 3. Execute plans sequentially through phases 18-21
 4. Ship v2.3 milestone with production-ready playground
 
 ---
 *Created: 2026-02-02*
-*Last updated: 2026-02-02 (initial creation)*
+*Last updated: 2026-02-02 (Phase 18 planned)*
