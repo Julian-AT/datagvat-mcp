@@ -54,10 +54,13 @@ Plans:
 
 **Dependencies:** Phase 18 (validated E2B infrastructure)
 
-**Plans:** 0 plans
+**Plans:** 4 plans
 
 Plans:
-- [ ] TBD (created by /gsd:plan-phase 19)
+- [ ] 19-01-PLAN.md — Database schema for approval persistence and part filtering
+- [ ] 19-02-PLAN.md — Tool approval flag and code preview component
+- [ ] 19-03-PLAN.md — Approval UI component and validation queries
+- [ ] 19-04-PLAN.md — Message integration and approval flow testing
 
 **Requirements:**
 - APPROVAL-01: User can review generated code with syntax highlighting before execution
@@ -180,4 +183,4 @@ Phase 19 (Tool Approval) → Phase 20 (Visualization)
 
 ---
 *Created: 2026-02-02*
-*Last updated: 2026-02-02 (Phase 18 complete)*
+*Last updated: 2026-02-02 (Phase 19 planned)*
