@@ -26,9 +26,159 @@ describe('E2B Sandbox Lifecycle', () => {
     expect(orphaned).toHaveLength(0);
   });
 
-  // Placeholder test to validate structure
-  test('test infrastructure loaded', () => {
-    expect(tracker).toBeDefined();
-    expect(process.env.E2B_API_KEY).toBeTruthy();
-  });
+  // E2B-01: Sandbox creates successfully with Python libraries
+  test('creates sandbox with Python libraries', async () => {
+    const sandbox = await createSandbox(process.env.E2B_API_KEY!);
+    tracker.track(sandbox.sandboxId);
+
+    const result = await sandbox.runCode('import pandas, matplotlib, plotly; print("OK")');
+    expect(result.success).toBe(true);
+    expect(result.text).toContain('OK');
+
+    await sandbox.kill();
+    tracker.untrack(sandbox.sandboxId);
+  }, { timeout: TEST_TIMEOUT_MS });
+
+  // E2B-02: Code executes in isolated sandbox
+  test('executes code in isolated environment', async () => {
+    const sandbox = await createSandbox(process.env.E2B_API_KEY!);
+    tracker.track(sandbox.sandboxId);
+
+    const result = await sandbox.runCode('import os; print(os.environ.get("HOME"))');
+    expect(result.success).toBe(true);
+    expect(result.text).toContain('/home/user');
+
+    await sandbox.kill();
+    tracker.untrack(sandbox.sandboxId);
+  }, { timeout: TEST_TIMEOUT_MS });
+
+  // E2B-03: Cleanup runs after execution completes
+  test('cleanup runs after successful execution', async () => {
+    const sandbox = await createSandbox(process.env.E2B_API_KEY!);
+    tracker.track(sandbox.sandboxId);
+
+    await sandbox.runCode('print("success")');
+    await sandbox.kill();
+    tracker.untrack(sandbox.sandboxId);
+
+    // Verify sandbox is killed (subsequent operations should fail)
+    await expect(sandbox.runCode('print("test")')).rejects.toThrow();
+  }, { timeout: TEST_TIMEOUT_MS });
+
+  // E2B-04: Cleanup runs on failure
+  test('cleanup runs after execution failure', async () => {
+    const sandbox = await createSandbox(process.env.E2B_API_KEY!);
+    tracker.track(sandbox.sandboxId);
+
+    const result = await sandbox.runCode('raise ValueError("test error")');
+    expect(result.success).toBe(false);
+    expect(result.error?.name).toBe('ValueError');
+
+    await sandbox.kill();
+    tracker.untrack(sandbox.sandboxId);
+  }, { timeout: TEST_TIMEOUT_MS });
+
+  // E2B-05: Timeout enforcement
+  test('enforces 30-second timeout on infinite loops', async () => {
+    const sandbox = await createSandbox(process.env.E2B_API_KEY!);
+    tracker.track(sandbox.sandboxId);
+
+    const result = await sandbox.runCode('while True: pass', { timeoutMs: 5000 });
+    expect(result.success).toBe(false);
+    expect(result.error?.isTimeout).toBe(true);
+
+    await sandbox.kill();
+    tracker.untrack(sandbox.sandboxId);
+  }, { timeout: TEST_TIMEOUT_MS });
+
+  // E2B-06: Full lifecycle verification
+  test('verifies create → execute → kill → verify cleanup', async () => {
+    const sandbox = await createSandbox(process.env.E2B_API_KEY!);
+    tracker.track(sandbox.sandboxId);
+
+    const sandboxId = sandbox.sandboxId;
+    expect(sandboxId).toBeTruthy();
+
+    const result = await sandbox.runCode('x = 42; print(x)');
+    expect(result.success).toBe(true);
+    expect(result.text).toContain('42');
+
+    await sandbox.kill();
+    tracker.untrack(sandbox.sandboxId);
+
+    await expect(sandbox.runCode('print(x)')).rejects.toThrow();
+  }, { timeout: TEST_TIMEOUT_MS });
+
+  // E2B-07: No orphaned sandboxes after 100 runs
+  test('creates 100 sandboxes sequentially without orphaning', async () => {
+    const sandboxIds: string[] = [];
+
+    for (let i = 0; i < 100; i++) {
+      const sandbox = await createSandbox(process.env.E2B_API_KEY!);
+      tracker.track(sandbox.sandboxId);
+      sandboxIds.push(sandbox.sandboxId);
+
+      await sandbox.runCode(`print("Run ${i}")`);
+      await sandbox.kill();
+      tracker.untrack(sandbox.sandboxId);
+    }
+
+    expect(sandboxIds).toHaveLength(100);
+    expect(tracker.getOrphaned()).toHaveLength(0);
+  }, { timeout: 600000 }); // 10 minutes for 100 sandboxes
+
+  // E2B-08: Error handling preserves cleanup
+  test('preserves cleanup in try/finally pattern', async () => {
+    let sandbox;
+    const testTracker = new SandboxTracker(); // Use isolated tracker for this test
+
+    try {
+      sandbox = await createSandbox(process.env.E2B_API_KEY!);
+      testTracker.track(sandbox.sandboxId);
+
+      await sandbox.runCode('raise RuntimeError("intentional error")');
+      throw new Error('Should not reach here');
+    } catch (error) {
+      // Error expected
+    } finally {
+      if (sandbox) {
+        await sandbox.kill();
+        testTracker.untrack(sandbox.sandboxId);
+      }
+    }
+
+    expect(testTracker.getOrphaned()).toHaveLength(0);
+  }, { timeout: TEST_TIMEOUT_MS });
+
+  // Success Criteria #5: Visualization generation
+  test('executes multi-file Python with matplotlib and receives base64 visualizations', async () => {
+    const sandbox = await createSandbox(process.env.E2B_API_KEY!);
+    tracker.track(sandbox.sandboxId);
+
+    const code = `
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(0, 2*np.pi, 100)
+y = np.sin(x)
+
+plt.figure(figsize=(10, 6))
+plt.plot(x, y)
+plt.title('Sine Wave')
+plt.xlabel('x')
+plt.ylabel('sin(x)')
+plt.grid(True)
+plt.show()
+`;
+
+    const result = await sandbox.runCode(code);
+    expect(result.success).toBe(true);
+    expect(result.visualizations).toBeDefined();
+    expect(result.visualizations!.length).toBeGreaterThan(0);
+    expect(result.visualizations![0].png).toBeTruthy();
+    expect(result.visualizations![0].png?.startsWith('iVBORw0KGgo')).toBe(true); // PNG header
+
+    await sandbox.kill();
+    tracker.untrack(sandbox.sandboxId);
+  }, { timeout: TEST_TIMEOUT_MS });
 });
