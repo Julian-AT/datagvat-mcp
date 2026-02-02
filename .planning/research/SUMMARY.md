@@ -1,342 +1,321 @@
 # Project Research Summary
 
-**Project:** Interactive Data Playground for Austrian Open Data (v2.2)
-**Domain:** AI-powered dataset discovery and exploration with code execution
-**Researched:** 2026-01-31
+**Project:** v2.3 Production Playground
+**Domain:** AI-powered code execution with tool approval, visualization, and testing
+**Researched:** 2026-02-02
 **Confidence:** HIGH
 
 ## Executive Summary
 
-v2.2 adds an interactive data playground where users chat with AI to explore 60,000+ Austrian open datasets. Users ask questions like "show me pollution trends in Vienna" and the AI orchestrates dataset discovery (via existing data.gv.at MCP), generates Python code with real data, executes it in Daytona sandboxes after explicit user approval, and displays charts inline in the chat. This is fundamentally different from the existing docs chat at `/try` — it's data exploration, not documentation Q&A.
+v2.3 transforms the existing playground into a production-ready system by adding security (tool approval flows), quality assurance (E2B lifecycle testing), visualization rendering, and UX polish. The research reveals a critical insight: all features integrate with the existing Vercel AI SDK 6 architecture through incremental additions, not architectural rewrites. The AI SDK's `parts` array already supports tool approval states, dynamic tool execution, and streaming — the foundation is validated and working from v2.2.
 
-The recommended approach leverages existing infrastructure (Next.js 16, Vercel AI SDK 6, FastMCP server) and adds only 2 new npm dependencies (drizzle-orm, postgres). The architecture integrates TWO MCP servers (data.gv.at + Daytona) into ONE chat interface using AI SDK's tool spreading pattern. Message persistence via Neon Postgres enables multi-turn explorations across sessions. User approval before code execution is mandatory for security.
+The recommended approach leverages built-in AI SDK capabilities (`experimental_needsApproval`, `addToolApprovalResponse`) rather than custom state management, uploads visualizations to blob storage immediately (never store base64 in database), and implements comprehensive E2B sandbox lifecycle tracking to prevent resource leaks. Build order follows dependency hierarchy: E2B testing first (validates infrastructure), tool approval second (security gates execution), visualization third (consumes approved execution), and UI polish last (enhances the complete flow).
 
-Key risk: Daytona MCP server availability is unverified (LOW confidence). If unavailable, fallback to restricted Python sandbox (subprocess + RestrictedPython) or defer code execution to v2.3. Secondary risks include tool approval bypass through message replay, sandbox resource exhaustion without cleanup, and database performance collapse with large base64 images — all addressed through specific architectural patterns documented in research.
+Key risks center on approval state persistence (bypassing security through database replay), E2B sandbox orphaning (quota exhaustion from uncleaned resources), and visualization memory leaks (base64 storage instead of URLs). All risks have clear mitigation strategies validated by existing codebase patterns and AI SDK documentation. The architecture is proven, the stack is stable, and the implementation path is well-defined.
 
 ## Key Findings
 
 ### Recommended Stack
 
-The existing stack (Next.js 16.1.3, Vercel AI SDK 6.0.64, FastMCP, Bun) covers 95% of requirements. Only database persistence needs new dependencies.
+All required technologies are already integrated from v2.2 — no new dependencies needed. The stack is production-validated:
 
 **Core technologies:**
-- **Drizzle ORM + postgres.js** (NEW): Type-safe database queries with zero runtime overhead, Neon-optimized — 5x smaller than Prisma, edge-compatible
-- **Neon Postgres with pooling** (NEW): Serverless-first database with 10,000 pooled connections, 512MB free tier sufficient for thousands of chats — mandatory pooling prevents connection exhaustion
-- **Daytona MCP via stdio** (NEW): Code execution in isolated sandboxes — LOW confidence, needs Phase 6 verification, fallback to restricted Python if unavailable
-- **AI SDK 6.0 experimental_needsApproval** (EXISTING): Built-in tool approval workflow, no new packages needed
-- **@ai-sdk/mcp + @modelcontextprotocol/sdk** (EXISTING): Multi-MCP support via tool spreading, aggregates data.gv.at + Daytona tools into single streamText() call
-- **Vercel AI Gateway via @ai-sdk/openai-compatible** (EXISTING): Single endpoint for 100+ models, no new packages needed
+- **Vercel AI SDK 6.0.64**: Built-in tool approval via `experimental_needsApproval`, streaming with `streamText`, parts array for message state
+- **@ai-sdk/react 3.0.66**: `useChat` hook provides `addToolApprovalResponse` for approval flows, status states for loading indicators
+- **@e2b/code-interpreter 2.3.3**: Python sandbox execution with `Sandbox.create() → runCode() → kill()` lifecycle already working
+- **Next.js 16.0.10**: App Router architecture validated in v2.2, streaming works correctly
+- **Drizzle ORM 0.34.0**: Parts array persistence as JSONB, message queries working in production
 
-**Critical version requirements:**
-- AI SDK 6.0+ for experimental_needsApproval (already met)
-- Neon pooled connection string (must use `-pooler` suffix) for serverless compatibility
-- postgres.js over node-postgres for 5x smaller bundle and WebSocket support
+**Testing infrastructure:**
+- **@playwright/test 1.50.1**: Already installed for E2E testing, needs configuration and test files
+- **Bun test runner**: Built-in, TypeScript-native, used for unit tests of E2B lifecycle
 
-**What NOT to add:**
-- Prisma ORM (larger bundle, slower cold starts) — use Drizzle instead
-- Supabase (over-engineering with auth/storage not needed) — use Neon Postgres only
-- LangChain (over-abstraction) — use AI SDK native patterns
+**UI libraries (already present):**
+- **framer-motion 11.3.19**: Loading animations, transitions for approval dialogs
+- **lucide-react 0.446.0**: Icons (Loader2, AlertCircle, XCircle) for loading/error states
+- **sonner 2.0.7**: Toast notifications for execution errors
+
+**Critical insight:** No `npm install` needed. The gap is implementation (wiring up approval flags, creating UI components, writing tests), not missing libraries.
 
 ### Expected Features
 
 **Must have (table stakes):**
-- Multi-turn conversation with streaming responses — users expect follow-up questions without context loss
-- Message persistence across sessions — essential for data exploration work that spans days
-- User approval dialog before code execution — security requirement, builds trust
-- Sandbox isolation for Python code — never run untrusted code in production environment
-- Inline visualization rendering (base64 images) — charts appear in chat, not as downloads
-- Dataset discovery via MCP tools — AI finds relevant datasets from 60,000+ Austrian open data
-- Context-aware code generation — AI sees dataset schema before generating code, uses correct column names
+- **Tool approval before execution** — Security requirement. Users must explicitly approve code execution. AI SDK's `experimental_needsApproval` flag handles this with approval state machine.
+- **E2B sandbox lifecycle testing** — Quality requirement. Verify sandboxes are created, execute code, and are cleaned up properly. Prevent resource leaks before production load.
+- **Inline visualization rendering** — Core UX. Charts/plots must appear in chat, not as downloads. E2B returns base64 PNG/SVG, upload to Vercel Blob, render URLs.
+- **Loading states during execution** — UX expectation. Executions take 5-30 seconds. Show "Creating sandbox..." → "Running code..." → "Complete" indicators.
+- **Clear error messages** — Production requirement. No technical stack traces. Translate errors: "What happened" + "Why" + "What to do".
 
-**Should have (competitive advantages):**
-- Two-chat architecture — separate `/playground` (data exploration) from `/try` (docs Q&A), different mental models
-- MCP-powered discovery — 60,000+ Austrian datasets pre-integrated, no competitor has this corpus
-- Quality indicators inline — show data completeness/freshness before exploration
-- Smart dataset ranking — quality scores + semantic relevance
-- Bilingual search — German/English queries work equally well
-- Error recovery — re-generate code when execution fails
+**Should have (competitive):**
+- **Multi-visualization grid layout** — Power users generate multiple plots. Display in 2-column grid with fullscreen/download per visualization.
+- **Approval dialog with code preview** — Security + UX. Show syntax-highlighted code in inline dialog (not blocking modal), allow scrolling to review context.
+- **Execution progress streaming** — Premium UX. Stream status updates during long executions, show what's happening in real-time.
 
 **Defer (v2+):**
-- User authentication — defer to v3.0 (v2.2 is guest mode only)
-- Public sharing with URLs — requires auth + storage + moderation
-- Multiple languages (R, Julia) — Python covers 95% of use cases
-- Dashboard builder — different product paradigm, not chat-first
-- Real-time collaboration — complex engineering, single-user exploration sufficient
-- Data upload (user CSV files) — scope creep, focus on Austrian open data differentiator
-- Interactive widgets — doesn't fit chat paradigm, use re-generation instead
+- **Approval timeout with countdown** — Nice to have. Auto-deny approvals after 5 minutes. Not critical for v2.3 if approval UI is intuitive.
+- **Sandbox pooling for performance** — Optimization. Reuse sandboxes between requests. Only needed if sandbox creation latency becomes bottleneck (>5s).
+- **Interactive visualization widgets** — Advanced feature. Plotly interactivity requires iframe sandboxing with CSP adjustments. Static visualizations sufficient for v2.3.
 
 ### Architecture Approach
 
-The architecture extends existing Next.js/AI SDK infrastructure with multi-MCP orchestration and database persistence. No new frameworks or major architectural changes.
+v2.3 integrates with existing AI SDK 6 architecture through four integration points, all using the `parts` array as single source of truth:
 
 **Major components:**
-1. **MCP Client Manager** — initializes both data.gv.at (HTTP) and Daytona (stdio) MCP servers, merges tools via spreading pattern, handles health checks and reconnection
-2. **Database Manager** — persists chat history using AI SDK's UIMessage format with parts array (JSONB), loads previous messages for continuation, implements cleanup for old guest sessions
-3. **Sandbox Executor** — manages Daytona workspace lifecycle (create, execute, destroy), extracts base64 images from matplotlib output, enforces 30-second timeout
-4. **Code Approval UI** — monitors message parts for approval-pending state, displays code preview with syntax highlighting, calls addToolApprovalResponse on user action
-5. **Visualization Renderer** — decodes base64 images from tool results, displays inline in chat, handles size limits (>500KB → blob storage)
 
-**Key patterns:**
-- **Multi-MCP integration:** getAllTools() merges tools from both servers into single streamText() call, AI coordinates across tool types
-- **Message persistence with parts array:** Store UIMessage[] as JSONB, captures text/tool calls/results/approvals, enables exact UI reproduction
-- **Sandbox execution with user approval:** Tool calls pause at approval-pending state, user confirms, continuation request executes tool, Daytona workspace destroyed after session
-- **Inline visualization rendering:** matplotlib saves PNG to stdout as base64, embedded in tool-result part, displayed as data URI in React
+1. **Tool Approval Flow** — Modify `lib/mcp/aggregate-tools.ts` to add `needsApproval: true` flag to `execute-python` tool. Create `CodeApprovalDialog.tsx` component. Add approval rendering case to `components/message.tsx` checking `part.state === 'approval-requested'`. Approval state flows through existing `addToolApprovalResponse` from useChat hook. No API route changes needed — AI SDK handles approval validation automatically.
 
-**Integration boundaries:**
-- Chat UI (useChat hook) → POST /api/chat → streamText() with merged MCP tools → Stream response with approval flow
-- API Route → MCP Clients (in-process async calls, clients initialized once, tools cached)
-- API Route → Database (direct Pool queries, use after() for background persistence)
-- Messages Component → Visualization (React props passing tool-result parts)
+2. **Visualization Rendering** — E2B execution returns base64 PNG/SVG in `execution.results`. Existing `lib/mcp/aggregate-tools.ts` already uploads to Vercel Blob via `uploadImageFromBase64()`. Create `VisualizationGallery.tsx` component that maps over `toolPart.output.visualizations` array. Reuse existing `components/visualization.tsx` (already has fullscreen/download, error handling). Display visualizations when `part.state === 'output-available'`.
+
+3. **E2B Lifecycle Testing** — Create unit tests in `lib/mcp/__tests__/e2b-client.test.ts` verifying sandbox cleanup (create → execute → kill → verify sandbox doesn't exist). Test error handling (execution fails, sandbox still killed). Test visualization generation (matplotlib code produces base64 PNG). Use Bun test runner (already configured). Track sandbox IDs during tests to verify cleanup.
+
+4. **Chat UI Polish** — Enhance existing `components/message.tsx` with loading state for `part.state === 'approval-responded' && !part.output` (execution in progress). Add error display for `part.state === 'output-error'` with traceback in collapsible details. Verify `components/messages.tsx` shows streaming indicator from `status === 'submitted'`. Use existing Lucide icons (Loader2, AlertCircle).
+
+**Key architectural patterns:**
+- **Parts array as single source of truth**: All state (text, tool calls, approvals, results) stored in message.parts JSONB
+- **Upload-then-render for visualizations**: Base64 → Blob upload → store only URL → render <img src={url} />
+- **Try/finally for E2B cleanup**: Always kill sandbox in finally block, even on errors
+- **Approval state machine**: `approval-requested` → `approval-responded` → `output-available` (or `output-denied`)
 
 ### Critical Pitfalls
 
-1. **Tool Approval Bypass Through Message Replay** — Stored tool calls in database can re-execute without approval on page reload. PREVENTION: Never persist approval state, add execution_status column, filter non-executed tool calls when loading history, re-prompt if not executed. ADDRESS: Phase 1 (database schema must separate execution state).
+1. **Tool approval bypass through state persistence** — If approval state persists in database, page refresh could replay approvals and auto-execute code without new consent. **Mitigation:** Never persist `tool-approval-request` or `tool-approval-response` parts. Store approval state in separate `tool_approvals` table. Server validates approval timestamp is within 5 minutes of tool call. Test: save message with approval → reload page → verify no auto-execution.
 
-2. **Sandbox Resource Exhaustion Without Cleanup** — Daytona sandboxes persist until manually destroyed, 10-20 conversations exhaust resources silently. PREVENTION: Track sandbox_id in database with timestamps, destroy after 15 minutes inactivity, background job kills orphaned sandboxes, test with 20+ sequential conversations. ADDRESS: Phase 2 (cleanup MUST be implemented before production).
+2. **E2B sandbox orphaning during streaming errors** — If user closes tab or network drops during execution, sandbox continues running, consuming quota. After 100+ conversations, quota exhausted. **Mitigation:** Track all sandboxes in `e2b_sandboxes` table with status tracking. Implement background cleanup job (kill sandboxes older than 1 hour). Always use try/finally for `sandbox.kill()`. Test: start 10 executions, abort mid-stream, verify all sandboxes killed.
 
-3. **Multiple MCP Server Race Conditions on Startup** — Both servers start simultaneously via stdio, failures are silent, generic errors confuse users. PREVENTION: Spawn sequentially not parallel, health check each server (call ping tool), 10-second timeout per server, separate stderr/stdout streams, display connection status in UI before allowing chat. ADDRESS: Phase 2 (server initialization needs health checks).
+3. **Visualization memory leak with base64 encoding** — Storing 2-5MB base64 strings in React state causes memory accumulation. After 10 visualizations, browser uses 2GB+ memory. **Mitigation:** Convert base64 to Blob immediately, upload to Vercel Blob storage, store only URL in message parts. Never store base64 in database. Use `URL.createObjectURL()` for previews with cleanup on unmount. Test: 50 visualizations in one conversation, verify memory <500MB.
 
-4. **Message Persistence Performance Collapse with Large Visualizations** — Base64 images (500KB-2MB each) stored in JSONB cause slow queries (5+ seconds), database bloat, backup failures. PREVENTION: NEVER store base64 in database, use blob storage (S3/R2/filesystem), save URL in parts array, 100KB size limit for inline storage, test with 50-image conversation. ADDRESS: Phase 1 (image storage strategy designed before schema creation).
+4. **Missing loading states create "frozen UI" perception** — Code execution takes 5-30 seconds. No progress indicator makes users think app crashed, leading to refresh/abandon. **Mitigation:** Use `useChat` status to disable send button when `status !== 'awaiting-message'`. Add loading state for `approval-responded` without output. Stream tool execution progress. Show "Creating sandbox..." → "Running code..." indicators. Test with slow network throttling.
 
-5. **Daytona CLI Dependency Without Graceful Degradation** — App crashes on startup if Daytona unavailable, blocks entire site including documentation. PREVENTION: Make Daytona OPTIONAL at runtime, detect CLI at startup, disable only code execution if missing, display clear UI message, allow dataset search/preview to work normally, DAYTONA_ENABLED environment variable. ADDRESS: Phase 2 (graceful degradation before enabling code execution).
+5. **Tool approval modal blocks context** — If approval appears as blocking modal, user can't scroll to review previous messages or understand what code will do. Leads to confused denials. **Mitigation:** Use inline approval UI within message flow, not modal. Allow scrolling while approval visible. Show full code with syntax highlighting, plus "Learn more" link. Make approval sticky at bottom while user scrolls. Test with real users: give complex approval scenario, observe if they review context.
 
 ## Implications for Roadmap
 
-Based on research, suggested phase structure:
+Based on research, suggested phase structure follows dependency hierarchy and risk mitigation:
 
-### Phase 1: Database Foundation & Message Persistence
-**Rationale:** Persistence layer is foundational for testing all subsequent features. Enables iterative development with state preservation across page reloads.
-
-**Delivers:**
-- Neon Postgres connection with pooling
-- Drizzle ORM schema and queries (createChat, loadChat, saveChat)
-- Message persistence integrated into existing /api/chat route
-- Guest session tracking via cookies
-- Database schema that prevents approval bypass (execution_status column)
-- Image storage strategy (blob URLs, not base64 in JSONB)
-
-**Addresses:**
-- Tool approval bypass pitfall (separate execution state in schema)
-- Performance collapse pitfall (image storage design)
-- Message persistence feature (table stakes)
-
-**Avoids:**
-- Building on unstable foundation
-- Retrofitting persistence after features exist
-- Database schema migrations mid-development
-
-**Research needed:** No — Neon + Drizzle patterns well-documented, straightforward implementation
-
----
-
-### Phase 2: Daytona MCP Integration & Sandbox Setup
-**Rationale:** Non-breaking addition to existing tools. Can test tool discovery before implementing execution. Health checks prevent silent failures.
+### Phase 1: E2B Lifecycle Testing & Infrastructure
+**Rationale:** Must validate E2B sandbox cleanup and resource tracking before adding approval flows that create more sandboxes. Testing infrastructure catches orphaning issues before production load. Dependencies resolved first enable clean implementation of dependent features.
 
 **Delivers:**
-- Daytona CLI setup and verification
-- MCP client initialization for both servers (getAllTools() merging)
-- Health checks and reconnection logic
-- Sandbox lifecycle tracking in database
-- Cleanup job for orphaned sandboxes
-- Graceful degradation if Daytona unavailable
-
-**Uses:**
-- @ai-sdk/mcp (existing) for multi-server pattern
-- stdio transport for Daytona CLI
-
-**Implements:**
-- MCP Client Manager (architecture component)
-- Health check pattern from architecture
+- E2B client unit tests (`lib/mcp/__tests__/e2b-client.test.ts`)
+- Lifecycle verification tests (create → execute → kill → verify cleanup)
+- Multi-file project execution tests
+- Timeout handling tests (30s limit enforcement)
+- Visualization generation tests (matplotlib/plotly produce base64)
 
 **Addresses:**
-- Sandbox resource exhaustion pitfall (cleanup logic)
-- MCP race conditions pitfall (health checks, sequential startup)
-- Daytona dependency pitfall (graceful degradation)
-- Multiple MCP integration feature (table stakes)
+- Pitfall #2 (E2B sandbox orphaning)
+- Pitfall #3 (visualization generation validation)
 
-**Avoids:**
-- Silent startup failures
-- Resource leaks in production
-- Blocking docs site when code execution unavailable
+**Validation criteria:**
+- All sandboxes cleaned up after tests complete
+- No orphaned sandboxes after 100 sequential runs
+- Timeout errors properly handled without leaking resources
+- Visualization generation works consistently
 
-**Research needed:** YES — CRITICAL Phase 6 research to verify:
-- Daytona MCP server availability (confirm `daytona mcp` command exists)
-- Daytona tool schemas (execute_code parameters)
-- stdio transport in production (or fallback to HTTP)
-- Fallback strategy if Daytona unavailable (restricted Python sandbox)
-
----
-
-### Phase 3: Sandbox Execution (Without Approval)
-**Rationale:** Establishes core execution pipeline before adding approval complexity. Enables testing of code generation, matplotlib integration, base64 extraction.
+### Phase 2: Tool Approval Flow
+**Rationale:** Security foundation must gate execution before adding visualization features. Approval must be in place before users can execute arbitrary code. This phase has the highest security risk, so it comes early for thorough testing.
 
 **Delivers:**
-- execute_code tool implementation via Daytona
-- Base64 image extraction from matplotlib stdout
-- Visualization rendering component
-- Execution timeout enforcement (30 seconds)
-- Error handling with clear messages
-
-**Implements:**
-- Sandbox Executor (architecture component)
-- Visualization Renderer (architecture component)
-- Inline visualization pattern from architecture
+- Add `needsApproval: true` to execute-python tool
+- `CodeApprovalDialog.tsx` component with syntax highlighting
+- Approval integration in `message.tsx` (new dynamic-tool case)
+- Separate approval state tracking (not in persisted message parts)
+- Unit tests for approval flow
+- E2E tests for approval → execution → visualization path
 
 **Addresses:**
-- Code execution feature (table stakes)
-- Inline visualization rendering (table stakes)
-- Context-aware code generation (differentiator)
+- Pitfall #1 (approval bypass through state persistence)
+- Pitfall #5 (approval modal blocks context)
+- Must-have feature: Tool approval before execution
 
-**Avoids:**
-- Building approval flow on broken execution
-- Debugging approval + execution simultaneously
-- Testing without visible results
+**Uses stack:**
+- AI SDK `experimental_needsApproval` flag
+- `addToolApprovalResponse` from useChat hook
+- Existing parts array state machine
 
-**Research needed:** No — Execution patterns documented, matplotlib base64 encoding is standard
+**Implements architecture:**
+- Approval state machine component
+- Inline approval UI (not blocking modal)
 
----
+**Validation criteria:**
+- Code preview shows syntax-highlighted Python
+- Approval triggers execution, denial prevents it
+- Approval state persists correctly in separate table
+- No approval bypass through message replay or page refresh
 
-### Phase 4: Tool Approval Flow
-**Rationale:** Most complex feature, depends on working execution pipeline from Phase 3. Approval UX requires existing tool results to demonstrate value.
+### Phase 3: Visualization Rendering
+**Rationale:** Depends on approved execution flow from Phase 2. Visualizations are the primary output of code execution, so rendering must be robust. Upload strategy prevents memory leaks from Phase 1's insights.
 
 **Delivers:**
-- experimental_needsApproval flag on code execution tools
-- Code approval dialog component with preview
-- addToolApprovalResponse wiring
-- Continuation flow for approved executions
-- Approval state handling in message persistence
-
-**Uses:**
-- AI SDK 6.0 experimental_needsApproval (existing)
-- useChat hook approval handling (existing)
-
-**Implements:**
-- Code Approval UI (architecture component)
-- User approval pattern from architecture
+- `VisualizationGallery.tsx` component for multiple charts
+- Integration with existing `Visualization.tsx` component
+- Grid layout for PNG/SVG/HTML visualizations
+- Blob storage upload (never base64 in database)
+- Format detection (static vs interactive)
+- Tests for visualization rendering and memory usage
 
 **Addresses:**
-- User approval dialog (table stakes, security requirement)
-- Security-first design (differentiator)
+- Pitfall #3 (visualization memory leak)
+- Must-have feature: Inline visualization rendering
+- Should-have feature: Multi-visualization grid layout
 
-**Avoids:**
-- Approval fatigue (only code execution requires approval, not dataset tools)
-- Approval bypass (execution_status from Phase 1 prevents replay)
+**Uses stack:**
+- Vercel Blob storage (already imported in aggregate-tools.ts)
+- E2B visualization results (PNG/SVG from execution.results)
+- Existing Visualization.tsx component
 
-**Research needed:** No — AI SDK 6.0 approval pattern documented, straightforward implementation
+**Implements architecture:**
+- Upload-then-render pattern
+- Parallel upload with Promise.all()
+- URL-only storage in parts array
 
----
+**Validation criteria:**
+- Multiple visualizations display in grid layout
+- Fullscreen/download work for all formats
+- Large visualizations (>1MB) load without blocking UI
+- 50 visualizations in conversation, memory usage <500MB
+- Visualization URLs persist correctly across page reload
 
-### Phase 5: Polish & Production Readiness
-**Rationale:** All core features working, now focus on UX refinements and deployment preparation.
+### Phase 4: Chat UI Polish
+**Rationale:** Enhances UX after all core features working. Loading states and error messages make the system feel production-ready. This phase has lowest risk and can overlap with Phase 3 implementation.
 
 **Delivers:**
-- Two-chat architecture (/playground distinct from /try)
-- Code syntax highlighting (Shiki integration)
-- Loading states during execution
-- Error recovery with code regeneration
-- Quality indicators inline for datasets
-- Vercel AI Gateway configuration for model selection
-- Cleanup job deployment (Vercel Cron)
-- Rate limiting for sandbox creation
+- Loading state during code execution ("Creating sandbox..." → "Running code...")
+- Enhanced error messages with traceback (collapsible details)
+- Streaming indicators for approval flow
+- Disabled states for send button during streaming
+- Error translation layer (no technical error exposure)
+- Polish for approval dialog UX
 
 **Addresses:**
-- Two-chat architecture (differentiator)
-- Loading states, error handling (table stakes)
-- Quality indicators (competitive feature)
+- Pitfall #4 (missing loading states create "frozen UI")
+- Must-have feature: Loading states during execution
+- Must-have feature: Clear error messages
 
-**Research needed:** MEDIUM — Vercel AI Gateway setup needs documentation research (not blocking)
+**Uses stack:**
+- useChat status prop (already available)
+- Lucide icons: Loader2, AlertCircle, XCircle
+- framer-motion for loading animations
 
----
+**Implements architecture:**
+- Loading state rendering for tool execution states
+- Error boundary with user-friendly messages
+- Status-driven UI updates
+
+**Validation criteria:**
+- Loading spinners show during all execution phases
+- Error messages are clear and actionable (no file paths/stack traces)
+- Approval dialog is intuitive, doesn't block context
+- No UI jank during streaming
+- Send button disabled while streaming, re-enabled after
 
 ### Phase Ordering Rationale
 
-1. **Database first** because all subsequent features need state preservation for testing and development
-2. **MCP integration second** because it's non-breaking and can be tested independently before execution
-3. **Execution before approval** because approval flow needs working execution to test against
-4. **Approval last of core features** because it's the most complex UX and depends on everything else working
-5. **Polish after MVP complete** because UX refinements require user feedback on working product
+**Why this sequence:**
+1. **Testing first** — Validates infrastructure before building on it. E2B lifecycle must be reliable before adding approval flows that create more sandboxes. Testing phase catches resource leaks early.
 
-**Dependencies visualized:**
-```
-Phase 1 (Database) → Phase 2 (MCP) → Phase 3 (Execution) → Phase 4 (Approval) → Phase 5 (Polish)
-        ↓                ↓                                          ↓
-   [Persistence]  [Tool Discovery]                          [Security]
-```
+2. **Security second** — Approval gates execution. Must be in place before visualization features make execution more attractive to users. Security bugs are costly to fix in production.
+
+3. **Visualization third** — Depends on approved execution. Upload strategy informed by testing phase's memory observations. Visualization rendering is the user-facing payoff for previous phases.
+
+4. **Polish last** — Enhances complete flow. Loading states and error messages only make sense once execution + visualization + approval are working. UX improvements have lowest implementation risk.
+
+**Dependency chain:**
+- Phase 2 depends on Phase 1 (E2B infrastructure validated)
+- Phase 3 depends on Phase 2 (approved execution available)
+- Phase 4 depends on Phase 2 & 3 (complete flow exists to polish)
 
 **Parallel work opportunities:**
-- Phase 1 and Phase 2 can overlap (database + MCP integration are independent)
-- Phase 5 tasks can start once Phase 4 delivers approval flow
+- Phase 3 can start once Phase 2 has working execution (visualization rendering is independent)
+- Phase 4 can overlap with Phase 3 (loading states and visualization rendering are independent concerns)
+
+**Critical path:** Phase 1 → Phase 2 → (Phase 3 + Phase 4 in parallel)
 
 ### Research Flags
 
-**Phases needing deeper research during planning:**
-- **Phase 2 (Daytona MCP):** CRITICAL — Verify Daytona MCP server exists, document CLI integration, define fallback strategy if unavailable
-- **Phase 5 (Vercel AI Gateway):** MEDIUM — Configuration steps need documentation, but fallback is direct provider packages
-
 **Phases with standard patterns (skip research-phase):**
-- **Phase 1 (Database):** Neon + Drizzle ORM patterns well-documented, no unknowns
-- **Phase 3 (Execution):** Python sandbox execution is standard, matplotlib base64 encoding documented
-- **Phase 4 (Approval):** AI SDK 6.0 approval pattern officially documented, straightforward
+- **Phase 1 (E2B Testing):** Well-documented E2B SDK, Bun test patterns established, lifecycle testing is standard practice
+- **Phase 2 (Tool Approval):** AI SDK documentation confirms `experimental_needsApproval` pattern, approval flow verified in cached docs
+- **Phase 4 (Chat UI Polish):** Standard React patterns, loading states and error handling are well-understood
+
+**Phases likely needing deeper research during planning:**
+- **Phase 3 (Visualization Rendering):** May need CSP research for interactive visualizations (Plotly HTML with scripts). Format detection logic needs testing with all supported libraries (matplotlib, plotly, seaborn, bokeh). Blob storage performance with concurrent uploads needs validation.
+
+**Research gaps to address during implementation:**
+- Exact behavior of AI SDK approval state persistence when messages reload from database (need runtime testing)
+- E2B sandbox quota limits and error messages for quota exceeded (need to trigger in test environment)
+- Production CSP headers and their impact on different visualization formats (need production-like testing)
+- Memory usage patterns with 50+ visualizations across browsers (need performance testing in Chrome/Safari/Firefox)
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Existing stack covers 95%, only Drizzle ORM + postgres.js new (well-documented). Daytona MCP LOW confidence but fallback exists. |
-| Features | HIGH | Verified with Jupyter/Colab/Observable/Hex patterns + AI SDK docs + MCP integration. Clear table stakes vs differentiators. |
-| Architecture | HIGH | AI SDK 6 docs verified, Neon docs verified, Daytona docs reviewed, existing codebase patterns confirmed. Multi-MCP pattern tested. |
-| Pitfalls | HIGH | Derived from documented constraints (stdio transport, JSONB limits, approval bypass security) + standard integration challenges. |
+| Stack | HIGH | All dependencies already installed and validated in v2.2. AI SDK 6 patterns verified in cached documentation. E2B SDK usage confirmed in existing e2b-client.ts. No new libraries needed. |
+| Features | HIGH | Requirements clear from v2.2 foundation: approval (security), testing (quality), visualization (core UX), polish (production-ready). Competitive analysis from FEATURES.md validated expectations. |
+| Architecture | HIGH | Integration points verified in existing codebase. Parts array pattern confirmed in message.tsx. Tool approval flow documented in AI SDK cached docs. E2B lifecycle pattern exists in e2b-client.ts. |
+| Pitfalls | HIGH | Critical pitfalls derived from source code analysis (e2b-client.ts has no cleanup tracking, message.tsx has no approval-requested handling). AI SDK approval state machine analyzed. React memory patterns well-understood. |
 
-**Overall confidence:** HIGH (with one LOW-confidence dependency: Daytona MCP availability)
+**Overall confidence:** HIGH
+
+Research is based on existing codebase analysis (v2.2 foundation), official AI SDK documentation (cached in node_modules), and validated architectural patterns. All technologies are already integrated and working. The gap is implementation (writing components, tests, UI enhancements), not research or experimentation.
 
 ### Gaps to Address
 
-**CRITICAL (Blocking Development):**
-- **Daytona MCP Server Availability:** Does Daytona provide MCP server via `daytona mcp` command? Phase 6 research MUST verify or define fallback to restricted Python sandbox (subprocess + RestrictedPython). This is the only true unknown.
+**During Phase 1 (E2B Testing):**
+- Need to verify actual E2B quota limits and error messages (trigger in test environment)
+- Need to validate sandbox cleanup detection method (E2B API for listing sandboxes)
+- Need to test timeout behavior with infinite loops (ensure 30s enforcement)
 
-**HIGH (Impacts UX):**
-- **Vercel AI Gateway Configuration:** How to create gateway instance and configure model routing? Fallback: Use direct provider packages (@ai-sdk/openai, @ai-sdk/anthropic). Not blocking, can research in Phase 5.
+**During Phase 2 (Tool Approval):**
+- Need runtime testing of AI SDK approval state persistence on page reload (unit test can't catch all edge cases)
+- Need to validate approval timestamp check prevents replay attacks (security testing)
+- Need to test approval flow with concurrent tool calls (multiple approvals pending)
 
-**MEDIUM (Performance Optimization):**
-- **MCP stdio in Vercel Deployment:** Does stdio transport work in Vercel serverless functions? May need HTTP fallback for Daytona. Test during Phase 2.
-- **Database Schema Design:** What indexes needed for JSONB message queries? Test during Phase 1 with realistic conversation sizes.
-- **Connection Pooling Tuning:** Monitor Neon pool usage, adjust default_pool_size if needed. Optimize during Phase 5.
+**During Phase 3 (Visualization Rendering):**
+- Need to test CSP compatibility with all visualization formats in production-like environment
+- Need to validate Vercel Blob upload performance with concurrent requests (load testing)
+- Need to test visualization rendering across browsers (Safari, Firefox, Chrome mobile)
+- Need to measure actual memory usage with 50+ visualizations (performance monitoring)
 
-**Handling during planning:**
-- Phase 2 research task: Verify Daytona MCP, document installation, test CLI integration
-- Phase 5 research task: Document Vercel AI Gateway setup (optional, not blocking)
-- All phases: Test with realistic data (50-message conversations, 20 sequential sandboxes, 50 images)
+**During Phase 4 (Chat UI Polish):**
+- Need to validate error message translations cover all error types (comprehensive error testing)
+- Need to test loading states with slow network conditions (network throttling)
+- Need to user-test approval dialog UX (verify inline design doesn't confuse users)
+
+**How to handle gaps:**
+- Phase 1: Create E2B test environment to trigger quota limits and timeout scenarios
+- Phase 2: Implement approval flow with comprehensive unit + E2E tests, security audit before production
+- Phase 3: Set up production-like CSP headers in staging, performance test with real data
+- Phase 4: Error testing matrix (trigger each error type, verify message), user testing with 5-10 participants
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- AI SDK Tool Calling: https://ai-sdk.dev/docs/ai-sdk-core/tools-and-tool-calling (experimental_needsApproval pattern, tool merging)
-- AI SDK Message Persistence: https://ai-sdk.dev/docs/ai-sdk-ui/storing-messages (onFinish callback, UIMessage format)
-- AI SDK Chatbot Architecture: https://ai-sdk.dev/docs/ai-sdk-ui/chatbot (parts array structure, approval workflow)
-- Neon Connection Pooling: https://neon.com/docs/connect/connection-pooling (pooling configuration, transaction-mode, limitations)
-- Neon Next.js Guide: https://neon.com/docs/guides/nextjs (serverless driver patterns)
-- Drizzle ORM PostgreSQL: https://orm.drizzle.team/docs/get-started-postgresql (postgres.js driver setup)
-- MCP Transports Specification: https://modelcontextprotocol.io/docs/concepts/transports (stdio transport protocol)
-- Daytona Documentation: https://www.daytona.io/docs (sandbox execution, workspace management)
+- **AI SDK Core Tool Calling:** Verified `needsApproval` pattern in cached docs at `docs/~/.bun/install/cache/ai@6.0.64@@@1/docs/03-ai-sdk-core/15-tools-and-tool-calling.mdx`
+- **AI SDK UI Chatbot Tool Usage:** Verified approval flow in cached docs at `docs/~/.bun/install/cache/ai@6.0.64@@@1/docs/04-ai-sdk-ui/03-chatbot-tool-usage.mdx`
+- **Existing codebase analysis:**
+  - `docs/app/api/chat/route.ts` — Current streamText implementation with createUIMessageStream
+  - `docs/components/chat.tsx` — useChat hook with addToolApprovalResponse and sendAutomaticallyWhen
+  - `docs/components/message.tsx` — Dynamic-tool part rendering with approval states
+  - `docs/lib/mcp/aggregate-tools.ts` — E2B tool implementation with visualization upload
+  - `docs/lib/mcp/e2b-client.ts` — Sandbox lifecycle with try/finally pattern
+  - `docs/components/visualization.tsx` — Existing visualization component with fullscreen/download
+- **Package versions:** `docs/package.json` — Verified installed versions of all dependencies
 
 ### Secondary (MEDIUM confidence)
-- Jupyter.org: Multi-language kernels, interactive widgets, notebook format
-- Google Colab: AI code generation, data inspector
-- ObservableHQ.com: AI integration, reactive visualizations
-- Hex.tech: AI-powered analysis, collaborative notebooks
-- MCP SDK GitHub: Multi-client pattern inferred from Client class architecture
+- **E2B Code Interpreter SDK:** Package version 2.3.3 API patterns (Sandbox.create, runCode, kill)
+- **Vercel Blob:** Upload patterns already implemented in aggregate-tools.ts (`uploadImageFromBase64`)
+- **Drizzle ORM:** Database persistence patterns in `docs/lib/db/queries.ts`, JSONB parts array confirmed
+- **Vercel AI SDK Chat:** https://sdk.vercel.ai/docs/ai-sdk-ui/chatbot (useChat hook reference, status states)
+- **Vercel AI SDK Parts:** https://sdk.vercel.ai/docs/ai-sdk-core/generating-structured-data#parts (message persistence patterns)
 
-### Tertiary (LOW confidence, needs Phase 6 validation)
-- Daytona MCP Server: Mentioned in project context, no official MCP server documentation found — CRITICAL GAP
-- Daytona CLI Installation: General installation pattern assumed, needs verification
-- Daytona Tool Schemas: Expected tool names inferred from use case, needs verification
-
-### Existing Codebase (HIGH confidence)
-- docs/app/api/chat/route.ts: Existing AI SDK 6 integration with MCP verified
-- docs/components/chat.tsx: useChat hook usage patterns verified
-- docs/lib/ai/providers.ts: Vercel AI Gateway configuration verified
-- mcp/app/server.py: FastMCP server HTTP transport pattern verified
+### Tertiary (LOW confidence - needs validation during implementation)
+- **E2B quota limits:** Inferred from pricing documentation, need runtime testing to confirm error messages
+- **CSP visualization compatibility:** Standard web patterns, but need production testing with actual headers
+- **Memory usage patterns:** React best practices, but need performance testing with real data
+- **Approval state persistence:** AI SDK behavior inferred from documentation, need runtime validation
 
 ---
-*Research completed: 2026-01-31*
+*Research completed: 2026-02-02*
 *Ready for roadmap: yes*
