@@ -39,36 +39,56 @@ export async function createSandbox(apiKey: string, timeoutMs: number = DEFAULT_
       const stdoutLines: string[] = [];
       const stderrLines: string[] = [];
 
-      const execution = await sandbox.runCode(code, {
-        timeoutMs,
-        onStdout: (output) => stdoutLines.push(output.line),
-        onStderr: (output) => stderrLines.push(output.line),
-      });
+      try {
+        const execution = await sandbox.runCode(code, {
+          timeoutMs,
+          onStdout: (output) => stdoutLines.push(output.line),
+          onStderr: (output) => stderrLines.push(output.line),
+        });
 
-      return {
-        success: !execution.error,
-        text: execution.text ?? '',
-        error: execution.error
-          ? {
-              name: execution.error.name,
-              message: execution.error.value,
-              traceback: execution.error.traceback,
-              isTimeout: execution.error.name === 'TimeoutError',
-            }
-          : undefined,
-        logs: {
-          stdout: stdoutLines,
-          stderr: stderrLines,
-        },
-        visualizations: execution.results
-          .filter((r) => r.png || r.svg || r.html)
-          .map((r) => ({
-            formats: r.formats(),
-            png: r.png,
-            svg: r.svg,
-            html: r.html,
-          })),
-      };
+        return {
+          success: !execution.error,
+          text: execution.text ?? '',
+          error: execution.error
+            ? {
+                name: execution.error.name,
+                message: execution.error.value,
+                traceback: execution.error.traceback,
+                isTimeout: execution.error.name === 'TimeoutError',
+              }
+            : undefined,
+          logs: {
+            stdout: stdoutLines,
+            stderr: stderrLines,
+          },
+          visualizations: execution.results
+            .filter((r) => r.png || r.svg || r.html)
+            .map((r) => ({
+              formats: r.formats(),
+              png: r.png,
+              svg: r.svg,
+              html: r.html,
+            })),
+        };
+      } catch (error: any) {
+        // Handle TimeoutError and other exceptions thrown by E2B SDK
+        const isTimeout = error?.name === 'TimeoutError' || error?.message?.includes('timed out');
+        return {
+          success: false,
+          text: '',
+          error: {
+            name: error?.name || 'Error',
+            message: error?.message || 'Unknown error',
+            traceback: error?.stack || '',
+            isTimeout,
+          },
+          logs: {
+            stdout: stdoutLines,
+            stderr: stderrLines,
+          },
+          visualizations: [],
+        };
+      }
     },
     kill: async () => {
       await sandbox.kill();

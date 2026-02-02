@@ -1,6 +1,11 @@
 import { describe, test, expect, beforeAll, afterAll } from 'bun:test';
 import { createSandbox } from '../e2b-client';
 import { SandboxTracker } from './helpers/sandbox-tracker';
+import dotenv from 'dotenv';
+
+dotenv.config({
+  path: '.env.local',
+});
 
 // Test timeouts (E2B-05, E2B-06 requirements)
 const EXECUTION_TIMEOUT_MS = 30000; // 30 seconds
@@ -31,12 +36,14 @@ describe('E2B Sandbox Lifecycle', () => {
     const sandbox = await createSandbox(process.env.E2B_API_KEY!);
     tracker.track(sandbox.sandboxId);
 
-    const result = await sandbox.runCode('import pandas, matplotlib, plotly; print("OK")');
-    expect(result.success).toBe(true);
-    expect(result.text).toContain('OK');
-
-    await sandbox.kill();
-    tracker.untrack(sandbox.sandboxId);
+    try {
+      const result = await sandbox.runCode('import pandas, matplotlib, plotly; print("OK")');
+      expect(result.success).toBe(true);
+      expect(result.logs.stdout.join('\n')).toContain('OK');
+    } finally {
+      await sandbox.kill();
+      tracker.untrack(sandbox.sandboxId);
+    }
   }, { timeout: TEST_TIMEOUT_MS });
 
   // E2B-02: Code executes in isolated sandbox
@@ -44,12 +51,14 @@ describe('E2B Sandbox Lifecycle', () => {
     const sandbox = await createSandbox(process.env.E2B_API_KEY!);
     tracker.track(sandbox.sandboxId);
 
-    const result = await sandbox.runCode('import os; print(os.environ.get("HOME"))');
-    expect(result.success).toBe(true);
-    expect(result.text).toContain('/home/user');
-
-    await sandbox.kill();
-    tracker.untrack(sandbox.sandboxId);
+    try {
+      const result = await sandbox.runCode('import os; print(os.environ.get("HOME"))');
+      expect(result.success).toBe(true);
+      expect(result.logs.stdout.join('\n')).toContain('/home/user');
+    } finally {
+      await sandbox.kill();
+      tracker.untrack(sandbox.sandboxId);
+    }
   }, { timeout: TEST_TIMEOUT_MS });
 
   // E2B-03: Cleanup runs after execution completes
@@ -57,12 +66,19 @@ describe('E2B Sandbox Lifecycle', () => {
     const sandbox = await createSandbox(process.env.E2B_API_KEY!);
     tracker.track(sandbox.sandboxId);
 
-    await sandbox.runCode('print("success")');
-    await sandbox.kill();
-    tracker.untrack(sandbox.sandboxId);
+    try {
+      await sandbox.runCode('print("success")');
+      await sandbox.kill();
+      tracker.untrack(sandbox.sandboxId);
 
-    // Verify sandbox is killed (subsequent operations should fail)
-    await expect(sandbox.runCode('print("test")')).rejects.toThrow();
+      // Verify sandbox is killed (subsequent operations should fail)
+      await expect(sandbox.runCode('print("test")')).rejects.toThrow();
+    } catch (error) {
+      // Clean up on assertion failure
+      await sandbox.kill().catch(() => {});
+      tracker.untrack(sandbox.sandboxId);
+      throw error;
+    }
   }, { timeout: TEST_TIMEOUT_MS });
 
   // E2B-04: Cleanup runs on failure
@@ -70,12 +86,14 @@ describe('E2B Sandbox Lifecycle', () => {
     const sandbox = await createSandbox(process.env.E2B_API_KEY!);
     tracker.track(sandbox.sandboxId);
 
-    const result = await sandbox.runCode('raise ValueError("test error")');
-    expect(result.success).toBe(false);
-    expect(result.error?.name).toBe('ValueError');
-
-    await sandbox.kill();
-    tracker.untrack(sandbox.sandboxId);
+    try {
+      const result = await sandbox.runCode('raise ValueError("test error")');
+      expect(result.success).toBe(false);
+      expect(result.error?.name).toBe('ValueError');
+    } finally {
+      await sandbox.kill();
+      tracker.untrack(sandbox.sandboxId);
+    }
   }, { timeout: TEST_TIMEOUT_MS });
 
   // E2B-05: Timeout enforcement
@@ -83,12 +101,14 @@ describe('E2B Sandbox Lifecycle', () => {
     const sandbox = await createSandbox(process.env.E2B_API_KEY!);
     tracker.track(sandbox.sandboxId);
 
-    const result = await sandbox.runCode('while True: pass', { timeoutMs: 5000 });
-    expect(result.success).toBe(false);
-    expect(result.error?.isTimeout).toBe(true);
-
-    await sandbox.kill();
-    tracker.untrack(sandbox.sandboxId);
+    try {
+      const result = await sandbox.runCode('while True: pass', { timeoutMs: 5000 });
+      expect(result.success).toBe(false);
+      expect(result.error?.isTimeout).toBe(true);
+    } finally {
+      await sandbox.kill();
+      tracker.untrack(sandbox.sandboxId);
+    }
   }, { timeout: TEST_TIMEOUT_MS });
 
   // E2B-06: Full lifecycle verification
@@ -96,17 +116,24 @@ describe('E2B Sandbox Lifecycle', () => {
     const sandbox = await createSandbox(process.env.E2B_API_KEY!);
     tracker.track(sandbox.sandboxId);
 
-    const sandboxId = sandbox.sandboxId;
-    expect(sandboxId).toBeTruthy();
+    try {
+      const sandboxId = sandbox.sandboxId;
+      expect(sandboxId).toBeTruthy();
 
-    const result = await sandbox.runCode('x = 42; print(x)');
-    expect(result.success).toBe(true);
-    expect(result.text).toContain('42');
+      const result = await sandbox.runCode('x = 42; print(x)');
+      expect(result.success).toBe(true);
+      expect(result.logs.stdout.join('\n')).toContain('42');
 
-    await sandbox.kill();
-    tracker.untrack(sandbox.sandboxId);
+      await sandbox.kill();
+      tracker.untrack(sandbox.sandboxId);
 
-    await expect(sandbox.runCode('print(x)')).rejects.toThrow();
+      await expect(sandbox.runCode('print(x)')).rejects.toThrow();
+    } catch (error) {
+      // Clean up on assertion failure
+      await sandbox.kill().catch(() => {});
+      tracker.untrack(sandbox.sandboxId);
+      throw error;
+    }
   }, { timeout: TEST_TIMEOUT_MS });
 
   // E2B-07: No orphaned sandboxes after 100 runs
@@ -118,9 +145,12 @@ describe('E2B Sandbox Lifecycle', () => {
       tracker.track(sandbox.sandboxId);
       sandboxIds.push(sandbox.sandboxId);
 
-      await sandbox.runCode(`print("Run ${i}")`);
-      await sandbox.kill();
-      tracker.untrack(sandbox.sandboxId);
+      try {
+        await sandbox.runCode(`print("Run ${i}")`);
+      } finally {
+        await sandbox.kill();
+        tracker.untrack(sandbox.sandboxId);
+      }
     }
 
     expect(sandboxIds).toHaveLength(100);
@@ -155,7 +185,8 @@ describe('E2B Sandbox Lifecycle', () => {
     const sandbox = await createSandbox(process.env.E2B_API_KEY!);
     tracker.track(sandbox.sandboxId);
 
-    const code = `
+    try {
+      const code = `
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -171,14 +202,15 @@ plt.grid(True)
 plt.show()
 `;
 
-    const result = await sandbox.runCode(code);
-    expect(result.success).toBe(true);
-    expect(result.visualizations).toBeDefined();
-    expect(result.visualizations!.length).toBeGreaterThan(0);
-    expect(result.visualizations![0].png).toBeTruthy();
-    expect(result.visualizations![0].png?.startsWith('iVBORw0KGgo')).toBe(true); // PNG header
-
-    await sandbox.kill();
-    tracker.untrack(sandbox.sandboxId);
+      const result = await sandbox.runCode(code);
+      expect(result.success).toBe(true);
+      expect(result.visualizations).toBeDefined();
+      expect(result.visualizations!.length).toBeGreaterThan(0);
+      expect(result.visualizations![0].png).toBeTruthy();
+      expect(result.visualizations![0].png?.startsWith('iVBORw0KGgo')).toBe(true); // PNG header
+    } finally {
+      await sandbox.kill();
+      tracker.untrack(sandbox.sandboxId);
+    }
   }, { timeout: TEST_TIMEOUT_MS });
 });
