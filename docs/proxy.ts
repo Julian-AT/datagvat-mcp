@@ -8,6 +8,25 @@ const { rewrite: rewriteLLM } = rewritePath('/docs{/*path}', '/llms.mdx/docs{/*p
 const i18nMiddleware = createI18nMiddleware(i18n);
 
 export default function proxy(request: NextRequest, event?: unknown) {
+  const pathname = request.nextUrl.pathname;
+  
+  if (pathname.startsWith("/api")) {
+    return NextResponse.next();
+  }
+  
+  const isChatRoute = pathname.includes("/chat");
+  const isLoginRegister = pathname.includes("/login") || pathname.includes("/register");
+  
+  if (isChatRoute && !isLoginRegister) {
+    const sessionCookie = request.cookies.get("better-auth.session_token");
+    
+    if (!sessionCookie) {
+      const guestUrl = new URL("/api/auth/guest", request.url);
+      guestUrl.searchParams.set("redirectUrl", pathname);
+      return NextResponse.redirect(guestUrl);
+    }
+  }
+  
   if (isMarkdownPreferred(request)) {
     const result = rewriteLLM(request.nextUrl.pathname);
     if (result) {
@@ -19,5 +38,5 @@ export default function proxy(request: NextRequest, event?: unknown) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|logo.svg).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|logo.svg).*)'],
 };

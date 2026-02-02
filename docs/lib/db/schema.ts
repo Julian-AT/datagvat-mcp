@@ -47,6 +47,7 @@ export const account = pgTable("Account", {
   accountId: text("accountId").notNull(),
   providerId: text("providerId").notNull(),
   accessToken: text("accessToken"),
+  password: text("password"),
   refreshToken: text("refreshToken"),
   idToken: text("idToken"),
   accessTokenExpiresAt: timestamp("accessTokenExpiresAt"),

@@ -294,23 +294,29 @@ export async function saveDocument({
   content,
   userId,
 }: {
-  id: string;
+  id?: string;
   title: string;
   kind: ArtifactKind;
   content: string;
   userId: string;
 }) {
   try {
+    const values: any = {
+      title,
+      kind,
+      content,
+      userId,
+    };
+    
+    // Only include id if provided (for updates), otherwise let DB generate
+    if (id) {
+      values.id = id;
+      values.createdAt = new Date();
+    }
+    
     return await db
       .insert(document)
-      .values({
-        id,
-        title,
-        kind,
-        content,
-        userId,
-        createdAt: new Date(),
-      })
+      .values(values)
       .returning();
   } catch (_error) {
     throw new ChatSDKError("bad_request:database", "Failed to save document");

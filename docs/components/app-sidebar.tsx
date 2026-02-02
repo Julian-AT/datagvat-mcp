@@ -84,7 +84,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
               <div className="flex flex-row gap-1">
                 {user && (
                   <Tooltip>
-                    <TooltipTrigger asChild>
+                    <TooltipTrigger>
                       <Button
                         className="h-8 p-1 md:h-fit md:p-2"
                         onClick={() => setShowDeleteAllDialog(true)}
@@ -100,7 +100,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                   </Tooltip>
                 )}
                 <Tooltip>
-                  <TooltipTrigger asChild>
+                  <TooltipTrigger>
                     <Button
                       className="h-8 p-1 md:h-fit md:p-2"
                       onClick={() => {

@@ -49,7 +49,7 @@ function PureArtifactActions({
     <div className="flex flex-row gap-1">
       {artifactDefinition.actions.map((action) => (
         <Tooltip key={action.description}>
-          <TooltipTrigger asChild>
+          <TooltipTrigger>
             <Button
               className={cn("h-fit dark:hover:bg-zinc-700", {
                 "p-2": !action.label,
