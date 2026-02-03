@@ -235,3 +235,23 @@ export const toolApproval = pgTable('ToolApproval', {
 });
 
 export type ToolApproval = InferSelectModel<typeof toolApproval>;
+
+export const sandboxState = pgTable('SandboxState', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  sandboxId: varchar('sandboxId', { length: 255 }).notNull().unique(),
+  messageId: uuid('messageId')
+    .notNull()
+    .references(() => message.id, { onDelete: 'cascade' }),
+  chatId: uuid('chatId')
+    .notNull()
+    .references(() => chat.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  code: text('code').notNull(),
+  outputs: json('outputs'), // Array of {type: 'stdout'|'stderr'|'visualization', content: string, timestamp: ISO}
+  hasApprovedOnce: boolean('hasApprovedOnce').default(false),
+  e2bSandboxId: varchar('e2bSandboxId', { length: 255 }), // For sandbox reuse
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+});
+
+export type SandboxState = InferSelectModel<typeof sandboxState>;
