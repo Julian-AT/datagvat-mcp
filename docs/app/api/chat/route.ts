@@ -35,6 +35,7 @@ import { type PostRequestBody, postRequestBodySchema } from './schema';
 import { createDocument } from '@/lib/ai/tools/create-document';
 import { updateDocument } from '@/lib/ai/tools/update-document';
 import { requestSuggestions } from '@/lib/ai/tools/request-suggestions';
+import { openSandbox } from '@/lib/ai/tools/open-sandbox';
 
 export const maxDuration = 60;
 
@@ -155,12 +156,6 @@ export async function POST(request: Request) {
           system: systemPrompt({ selectedChatModel, requestHints }),
           messages: modelMessages,
           stopWhen: stepCountIs(20),
-          experimental_activeTools: isReasoningModel ? [] : Object.keys({
-            ...tools,
-            createDocument: createDocument({ session, dataStream }),
-            updateDocument: updateDocument({ session, dataStream }),
-            requestSuggestions: requestSuggestions({ session, dataStream }),
-          }),
           providerOptions: isReasoningModel
             ? {
                 anthropic: {
@@ -173,16 +168,7 @@ export async function POST(request: Request) {
             createDocument: createDocument({ session, dataStream }),
             updateDocument: updateDocument({ session, dataStream }),
             requestSuggestions: requestSuggestions({ session, dataStream }),
-          },
-          onToolApprovalRequest: ({ toolName, toolCallId, input }) => {
-            console.log('[DEBUG] onToolApprovalRequest triggered:', {
-              toolName,
-              toolCallId,
-              hasInput: !!input,
-            });
-            // Return undefined to use AI SDK's default approval flow
-            // The UI will handle approval via addToolApprovalResponse
-            return undefined;
+            openSandbox: openSandbox({ session, dataStream }),
           },
           experimental_telemetry: {
             isEnabled: isProductionEnvironment,
@@ -200,13 +186,9 @@ export async function POST(request: Request) {
       },
       generateId: generateUUID,
       onFinish: async ({ messages: finishedMessages }) => {
-        // Filter approval states to prevent replay attacks
-        // CRITICAL: This filter must run BEFORE the branch logic that determines
-        // whether to call updateMessage (tool approval flow) or saveMessages (regular flow)
         const messagesToSave = finishedMessages.map((msg) => ({
           ...msg,
           parts: msg.parts.filter((part) => {
-            // Remove approval-related states - these should NEVER persist
             if ('state' in part) {
               const approvalStates = ['approval-requested', 'approval-responded'];
               return !approvalStates.includes(part.state as string);
@@ -215,7 +197,6 @@ export async function POST(request: Request) {
           }),
         }));
 
-        // Branch logic: use messagesToSave (not finishedMessages) in BOTH branches
         if (isToolApprovalFlow) {
           for (const cleanedMsg of messagesToSave) {
             const existingMsg = uiMessages.find((m) => m.id === cleanedMsg.id);
