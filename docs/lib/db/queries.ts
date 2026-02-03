@@ -14,6 +14,7 @@ import {
   type DBMessage,
   document,
   message,
+  sandboxState,
   type Suggestion,
   stream,
   suggestion,
@@ -517,4 +518,73 @@ export async function validateToolApproval(
   }
 
   return { valid: true };
+}
+
+export async function saveSandboxState({
+  sandboxId,
+  messageId,
+  chatId,
+  title,
+  code,
+  outputs,
+  hasApprovedOnce,
+  e2bSandboxId,
+}: {
+  sandboxId: string;
+  messageId: string;
+  chatId: string;
+  title: string;
+  code: string;
+  outputs?: unknown;
+  hasApprovedOnce?: boolean;
+  e2bSandboxId?: string;
+}) {
+  try {
+    return await db
+      .insert(sandboxState)
+      .values({
+        sandboxId,
+        messageId,
+        chatId,
+        title,
+        code,
+        outputs,
+        hasApprovedOnce,
+        e2bSandboxId,
+      })
+      .onConflictDoUpdate({
+        target: sandboxState.sandboxId,
+        set: {
+          code,
+          outputs,
+          hasApprovedOnce,
+          e2bSandboxId,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+  } catch (_error) {
+    throw new ChatSDKError('bad_request:database', 'Failed to save sandbox state');
+  }
+}
+
+export async function getSandboxState(sandboxId: string) {
+  try {
+    return await db.query.sandboxState.findFirst({
+      where: eq(sandboxState.sandboxId, sandboxId),
+    });
+  } catch (_error) {
+    throw new ChatSDKError('bad_request:database', 'Failed to get sandbox state');
+  }
+}
+
+export async function getSandboxStatesByChat(chatId: string) {
+  try {
+    return await db.query.sandboxState.findMany({
+      where: eq(sandboxState.chatId, chatId),
+      orderBy: [desc(sandboxState.createdAt)],
+    });
+  } catch (_error) {
+    throw new ChatSDKError('bad_request:database', 'Failed to get sandbox states by chat');
+  }
 }
