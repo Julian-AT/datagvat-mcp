@@ -71,6 +71,20 @@ export const ToolHeader = ({ className, type, state, ...props }: ToolHeaderProps
   </CollapsibleTrigger>
 );
 
+export type ToolApprovalContentProps = {
+  className?: string;
+  children: ReactNode;
+};
+
+export const ToolApprovalContent = ({ className, children, ...props }: ToolApprovalContentProps) => (
+  <div
+    className={cn('space-y-4 border-t bg-muted/30 p-4', className)}
+    {...props}
+  >
+    {children}
+  </div>
+);
+
 export type ToolContentProps = ComponentProps<typeof CollapsibleContent>;
 
 export const ToolContent = ({ className, ...props }: ToolContentProps) => (
