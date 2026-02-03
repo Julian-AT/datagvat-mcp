@@ -46,3 +46,20 @@ export async function uploadImageFromBase64(
 
   return uploadImage(file, chatId);
 }
+
+/**
+ * Upload HTML content to Vercel Blob storage.
+ * Used for interactive visualizations (plotly, bokeh) from E2B sandbox.
+ *
+ * @param htmlContent - Raw HTML string content
+ * @param filename - Name for the file (e.g., "sandbox-viz-123456789.html")
+ * @param chatId - Chat ID for organizing blob storage
+ * @returns Public URL of the uploaded HTML file
+ */
+export async function uploadHtml(
+  htmlContent: string,
+  filename: string,
+  chatId: string
+): Promise<string> {
+  return uploadVisualization(htmlContent, filename, chatId, 'text/html');
+}

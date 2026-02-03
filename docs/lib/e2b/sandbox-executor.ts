@@ -1,5 +1,5 @@
 import { Sandbox } from '@e2b/code-interpreter';
-import { uploadImageFromBase64 } from '@/lib/blob';
+import { uploadImageFromBase64, uploadHtml } from '@/lib/blob';
 
 const DEFAULT_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour sandbox lifetime
 const EXECUTION_TIMEOUT_MS = 30 * 1000; // 30 second execution timeout (E2B-05 requirement)
@@ -159,6 +159,27 @@ export async function executeSandboxCode({
             onOutput?.({ type: 'visualization', content: url });
           } catch (uploadError) {
             console.error('Failed to upload SVG visualization:', uploadError);
+          }
+        }
+
+        // Upload HTML if present (interactive visualizations like plotly)
+        if (viz.html) {
+          try {
+            const url = await uploadHtml(
+              viz.html,
+              `sandbox-viz-${Date.now()}.html`,
+              chatId
+            );
+
+            const vizOutput = {
+              type: 'visualization' as const,
+              content: url,
+              timestamp: new Date().toISOString(),
+            };
+            outputs.push(vizOutput);
+            onOutput?.({ type: 'visualization', content: url });
+          } catch (uploadError) {
+            console.error('Failed to upload HTML visualization:', uploadError);
           }
         }
       }
