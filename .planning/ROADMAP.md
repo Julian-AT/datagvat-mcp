@@ -79,6 +79,41 @@ Plans:
 5. Developer can verify approval state persists in separate database table with timestamp validation
 
 **Progress:** 0/6 requirements complete
+**Status:** PAUSED - replaced by Phase 19.1
+
+---
+
+### Phase 19.1: Unified Sandbox Artifacts (INSERTED)
+
+**Goal:** Replace separate artifact (createDocument) and execution (execute-python) systems with a unified "sandbox artifact" paradigm where AI opens an interactive sandbox environment for all code-related work (like Lovable).
+
+**Dependencies:** Phase 18 (E2B infrastructure)
+
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:discuss-phase 19.1 then /gsd:plan-phase 19.1)
+
+**Requirements:**
+- SANDBOX-01: Single tool (openSandbox) replaces createDocument + execute-python for code
+- SANDBOX-02: Sandbox artifact displays code + execution state + output in one unified UI
+- SANDBOX-03: Code editing and execution happen within the sandbox artifact
+- SANDBOX-04: User approves execution before first run (approval integrated into sandbox UI)
+- SANDBOX-05: Visualizations render inline within sandbox artifact
+- SANDBOX-06: Sandbox artifacts persist in database like current documents
+- SANDBOX-07: AI decides when to open sandbox vs. regular chat response
+- SANDBOX-08: Legacy artifact types (text, sheet) remain for non-code content
+
+**Success Criteria:**
+
+1. User asks "run Python to calculate 2+2" → AI opens sandbox artifact with code + approval UI
+2. User approves → code executes → output displays in same artifact
+3. User asks "create a chart" → AI opens sandbox, writes code, shows visualization inline
+4. User can edit code in sandbox and re-run without AI intervention
+5. Sandbox state persists across page refresh
+
+**Progress:** 0/8 requirements complete
+**Reason for insertion:** Phase 19's approval flow doesn't work as designed - need architectural unification first
 
 ---
 
@@ -155,24 +190,25 @@ Plans:
 | Phase | Name | Requirements | Completed | Status |
 |-------|------|--------------|-----------|--------|
 | 18 | E2B Lifecycle Testing | 8 | 8 | Complete ✓ |
-| 19 | Tool Approval Flow | 6 | 0 | Pending |
+| 19 | Tool Approval Flow | 6 | 0 | Paused |
+| 19.1 | Unified Sandbox Artifacts | 8 | 0 | Active |
 | 20 | Visualization Rendering | 10 | 0 | Pending |
 | 21 | Chat UI Polish | 8 | 0 | Pending |
 
-**Total:** 32 requirements, 8 complete (25%)
+**Total:** 40 requirements (32 original + 8 inserted), 8 complete (20%)
 
 ## Dependency Chain
 
 ```
 Phase 18 (E2B Testing)
     ↓
-Phase 19 (Tool Approval) → Phase 20 (Visualization)
-    ↓                           ↓
-    └─────────→ Phase 21 (UI Polish) ←┘
+Phase 19.1 (Unified Sandbox Artifacts)
+    ↓
+Phase 20 (Visualization) → Phase 21 (UI Polish)
 ```
 
-**Critical path:** 18 → 19 → 20 → 21
-**Parallel opportunities:** Phase 20 and Phase 21 can overlap after Phase 19 completes
+**Critical path:** 18 → 19.1 → 20 → 21
+**Note:** Phase 19 (Tool Approval) paused - approval integrated into sandbox artifacts instead
 
 ## Next Steps
 

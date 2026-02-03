@@ -6,16 +6,16 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
 
-**Current focus:** Phase 19 - Tool Approval Flow
+**Current focus:** Phase 19.1 - Unified Sandbox Artifacts (URGENT INSERTION)
 
 ## Current Position
 
-Phase: 19 of 21 (In Progress)
-Plan: 19-03 (Complete)
-Status: Phase in progress
-Last activity: 2026-02-03 — Completed 19-03-PLAN.md (approval UI and validation)
+Phase: 19.1 of 21 (INSERTED - Not Started)
+Plan: None yet
+Status: Awaiting discussion and planning
+Last activity: 2026-02-03 — Phase 19.1 inserted after Phase 19 paused
 
-Progress: █████░░░░░░░░░░░░░░░ 31% (10/32 v2.3 requirements)
+Progress: ████░░░░░░░░░░░░░░░░ 20% (8/40 v2.3 requirements - updated with 8 new SANDBOX requirements)
 
 ## Performance Metrics
 
@@ -34,19 +34,28 @@ Progress: █████░░░░░░░░░░░░░░░ 31% (10/3
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 18 | 1/1 | 2.1 min | 2.1 min |
-| 19 | 2/4 | 4.6 min | 2.3 min |
+| 19 | 2/4 (PAUSED) | 4.6 min | 2.3 min |
+| 19.1 | 0 (INSERTED) | - | - |
 | 20 | 0 | - | - |
 | 21 | 0 | - | - |
 
 **Recent Trend:**
 - v2.2 completed: 21 plans, manual implementation via vercel/ai-chatbot architecture
 - v2.3 Phase 18: E2B testing complete (9 tests passing, 0 orphaned sandboxes)
-- v2.3 Phase 19: Tool approval infrastructure (needsApproval flag, CodePreview, validation functions, ToolApproval UI)
-- Trend: Fast execution (avg 2.3 min), clean implementation following research patterns
+- v2.3 Phase 19: Partial implementation (plans 01-03 complete, 04 paused due to architectural issues)
+- **2026-02-03: Phase 19.1 INSERTED** — Unified Sandbox Artifacts to replace separate artifact/execution systems
+- Trend: Architectural pivot needed - approval flow not working as designed
 
-*Updated after Plan 19-03 completion*
+*Updated after Phase 19.1 insertion*
 
 ## Accumulated Context
+
+### Roadmap Evolution
+
+- **2026-02-03**: Phase 19.1 inserted after Phase 19 (URGENT ARCHITECTURAL CHANGE)
+  - Reason: Tool approval flow (Phase 19) fundamentally broken - AI not calling execute-python tool
+  - Solution: Unify artifacts + sandboxes into single paradigm (like Lovable)
+  - Impact: Phase 19 paused, Phase 20-21 dependencies updated
 
 ### Decisions
 
