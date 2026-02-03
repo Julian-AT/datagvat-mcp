@@ -10,6 +10,7 @@ import { imageArtifact } from '@/artifacts/image/client';
 import { sheetArtifact } from '@/artifacts/sheet/client';
 import { textArtifact } from '@/artifacts/text/client';
 import { useArtifact } from '@/hooks/use-artifact';
+import { useSandboxes } from '@/hooks/use-sandbox';
 import type { Document, Vote } from '@/lib/db/schema';
 import type { Attachment, ChatMessage } from '@/lib/types';
 import { fetcher } from '@/lib/utils';
@@ -17,13 +18,14 @@ import { ArtifactActions } from './artifact-actions';
 import { ArtifactCloseButton } from './artifact-close-button';
 import { ArtifactMessages } from './artifact-messages';
 import { MultimodalInput } from './multimodal-input';
+import { SandboxArtifact } from './sandbox-artifact';
 import { Toolbar } from './toolbar';
 import { useSidebar } from './ui/sidebar';
 import { VersionFooter } from './version-footer';
 import type { VisibilityType } from './visibility-selector';
 
 export const artifactDefinitions = [textArtifact, codeArtifact, imageArtifact, sheetArtifact];
-export type ArtifactKind = (typeof artifactDefinitions)[number]['kind'];
+export type ArtifactKind = (typeof artifactDefinitions)[number]['kind'] | 'sandbox';
 
 export type UIArtifact = {
   title: string;
@@ -227,6 +229,189 @@ function PureArtifact({
 
   const { width: windowWidth, height: windowHeight } = useWindowSize();
   const isMobile = windowWidth ? windowWidth < 768 : false;
+
+  // Access sandbox state for sandbox artifacts
+  const { activeSandbox } = useSandboxes();
+
+  // Handle sandbox artifact separately - it uses a completely different rendering paradigm
+  // Sandbox artifacts don't use document versioning, they use the useSandboxes hook
+  if (artifact.kind === 'sandbox') {
+    return (
+      <AnimatePresence>
+        {artifact.isVisible && (
+          <motion.div
+            animate={{ opacity: 1 }}
+            className="fixed top-0 left-0 z-50 flex h-dvh w-dvw flex-row bg-transparent"
+            data-testid="artifact"
+            exit={{ opacity: 0, transition: { delay: 0.4 } }}
+            initial={{ opacity: 1 }}
+          >
+            {!isMobile && (
+              <motion.div
+                animate={{ width: windowWidth, right: 0 }}
+                className="fixed h-dvh bg-background"
+                exit={{
+                  width: isSidebarOpen ? windowWidth - 256 : windowWidth,
+                  right: 0,
+                }}
+                initial={{
+                  width: isSidebarOpen ? windowWidth - 256 : windowWidth,
+                  right: 0,
+                }}
+              />
+            )}
+
+            {!isMobile && (
+              <motion.div
+                animate={{
+                  opacity: 1,
+                  x: 0,
+                  scale: 1,
+                  transition: {
+                    delay: 0.1,
+                    type: 'spring',
+                    stiffness: 300,
+                    damping: 30,
+                  },
+                }}
+                className="relative h-dvh w-[400px] shrink-0 bg-muted dark:bg-background"
+                exit={{
+                  opacity: 0,
+                  x: 0,
+                  scale: 1,
+                  transition: { duration: 0 },
+                }}
+                initial={{ opacity: 0, x: 10, scale: 1 }}
+              >
+                <div className="flex h-full flex-col items-center justify-between">
+                  <ArtifactMessages
+                    addToolApprovalResponse={addToolApprovalResponse}
+                    artifactStatus={artifact.status}
+                    chatId={chatId}
+                    isReadonly={isReadonly}
+                    messages={messages}
+                    regenerate={regenerate}
+                    setMessages={setMessages}
+                    status={status}
+                    votes={votes}
+                  />
+
+                  <div className="relative flex w-full flex-row items-end gap-2 px-4 pb-4">
+                    <MultimodalInput
+                      attachments={attachments}
+                      chatId={chatId}
+                      className="bg-background dark:bg-muted"
+                      input={input}
+                      messages={messages}
+                      selectedModelId={selectedModelId}
+                      selectedVisibilityType={selectedVisibilityType}
+                      sendMessage={sendMessage}
+                      setAttachments={setAttachments}
+                      setInput={setInput}
+                      setMessages={setMessages}
+                      status={status}
+                      stop={stop}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            <motion.div
+              animate={
+                isMobile
+                  ? {
+                      opacity: 1,
+                      x: 0,
+                      y: 0,
+                      height: windowHeight,
+                      width: windowWidth ? windowWidth : 'calc(100dvw)',
+                      borderRadius: 0,
+                      transition: {
+                        delay: 0,
+                        type: 'spring',
+                        stiffness: 300,
+                        damping: 30,
+                        duration: 0.8,
+                      },
+                    }
+                  : {
+                      opacity: 1,
+                      x: 400,
+                      y: 0,
+                      height: windowHeight,
+                      width: windowWidth ? windowWidth - 400 : 'calc(100dvw-400px)',
+                      borderRadius: 0,
+                      transition: {
+                        delay: 0,
+                        type: 'spring',
+                        stiffness: 300,
+                        damping: 30,
+                        duration: 0.8,
+                      },
+                    }
+              }
+              className="fixed flex h-dvh flex-col overflow-y-scroll border-zinc-200 bg-background md:border-l dark:border-zinc-700 dark:bg-muted"
+              exit={{
+                opacity: 0,
+                scale: 0.5,
+                transition: {
+                  delay: 0.1,
+                  type: 'spring',
+                  stiffness: 600,
+                  damping: 30,
+                },
+              }}
+              initial={
+                isMobile
+                  ? {
+                      opacity: 1,
+                      x: artifact.boundingBox.left,
+                      y: artifact.boundingBox.top,
+                      height: artifact.boundingBox.height,
+                      width: artifact.boundingBox.width,
+                      borderRadius: 50,
+                    }
+                  : {
+                      opacity: 1,
+                      x: artifact.boundingBox.left,
+                      y: artifact.boundingBox.top,
+                      height: artifact.boundingBox.height,
+                      width: artifact.boundingBox.width,
+                      borderRadius: 50,
+                    }
+              }
+            >
+              <div className="flex flex-row items-start justify-between p-2">
+                <div className="flex flex-row items-start gap-4">
+                  <ArtifactCloseButton />
+
+                  <div className="flex flex-col">
+                    <div className="font-medium">{artifact.title || activeSandbox?.title || 'Python Sandbox'}</div>
+                    <div className="text-muted-foreground text-sm">Interactive Python environment</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="h-full max-w-full! items-center overflow-y-scroll bg-background p-4 dark:bg-muted">
+                {artifact.documentId && artifact.documentId !== 'init' ? (
+                  <SandboxArtifact
+                    sandboxId={artifact.documentId}
+                    chatId={chatId}
+                    messageId={messages.at(-1)?.id || ''}
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-muted-foreground">Loading sandbox...</div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  }
 
   const artifactDefinition = artifactDefinitions.find(
     (definition) => definition.kind === artifact.kind
