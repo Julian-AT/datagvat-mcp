@@ -134,7 +134,7 @@ export async function POST(request: Request) {
     const modelMessages = await convertToModelMessages(uiMessages);
 
     const tools = await getAvailableTools(id);
-
+    
     const stream = createUIMessageStream({
       originalMessages: isToolApprovalFlow ? uiMessages : undefined,
       execute: async ({ writer: dataStream }) => {
@@ -168,21 +168,37 @@ export async function POST(request: Request) {
       },
       generateId: generateUUID,
       onFinish: async ({ messages: finishedMessages }) => {
+        // Filter approval states to prevent replay attacks
+        // CRITICAL: This filter must run BEFORE the branch logic that determines
+        // whether to call updateMessage (tool approval flow) or saveMessages (regular flow)
+        const messagesToSave = finishedMessages.map((msg) => ({
+          ...msg,
+          parts: msg.parts.filter((part) => {
+            // Remove approval-related states - these should NEVER persist
+            if ('state' in part) {
+              const approvalStates = ['approval-requested', 'approval-responded'];
+              return !approvalStates.includes(part.state as string);
+            }
+            return true;
+          }),
+        }));
+
+        // Branch logic: use messagesToSave (not finishedMessages) in BOTH branches
         if (isToolApprovalFlow) {
-          for (const finishedMsg of finishedMessages) {
-            const existingMsg = uiMessages.find((m) => m.id === finishedMsg.id);
+          for (const cleanedMsg of messagesToSave) {
+            const existingMsg = uiMessages.find((m) => m.id === cleanedMsg.id);
             if (existingMsg) {
               await updateMessage({
-                id: finishedMsg.id,
-                parts: finishedMsg.parts,
+                id: cleanedMsg.id,
+                parts: cleanedMsg.parts,
               });
             } else {
               await saveMessages({
                 messages: [
                   {
-                    id: finishedMsg.id,
-                    role: finishedMsg.role,
-                    parts: finishedMsg.parts,
+                    id: cleanedMsg.id,
+                    role: cleanedMsg.role,
+                    parts: cleanedMsg.parts,
                     createdAt: new Date(),
                     attachments: [],
                     chatId: id,
@@ -191,9 +207,9 @@ export async function POST(request: Request) {
               });
             }
           }
-        } else if (finishedMessages.length > 0) {
+        } else if (messagesToSave.length > 0) {
           await saveMessages({
-            messages: finishedMessages.map((currentMessage) => ({
+            messages: messagesToSave.map((currentMessage) => ({
               id: currentMessage.id,
               role: currentMessage.role,
               parts: currentMessage.parts,
