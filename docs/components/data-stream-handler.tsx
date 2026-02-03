@@ -18,10 +18,11 @@ export function DataStreamHandler() {
 
   // Track sandbox being built from stream events
   const pendingSandboxRef = useRef<{
+    isBuilding: boolean;
     sandboxId: string | null;
     title: string | null;
     code: string | null;
-  }>({ sandboxId: null, title: null, code: null });
+  }>({ isBuilding: false, sandboxId: null, title: null, code: null });
 
   useEffect(() => {
     if (!dataStream?.length) {
@@ -29,6 +30,7 @@ export function DataStreamHandler() {
     }
 
     const newDeltas = dataStream.slice();
+    console.log('[DataStreamHandler] Processing', newDeltas.length, 'deltas:', newDeltas.map(d => d.type));
     setDataStream([]);
 
     for (const delta of newDeltas) {
@@ -41,8 +43,9 @@ export function DataStreamHandler() {
       // Handle sandbox events specially - sandbox uses useSandboxes, not useArtifact
       // Sandbox streams: data-kind='sandbox', data-id, data-title, data-code (optional), data-finish
       if (delta.type === 'data-kind' && delta.data === 'sandbox') {
+        console.log('[DataStreamHandler] Sandbox data-kind event detected - STARTING BUILD');
         // Start collecting sandbox data
-        pendingSandboxRef.current = { sandboxId: null, title: null, code: null };
+        pendingSandboxRef.current = { isBuilding: true, sandboxId: null, title: null, code: null };
         // Also set artifact kind so artifact.tsx knows to render sandbox
         setArtifact((draftArtifact) => ({
           ...(draftArtifact || initialArtifactData),
@@ -54,12 +57,11 @@ export function DataStreamHandler() {
       }
 
       // Collect sandbox data from subsequent events
-      if (artifact.kind === 'sandbox' || pendingSandboxRef.current.sandboxId !== null || delta.type === 'data-id') {
-        // Check if we're building a sandbox (kind was set to sandbox)
-        const isBuildingSandbox = artifact.kind === 'sandbox' ||
-          (pendingSandboxRef.current.sandboxId !== null);
+      if (pendingSandboxRef.current.isBuilding) {
+        console.log('[DataStreamHandler] Processing sandbox event:', delta.type);
 
-        if (delta.type === 'data-id' && (isBuildingSandbox || artifact.kind === 'sandbox')) {
+        if (delta.type === 'data-id') {
+          console.log('[DataStreamHandler] Sandbox data-id received:', delta.data);
           pendingSandboxRef.current.sandboxId = delta.data;
           setArtifact((draftArtifact) => ({
             ...(draftArtifact || initialArtifactData),
@@ -69,7 +71,7 @@ export function DataStreamHandler() {
           continue;
         }
 
-        if (delta.type === 'data-title' && isBuildingSandbox) {
+        if (delta.type === 'data-title') {
           pendingSandboxRef.current.title = delta.data;
           setArtifact((draftArtifact) => ({
             ...(draftArtifact || initialArtifactData),
@@ -79,18 +81,18 @@ export function DataStreamHandler() {
           continue;
         }
 
-        if (delta.type === 'data-code' && isBuildingSandbox) {
+        if (delta.type === 'data-code') {
           pendingSandboxRef.current.code = delta.data;
           continue;
         }
 
-        if (delta.type === 'data-clear' && isBuildingSandbox) {
-          // For sandbox, data-clear means reset code
+        if (delta.type === 'data-clear') {
           pendingSandboxRef.current.code = '';
           continue;
         }
 
-        if (delta.type === 'data-finish' && isBuildingSandbox && pendingSandboxRef.current.sandboxId) {
+        if (delta.type === 'data-finish' && pendingSandboxRef.current.sandboxId) {
+          console.log('[DataStreamHandler] data-finish received, creating sandbox:', pendingSandboxRef.current.sandboxId);
           // Finalize sandbox - open it via useSandboxes
           const newSandbox: UISandbox = {
             sandboxId: pendingSandboxRef.current.sandboxId,
@@ -102,10 +104,11 @@ export function DataStreamHandler() {
             activeTab: 'code',
             showApproval: false,
           };
+          console.log('[DataStreamHandler] Calling openSandbox with:', newSandbox.sandboxId);
           openSandbox(newSandbox);
 
           // Reset pending sandbox
-          pendingSandboxRef.current = { sandboxId: null, title: null, code: null };
+          pendingSandboxRef.current = { isBuilding: false, sandboxId: null, title: null, code: null };
 
           // Set artifact status to idle
           setArtifact((draftArtifact) => ({
@@ -114,6 +117,8 @@ export function DataStreamHandler() {
           }));
           continue;
         }
+
+        // Continue to handle other events
       }
 
       // Handle non-sandbox artifact events

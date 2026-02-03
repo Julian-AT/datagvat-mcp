@@ -78,6 +78,7 @@ function PureArtifact({
   selectedModelId: string;
 }) {
   const { artifact, setArtifact, metadata, setMetadata } = useArtifact();
+  console.log('[Artifact] Render - kind:', artifact.kind, 'isVisible:', artifact.isVisible, 'documentId:', artifact.documentId);
 
   const {
     data: documents,
@@ -233,9 +234,25 @@ function PureArtifact({
   // Access sandbox state for sandbox artifacts
   const { activeSandbox } = useSandboxes();
 
+  // Get artifact definition (undefined for sandbox since it's not in artifactDefinitions)
+  const artifactDefinition = artifactDefinitions.find(
+    (definition) => definition.kind === artifact.kind
+  );
+
+  // Initialize non-sandbox artifacts
+  useEffect(() => {
+    if (artifact.documentId !== 'init' && artifactDefinition?.initialize) {
+      artifactDefinition.initialize({
+        documentId: artifact.documentId,
+        setMetadata,
+      });
+    }
+  }, [artifact.documentId, artifactDefinition, setMetadata]);
+
   // Handle sandbox artifact separately - it uses a completely different rendering paradigm
   // Sandbox artifacts don't use document versioning, they use the useSandboxes hook
   if (artifact.kind === 'sandbox') {
+    console.log('[Artifact] Rendering SANDBOX artifact with documentId:', artifact.documentId);
     return (
       <AnimatePresence>
         {artifact.isVisible && (
@@ -394,17 +411,20 @@ function PureArtifact({
               </div>
 
               <div className="h-full max-w-full! items-center overflow-y-scroll bg-background p-4 dark:bg-muted">
-                {artifact.documentId && artifact.documentId !== 'init' ? (
-                  <SandboxArtifact
-                    sandboxId={artifact.documentId}
-                    chatId={chatId}
-                    messageId={messages.at(-1)?.id || ''}
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-muted-foreground">Loading sandbox...</div>
-                  </div>
-                )}
+                {(() => {
+                  console.log('[Artifact] Checking sandbox render condition - documentId:', artifact.documentId, 'valid:', !!(artifact.documentId && artifact.documentId !== 'init'));
+                  return artifact.documentId && artifact.documentId !== 'init' ? (
+                    <SandboxArtifact
+                      sandboxId={artifact.documentId}
+                      chatId={chatId}
+                      messageId={messages.at(-1)?.id || ''}
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-muted-foreground">Loading sandbox...</div>
+                    </div>
+                  );
+                })()}
               </div>
             </motion.div>
           </motion.div>
@@ -413,22 +433,9 @@ function PureArtifact({
     );
   }
 
-  const artifactDefinition = artifactDefinitions.find(
-    (definition) => definition.kind === artifact.kind
-  );
-
   if (!artifactDefinition) {
     throw new Error('Artifact definition not found!');
   }
-
-  useEffect(() => {
-    if (artifact.documentId !== 'init' && artifactDefinition.initialize) {
-      artifactDefinition.initialize({
-        documentId: artifact.documentId,
-        setMetadata,
-      });
-    }
-  }, [artifact.documentId, artifactDefinition, setMetadata]);
 
   return (
     <AnimatePresence>

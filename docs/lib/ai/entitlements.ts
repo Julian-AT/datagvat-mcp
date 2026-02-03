@@ -4,9 +4,9 @@ type Entitlements = {
 
 export const entitlementsByUserType: Record<string, Entitlements> = {
   guest: {
-    maxMessagesPerDay: 20,
+    maxMessagesPerDay: 100,
   },
   regular: {
-    maxMessagesPerDay: 50,
+    maxMessagesPerDay: 100,
   },
 };

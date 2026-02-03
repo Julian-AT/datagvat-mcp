@@ -1,7 +1,7 @@
 'use client';
 
 import * as Tabs from '@radix-ui/react-tabs';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useSandboxes, type UISandbox } from '@/hooks/use-sandbox';
 import { cn } from '@/lib/utils';
@@ -22,41 +22,79 @@ export function SandboxArtifact({
 }: SandboxArtifactProps) {
   const { sandboxes, updateSandbox, closeSandbox, openSandbox } = useSandboxes();
   const sandbox = sandboxes.find((s) => s.sandboxId === sandboxId);
+  console.log('[SandboxArtifact] Render - sandboxId:', sandboxId, 'found sandbox:', !!sandbox, 'total sandboxes:', sandboxes.length);
 
   const [activeTab, setActiveTab] = useState<'code' | 'output'>('code');
   const [isLoading, setIsLoading] = useState(!sandbox);
+  const initialSaveDone = useRef(false);
+
+  // Initial save to database when sandbox is first created locally
+  useEffect(() => {
+    console.log('[SandboxArtifact] initialSave effect - sandbox exists:', !!sandbox, 'initialSaveDone:', initialSaveDone.current);
+    if (sandbox && !initialSaveDone.current) {
+      initialSaveDone.current = true;
+      console.log('[SandboxArtifact] Saving initial sandbox state to DB:', sandboxId);
+      // Save initial sandbox state to database
+      fetch('/api/sandbox', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sandboxId,
+          messageId,
+          chatId,
+          title: sandbox.title || 'Sandbox',
+          code: sandbox.code || '',
+          outputs: sandbox.outputs,
+          hasApprovedOnce: sandbox.hasApprovedOnce,
+          e2bSandboxId: sandbox.e2bSandboxId,
+        }),
+      }).then(res => {
+        console.log('[SandboxArtifact] POST /api/sandbox response:', res.status);
+        if (!res.ok) {
+          console.error('[SandboxArtifact] POST failed, will retry on code change');
+          initialSaveDone.current = false; // Reset to retry later
+        }
+      }).catch(err => {
+        console.error('[SandboxArtifact] POST error:', err);
+        initialSaveDone.current = false; // Reset to retry later
+      });
+    }
+  }, [sandbox, sandboxId, chatId, messageId]);
 
   // Load sandbox state on mount (page refresh restoration)
   useEffect(() => {
-    if (!sandbox) {
-      setIsLoading(true);
-      // Fetch sandbox state from API for page refresh restoration
-      fetch(`/api/sandbox?sandboxId=${sandboxId}`)
-        .then((res) => res.ok ? res.json() : null)
-        .then((state) => {
-          if (state) {
-            // Restore sandbox from persisted state
-            const restoredSandbox: UISandbox = {
-              sandboxId,
-              title: state.title || 'Sandbox',
-              code: state.code || '',
-              outputs: (state.outputs as SandboxOutput[]) || [],
-              hasApprovedOnce: state.hasApprovedOnce || false,
-              e2bSandboxId: state.e2bSandboxId || undefined,
-              isRunning: false,
-              activeTab: 'code',
-              showApproval: false,
-            };
-            openSandbox(restoredSandbox);
-          }
-        })
-        .catch(() => {
-          // Silently fail - sandbox will show loading state
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
+    if (sandbox) {
+      setIsLoading(false);
+      return;
     }
+    
+    setIsLoading(true);
+    // Fetch sandbox state from API for page refresh restoration
+    fetch(`/api/sandbox?sandboxId=${sandboxId}`)
+      .then((res) => res.ok ? res.json() : null)
+      .then((state) => {
+        if (state) {
+          // Restore sandbox from persisted state
+          const restoredSandbox: UISandbox = {
+            sandboxId,
+            title: state.title || 'Sandbox',
+            code: state.code || '',
+            outputs: (state.outputs as SandboxOutput[]) || [],
+            hasApprovedOnce: state.hasApprovedOnce || false,
+            e2bSandboxId: state.e2bSandboxId || undefined,
+            isRunning: false,
+            activeTab: 'code',
+            showApproval: false,
+          };
+          openSandbox(restoredSandbox);
+        }
+      })
+      .catch(() => {
+        // Silently fail - sandbox will show loading state
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, [sandboxId, sandbox, openSandbox]);
 
   const handleCodeChange = useCallback(

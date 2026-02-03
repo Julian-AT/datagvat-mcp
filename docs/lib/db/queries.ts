@@ -569,11 +569,15 @@ export async function saveSandboxState({
 }
 
 export async function getSandboxState(sandboxId: string) {
+  console.log('[DB getSandboxState] Querying for sandboxId:', sandboxId);
   try {
-    return await db.query.sandboxState.findFirst({
+    const result = await db.query.sandboxState.findFirst({
       where: eq(sandboxState.sandboxId, sandboxId),
     });
-  } catch (_error) {
+    console.log('[DB getSandboxState] Query result:', result ? 'found' : 'not found');
+    return result;
+  } catch (error) {
+    console.error('[DB getSandboxState] Error:', error);
     throw new ChatSDKError('bad_request:database', 'Failed to get sandbox state');
   }
 }

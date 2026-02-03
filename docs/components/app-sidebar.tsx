@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { useSWRConfig } from 'swr';
-import { unstable_serialize } from 'swr/infinite';
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useSWRConfig } from "swr";
+import { unstable_serialize } from "swr/infinite";
 
 type User = {
   id: string;
@@ -14,10 +14,13 @@ type User = {
   image?: string | null;
 };
 
-import { PlusIcon, TrashIcon } from '@/components/icons';
-import { getChatHistoryPaginationKey, SidebarHistory } from '@/components/sidebar-history';
-import { SidebarUserNav } from '@/components/sidebar-user-nav';
-import { Button } from '@/components/ui/button';
+import { PlusIcon, TrashIcon } from "@/components/icons";
+import {
+  getChatHistoryPaginationKey,
+  SidebarHistory,
+} from "@/components/sidebar-history";
+import { SidebarUserNav } from "@/components/sidebar-user-nav";
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -25,7 +28,7 @@ import {
   SidebarHeader,
   SidebarMenu,
   useSidebar,
-} from '@/components/ui/sidebar';
+} from "@/components/ui/sidebar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,8 +38,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from './ui/alert-dialog';
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+} from "./ui/alert-dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export function AppSidebar({ user }: { user: User | undefined }) {
   const router = useRouter();
@@ -45,20 +48,20 @@ export function AppSidebar({ user }: { user: User | undefined }) {
   const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
 
   const handleDeleteAll = () => {
-    const deletePromise = fetch('/api/history', {
-      method: 'DELETE',
+    const deletePromise = fetch("/api/history", {
+      method: "DELETE",
     });
 
     toast.promise(deletePromise, {
-      loading: 'Deleting all chats...',
+      loading: "Deleting all chats...",
       success: () => {
         mutate(unstable_serialize(getChatHistoryPaginationKey));
         setShowDeleteAllDialog(false);
-        router.replace('/');
+        router.replace("/");
         router.refresh();
-        return 'All chats deleted successfully';
+        return "All chats deleted successfully";
       },
-      error: 'Failed to delete all chats',
+      error: "Failed to delete all chats",
     });
   };
 
@@ -103,7 +106,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                       className="h-8 p-1 md:h-fit md:p-2"
                       onClick={() => {
                         setOpenMobile(false);
-                        router.push('/');
+                        router.push("/chat");
                         router.refresh();
                       }}
                       type="button"
@@ -126,18 +129,23 @@ export function AppSidebar({ user }: { user: User | undefined }) {
         <SidebarFooter>{user && <SidebarUserNav user={user} />}</SidebarFooter>
       </Sidebar>
 
-      <AlertDialog onOpenChange={setShowDeleteAllDialog} open={showDeleteAllDialog}>
+      <AlertDialog
+        onOpenChange={setShowDeleteAllDialog}
+        open={showDeleteAllDialog}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete all chats?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete all your chats and remove
-              them from our servers.
+              This action cannot be undone. This will permanently delete all
+              your chats and remove them from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteAll}>Delete All</AlertDialogAction>
+            <AlertDialogAction onClick={handleDeleteAll}>
+              Delete All
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

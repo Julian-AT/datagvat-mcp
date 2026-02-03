@@ -28,6 +28,7 @@ export function useSandboxes() {
 
   const openSandbox = useCallback(
     (sandbox: UISandbox) => {
+      console.log('[useSandboxes] openSandbox called with:', sandbox.sandboxId);
       setSandboxes((current) => [...(current || []), sandbox]);
     },
     [setSandboxes]
