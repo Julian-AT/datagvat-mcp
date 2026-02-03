@@ -32,6 +32,9 @@ import { getAvailableTools } from '@/lib/mcp/aggregate-tools';
 import type { ChatMessage, UserType } from '@/lib/types';
 import { convertToUIMessages, generateUUID } from '@/lib/utils';
 import { type PostRequestBody, postRequestBodySchema } from './schema';
+import { createDocument } from '@/lib/ai/tools/create-document';
+import { updateDocument } from '@/lib/ai/tools/update-document';
+import { requestSuggestions } from '@/lib/ai/tools/request-suggestions';
 
 export const maxDuration = 60;
 
@@ -142,6 +145,8 @@ export async function POST(request: Request) {
       'property not found'
     );
 
+
+    
     const stream = createUIMessageStream({
       originalMessages: isToolApprovalFlow ? uiMessages : undefined,
       execute: async ({ writer: dataStream }) => {
@@ -150,7 +155,12 @@ export async function POST(request: Request) {
           system: systemPrompt({ selectedChatModel, requestHints }),
           messages: modelMessages,
           stopWhen: stepCountIs(20),
-          experimental_activeTools: isReasoningModel ? [] : Object.keys(tools),
+          experimental_activeTools: isReasoningModel ? [] : Object.keys({
+            ...tools,
+            createDocument: createDocument({ session, dataStream }),
+            updateDocument: updateDocument({ session, dataStream }),
+            requestSuggestions: requestSuggestions({ session, dataStream }),
+          }),
           providerOptions: isReasoningModel
             ? {
                 anthropic: {
@@ -158,7 +168,12 @@ export async function POST(request: Request) {
                 },
               }
             : undefined,
-          tools,
+          tools: {
+            ...tools,
+            createDocument: createDocument({ session, dataStream }),
+            updateDocument: updateDocument({ session, dataStream }),
+            requestSuggestions: requestSuggestions({ session, dataStream }),
+          },
           onToolApprovalRequest: ({ toolName, toolCallId, input }) => {
             console.log('[DEBUG] onToolApprovalRequest triggered:', {
               toolName,
