@@ -171,8 +171,20 @@ const PurePreviewMessage = ({
                 (state === 'approval-responded' && toolPart.approval?.approved === false);
               const widthClass = 'w-[min(100%,450px)]';
 
+              // DEBUG: Log tool calls to trace approval flow
+              console.log('[DEBUG] Dynamic tool detected:', {
+                toolName,
+                state,
+                toolCallId,
+                hasInput: !!toolPart.input,
+                inputKeys: toolPart.input ? Object.keys(toolPart.input as Record<string, unknown>) : [],
+                approvalId,
+              });
+
               // Handle execute-python approval flow BEFORE generic switch
               if (toolName === 'execute-python' && state === 'approval-requested') {
+                console.log('[DEBUG] Rendering ToolApproval component for execute-python');
+                console.log('[DEBUG] Input:', toolPart.input);
                 const input = toolPart.input as { code: string; files?: Array<{ path: string; content: string }> };
 
                 return (

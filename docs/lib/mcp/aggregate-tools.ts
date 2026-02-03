@@ -52,6 +52,10 @@ Use 'files' parameter for multi-file projects with proper directory structure.`,
           .describe('Working directory for imports (default: /home/user)'),
       }),
       execute: async ({ code, files, workingDirectory }) => {
+        console.log('[DEBUG] execute-python execute() called - THIS SHOULD ONLY HAPPEN AFTER APPROVAL');
+        console.log('[DEBUG] Code length:', code?.length || 0);
+        console.log('[DEBUG] Files count:', files?.length || 0);
+
         if (!chatId) {
           return {
             success: false,

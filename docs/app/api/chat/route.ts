@@ -134,7 +134,14 @@ export async function POST(request: Request) {
     const modelMessages = await convertToModelMessages(uiMessages);
 
     const tools = await getAvailableTools(id);
-    
+
+    console.log('[DEBUG] Available tools:', Object.keys(tools));
+    console.log('[DEBUG] execute-python has needsApproval:',
+      tools['execute-python']?.spec?.needsApproval ||
+      tools['execute-python']?.needsApproval ||
+      'property not found'
+    );
+
     const stream = createUIMessageStream({
       originalMessages: isToolApprovalFlow ? uiMessages : undefined,
       execute: async ({ writer: dataStream }) => {
@@ -142,7 +149,7 @@ export async function POST(request: Request) {
           model: getLanguageModel(selectedChatModel),
           system: systemPrompt({ selectedChatModel, requestHints }),
           messages: modelMessages,
-          stopWhen: stepCountIs(5),
+          stopWhen: stepCountIs(20),
           experimental_activeTools: isReasoningModel ? [] : Object.keys(tools),
           providerOptions: isReasoningModel
             ? {
@@ -152,6 +159,16 @@ export async function POST(request: Request) {
               }
             : undefined,
           tools,
+          onToolApprovalRequest: ({ toolName, toolCallId, input }) => {
+            console.log('[DEBUG] onToolApprovalRequest triggered:', {
+              toolName,
+              toolCallId,
+              hasInput: !!input,
+            });
+            // Return undefined to use AI SDK's default approval flow
+            // The UI will handle approval via addToolApprovalResponse
+            return undefined;
+          },
           experimental_telemetry: {
             isEnabled: isProductionEnvironment,
             functionId: 'stream-text',
