@@ -18,10 +18,13 @@ import { MessageEditor } from './message-editor';
 import { MessageReasoning } from './message-reasoning';
 import { PreviewAttachment } from './preview-attachment';
 import { Weather } from './weather';
+import { ToolApproval } from './tool-approval';
+import { saveToolApprovalAction } from '@/app/[lang]/(chat)/actions';
 
 const PurePreviewMessage = ({
   addToolApprovalResponse,
   chatId,
+  userId,
   message,
   vote,
   isLoading,
@@ -32,6 +35,7 @@ const PurePreviewMessage = ({
 }: {
   addToolApprovalResponse: UseChatHelpers<ChatMessage>['addToolApprovalResponse'];
   chatId: string;
+  userId: string;
   message: ChatMessage;
   vote: Vote | undefined;
   isLoading: boolean;
@@ -166,6 +170,99 @@ const PurePreviewMessage = ({
                 state === 'output-denied' ||
                 (state === 'approval-responded' && toolPart.approval?.approved === false);
               const widthClass = 'w-[min(100%,450px)]';
+
+              // Handle execute-python approval flow BEFORE generic switch
+              if (toolName === 'execute-python' && state === 'approval-requested') {
+                const input = toolPart.input as { code: string; files?: Array<{ path: string; content: string }> };
+
+                return (
+                  <ToolApproval
+                    key={toolCallId}
+                    toolCallId={toolCallId}
+                    toolName="execute-python"
+                    code={input.code}
+                    files={input.files}
+                    onApprove={async (toolCallId, approved, reason) => {
+                      // Persist approval to database
+                      await saveToolApprovalAction({
+                        toolCallId,
+                        chatId,
+                        userId,
+                        toolName: 'execute-python',
+                        approved,
+                        deniedReason: reason,
+                        code: input.code,
+                      });
+
+                      // Send approval response to AI SDK
+                      // When approved=false, AI SDK skips tool execution (no result generated)
+                      // Verify AI SDK behavior: https://sdk.vercel.ai/docs/ai-sdk-ui/tool-approval
+                      // The SDK's built-in approval flow handles execution prevention on denial
+                      addToolApprovalResponse({
+                        id: toolCallId,
+                        approved,
+                        reason,
+                      });
+                    }}
+                  />
+                );
+              }
+
+              // Handle execute-python approval-responded state
+              if (toolName === 'execute-python' && state === 'approval-responded') {
+                const isApproved = toolPart.approval?.approved === true;
+                return (
+                  <div className={widthClass} key={toolCallId}>
+                    <Tool className="w-full" defaultOpen={true}>
+                      <ToolHeader state={state as ToolUIPart['state']} type="tool-execute-python" />
+                      <ToolContent>
+                        <div className="px-4 py-3 text-muted-foreground text-sm">
+                          {isApproved ? 'Code approved - executing...' : 'Execution denied by user'}
+                        </div>
+                      </ToolContent>
+                    </Tool>
+                  </div>
+                );
+              }
+
+              // Handle execute-python output-denied state
+              if (toolName === 'execute-python' && isDenied) {
+                return (
+                  <div className={widthClass} key={toolCallId}>
+                    <Tool className="w-full" defaultOpen={true}>
+                      <ToolHeader state="output-denied" type="tool-execute-python" />
+                      <ToolContent>
+                        <div className="px-4 py-3 text-muted-foreground text-sm">
+                          Execution denied by user
+                        </div>
+                      </ToolContent>
+                    </Tool>
+                  </div>
+                );
+              }
+
+              // Handle execute-python output-available state
+              if (toolName === 'execute-python' && state === 'output-available') {
+                return (
+                  <div className={widthClass} key={toolCallId}>
+                    <Tool className="w-full" defaultOpen={true}>
+                      <ToolHeader state={state as ToolUIPart['state']} type="tool-execute-python" />
+                      <ToolContent>
+                        <ToolOutput
+                          errorText={toolPart.errorText}
+                          output={
+                            <pre className="overflow-auto rounded border p-2 text-sm">
+                              {typeof toolPart.output === 'object' && toolPart.output !== null
+                                ? JSON.stringify(toolPart.output, null, 2)
+                                : String(toolPart.output || '')}
+                            </pre>
+                          }
+                        />
+                      </ToolContent>
+                    </Tool>
+                  </div>
+                );
+              }
 
               switch (toolName) {
                 case 'getWeather': {

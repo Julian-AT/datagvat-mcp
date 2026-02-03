@@ -18,6 +18,7 @@ type MessagesProps = {
   isReadonly: boolean;
   isArtifactVisible: boolean;
   selectedModelId: string;
+  userId: string;
 };
 
 function PureMessages({
@@ -30,6 +31,7 @@ function PureMessages({
   regenerate,
   isReadonly,
   selectedModelId: _selectedModelId,
+  userId,
 }: MessagesProps) {
   const {
     containerRef: messagesContainerRef,
@@ -61,6 +63,7 @@ function PureMessages({
               requiresScrollPadding={hasSentMessage && index === messages.length - 1}
               setMessages={setMessages}
               vote={votes ? votes.find((vote) => vote.messageId === message.id) : undefined}
+              userId={userId}
             />
           ))}
 

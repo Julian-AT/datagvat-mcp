@@ -9,6 +9,7 @@ import {
   deleteMessagesByChatIdAfterTimestamp,
   getMessageById,
   updateChatVisibilityById,
+  saveToolApproval,
 } from '@/lib/db/queries';
 import { getTextFromMessage } from '@/lib/utils';
 
@@ -46,4 +47,32 @@ export async function updateChatVisibility({
   visibility: VisibilityType;
 }) {
   await updateChatVisibilityById({ chatId, visibility });
+}
+
+export async function saveToolApprovalAction({
+  toolCallId,
+  chatId,
+  userId,
+  toolName,
+  approved,
+  deniedReason,
+  code,
+}: {
+  toolCallId: string;
+  chatId: string;
+  userId: string;
+  toolName: string;
+  approved: boolean;
+  deniedReason?: string;
+  code: string;
+}) {
+  return await saveToolApproval({
+    toolCallId,
+    chatId,
+    userId,
+    toolName,
+    approved,
+    deniedReason,
+    code,
+  });
 }
