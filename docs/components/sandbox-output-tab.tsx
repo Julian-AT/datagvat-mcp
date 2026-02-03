@@ -1,17 +1,9 @@
 'use client';
 
 import Ansi from 'ansi-to-react';
-import { Download, Maximize2, Terminal, X } from 'lucide-react';
-import { useState } from 'react';
+import { Terminal } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { VisualizationGrid, type VisualizationItem } from '@/components/visualization-grid';
 import { cn } from '@/lib/utils';
 
 export interface SandboxOutput {
@@ -25,25 +17,6 @@ export interface SandboxOutputTabProps {
 }
 
 export function SandboxOutputTab({ outputs }: SandboxOutputTabProps) {
-  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
-
-  const openFullscreen = (imageUrl: string) => {
-    setFullscreenImage(imageUrl);
-  };
-
-  const closeFullscreen = () => {
-    setFullscreenImage(null);
-  };
-
-  const handleDownload = (imageUrl: string) => {
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = `visualization-${Date.now()}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   // Empty state
   if (outputs.length === 0) {
     return (
@@ -92,40 +65,8 @@ export function SandboxOutputTab({ outputs }: SandboxOutputTabProps) {
             }
 
             if (output.type === 'visualization') {
-              return (
-                <div
-                  key={`${output.timestamp}-${idx}`}
-                  className="my-4"
-                >
-                  <div className="group relative inline-block">
-                    {/* Thumbnail image */}
-                    <img
-                      src={output.content}
-                      alt="Visualization"
-                      className={cn(
-                        'max-w-[400px] cursor-pointer rounded-md border',
-                        'transition-shadow hover:shadow-lg',
-                        'bg-white' // White background for charts
-                      )}
-                      onClick={() => openFullscreen(output.content)}
-                    />
-                    {/* Expand overlay */}
-                    <div
-                      className={cn(
-                        'absolute inset-0 flex items-center justify-center',
-                        'rounded-md bg-black/50 opacity-0 transition-opacity',
-                        'group-hover:opacity-100'
-                      )}
-                      onClick={() => openFullscreen(output.content)}
-                    >
-                      <div className="flex items-center gap-2 text-white">
-                        <Maximize2 className="size-5" />
-                        <span className="text-sm font-medium">Click to expand</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
+              // Collect all visualizations for batch rendering below
+              return null;
             }
 
             // Unknown type - render as raw content
@@ -141,36 +82,28 @@ export function SandboxOutputTab({ outputs }: SandboxOutputTabProps) {
         </div>
       </div>
 
-      {/* Fullscreen overlay dialog */}
-      <Dialog open={!!fullscreenImage} onOpenChange={(open) => !open && closeFullscreen()}>
-        <DialogContent className="max-h-[90vh] max-w-[90vw] overflow-auto" showCloseButton={false}>
-          <DialogHeader className="flex flex-row items-center justify-between">
-            <DialogTitle>Visualization</DialogTitle>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => fullscreenImage && handleDownload(fullscreenImage)}
-              >
-                <Download className="mr-2 size-4" />
-                Download
-              </Button>
-              <DialogClose render={<Button variant="ghost" size="icon-sm" />}>
-                <X className="size-4" />
-              </DialogClose>
-            </div>
-          </DialogHeader>
-          {fullscreenImage && (
-            <div className="flex justify-center">
-              <img
-                src={fullscreenImage}
-                alt="Visualization (fullscreen)"
-                className="max-h-[75vh] rounded-md bg-white"
-              />
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Render visualizations in grid */}
+      {(() => {
+        const visualizations: VisualizationItem[] = outputs
+          .filter(o => o.type === 'visualization')
+          .map(o => {
+            // Detect format from URL extension
+            const url = o.content;
+            let format: 'png' | 'svg' | 'html' = 'png';
+            if (url.endsWith('.svg')) format = 'svg';
+            else if (url.endsWith('.html')) format = 'html';
+
+            return { url, format };
+          });
+
+        if (visualizations.length === 0) return null;
+
+        return (
+          <div className="p-4 pt-0">
+            <VisualizationGrid visualizations={visualizations} />
+          </div>
+        );
+      })()}
     </div>
   );
 }
