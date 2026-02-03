@@ -83,14 +83,58 @@ export function SandboxArtifact({
     [sandboxId, chatId, messageId, sandbox, updateSandbox]
   );
 
-  const handleRun = useCallback(() => {
-    if (!sandbox?.hasApprovedOnce) {
+  const handleRun = useCallback(async () => {
+    if (!sandbox) return;
+
+    // Show approval UI on first run
+    if (!sandbox.hasApprovedOnce) {
       updateSandbox(sandboxId, { showApproval: true });
       return;
     }
-    // Execution will be wired in Plan 04
-    console.log('Run code:', sandbox.code);
-  }, [sandbox, sandboxId, updateSandbox]);
+
+    // Set running state and clear previous outputs (CONTEXT.md: clear on run)
+    updateSandbox(sandboxId, {
+      isRunning: true,
+      outputs: [],
+    });
+    setActiveTab('output'); // Auto-switch to output tab
+
+    try {
+      const response = await fetch('/api/sandbox/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sandboxId,
+          messageId,
+          chatId,
+          title: sandbox.title,
+          code: sandbox.code,
+          e2bSandboxId: sandbox.e2bSandboxId,
+        }),
+      });
+
+      const result = await response.json();
+
+      // Update sandbox with final state
+      updateSandbox(sandboxId, {
+        isRunning: false,
+        outputs: result.outputs || [],
+        e2bSandboxId: result.e2bSandboxId,
+      });
+    } catch (error) {
+      console.error('Execution error:', error);
+      updateSandbox(sandboxId, {
+        isRunning: false,
+        outputs: [
+          {
+            type: 'stderr',
+            content: `Execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      });
+    }
+  }, [sandbox, sandboxId, chatId, messageId, updateSandbox]);
 
   const handleApprove = useCallback(() => {
     updateSandbox(sandboxId, {

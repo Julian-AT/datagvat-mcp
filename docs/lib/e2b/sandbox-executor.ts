@@ -1,5 +1,3 @@
-'use server';
-
 import { Sandbox } from '@e2b/code-interpreter';
 import { uploadImageFromBase64 } from '@/lib/blob';
 
