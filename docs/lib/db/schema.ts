@@ -217,3 +217,21 @@ export const stream = pgTable(
 );
 
 export type Stream = InferSelectModel<typeof stream>;
+
+export const toolApproval = pgTable('ToolApproval', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  toolCallId: varchar('toolCallId', { length: 255 }).notNull().unique(),
+  chatId: uuid('chatId')
+    .notNull()
+    .references(() => chat.id, { onDelete: 'cascade' }),
+  userId: uuid('userId')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  toolName: varchar('toolName', { length: 255 }).notNull(),
+  approved: boolean('approved').notNull(),
+  deniedReason: text('deniedReason'),
+  approvedAt: timestamp('approvedAt').notNull().defaultNow(),
+  codeHash: varchar('codeHash', { length: 64 }),
+});
+
+export type ToolApproval = InferSelectModel<typeof toolApproval>;
