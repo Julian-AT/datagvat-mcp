@@ -89,10 +89,15 @@ Plans:
 
 **Dependencies:** Phase 18 (E2B infrastructure)
 
-**Plans:** 0 plans
+**Plans:** 6 plans
 
 Plans:
-- [ ] TBD (run /gsd:discuss-phase 19.1 then /gsd:plan-phase 19.1)
+- [ ] 19.1-01-PLAN.md — Database foundation and openSandbox tool
+- [ ] 19.1-02-PLAN.md — Sandbox UI components (code and output tabs)
+- [ ] 19.1-03-PLAN.md — Sandbox container with state management
+- [ ] 19.1-04-PLAN.md — E2B execution integration
+- [ ] 19.1-05-PLAN.md — Artifact system integration
+- [ ] 19.1-06-PLAN.md — End-to-end verification testing
 
 **Requirements:**
 - SANDBOX-01: Single tool (openSandbox) replaces createDocument + execute-python for code
@@ -121,7 +126,7 @@ Plans:
 
 **Goal:** Charts and plots render inline in chat messages with multi-format support, blob storage for memory efficiency, and grid layout for multiple visualizations.
 
-**Dependencies:** Phase 19 (approved execution flow)
+**Dependencies:** Phase 19.1 (unified sandbox artifacts)
 
 **Plans:** 0 plans
 
@@ -156,7 +161,7 @@ Plans:
 
 **Goal:** Production-ready UX with clear loading states, friendly error messages, streaming indicators, and smooth approval integration that makes execution feel responsive and trustworthy.
 
-**Dependencies:** Phase 19 (approval flow), Phase 20 (visualization rendering)
+**Dependencies:** Phase 19.1 (sandbox artifacts), Phase 20 (visualization rendering)
 
 **Plans:** 0 plans
 
@@ -191,7 +196,7 @@ Plans:
 |-------|------|--------------|-----------|--------|
 | 18 | E2B Lifecycle Testing | 8 | 8 | Complete ✓ |
 | 19 | Tool Approval Flow | 6 | 0 | Paused |
-| 19.1 | Unified Sandbox Artifacts | 8 | 0 | Active |
+| 19.1 | Unified Sandbox Artifacts | 8 | 0 | Planned |
 | 20 | Visualization Rendering | 10 | 0 | Pending |
 | 21 | Chat UI Polish | 8 | 0 | Pending |
 
@@ -213,10 +218,10 @@ Phase 20 (Visualization) → Phase 21 (UI Polish)
 ## Next Steps
 
 1. Review roadmap structure and phase goals
-2. Run `/gsd:execute-phase 18` to start E2B lifecycle testing implementation
-3. Execute plans sequentially through phases 18-21
+2. Run `/gsd:execute-phase 19.1` to start unified sandbox artifacts implementation
+3. Execute plans sequentially through phases 19.1, 20, 21
 4. Ship v2.3 milestone with production-ready playground
 
 ---
 *Created: 2026-02-02*
-*Last updated: 2026-02-02 (Phase 19 planned)*
+*Last updated: 2026-02-03 (Phase 19.1 planned)*
