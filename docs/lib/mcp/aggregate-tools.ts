@@ -28,6 +28,7 @@ export async function getAvailableTools(chatId?: string) {
       description: `Execute Python code in isolated E2B sandbox with 30-second timeout.
 Supports multi-file projects with imports. Pre-installed packages: pandas, matplotlib, seaborn, plotly, numpy.
 Use 'files' parameter for multi-file projects with proper directory structure.`,
+      needsApproval: true,
       inputSchema: z.object({
         code: z.string().describe('Python code to execute'),
         files: z
