@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { and, asc, count, desc, eq, gt, gte, inArray, lt, type SQL } from 'drizzle-orm';
+import { createHash } from 'crypto';
 import type { ArtifactKind } from '@/components/artifact';
 import type { VisibilityType } from '@/components/visibility-selector';
 import { ChatSDKError } from '../errors';
@@ -16,6 +17,7 @@ import {
   type Suggestion,
   stream,
   suggestion,
+  toolApproval,
   type User,
   user,
   vote,
@@ -442,4 +444,77 @@ export async function getStreamIdsByChatId({ chatId }: { chatId: string }) {
   } catch (_error) {
     throw new ChatSDKError('bad_request:database', 'Failed to get stream ids by chat id');
   }
+}
+
+export async function saveToolApproval({
+  toolCallId,
+  chatId,
+  userId,
+  toolName,
+  approved,
+  deniedReason,
+  code,
+}: {
+  toolCallId: string;
+  chatId: string;
+  userId: string;
+  toolName: string;
+  approved: boolean;
+  deniedReason?: string;
+  code: string;
+}) {
+  const codeHash = createHash('sha256').update(code.trim()).digest('hex');
+
+  const [approval] = await db
+    .insert(toolApproval)
+    .values({
+      toolCallId,
+      chatId,
+      userId,
+      toolName,
+      approved,
+      deniedReason,
+      codeHash,
+    })
+    .onConflictDoUpdate({
+      target: toolApproval.toolCallId,
+      set: { approved, deniedReason, approvedAt: new Date() },
+    })
+    .returning();
+
+  return approval;
+}
+
+export async function validateToolApproval(
+  toolCallId: string,
+  codeToExecute: string
+): Promise<{ valid: boolean; reason?: string }> {
+  const [approval] = await db
+    .select()
+    .from(toolApproval)
+    .where(eq(toolApproval.toolCallId, toolCallId))
+    .limit(1);
+
+  if (!approval) {
+    return { valid: false, reason: 'No approval found' };
+  }
+
+  if (!approval.approved) {
+    return { valid: false, reason: 'Execution was denied by user' };
+  }
+
+  // Timestamp validation: approval must be within 5 minutes
+  const approvalAge = Date.now() - new Date(approval.approvedAt).getTime();
+  const FIVE_MINUTES = 5 * 60 * 1000;
+  if (approvalAge > FIVE_MINUTES) {
+    return { valid: false, reason: 'Approval expired (>5 minutes old)' };
+  }
+
+  // Code hash validation: prevent tampering
+  const currentCodeHash = createHash('sha256').update(codeToExecute.trim()).digest('hex');
+  if (approval.codeHash && approval.codeHash !== currentCodeHash) {
+    return { valid: false, reason: 'Code was modified after approval' };
+  }
+
+  return { valid: true };
 }
