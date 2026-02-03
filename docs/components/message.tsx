@@ -182,8 +182,9 @@ const PurePreviewMessage = ({
               });
 
               // Handle execute-python approval flow BEFORE generic switch
-              if (toolName === 'execute-python' && state === 'approval-requested') {
+              if (toolName === 'execute-python' && state === 'approval-requested' && approvalId) {
                 console.log('[DEBUG] Rendering ToolApproval component for execute-python');
+                console.log('[DEBUG] Approval ID:', approvalId);
                 console.log('[DEBUG] Input:', toolPart.input);
                 const input = toolPart.input as { code: string; files?: Array<{ path: string; content: string }> };
 
@@ -195,6 +196,8 @@ const PurePreviewMessage = ({
                     code={input.code}
                     files={input.files}
                     onApprove={async (toolCallId, approved, reason) => {
+                      console.log('[DEBUG] Approval button clicked:', { approved, approvalId });
+
                       // Persist approval to database
                       await saveToolApprovalAction({
                         toolCallId,
@@ -206,12 +209,11 @@ const PurePreviewMessage = ({
                         code: input.code,
                       });
 
-                      // Send approval response to AI SDK
-                      // When approved=false, AI SDK skips tool execution (no result generated)
-                      // Verify AI SDK behavior: https://sdk.vercel.ai/docs/ai-sdk-ui/tool-approval
-                      // The SDK's built-in approval flow handles execution prevention on denial
+                      // Send approval response to AI SDK using the approval.id (NOT toolCallId)
+                      // This is critical - AI SDK expects the approval.id from the tool part
+                      console.log('[DEBUG] Calling addToolApprovalResponse with approval.id:', approvalId);
                       addToolApprovalResponse({
-                        id: toolCallId,
+                        id: approvalId, // Use approval.id, not toolCallId
                         approved,
                         reason,
                       });
