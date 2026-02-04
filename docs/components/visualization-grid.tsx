@@ -11,6 +11,8 @@ import {
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
+import { HtmlArtifact } from './html-artifact';
+
 export interface VisualizationItem {
   url: string;
   format: 'png' | 'svg' | 'html';
@@ -81,17 +83,10 @@ function VisualizationCard({
 
     if (viz.format === 'html') {
       return (
-        <iframe
-          src={viz.url}
-          className={cn(
-            'w-full h-[300px] bg-white',
-            !hasLoaded && 'hidden'
-          )}
-          onLoad={markLoaded}
-          onError={handleError}
+        <HtmlArtifact
+          url={viz.url}
           title={viz.title || `Visualization ${index + 1}`}
-          sandbox="allow-scripts allow-same-origin"
-          loading="lazy"
+          height={300}
         />
       );
     }
@@ -123,8 +118,8 @@ function VisualizationCard({
         </div>
       )}
 
-      {/* Loading placeholder when visible but not loaded */}
-      {isVisible && !hasLoaded && !error && (
+      {/* Loading placeholder when visible but not loaded (skip for HTML as it handles its own loading) */}
+      {isVisible && !hasLoaded && !error && viz.format !== 'html' && (
         <div className="flex items-center justify-center h-[300px] bg-muted">
           <div className="animate-pulse text-muted-foreground">
             Loading visualization...
