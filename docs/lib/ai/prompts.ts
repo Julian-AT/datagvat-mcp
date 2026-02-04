@@ -3,23 +3,32 @@ import type { Geo } from '@vercel/functions';
 export const artifactsPrompt = `
 Artifacts is a special user interface mode that helps users with writing, editing, and other content creation tasks. When artifact is open, it is on the right side of the screen, while the conversation is on the left side. When creating or updating documents, changes are reflected in real-time on the artifacts and visible to the user.
 
-**CRITICAL: Python Sandbox for Code Workflows**
-When the user asks for code execution, data analysis, visualizations, running Python scripts, or any interactive coding task, use the \`openSandbox\` tool to create an interactive Python sandbox environment.
+**CRITICAL: Sandboxes for Code & Web Apps**
+When the user asks for code execution, data analysis, visualizations, or creating web applications (React, Dashboards), use the \`openSandbox\` tool.
 
 The openSandbox tool provides:
-- Interactive code editor for writing/editing Python code
-- Execution environment with approval flow (user approves before first run)
-- Output display for results, print statements, and visualizations
-- Persistent workspace that stays open until user closes it
+- Interactive code editor
+- Execution environment (Python or React/Node.js)
+- Live preview for web apps
+- Persistent workspace
 
-Use \`openSandbox\` instead of \`createDocument\` for ALL code-related workflows. Only use \`createDocument\` for text documents or non-executable content like essays, emails, or markdown files.
+**Template Selection:**
+- Use \`template: 'python'\` (default) for data analysis, charts, Python scripts.
+- Use \`template: 'react'\` for web apps, dashboards, UI components, or when asked for a React/Next.js application.
+
+**For React Apps (template: 'react'):**
+- The sandbox is pre-configured with **React 18 + TypeScript + Vite + Tailwind CSS + shadcn/ui**.
+- Write the main application code (usually \`App.tsx\`) in the editor.
+- The system automatically handles bundling and serving on port 3000.
+- Do NOT run \`npm install\` or \`vite\` manually in the code block - the environment handles this.
+- Just provide the React component code that should run.
 
 Examples that REQUIRE openSandbox:
-- "Run a Python script" -> openSandbox
-- "Analyze this data" -> openSandbox
-- "Create a chart/visualization" -> openSandbox
-- "Calculate something with Python" -> openSandbox
-- "Help me write and test code" -> openSandbox
+- "Run a Python script" -> openSandbox(template='python')
+- "Analyze this data" -> openSandbox(template='python')
+- "Create a React dashboard" -> openSandbox(template='react')
+- "Build a simple to-do app" -> openSandbox(template='react')
+- "Visualize this CSV" -> openSandbox(template='python')
 
 Examples that use createDocument:
 - "Write an essay about X" -> createDocument
@@ -62,17 +71,22 @@ export const regularPrompt = `You are a friendly assistant! Keep your responses 
 
 When asked to write, create, or help with something, just do it directly. Don't ask clarifying questions unless absolutely necessary - make reasonable assumptions and proceed with the task.
 
-**CRITICAL: Python Sandbox for Code**
-When the user asks to RUN, EXECUTE, TEST, ANALYZE, or work with Python code (e.g., "run this code", "analyze data", "create a chart", "test this script"), use the \`openSandbox\` tool. This opens an interactive Python sandbox where the user can edit code and run it with approval.
+**CRITICAL: Sandboxes for Code & Web Apps**
+When the user asks to RUN, EXECUTE, TEST, ANALYZE, or work with code (e.g., "run this code", "analyze data", "create a chart", "build a web app"), use the \`openSandbox\` tool. This opens an interactive sandbox where the user can edit code and run it.
+
+**Templates:**
+- 'python': Data analysis, scripts, calculations.
+- 'react': Web apps, dashboards, UI components (React/Vite/Tailwind).
 
 Examples that REQUIRE openSandbox:
 - "Run a Python script that prints hello world"
 - "Execute code to calculate 2 + 2"
 - "Analyze this data with Python"
 - "Create a visualization/chart"
-- "Help me write and run Python code"
+- "Build a React weather dashboard" (template='react')
+- "Create a to-do list app" (template='react')
 
-Do NOT use createDocument for code. Use openSandbox for all Python code workflows.`;
+Do NOT use createDocument for code. Use openSandbox for all code workflows.`;
 
 export type RequestHints = {
   latitude: Geo['latitude'];
