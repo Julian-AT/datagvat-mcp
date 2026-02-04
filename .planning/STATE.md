@@ -6,16 +6,16 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Smart, relevant dataset discovery — users ask natural questions and get the right datasets, with quality insights and immediate data access.
 
-**Current focus:** Phase 20 - Visualization Rendering (COMPLETE)
+**Current focus:** Phase 20 - Visualization Rendering
 
 ## Current Position
 
 Phase: 20 of 21 (Visualization Rendering)
-Plan: 2 of 2
-Status: Phase complete
-Last activity: 2026-02-04 — Completed 20-02-PLAN.md (Grid layout component)
+Plan: 3 of 4 (Interactive HTML Artifacts)
+Status: In progress
+Last activity: 2026-02-04 — Completed 20-03-PLAN.md (Interactive HTML Artifacts)
 
-Progress: █████████░░░░░░░░░░░ 38% (15/40 v2.3 requirements)
+Progress: ██████████░░░░░░░░░░ 45% (18/40 v2.3 requirements)
 
 ## Performance Metrics
 
@@ -25,9 +25,9 @@ Progress: █████████░░░░░░░░░░░ 38% (15/4
 - Total execution time: 1.7 hours
 
 **v2.3 Milestone (In Progress):**
-- Plans completed: 8
+- Plans completed: 9
 - Average duration: 4.1 min
-- Total execution time: 33.0 min
+- Total execution time: 37.0 min
 
 **By Phase:**
 
@@ -36,17 +36,19 @@ Progress: █████████░░░░░░░░░░░ 38% (15/4
 | 18 | 1/1 | 2.1 min | 2.1 min |
 | 19 | 2/4 (PAUSED) | 4.6 min | 2.3 min |
 | 19.1 | 4/4 | 22.3 min | 5.6 min |
-| 20 | 2/2 | 6.0 min | 3.0 min |
+| 20 | 3/4 | 10.0 min | 3.3 min |
 | 21 | 0 | - | - |
 
 **Recent Trend:**
 - v2.2 completed: 21 plans, manual implementation via vercel/ai-chatbot architecture
 - v2.3 Phase 18: E2B testing complete (9 tests passing, 0 orphaned sandboxes)
 - v2.3 Phase 19: Partial implementation (plans 01-03 complete, 04 paused due to architectural issues)
-- **2026-02-03: Phase 19.1 INSERTED** — Unified Sandbox Artifacts to replace separate artifact/execution systems
-- Trend: Architectural pivot needed - approval flow not working as designed
-
-*Updated after Phase 19.1 insertion*
+- v2.3 Phase 19.1: Unified Sandbox Artifacts complete (4 plans)
+- **v2.3 Phase 20: Visualization Rendering in progress (3/4 plans complete)**
+  - HTML upload support added (Plan 01)
+  - Grid layout implemented (Plan 02)
+  - Interactive HTML artifacts created (Plan 03)
+- Trend: Implementation velocity high, architectural pivot successfully stabilized
 
 ## Accumulated Context
 
@@ -62,32 +64,22 @@ Progress: █████████░░░░░░░░░░░ 38% (15/4
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- **2026-02-02**: 4-phase structure (18-21) - E2B testing → approval → visualization → polish
-- **2026-02-02**: E2B testing first to validate infrastructure before security features
-- **2026-02-02**: Tool approval before visualization to gate execution before user-facing features
-- **2026-02-02**: Blob storage for visualizations (URLs only, no base64 in database)
-- **2026-02-02**: Try/catch wrapper in e2b-client for timeout exception handling
-- **2026-02-02**: Check logs.stdout for print() output (not text field in E2B results)
 - **2026-02-03**: Use AI SDK needsApproval flag instead of hand-rolling approval state machine
 - **2026-02-03**: CodeMirror over react-syntax-highlighter for code preview (better UX, smaller bundle)
 - **2026-02-03**: 400px default maxHeight for code preview based on research recommendations
-- **2026-02-03**: Renamed approval UI wrapper to ToolApprovalContent to avoid conflict with existing ToolInput
-- **2026-02-03**: 5-minute timestamp expiry for approval validation (replay attack prevention)
 - **2026-02-03**: SHA-256 code hash validation prevents code modification after approval
-- **2026-02-03**: API route pattern for client-side DB access (queries.ts is server-only)
-- **2026-02-03**: handleDeny only closes sandbox (AI SDK handles natural response)
 - **2026-02-03**: API route for execution (vs server action) - isolates E2B calls, enables future streaming
 - **2026-02-03**: Sandbox.connect for reuse instead of always new - follows RESEARCH.md Pitfall 3
 - **2026-02-03**: HTML visualizations use `uploadHtml` (not base64) since E2B returns raw HTML string
-- **2026-02-03**: Multi-format visualization support (PNG/SVG/HTML) with independent error handling per format
+- **2026-02-04**: Interactive HTML artifacts use sandboxed iframe (allow-scripts, same-origin)
+- **2026-02-04**: `HtmlArtifact` supports both `url` (Blob) and `content` (string) props for flexibility
+- **2026-02-04**: HTML artifacts manage their own loading state (lazy loading delegated to component)
+- **2026-02-04**: Streaming HTML artifacts show raw code until complete to prevent iframe flickering
 
 ### Pending Todos
 
-- Complete Phase 19 (Plan 04: approval integration)
-- ~~Design approval state schema (prevent replay attacks)~~ ✓ (19-01: toolApproval table)
-- ~~Implement inline approval UI (non-blocking)~~ ✓ (19-03: ToolApproval component)
-- ~~Add syntax highlighting for code preview~~ ✓ (19-02: CodePreview component)
-- ~~Add approval validation functions~~ ✓ (19-03: saveToolApproval, validateToolApproval)
+- Complete Phase 20 (Plan 04: Testing and Verification)
+- Complete Phase 21 (Polish & Production Readiness)
 
 ### Blockers/Concerns
 
@@ -104,49 +96,30 @@ Recent decisions affecting current work:
 - ✓ All requirements verified (8/8)
 
 **Phase 19 outcomes (Plan 03 complete, PAUSED):**
-- ✓ execute-python tool has needsApproval: true flag (triggers AI SDK approval-requested state)
-- ✓ CodePreview component created (read-only CodeMirror with Python syntax highlighting)
-- ✓ saveToolApproval and validateToolApproval functions with 5-minute expiry and SHA-256 validation
-- ✓ ToolApprovalContent component for consistent approval UI styling
-- ✓ ToolApproval component with inline UI, code preview, and approve/deny buttons
-- ✓ Build verification passed (no TypeScript errors)
+- ✓ execute-python tool has needsApproval: true flag
+- ✓ CodePreview component created
+- ✓ ToolApproval component with inline UI
 - PAUSED: Architectural pivot to unified sandbox artifacts (Phase 19.1)
 
 **Phase 19.1 outcomes (COMPLETE):**
-- ✓ SandboxState database table with CRUD operations
-- ✓ SandboxCodeTab component (CodeMirror editor + Run button + inline approval)
-- ✓ SandboxOutputTab component (stdout/stderr with ANSI + visualization thumbnails)
-- ✓ Fullscreen visualization overlay with download capability
-- ✓ useSandboxes hook with SWR array state management
-- ✓ SandboxArtifact component with Radix tabs (Code/Output)
-- ✓ /api/sandbox endpoint for page refresh restoration
-- ✓ Approval flow integration (first run requires approval)
-- ✓ executeSandboxCode function with E2B execution, streaming callbacks, visualization upload
-- ✓ /api/sandbox/execute endpoint for client-side execution calls
+- ✓ Unified Sandbox Artifacts architecture implemented
+- ✓ SandboxArtifact component with Radix tabs
+- ✓ /api/sandbox endpoints
+- ✓ Approval flow integration
 - ✓ Wired execution flow: Run button -> E2B -> output display
-- ✓ E2B sandbox reuse via e2bSandboxId persistence
-- ✓ Build verification passed (no TypeScript errors)
-- COMPLETE: All 4 plans executed successfully
 
-**Phase 20 outcomes (COMPLETE):**
+**Phase 20 outcomes (In Progress):**
 - ✓ `uploadHtml` function in blob.ts for HTML content upload
 - ✓ HTML visualization handling in sandbox-executor.ts
-- ✓ HTML uploads with `text/html` content type to Vercel Blob
-- ✓ Error handling for HTML upload failures
 - ✓ `VisualizationGrid` component for 1-4+ responsive layouts
-- ✓ Lazy loading via IntersectionObserver
-- ✓ Integrated grid into `SandboxOutputTab`
-- ✓ Build verification passed (no TypeScript errors)
-- COMPLETE: All 2 plans executed successfully
+- ✓ `HtmlArtifact` component for interactive HTML visualizations
+- ✓ Artifact system support for `kind: 'html'`
+- Pending: Memory testing and E2E verification (Plan 04)
 
 ## Session Continuity
 
-Last session: 2026-02-04 (Phase 20, Plan 02 execution)
-Stopped at: Completed 20-02-PLAN.md (Grid layout component)
+Last session: 2026-02-04 (Phase 20, Plan 03 execution)
+Stopped at: Completed 20-03-PLAN.md (Interactive HTML Artifacts)
 Resume file: None
 
-**Next step:** Phase 21 - Polish & Production Readiness
-
----
-
-*v2.3 milestone: Production Playground - Security (tool approval), quality (E2B testing), visualization rendering, and UX polish*
+**Next step:** Phase 20 - Plan 04 (Testing and Verification)
