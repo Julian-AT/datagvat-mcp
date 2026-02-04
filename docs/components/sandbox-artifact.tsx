@@ -24,9 +24,16 @@ export function SandboxArtifact({
   const sandbox = sandboxes.find((s) => s.sandboxId === sandboxId);
   console.log('[SandboxArtifact] Render - sandboxId:', sandboxId, 'found sandbox:', !!sandbox, 'total sandboxes:', sandboxes.length);
 
-  const [activeTab, setActiveTab] = useState<'code' | 'output'>('code');
+  const [activeTab, setActiveTab] = useState<'code' | 'output' | 'preview'>('code');
   const [isLoading, setIsLoading] = useState(!sandbox);
   const initialSaveDone = useRef(false);
+
+  // Switch to preview tab automatically for React sandboxes
+  useEffect(() => {
+    if (sandbox?.template === 'react' || sandbox?.template === 'node') {
+      setActiveTab('preview');
+    }
+  }, [sandbox?.template]);
 
   // Initial save to database when sandbox is first created locally
   useEffect(() => {
@@ -34,30 +41,43 @@ export function SandboxArtifact({
     if (sandbox && !initialSaveDone.current) {
       initialSaveDone.current = true;
       console.log('[SandboxArtifact] Saving initial sandbox state to DB:', sandboxId);
-      // Save initial sandbox state to database
-      fetch('/api/sandbox', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sandboxId,
-          messageId,
-          chatId,
-          title: sandbox.title || 'Sandbox',
-          code: sandbox.code || '',
-          outputs: sandbox.outputs,
-          hasApprovedOnce: sandbox.hasApprovedOnce,
-          e2bSandboxId: sandbox.e2bSandboxId,
-        }),
-      }).then(res => {
-        console.log('[SandboxArtifact] POST /api/sandbox response:', res.status);
-        if (!res.ok) {
-          console.error('[SandboxArtifact] POST failed, will retry on code change');
+
+      const saveToDb = async (attempt = 1) => {
+        try {
+          const res = await fetch('/api/sandbox', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sandboxId,
+              messageId,
+              chatId,
+              title: sandbox.title || 'Sandbox',
+              code: sandbox.code || '',
+              outputs: sandbox.outputs,
+              hasApprovedOnce: sandbox.hasApprovedOnce,
+              e2bSandboxId: sandbox.e2bSandboxId,
+            }),
+          });
+
+          // Handle race condition where message is not yet saved (422)
+          if (res.status === 422 && attempt <= 5) {
+            const delay = attempt * 500; // Progressive backoff: 500ms, 1000ms, 1500ms...
+            console.warn(`[SandboxArtifact] Message not found (422), retrying save in ${delay}ms (attempt ${attempt})`);
+            setTimeout(() => saveToDb(attempt + 1), delay);
+            return;
+          }
+
+          if (!res.ok) {
+            console.error('[SandboxArtifact] Initial save failed:', res.status);
+            initialSaveDone.current = false; // Reset to retry later
+          }
+        } catch (err) {
+          console.error('[SandboxArtifact] POST error:', err);
           initialSaveDone.current = false; // Reset to retry later
         }
-      }).catch(err => {
-        console.error('[SandboxArtifact] POST error:', err);
-        initialSaveDone.current = false; // Reset to retry later
-      });
+      };
+
+      saveToDb();
     }
   }, [sandbox, sandboxId, chatId, messageId]);
 
@@ -210,7 +230,7 @@ export function SandboxArtifact({
 
       <Tabs.Root
         value={activeTab}
-        onValueChange={(v) => setActiveTab(v as 'code' | 'output')}
+        onValueChange={(v) => setActiveTab(v as 'code' | 'output' | 'preview')}
       >
         <Tabs.List className="flex border-b">
           <Tabs.Trigger
@@ -235,6 +255,19 @@ export function SandboxArtifact({
           >
             Output
           </Tabs.Trigger>
+          {(sandbox.template === 'react' || sandbox.template === 'node') && (
+            <Tabs.Trigger
+              value="preview"
+              className={cn(
+                'px-4 py-2 text-sm font-medium transition-colors',
+                'hover:text-foreground',
+                'data-[state=active]:border-b-2 data-[state=active]:border-primary',
+                'data-[state=inactive]:text-muted-foreground'
+              )}
+            >
+              Preview
+            </Tabs.Trigger>
+          )}
         </Tabs.List>
 
         <Tabs.Content value="code" className="min-h-[300px]">
@@ -252,6 +285,24 @@ export function SandboxArtifact({
 
         <Tabs.Content value="output" className="min-h-[300px]">
           <SandboxOutputTab outputs={sandbox.outputs} />
+        </Tabs.Content>
+
+        <Tabs.Content value="preview" className="min-h-[300px] h-full flex flex-col">
+          {sandbox.e2bSandboxId ? (
+            <div className="flex-1 w-full bg-white relative">
+              <iframe
+                src={`https://${sandbox.e2bSandboxId}-3000.use.e2b.dev`}
+                className="w-full h-full border-0 absolute inset-0"
+                title="Sandbox Preview"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-[300px] bg-muted/20 text-muted-foreground">
+              <p>Sandbox not started yet.</p>
+              <p className="text-sm mt-2">Run the code to start the dev server.</p>
+            </div>
+          )}
         </Tabs.Content>
       </Tabs.Root>
     </div>

@@ -250,6 +250,8 @@ export const sandboxState = pgTable('SandboxState', {
   outputs: json('outputs'), // Array of {type: 'stdout'|'stderr'|'visualization', content: string, timestamp: ISO}
   hasApprovedOnce: boolean('hasApprovedOnce').default(false),
   e2bSandboxId: varchar('e2bSandboxId', { length: 255 }), // For sandbox reuse
+  template: varchar('template', { length: 255 }).default('base'), // E2B template ID
+  type: varchar('type', { length: 50 }).default('python'), // 'python' | 'react' | 'node'
   createdAt: timestamp('createdAt').notNull().defaultNow(),
   updatedAt: timestamp('updatedAt').notNull().defaultNow(),
 });

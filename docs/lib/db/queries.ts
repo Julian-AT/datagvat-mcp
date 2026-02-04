@@ -529,6 +529,8 @@ export async function saveSandboxState({
   outputs,
   hasApprovedOnce,
   e2bSandboxId,
+  template,
+  type,
 }: {
   sandboxId: string;
   messageId: string;
@@ -538,6 +540,8 @@ export async function saveSandboxState({
   outputs?: unknown;
   hasApprovedOnce?: boolean;
   e2bSandboxId?: string;
+  template?: string;
+  type?: string;
 }) {
   try {
     return await db
@@ -551,6 +555,8 @@ export async function saveSandboxState({
         outputs,
         hasApprovedOnce,
         e2bSandboxId,
+        template,
+        type,
       })
       .onConflictDoUpdate({
         target: sandboxState.sandboxId,
@@ -563,7 +569,13 @@ export async function saveSandboxState({
         },
       })
       .returning();
-  } catch (_error) {
+  } catch (error: any) {
+    // Handle foreign key violation (e.g. messageId not found yet due to race condition)
+    if (error?.code === '23503') {
+      console.warn('[DB saveSandboxState] Foreign key violation (likely message not persisted yet):', error.detail);
+      throw new ChatSDKError('not_found:database', 'Message not found (concurrency issue)');
+    }
+    console.error('[DB saveSandboxState] Error:', error);
     throw new ChatSDKError('bad_request:database', 'Failed to save sandbox state');
   }
 }

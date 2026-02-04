@@ -28,12 +28,18 @@ export const openSandbox = ({ session, dataStream }: OpenSandboxProps) =>
     needsApproval: false, // Approval happens at execution time, not sandbox creation
     inputSchema: z.object({
       title: z.string().describe('Short descriptive title for the sandbox'),
+      template: z
+        .enum(['python', 'react', 'node'])
+        .default('python')
+        .describe(
+          'The type of environment to provision. Use "python" for data analysis, "react" for web apps, "node" for backend scripts.'
+        ),
       initialCode: z
         .string()
         .optional()
-        .describe('Initial Python code to populate the editor'),
+        .describe('Initial code to populate the editor'),
     }),
-    execute: async ({ title, initialCode }) => {
+    execute: async ({ title, template, initialCode }) => {
       if (!session.user?.id) {
         return {
           error: 'Unauthorized: You must be logged in to open sandboxes',
@@ -46,6 +52,11 @@ export const openSandbox = ({ session, dataStream }: OpenSandboxProps) =>
       dataStream.write({ type: 'data-kind', data: 'sandbox', transient: true });
       dataStream.write({ type: 'data-id', data: sandboxId, transient: true });
       dataStream.write({ type: 'data-title', data: title, transient: true });
+      
+      // We pass the template type as part of the sandbox state via a specialized event or convention
+      // For now, we rely on the client to receive the full state when it initializes the sandbox
+      // But we can stream a transient hint if needed.
+      
       dataStream.write({ type: 'data-clear', data: null, transient: true });
 
       // Initialize sandbox with code if provided
@@ -62,6 +73,7 @@ export const openSandbox = ({ session, dataStream }: OpenSandboxProps) =>
       return {
         sandboxId,
         title,
+        template,
         message: 'Sandbox opened - user can edit code and run when ready',
       };
     },

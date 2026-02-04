@@ -14,8 +14,9 @@ export type UISandbox = {
   }>;
   hasApprovedOnce: boolean;
   e2bSandboxId?: string;
+  template?: 'python' | 'react' | 'node';
   isRunning: boolean;
-  activeTab: 'code' | 'output';
+  activeTab: 'code' | 'output' | 'preview';
   showApproval: boolean;
 };
 

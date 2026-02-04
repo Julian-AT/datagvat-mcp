@@ -32,11 +32,13 @@ export async function executeSandboxCode({
   e2bSandboxId,
   chatId,
   onOutput,
+  template,
 }: {
   code: string;
   e2bSandboxId?: string;
   chatId: string;
   onOutput?: (output: { type: string; content: string }) => void;
+  template?: 'python' | 'react' | 'node';
 }): Promise<ExecutionResult> {
   let sandbox: Awaited<ReturnType<typeof Sandbox.create>> | null = null;
   const outputs: ExecutionOutput[] = [];
@@ -62,11 +64,47 @@ export async function executeSandboxCode({
       try {
         sandbox = await Sandbox.connect(e2bSandboxId, { apiKey });
       } catch {
-        // Sandbox died or expired, create new one
-        sandbox = await Sandbox.create({ apiKey, timeoutMs: DEFAULT_TIMEOUT_MS });
+        // Sandbox died or expired, create new one with correct template
+        const options = { apiKey, timeoutMs: DEFAULT_TIMEOUT_MS };
+        // TODO: Map 'react' | 'node' to actual E2B template IDs once built
+        // For now we use default for everything or specific IDs if known
+        // if (template === 'react') options.template = 'react-template-id';
+        
+        sandbox = await Sandbox.create(options);
+        
+        // Fix for Kaleido/Plotly version mismatch (Plotly 6.0.1 requires Kaleido 0.2.1)
+        if (template === 'python' || !template) {
+          try {
+            await sandbox.commands.run('pip install kaleido==0.2.1');
+          } catch (err) {
+            console.warn('Failed to install kaleido fix:', err);
+          }
+        }
       }
     } else {
-      sandbox = await Sandbox.create({ apiKey, timeoutMs: DEFAULT_TIMEOUT_MS });
+      const options = { apiKey, timeoutMs: DEFAULT_TIMEOUT_MS };
+      // TODO: Map 'react' | 'node' to actual E2B template IDs once built
+      // if (template === 'react') options.template = 'react-template-id';
+      
+      sandbox = await Sandbox.create(options);
+      
+      // Fix for Kaleido/Plotly version mismatch (Plotly 6.0.1 requires Kaleido 0.2.1)
+      if (template === 'python' || !template) {
+        try {
+          await sandbox.commands.run('pip install kaleido==0.2.1');
+        } catch (err) {
+          console.warn('Failed to install kaleido fix:', err);
+        }
+      }
+    }
+
+    // For React/Node templates, we might need to expose ports or run background processes
+    // This is where we would handle 'npm run dev' if it's not part of the template start command
+    if (template === 'react' || template === 'node') {
+      // Example: Ensure port 3000 is open (E2B opens commonly used ports automatically)
+      // If we need to return the URL immediately:
+      // const url = sandbox.getHostname(3000);
+      // outputs.push({ type: 'stdout', content: `Preview running at: https://${url}`, timestamp: ... });
     }
 
     const stdoutLines: string[] = [];
