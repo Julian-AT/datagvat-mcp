@@ -67,18 +67,33 @@ export async function POST(request: Request) {
     return new ChatSDKError('bad_request:api', 'Field chatId is required').toResponse();
   }
 
-  console.log('[API /sandbox POST] Calling saveSandboxState');
-  const result = await saveSandboxState({
-    sandboxId,
-    messageId,
-    chatId,
-    title: title || 'Sandbox',
-    code: code || '',
-    outputs,
-    hasApprovedOnce,
-    e2bSandboxId,
-  });
-  console.log('[API /sandbox POST] saveSandboxState result:', result ? 'success' : 'failed');
+  try {
+    console.log('[API /sandbox POST] Calling saveSandboxState');
+    const result = await saveSandboxState({
+      sandboxId,
+      messageId,
+      chatId,
+      title: title || 'Sandbox',
+      code: code || '',
+      outputs,
+      hasApprovedOnce,
+      e2bSandboxId,
+    });
+    console.log('[API /sandbox POST] saveSandboxState result:', result ? 'success' : 'failed');
 
-  return Response.json(result, { status: 200 });
+    return Response.json(result, { status: 200 });
+  } catch (error) {
+    // Handle specific race condition where message is not yet persisted
+    if (error instanceof ChatSDKError && error.type === 'not_found' && error.surface === 'database') {
+      console.warn('[API /sandbox POST] Message not found yet (race condition), returning 422 to trigger retry');
+      return new Response('Message dependency missing', { status: 422 });
+    }
+
+    if (error instanceof ChatSDKError) {
+      return error.toResponse();
+    }
+    
+    console.error('[API /sandbox POST] Unhandled error:', error);
+    return new Response('Internal Server Error', { status: 500 });
+  }
 }

@@ -138,6 +138,7 @@ function VisualizationCard({
             variant="secondary"
             className="h-7 w-7 p-0 bg-white/90"
             onClick={() => onFullscreen(viz)}
+            title="Fullscreen"
           >
             <Maximize2 className="h-3.5 w-3.5" />
           </Button>
@@ -146,6 +147,7 @@ function VisualizationCard({
             variant="secondary"
             className="h-7 w-7 p-0 bg-white/90"
             onClick={() => onDownload(viz)}
+            title="Download"
           >
             <Download className="h-3.5 w-3.5" />
           </Button>

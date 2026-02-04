@@ -113,7 +113,6 @@ export function HtmlArtifact({
     // Props for iframe
     const iframeProps = {
       ref: iframeRef,
-      key: refreshKey,
       className: cn(
         'w-full bg-white border-0',
         fullscreen ? 'h-[80vh]' : ''
@@ -127,11 +126,11 @@ export function HtmlArtifact({
     };
 
     if (url) {
-      return <iframe {...iframeProps} src={url} />;
+      return <iframe key={refreshKey} {...iframeProps} src={url} />;
     }
     
     if (content) {
-      return <iframe {...iframeProps} srcDoc={content} />;
+      return <iframe key={refreshKey} {...iframeProps} srcDoc={content} />;
     }
 
     return (

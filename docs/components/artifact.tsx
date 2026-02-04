@@ -1,22 +1,49 @@
-import type { UseChatHelpers } from '@ai-sdk/react';
-import { formatDistance } from 'date-fns';
-import equal from 'fast-deep-equal';
-import { AnimatePresence, motion } from 'framer-motion';
-import { type Dispatch, memo, type SetStateAction, useCallback, useEffect, useState } from 'react';
-import useSWR, { useSWRConfig } from 'swr';
-import { useDebounceCallback, useWindowSize } from 'usehooks-ts';
-import { codeArtifact } from '@/artifacts/code/client';
-import { imageArtifact } from '@/artifacts/image/client';
-import { sheetArtifact } from '@/artifacts/sheet/client';
-import { textArtifact } from '@/artifacts/text/client';
-import { htmlArtifact } from '@/artifacts/html/client';
-import { useArtifact } from '@/hooks/use-artifact';
-import { useSandboxes } from '@/hooks/use-sandbox';
+import type { UseChatHelpers } from "@ai-sdk/react";
+import { formatDistance } from "date-fns";
+import equal from "fast-deep-equal";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  type Dispatch,
+  memo,
+  type SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+import useSWR, { useSWRConfig } from "swr";
+import { useDebounceCallback, useWindowSize } from "usehooks-ts";
+import { codeArtifact } from "@/artifacts/code/client";
+import { imageArtifact } from "@/artifacts/image/client";
+import { sheetArtifact } from "@/artifacts/sheet/client";
+import { textArtifact } from "@/artifacts/text/client";
+import { htmlArtifact } from "@/artifacts/html/client";
+import { useArtifact } from "@/hooks/use-artifact";
+import { useSandboxes } from "@/hooks/use-sandbox";
+import { SandboxArtifact } from "./sandbox-artifact";
+import { ArtifactMessages } from "./artifact-messages";
+import { MultimodalInput } from "./multimodal-input";
+import { ArtifactActions } from "./artifact-actions";
+import { ArtifactCloseButton } from "./artifact-close-button";
+import { Vote, type Document } from "@/lib/db/schema";
+import { Attachment, ChatMessage } from "@/lib/types";
+import { VisibilityType } from "./visibility-selector";
+import { useSidebar } from "./ui/sidebar";
+import { Toolbar } from "./toolbar";
+import { VersionFooter } from "./version-footer";
+import { fetcher } from "@/lib/utils";
 
 // ...
 
-export const artifactDefinitions = [textArtifact, codeArtifact, imageArtifact, sheetArtifact, htmlArtifact];
-export type ArtifactKind = (typeof artifactDefinitions)[number]['kind'] | 'sandbox';
+export const artifactDefinitions = [
+  textArtifact,
+  codeArtifact,
+  imageArtifact,
+  sheetArtifact,
+  htmlArtifact,
+];
+export type ArtifactKind =
+  | (typeof artifactDefinitions)[number]["kind"]
+  | "sandbox";
 
 export type UIArtifact = {
   title: string;
@@ -24,7 +51,7 @@ export type UIArtifact = {
   kind: ArtifactKind;
   content: string;
   isVisible: boolean;
-  status: 'streaming' | 'idle';
+  status: "streaming" | "idle";
   boundingBox: {
     top: number;
     left: number;
@@ -51,40 +78,47 @@ function PureArtifact({
   selectedVisibilityType,
   selectedModelId,
 }: {
-  addToolApprovalResponse: UseChatHelpers<ChatMessage>['addToolApprovalResponse'];
+  addToolApprovalResponse: UseChatHelpers<ChatMessage>["addToolApprovalResponse"];
   chatId: string;
   input: string;
   setInput: Dispatch<SetStateAction<string>>;
-  status: UseChatHelpers<ChatMessage>['status'];
-  stop: UseChatHelpers<ChatMessage>['stop'];
+  status: UseChatHelpers<ChatMessage>["status"];
+  stop: UseChatHelpers<ChatMessage>["stop"];
   attachments: Attachment[];
   setAttachments: Dispatch<SetStateAction<Attachment[]>>;
   messages: ChatMessage[];
-  setMessages: UseChatHelpers<ChatMessage>['setMessages'];
+  setMessages: UseChatHelpers<ChatMessage>["setMessages"];
   votes: Vote[] | undefined;
-  sendMessage: UseChatHelpers<ChatMessage>['sendMessage'];
-  regenerate: UseChatHelpers<ChatMessage>['regenerate'];
+  sendMessage: UseChatHelpers<ChatMessage>["sendMessage"];
+  regenerate: UseChatHelpers<ChatMessage>["regenerate"];
   isReadonly: boolean;
   selectedVisibilityType: VisibilityType;
   selectedModelId: string;
 }) {
   const { artifact, setArtifact, metadata, setMetadata } = useArtifact();
-  console.log('[Artifact] Render - kind:', artifact.kind, 'isVisible:', artifact.isVisible, 'documentId:', artifact.documentId);
+  console.log(
+    "[Artifact] Render - kind:",
+    artifact.kind,
+    "isVisible:",
+    artifact.isVisible,
+    "documentId:",
+    artifact.documentId
+  );
 
   const {
     data: documents,
     isLoading: isDocumentsFetching,
     mutate: mutateDocuments,
   } = useSWR<Document[]>(
-    artifact.documentId !== 'init' &&
-      artifact.status !== 'streaming' &&
-      artifact.kind !== 'sandbox'
+    artifact.documentId !== "init" &&
+      artifact.status !== "streaming" &&
+      artifact.kind !== "sandbox"
       ? `/api/document?id=${artifact.documentId}`
       : null,
     fetcher
   );
 
-  const [mode, setMode] = useState<'edit' | 'diff'>('edit');
+  const [mode, setMode] = useState<"edit" | "diff">("edit");
   const [document, setDocument] = useState<Document | null>(null);
   const [currentVersionIndex, setCurrentVersionIndex] = useState(-1);
 
@@ -99,7 +133,7 @@ function PureArtifact({
         setCurrentVersionIndex(documents.length - 1);
         setArtifact((currentArtifact) => ({
           ...currentArtifact,
-          content: mostRecentDocument.content ?? '',
+          content: mostRecentDocument.content ?? "",
         }));
       }
     }
@@ -134,7 +168,7 @@ function PureArtifact({
 
           if (currentDocument.content !== updatedContent) {
             await fetch(`/api/document?id=${artifact.documentId}`, {
-              method: 'POST',
+              method: "POST",
               body: JSON.stringify({
                 title: artifact.title,
                 content: updatedContent,
@@ -160,7 +194,10 @@ function PureArtifact({
     [artifact, mutate]
   );
 
-  const debouncedHandleContentChange = useDebounceCallback(handleContentChange, 2000);
+  const debouncedHandleContentChange = useDebounceCallback(
+    handleContentChange,
+    2000
+  );
 
   const saveContent = useCallback(
     (updatedContent: string, debounce: boolean) => {
@@ -179,33 +216,33 @@ function PureArtifact({
 
   function getDocumentContentById(index: number) {
     if (!documents) {
-      return '';
+      return "";
     }
     if (!documents[index]) {
-      return '';
+      return "";
     }
-    return documents[index].content ?? '';
+    return documents[index].content ?? "";
   }
 
-  const handleVersionChange = (type: 'next' | 'prev' | 'toggle' | 'latest') => {
+  const handleVersionChange = (type: "next" | "prev" | "toggle" | "latest") => {
     if (!documents) {
       return;
     }
 
-    if (type === 'latest') {
+    if (type === "latest") {
       setCurrentVersionIndex(documents.length - 1);
-      setMode('edit');
+      setMode("edit");
     }
 
-    if (type === 'toggle') {
-      setMode((currentMode) => (currentMode === 'edit' ? 'diff' : 'edit'));
+    if (type === "toggle") {
+      setMode((currentMode) => (currentMode === "edit" ? "diff" : "edit"));
     }
 
-    if (type === 'prev') {
+    if (type === "prev") {
       if (currentVersionIndex > 0) {
         setCurrentVersionIndex((index) => index - 1);
       }
-    } else if (type === 'next' && currentVersionIndex < documents.length - 1) {
+    } else if (type === "next" && currentVersionIndex < documents.length - 1) {
       setCurrentVersionIndex((index) => index + 1);
     }
   };
@@ -219,7 +256,9 @@ function PureArtifact({
    */
 
   const isCurrentVersion =
-    documents && documents.length > 0 ? currentVersionIndex === documents.length - 1 : true;
+    documents && documents.length > 0
+      ? currentVersionIndex === documents.length - 1
+      : true;
 
   const { width: windowWidth, height: windowHeight } = useWindowSize();
   const isMobile = windowWidth ? windowWidth < 768 : false;
@@ -234,7 +273,7 @@ function PureArtifact({
 
   // Initialize non-sandbox artifacts
   useEffect(() => {
-    if (artifact.documentId !== 'init' && artifactDefinition?.initialize) {
+    if (artifact.documentId !== "init" && artifactDefinition?.initialize) {
       artifactDefinition.initialize({
         documentId: artifact.documentId,
         setMetadata,
@@ -244,8 +283,11 @@ function PureArtifact({
 
   // Handle sandbox artifact separately - it uses a completely different rendering paradigm
   // Sandbox artifacts don't use document versioning, they use the useSandboxes hook
-  if (artifact.kind === 'sandbox') {
-    console.log('[Artifact] Rendering SANDBOX artifact with documentId:', artifact.documentId);
+  if (artifact.kind === "sandbox") {
+    console.log(
+      "[Artifact] Rendering SANDBOX artifact with documentId:",
+      artifact.documentId
+    );
     return (
       <AnimatePresence>
         {artifact.isVisible && (
@@ -279,7 +321,7 @@ function PureArtifact({
                   scale: 1,
                   transition: {
                     delay: 0.1,
-                    type: 'spring',
+                    type: "spring",
                     stiffness: 300,
                     damping: 30,
                   },
@@ -335,11 +377,11 @@ function PureArtifact({
                       x: 0,
                       y: 0,
                       height: windowHeight,
-                      width: windowWidth ? windowWidth : 'calc(100dvw)',
+                      width: windowWidth ? windowWidth : "calc(100dvw)",
                       borderRadius: 0,
                       transition: {
                         delay: 0,
-                        type: 'spring',
+                        type: "spring",
                         stiffness: 300,
                         damping: 30,
                         duration: 0.8,
@@ -350,11 +392,13 @@ function PureArtifact({
                       x: 400,
                       y: 0,
                       height: windowHeight,
-                      width: windowWidth ? windowWidth - 400 : 'calc(100dvw-400px)',
+                      width: windowWidth
+                        ? windowWidth - 400
+                        : "calc(100dvw-400px)",
                       borderRadius: 0,
                       transition: {
                         delay: 0,
-                        type: 'spring',
+                        type: "spring",
                         stiffness: 300,
                         damping: 30,
                         duration: 0.8,
@@ -367,7 +411,7 @@ function PureArtifact({
                 scale: 0.5,
                 transition: {
                   delay: 0.1,
-                  type: 'spring',
+                  type: "spring",
                   stiffness: 600,
                   damping: 30,
                 },
@@ -397,24 +441,38 @@ function PureArtifact({
                   <ArtifactCloseButton />
 
                   <div className="flex flex-col">
-                    <div className="font-medium">{artifact.title || activeSandbox?.title || 'Python Sandbox'}</div>
-                    <div className="text-muted-foreground text-sm">Interactive Python environment</div>
+                    <div className="font-medium">
+                      {artifact.title ||
+                        activeSandbox?.title ||
+                        "Python Sandbox"}
+                    </div>
+                    <div className="text-muted-foreground text-sm">
+                      Interactive Python environment
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div className="h-full max-w-full! items-center overflow-y-scroll bg-background p-4 dark:bg-muted">
                 {(() => {
-                  console.log('[Artifact] Checking sandbox render condition - documentId:', artifact.documentId, 'valid:', !!(artifact.documentId && artifact.documentId !== 'init'));
-                  return artifact.documentId && artifact.documentId !== 'init' ? (
+                  console.log(
+                    "[Artifact] Checking sandbox render condition - documentId:",
+                    artifact.documentId,
+                    "valid:",
+                    !!(artifact.documentId && artifact.documentId !== "init")
+                  );
+                  return artifact.documentId &&
+                    artifact.documentId !== "init" ? (
                     <SandboxArtifact
                       sandboxId={artifact.documentId}
                       chatId={chatId}
-                      messageId={messages.at(-1)?.id || ''}
+                      messageId={messages.at(-1)?.id || ""}
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full">
-                      <div className="text-muted-foreground">Loading sandbox...</div>
+                      <div className="text-muted-foreground">
+                        Loading sandbox...
+                      </div>
                     </div>
                   );
                 })()}
@@ -427,7 +485,7 @@ function PureArtifact({
   }
 
   if (!artifactDefinition) {
-    throw new Error('Artifact definition not found!');
+    throw new Error("Artifact definition not found!");
   }
 
   return (
@@ -463,7 +521,7 @@ function PureArtifact({
                 scale: 1,
                 transition: {
                   delay: 0.1,
-                  type: 'spring',
+                  type: "spring",
                   stiffness: 300,
                   damping: 30,
                 },
@@ -530,11 +588,11 @@ function PureArtifact({
                     x: 0,
                     y: 0,
                     height: windowHeight,
-                    width: windowWidth ? windowWidth : 'calc(100dvw)',
+                    width: windowWidth ? windowWidth : "calc(100dvw)",
                     borderRadius: 0,
                     transition: {
                       delay: 0,
-                      type: 'spring',
+                      type: "spring",
                       stiffness: 300,
                       damping: 30,
                       duration: 0.8,
@@ -545,11 +603,13 @@ function PureArtifact({
                     x: 400,
                     y: 0,
                     height: windowHeight,
-                    width: windowWidth ? windowWidth - 400 : 'calc(100dvw-400px)',
+                    width: windowWidth
+                      ? windowWidth - 400
+                      : "calc(100dvw-400px)",
                     borderRadius: 0,
                     transition: {
                       delay: 0,
-                      type: 'spring',
+                      type: "spring",
                       stiffness: 300,
                       damping: 30,
                       duration: 0.8,
@@ -562,7 +622,7 @@ function PureArtifact({
               scale: 0.5,
               transition: {
                 delay: 0.1,
-                type: 'spring',
+                type: "spring",
                 stiffness: 600,
                 damping: 30,
               },
@@ -595,12 +655,18 @@ function PureArtifact({
                   <div className="font-medium">{artifact.title}</div>
 
                   {isContentDirty ? (
-                    <div className="text-muted-foreground text-sm">Saving changes...</div>
+                    <div className="text-muted-foreground text-sm">
+                      Saving changes...
+                    </div>
                   ) : document ? (
                     <div className="text-muted-foreground text-sm">
-                      {`Updated ${formatDistance(new Date(document.createdAt), new Date(), {
-                        addSuffix: true,
-                      })}`}
+                      {`Updated ${formatDistance(
+                        new Date(document.createdAt),
+                        new Date(),
+                        {
+                          addSuffix: true,
+                        }
+                      )}`}
                     </div>
                   ) : (
                     <div className="mt-2 h-3 w-32 animate-pulse rounded-md bg-muted-foreground/20" />
@@ -622,7 +688,9 @@ function PureArtifact({
             <div className="h-full max-w-full! items-center overflow-y-scroll bg-background dark:bg-muted">
               <artifactDefinition.content
                 content={
-                  isCurrentVersion ? artifact.content : getDocumentContentById(currentVersionIndex)
+                  isCurrentVersion
+                    ? artifact.content
+                    : getDocumentContentById(currentVersionIndex)
                 }
                 currentVersionIndex={currentVersionIndex}
                 getDocumentContentById={getDocumentContentById}
