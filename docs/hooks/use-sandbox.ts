@@ -12,12 +12,10 @@ export type UISandbox = {
     content: string;
     timestamp: string;
   }>;
-  hasApprovedOnce: boolean;
   e2bSandboxId?: string;
   template?: 'python' | 'react' | 'node';
   isRunning: boolean;
   activeTab: 'code' | 'output' | 'preview';
-  showApproval: boolean;
 };
 
 export function useSandboxes() {

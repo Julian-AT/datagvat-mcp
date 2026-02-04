@@ -94,28 +94,26 @@ export function SandboxArtifact({
       .then((res) => res.ok ? res.json() : null)
       .then((state) => {
         if (state) {
-          // Restore sandbox from persisted state
-          const restoredSandbox: UISandbox = {
-            sandboxId,
-            title: state.title || 'Sandbox',
-            code: state.code || '',
-            outputs: (state.outputs as SandboxOutput[]) || [],
-            hasApprovedOnce: state.hasApprovedOnce || false,
-            e2bSandboxId: state.e2bSandboxId || undefined,
-            isRunning: false,
-            activeTab: 'code',
-            showApproval: false,
-          };
-          openSandbox(restoredSandbox);
-        }
-      })
-      .catch(() => {
-        // Silently fail - sandbox will show loading state
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [sandboxId, sandbox, openSandbox]);
+            // Restore sandbox from persisted state
+            const restoredSandbox: UISandbox = {
+              sandboxId,
+              title: state.title || 'Sandbox',
+              code: state.code || '',
+              outputs: (state.outputs as SandboxOutput[]) || [],
+              e2bSandboxId: state.e2bSandboxId || undefined,
+              isRunning: false,
+              activeTab: 'code',
+            };
+            openSandbox(restoredSandbox);
+          }
+        })
+        .catch(() => {
+          // Silently fail - sandbox will show loading state
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }, [sandboxId, sandbox, openSandbox]);
 
   const handleCodeChange = useCallback(
     (code: string) => {
@@ -131,7 +129,6 @@ export function SandboxArtifact({
           title: sandbox?.title || 'Sandbox',
           code,
           outputs: sandbox?.outputs,
-          hasApprovedOnce: sandbox?.hasApprovedOnce,
           e2bSandboxId: sandbox?.e2bSandboxId,
         }),
       }).catch(() => {
@@ -144,18 +141,18 @@ export function SandboxArtifact({
   const handleRun = useCallback(async () => {
     if (!sandbox) return;
 
-    // Show approval UI on first run
-    if (!sandbox.hasApprovedOnce) {
-      updateSandbox(sandboxId, { showApproval: true });
-      return;
-    }
-
     // Set running state and clear previous outputs (CONTEXT.md: clear on run)
     updateSandbox(sandboxId, {
       isRunning: true,
       outputs: [],
     });
-    setActiveTab('output'); // Auto-switch to output tab
+    
+    // Auto-switch to appropriate tab
+    if (sandbox.template === 'react' || sandbox.template === 'node') {
+      setActiveTab('preview');
+    } else {
+      setActiveTab('output');
+    }
 
     try {
       const response = await fetch('/api/sandbox/execute', {
@@ -168,6 +165,7 @@ export function SandboxArtifact({
           title: sandbox.title,
           code: sandbox.code,
           e2bSandboxId: sandbox.e2bSandboxId,
+          template: sandbox.template, // Pass template to execution
         }),
       });
 
@@ -194,25 +192,16 @@ export function SandboxArtifact({
     }
   }, [sandbox, sandboxId, chatId, messageId, updateSandbox]);
 
-  const handleApprove = useCallback(() => {
-    updateSandbox(sandboxId, {
-      hasApprovedOnce: true,
-      showApproval: false,
-    });
-    // Then execute
-    handleRun();
-  }, [sandboxId, updateSandbox, handleRun]);
-
-  const handleDeny = useCallback(() => {
-    // CONTEXT.md decision line 46: denial closes sandbox completely
-    closeSandbox(sandboxId);
-
-    // AI will naturally respond to denial - no manual message append needed per AI SDK pattern.
-    // When sandbox closes without tool execution, the AI SDK sees no tool-result and
-    // generates a natural language response like "I understand you don't want to execute this code".
-    // This is the standard AI SDK pattern - the "Execution denied" message comes from AI naturally,
-    // not from manual message appending.
-  }, [sandboxId, closeSandbox]);
+  // Auto-run when sandbox is first loaded or when initial code arrives
+  // We use a ref to track if we've auto-run once to avoid loops
+  const hasAutoRun = useRef(false);
+  
+  useEffect(() => {
+    if (sandbox && !hasAutoRun.current && sandbox.code) {
+      hasAutoRun.current = true;
+      handleRun();
+    }
+  }, [sandbox, handleRun]);
 
   if (isLoading || !sandbox) {
     return (
@@ -275,10 +264,6 @@ export function SandboxArtifact({
             code={sandbox.code}
             onCodeChange={handleCodeChange}
             onRun={handleRun}
-            showApproval={sandbox.showApproval}
-            onApprove={handleApprove}
-            onDeny={handleDeny}
-            hasApprovedOnce={sandbox.hasApprovedOnce}
             isRunning={sandbox.isRunning}
           />
         </Tabs.Content>
