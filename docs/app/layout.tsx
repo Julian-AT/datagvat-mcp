@@ -43,9 +43,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <NextProvider>
           <Provider>{children}</Provider>
         </NextProvider>
+        <SpeedInsights />
+        <Analytics />
       </Body>
-      <SpeedInsights />
-      <Analytics />
     </html>
   );
 }
