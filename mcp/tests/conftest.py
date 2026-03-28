@@ -217,11 +217,12 @@ def create_mock_response(
 
 @pytest.fixture
 def mcp_server() -> FastMCP:
+    from app.tools.management import register_management_tools
+
     from app.prompts import register_prompts
     from app.resources import register_resources
     from app.tools.analysis import register_analysis_tools
     from app.tools.discovery import register_discovery_tools
-    from app.tools.management import register_management_tools
     from app.tools.vocabularies import register_vocabulary_tools
     
     mcp = FastMCP(

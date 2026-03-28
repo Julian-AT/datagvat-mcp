@@ -292,7 +292,7 @@ def init(
         console.print("  [dim]●[/dim] Show me health-related open data")
         console.print("  [dim]●[/dim] What datasets have quality score above 80?")
         console.print()
-        console.print(f"[dim]Docs:[/dim] [cyan]https://mcp.julianschmidt.cv[/cyan]")
+        console.print("[dim]Docs:[/dim] [cyan]https://mcp.julianschmidt.cv[/cyan]")
         console.print()
 
 
