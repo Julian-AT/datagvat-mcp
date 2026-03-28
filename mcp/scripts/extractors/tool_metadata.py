@@ -115,9 +115,10 @@ def extract_all_tools() -> dict[str, list[dict[str, Any]]]:
     """
     # Import registration functions
     try:
+        from app.tools.management import register_management_tools
+
         from app.tools.analysis import register_analysis_tools
         from app.tools.discovery import register_discovery_tools
-        from app.tools.management import register_management_tools
         from app.tools.preview import register_preview_tools
         from app.tools.vocabularies import register_vocabulary_tools
     except ImportError as e:

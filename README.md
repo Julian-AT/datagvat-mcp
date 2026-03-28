@@ -24,7 +24,7 @@
 
 <p align="center">
   <a href="https://mcp.julianschmidt.cv">Documentation</a> •
-  <a href="https://mcp.julianschmidt.cv/docs/installation">Installation</a>
+  <a href="https://mcp.julianschmidt.cv/www/installation">Installation</a>
 </p>
 
 ---
@@ -97,9 +97,9 @@ datagvat-mcp/
 
 Full documentation at **[mcp.julianschmidt.cv](https://mcp.julianschmidt.cv)**
 
-- [Installation Guide](https://mcp.julianschmidt.cv/docs/installation)
-- [Your First Query](https://mcp.julianschmidt.cv/docs/first-query)
-- [API Reference](https://mcp.julianschmidt.cv/docs/api)
+- [Installation Guide](https://mcp.julianschmidt.cv/www/installation)
+- [Your First Query](https://mcp.julianschmidt.cv/www/first-query)
+- [API Reference](https://mcp.julianschmidt.cv/www/api)
 
 ## Contributing
 

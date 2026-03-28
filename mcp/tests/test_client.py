@@ -4,7 +4,7 @@ import httpx
 import pytest
 from fastmcp.exceptions import ToolError
 
-from app.client import PiveauApiError, PiveauAuthError, PiveauClient, PiveauNotFoundError
+from app.client import PiveauAuthError, PiveauClient, PiveauNotFoundError
 from app.models import IdentifierType
 
 
